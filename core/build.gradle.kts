@@ -1,10 +1,10 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
+    kotlin("kapt")// version "1.6.10"
 }
 
 repositories {
@@ -20,6 +20,9 @@ dependencies {
     testImplementation(V.Log4j.Api.notation)
     testImplementation(V.Log4j.Core.notation)
     testImplementation(V.Log4j.Slf4jImpl.notation)
+
+    compileOnly("com.google.auto.service:auto-service:1.0.1")
+    kapt("com.google.auto.service:auto-service:1.0.1")
 }
 
 
@@ -27,7 +30,7 @@ tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile>().configureEach {
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
     kotlinOptions {
         javaParameters = true
         jvmTarget = "1.8"
