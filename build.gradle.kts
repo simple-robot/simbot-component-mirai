@@ -1,10 +1,8 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    `java-library`
-    kotlin("jvm") version "1.6.0"
-    kotlin("plugin.serialization") version "1.6.0"
-    id("org.jetbrains.dokka") version "1.5.30"
+    kotlin("jvm") version "1.6.0" apply false
+    kotlin("plugin.serialization") version "1.6.0" apply false
+    id("org.jetbrains.dokka") version "1.5.30" apply false
     `maven-publish`
     signing
     // see https://github.com/gradle-nexus/publish-plugin
@@ -12,48 +10,27 @@ plugins {
 
 }
 
-group = "love.forte.simbot.component"
-version = "3.0.0-preview.29.0.0"
+group = P.ComponentMirai.GROUP // love.forte.simbot.component
+version = P.ComponentMirai.VERSION
 
 repositories {
     mavenLocal()
     mavenCentral()
 }
 
-dependencies {
-    api(V.Simbot.Core.notation)
-    api(V.Mirai.CoreJvm.notation)
-    testImplementation(V.Kotlin.Test.Junit5.notation)
-    testImplementation(V.Log4j.Api.notation)
-    testImplementation(V.Log4j.Core.notation)
-    testImplementation(V.Log4j.Slf4jImpl.notation)
-    // testImplementation(kotlin("test"))
-}
+allprojects {
+    group = P.ComponentMirai.GROUP
+    version = P.ComponentMirai.VERSION
 
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions {
-        javaParameters = true
-        jvmTarget = "1.8"
+    repositories {
+        mavenLocal()
+        mavenCentral()
     }
+
+    apply(plugin = "maven-publish")
+    apply(plugin = "signing")
 }
 
-tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
-    outputDirectory.set(File(rootProject.projectDir, "doc"))
-}
-
-kotlin {
-    // 严格模式
-    explicitApiWarning()
-
-
-    sourceSets.all {
-        languageSettings {
-            optIn("kotlin.RequiresOptIn")
-        }
-    }
+tasks.withType<JavaCompile>() {
+    options.encoding = "UTF-8"
 }

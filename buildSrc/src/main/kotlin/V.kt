@@ -46,9 +46,9 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
             const val VERSION = P.Simbot.VERSION
         }
 
-        object Api : Simbot(id = "api")
-        object Core : Simbot(id = "core")
-        object ComponentCore : Simbot(id = "component-core")
+        object Api : Simbot(id = "simbot-api")
+        object Core : Simbot(id = "simbot-core")
+        object ComponentCore : Simbot(id = "simbot-component-core")
 
     }
 
@@ -228,7 +228,11 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
     object Okio : V("com.squareup.okio", "okio", "3.0.0")
 
 
-    sealed class Mirai(group: String, id: String, version: String? = "2.8.2") : V(group, id, version) {
+    sealed class Mirai(group: String, id: String, version: String = VERSION) : V(group, id, version) {
+        companion object {
+            const val VERSION = "2.8.2"
+            val VERSION_SIM = VERSION.replace(".", "")
+        }
         object CoreJvm : Mirai("net.mamoe", "mirai-core-jvm")
     }
 
