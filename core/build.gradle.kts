@@ -4,7 +4,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
-    kotlin("kapt")// version "1.6.10"
+    kotlin("kapt")
 }
 
 repositories {
