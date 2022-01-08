@@ -11,15 +11,13 @@ import love.forte.simbot.*
  */
 public object ComponentMirai {
     @JvmField public val COMPONENT_ID: CharSequenceID = ComponentMiraiApi.COMPONENT_ID.ID
-
-    @Suppress("ObjectPropertyName")
-    internal lateinit var _component: Component
+    internal lateinit var componentValue: Component
 
     public val component: Component
         get() {
-            return if (!::_component.isInitialized) {
+            return if (!::componentValue.isInitialized) {
                 return Components[COMPONENT_ID]
-            } else _component
+            } else componentValue
         }
 }
 
@@ -49,6 +47,6 @@ private class MiraiComponentInformation : ComponentInformation {
         get() = super.messageSerializersModule // TODO messages
 
     override fun setComponent(component: Component) {
-        ComponentMirai._component = component
+        ComponentMirai.componentValue = component
     }
 }

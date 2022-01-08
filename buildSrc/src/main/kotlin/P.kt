@@ -23,12 +23,12 @@ abstract class SimbotProject {
 sealed class P : SimbotProject() {
     object Simbot {
         const val GROUP = "love.forte.simbot"
-        const val VERSION = "3.0.0.preview.0.5"
+        const val VERSION = "3.0.0.preview.0.6"
     }
 
     object ComponentMirai {
         const val GROUP = "${Simbot.GROUP}.component" // love.forte.simbot.component
-        val VERSION = "${Simbot.VERSION}-0.1.${V.Mirai.VERSION_SIM}"
+        val VERSION = "${Simbot.VERSION}-${V.Mirai.VERSION_SIM}.0.1"
     }
 
 }

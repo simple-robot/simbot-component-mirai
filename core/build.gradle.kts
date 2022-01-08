@@ -16,6 +16,11 @@ dependencies {
     api(project(":simbot-component-mirai-api"))
     api(V.Simbot.Core.notation)
     api(V.Mirai.CoreJvm.notation)
+    api(V.Kotlinx.Serialization.Json.notation)
+    api(V.Kotlinx.Serialization.Properties.notation)
+    compileOnly(V.Kotlinx.Serialization.Yaml.notation)
+
+
     testImplementation(V.Kotlin.Test.Junit5.notation)
     testImplementation(V.Log4j.Api.notation)
     testImplementation(V.Log4j.Core.notation)
