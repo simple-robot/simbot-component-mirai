@@ -36,6 +36,10 @@ import kotlin.time.ExperimentalTime
 public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     override val component: Component get() = ComponentMirai.component
 
+    /**
+     * manager中的 [start] 没有效果。
+     */
+    override suspend fun start(): Boolean = false
 
     override fun register(verifyInfo: BotVerifyInfo): MiraiBot {
         val serializer = MiraiViaBotFileConfiguration.serializer()

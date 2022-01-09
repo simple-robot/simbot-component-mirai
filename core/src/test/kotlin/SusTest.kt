@@ -1,23 +1,16 @@
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.SupervisorJob
 
 suspend fun main() {
+    val job = SupervisorJob()
+
+    val job1 = SupervisorJob(job)
 
 
+    job1.cancel()
+    job1.join()
 
-    val value = coroutineScope {
-        launch {
-            delay(500)
-            println("err!")
-            throw IllegalStateException()
-        }
-        println("return 1")
+    println(job1.isCancelled)
+    println(job.isCancelled)
 
-        1
-    }
-    println("down.")
-    println("value: $value")
 
-    delay(1200)
 }

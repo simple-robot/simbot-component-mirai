@@ -12,9 +12,10 @@ import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.message.Image
 import love.forte.simbot.resources.Resource
 import org.slf4j.Logger
-import java.lang.ref.SoftReference
-import java.util.concurrent.ConcurrentHashMap
 import java.util.stream.Stream
+
+
+public typealias NativeMiraiImage = net.mamoe.mirai.message.data.Image
 
 
 /**
@@ -41,11 +42,11 @@ internal class MiraiBotImpl(
 
     @Api4J
     override fun getGroups(grouping: Grouping, limiter: Limiter): Stream<MiraiGroupImpl> {
-        TODO("Not yet implemented")
+        return nativeBot.groups.stream().map { MiraiGroupImpl(this, it) }
     }
 
     override suspend fun groups(grouping: Grouping, limiter: Limiter): Flow<MiraiGroupImpl> {
-        TODO()
+        return nativeBot.groups.asFlow().map { MiraiGroupImpl(this, it) }
     }
 
     @Api4J
@@ -53,25 +54,24 @@ internal class MiraiBotImpl(
     override suspend fun guilds(grouping: Grouping, limiter: Limiter): Flow<Guild> = emptyFlow()
 
     override suspend fun uploadImage(resource: Resource): Image {
+        // val miraiImage = net.mamoe.mirai.message.data.Image("")
+
         TODO("Not yet implemented")
     }
 
-    inner class MiraiContactCache {
-        init {
-            TODO("Impl")
-        }
-        internal val friendCache = ConcurrentHashMap<LongID, SoftReference<NativeMiraiFriend>>()
-        internal val groupCache = ConcurrentHashMap<LongID, SoftReference<NativeMiraiGroup>>()
-        internal val memberCache = ConcurrentHashMap<LongID, SoftReference<NativeMiraiMember>>()
-
-
-    }
+    // inner class MiraiContactCache {
+    //     init {
+    //         TODO("Impl")
+    //     }
+    //     internal val friendCache = ConcurrentHashMap<LongID, SoftReference<NativeMiraiFriend>>()
+    //     internal val groupCache = ConcurrentHashMap<LongID, SoftReference<NativeMiraiGroup>>()
+    //     internal val memberCache = ConcurrentHashMap<LongID, SoftReference<NativeMiraiMember>>()
+    //
+    //
+    // }
 }
 
 private val MiraiBotStatus = UserStatus.builder().bot().fakeUser().build()
 
-/**
- * [MiraiBot] 中对于联系对象的缓存器。
- *
- */
+
 

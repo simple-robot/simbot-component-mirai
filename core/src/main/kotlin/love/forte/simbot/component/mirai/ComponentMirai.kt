@@ -2,7 +2,9 @@ package love.forte.simbot.component.mirai
 
 import com.google.auto.service.AutoService
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
 import love.forte.simbot.*
+import love.forte.simbot.message.Message
 
 
 /**
@@ -10,7 +12,8 @@ import love.forte.simbot.*
  *
  */
 public object ComponentMirai {
-    @JvmField public val COMPONENT_ID: CharSequenceID = ComponentMiraiApi.COMPONENT_ID.ID
+    @JvmField
+    public val COMPONENT_ID: CharSequenceID = ComponentMiraiApi.COMPONENT_ID.ID
     internal lateinit var componentValue: Component
 
     public val component: Component
@@ -43,8 +46,12 @@ private class MiraiComponentInformation : ComponentInformation {
         // attributes for component
     }
 
-    override val messageSerializersModule: SerializersModule?
-        get() = super.messageSerializersModule // TODO messages
+    override val messageSerializersModule: SerializersModule =
+        SerializersModule {
+            polymorphic(Message.Element::class) {
+                subclass(SimbotNativeMiraiMessage::class, SimbotNativeMiraiMessage.serializer())
+            }
+        }
 
     override fun setComponent(component: Component) {
         ComponentMirai.componentValue = component

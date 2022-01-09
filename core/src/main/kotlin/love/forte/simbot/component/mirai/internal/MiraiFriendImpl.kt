@@ -1,10 +1,10 @@
 package love.forte.simbot.component.mirai.internal
 
-import love.forte.simbot.Bot
 import love.forte.simbot.ID
-import love.forte.simbot.LongID
 import love.forte.simbot.component.mirai.MiraiFriend
 import love.forte.simbot.component.mirai.NativeMiraiFriend
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
+import love.forte.simbot.component.mirai.toNativeMiraiMessage
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageReceipt
@@ -20,12 +20,10 @@ internal class MiraiFriendImpl(
 ) : MiraiFriend {
 
     override val id = nativeFriend.id.ID
-    override val status: UserStatus get() = NormalUserStatus
+    override val status: UserStatus get() = NormalStatus
 
     override suspend fun send(message: Message): MessageReceipt {
-        TODO("Not yet implemented")
+        val receipt = nativeFriend.sendMessage(message.toNativeMiraiMessage(nativeFriend))
+        return SimbotMiraiMessageReceipt(receipt)
     }
 }
-
-private val NormalUserStatus = UserStatus.builder().normal().build()
-private val AnonymousUserStatus = UserStatus.builder().anonymous().fakeUser().build()
