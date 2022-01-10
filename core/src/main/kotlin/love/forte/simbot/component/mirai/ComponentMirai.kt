@@ -2,9 +2,11 @@ package love.forte.simbot.component.mirai
 
 import com.google.auto.service.AutoService
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.plus
 import kotlinx.serialization.modules.polymorphic
 import love.forte.simbot.*
 import love.forte.simbot.message.Message
+import net.mamoe.mirai.message.MessageSerializers
 
 
 /**
@@ -47,11 +49,13 @@ private class MiraiComponentInformation : ComponentInformation {
     }
 
     override val messageSerializersModule: SerializersModule =
-        SerializersModule {
-            polymorphic(Message.Element::class) {
-                subclass(SimbotNativeMiraiMessage::class, SimbotNativeMiraiMessage.serializer())
-            }
-        }
+        MessageSerializers.serializersModule +
+                SerializersModule {
+                    polymorphic(Message.Element::class) {
+                        subclass(SimbotNativeMiraiMessage::class, SimbotNativeMiraiMessage.serializer())
+                        subclass(MiraiImage::class, MiraiImage.serializer())
+                    }
+                }
 
     override fun setComponent(component: Component) {
         ComponentMirai.componentValue = component

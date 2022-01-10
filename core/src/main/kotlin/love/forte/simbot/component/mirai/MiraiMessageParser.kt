@@ -2,17 +2,20 @@
 
 package love.forte.simbot.component.mirai
 
+import love.forte.simbot.message.*
 import love.forte.simbot.message.At
 import love.forte.simbot.message.AtAll
+import love.forte.simbot.message.Face
 import love.forte.simbot.message.Message
-import love.forte.simbot.message.Messages
+import love.forte.simbot.message.PlainText
+import love.forte.simbot.resources.IDResource
+import love.forte.simbot.resources.StreamableResource
 import love.forte.simbot.tryToLongID
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.contact.UserOrBot
-import net.mamoe.mirai.message.data.EmptyMessageChain
-import net.mamoe.mirai.message.data.PlainText
-import net.mamoe.mirai.message.data.toMessageChain
-import java.util.concurrent.ConcurrentSkipListSet
+import net.mamoe.mirai.contact.Contact.Companion.uploadImage
+import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.Image
+import net.mamoe.mirai.message.data.At as MiraiAtFunc
 
 
 /**
@@ -23,11 +26,19 @@ import java.util.concurrent.ConcurrentSkipListSet
  */
 public typealias NativeMiraiMessage = net.mamoe.mirai.message.data.Message
 
+/**
+ * Mirai中的原生消息类型 [net.mamoe.mirai.message.data.SingleMessage].
+ *
+ * @see net.mamoe.mirai.message.data.SingleMessage
+ *
+ */
+public typealias NativeMiraiSingleMessage = SingleMessage
+
 
 /**
  * 将一个mirai原生的 [NativeMiraiMessage] 转化为Simbot（simbot-mirai组件下）的 [Message].
  */
-public fun NativeMiraiMessage.toSimbotMessage(): Message = SimbotNativeMiraiMessage(this)
+public fun NativeMiraiSingleMessage.toSimbotMessage(): MiraiSimbotMessage<*> = SimbotNativeMiraiMessage(this)
 
 /**
  *
@@ -50,15 +61,15 @@ public suspend fun Message.toNativeMiraiMessage(contact: Contact): NativeMiraiMe
         is SimbotSendOnlyComputableMiraiMessage -> nativeMiraiMessage(contact)
         else -> {
             val list = mutableListOf<NativeMiraiMessage>()
-            parsers.forEach { parser ->
-                if (this is Message.Element<*>) {
-                    parser(this, contact, list)
-                } else if (this is Messages) {
-                    this.forEach {
-                        parser(it, contact, list)
-                    }
+
+            if (this is Message.Element<*>) {
+                StandardParser.toMirai(this, contact, list)
+            } else if (this is Messages) {
+                this.forEach {
+                    StandardParser.toMirai(it, contact, list)
                 }
             }
+
             if (list.isEmpty()) EmptyMessageChain else list.toMessageChain()
         }
     }
@@ -71,43 +82,92 @@ public suspend fun Message.toNativeMiraiMessage(contact: Contact): NativeMiraiMe
 
 
 internal interface MiraiMessageParser {
-    suspend operator fun invoke(
+    suspend fun toMirai(
         message: Message.Element<*>,
         contact: Contact,
         messages: MutableCollection<NativeMiraiMessage>
     )
+
+    fun toSimbot(
+        message: SingleMessage,
+    ): Message.Element<*>
 }
 
-private val parsers = ConcurrentSkipListSet<MiraiMessageParser>().apply {
-    add(AtParser)
-}
+// private val parsers = ConcurrentSkipListSet<MiraiMessageParser>().apply {
+//     add(StandardParser)
+// }
 
-/**
- * 将 [At] 转化为 [NativeMiraiMessage] 的转化器.
- */
-private object AtParser : MiraiMessageParser {
-    override suspend fun invoke(
+
+private object StandardParser : MiraiMessageParser {
+    override suspend fun toMirai(
         message: Message.Element<*>,
         contact: Contact,
         messages: MutableCollection<NativeMiraiMessage>
     ) {
-        if (message is At) {
-            val id = message.target.tryToLongID().number
-            if (contact is NativeMiraiGroup) {
-                // val member = contact.getMemberOrFail(id)
-                messages.add(net.mamoe.mirai.message.data.At(id))
-            } else {
-                // 不是在一个群里, 例如私聊
-                // 尝试得知此At对应人。
-                if (id == contact.id && contact is UserOrBot) {
-                    messages.add(net.mamoe.mirai.message.data.At(contact))
-                } else {
-                    messages.add(PlainText(message.originContent))
+        when (message) {
+            is StandardMessage<*> -> when (message) {
+                is BaseStandardMessage<*> -> when (message) {
+                    is At -> messages.add(MiraiAtFunc(message.target.tryToLongID().number))
+                    is AtAll -> messages.add(net.mamoe.mirai.message.data.AtAll)
+                    is Text -> messages.add(message.text.toPlainText())
+                }
+                is PlainText -> messages.add(message.text.toPlainText())
+                is love.forte.simbot.message.Image -> messages.add(message.toMirai(contact))
+                is Emoji -> messages.add(":${message.id}:".toPlainText())
+                is Face -> {
+                    val miraiFace = net.mamoe.mirai.message.data.Face(message.id.tryToLongID().toInt())
+                    messages.add(miraiFace)
+                }
+                is RemoteResource -> {
+                    // not support?
                 }
             }
-        } else if (message == AtAll) {
-            messages.add(net.mamoe.mirai.message.data.AtAll)
+            is MiraiSimbotMessage<*> -> messages.add(message.nativeMiraiMessage(contact))
         }
+    }
+
+    override fun toSimbot(message: SingleMessage): Message.Element<*> {
+        when (val m = message) {
+            is net.mamoe.mirai.message.data.At -> {
+
+            }
+            is Image -> {
+
+            }
+            is net.mamoe.mirai.message.data.PlainText -> {
+
+            }
+            is Audio -> {
+
+            }
+
+
+            else -> m.toSimbotMessage()
+        }
+
+        TODO()
     }
 }
 
+
+private suspend fun love.forte.simbot.message.Image<*>.toMirai(contact: Contact): NativeMiraiMessage {
+    val id = id.toString()
+    if (id.isNotEmpty()) {
+        return Image(id)
+    }
+
+    val image: Image = when (val resource = resource()) {
+        is IDResource -> Image(resource.id.toString())
+        is StreamableResource -> {
+            resource.use { r ->
+                r.openStream().use { i -> contact.uploadImage(i) }
+            }
+        }
+    }
+    return image
+}
+
+
+internal fun MessageChain.toSimbot(): Messages {
+    return map { StandardParser.toSimbot(it) }.toMessages()
+}

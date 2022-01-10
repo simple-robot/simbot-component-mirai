@@ -5,17 +5,23 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiImage
+import love.forte.simbot.component.mirai.NativeMiraiBot
+import love.forte.simbot.component.mirai.SendOnlyImageMessage
 import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.message.Image
+import love.forte.simbot.resources.IDResource
 import love.forte.simbot.resources.Resource
+import love.forte.simbot.resources.StreamableResource
 import org.slf4j.Logger
 import java.util.stream.Stream
+import net.mamoe.mirai.message.data.Image as miraiImageFunc
 
 
-public typealias NativeMiraiImage = net.mamoe.mirai.message.data.Image
+public typealias NativeMiraiImage = miraiImageFunc
 
 
 /**
@@ -53,10 +59,16 @@ internal class MiraiBotImpl(
     override fun getGuilds(grouping: Grouping, limiter: Limiter): Stream<out Guild> = Stream.empty()
     override suspend fun guilds(grouping: Grouping, limiter: Limiter): Flow<Guild> = emptyFlow()
 
-    override suspend fun uploadImage(resource: Resource): Image {
-        // val miraiImage = net.mamoe.mirai.message.data.Image("")
-
-        TODO("Not yet implemented")
+    override suspend fun uploadImage(resource: Resource): Image<*> {
+        return when (resource) {
+            is IDResource -> {
+                val image = miraiImageFunc(resource.id.toString())
+                MiraiImage(
+                    image,
+                )
+            }
+            is StreamableResource -> SendOnlyImageMessage(resource)
+        }
     }
 
     // inner class MiraiContactCache {
