@@ -4,7 +4,9 @@ import com.google.auto.service.AutoService
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import love.forte.simbot.*
+import love.forte.simbot.component.mirai.message.*
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.message.MessageSerializers
 
@@ -52,8 +54,17 @@ private class MiraiComponentInformation : ComponentInformation {
         MessageSerializers.serializersModule +
                 SerializersModule {
                     polymorphic(Message.Element::class) {
-                        subclass(SimbotNativeMiraiMessage::class, SimbotNativeMiraiMessage.serializer())
-                        subclass(MiraiImage::class, MiraiImage.serializer())
+                        subclass(SimbotNativeMiraiMessage.serializer())
+
+                        polymorphic(MiraiImage::class) {
+                            subclass(MiraiImageImpl.serializer())
+                        }
+                        subclass(MiraiImageImpl.serializer())
+
+                        polymorphic(MiraiAudio::class) {
+                            subclass(MiraiAudioImpl.serializer())
+                        }
+                        subclass(MiraiAudioImpl.serializer())
                     }
                 }
 

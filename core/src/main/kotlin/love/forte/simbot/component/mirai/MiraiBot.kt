@@ -1,9 +1,11 @@
 package love.forte.simbot.component.mirai
 
-import kotlinx.coroutines.isActive
-import love.forte.simbot.*
-import love.forte.simbot.definition.UserStatus
+import love.forte.simbot.Bot
+import love.forte.simbot.Component
+import love.forte.simbot.LongID
 import love.forte.simbot.event.EventProcessor
+import love.forte.simbot.message.Image
+import love.forte.simbot.resources.Resource
 import net.mamoe.mirai.supervisorJob
 import org.slf4j.Logger
 import kotlin.coroutines.CoroutineContext
@@ -67,6 +69,18 @@ public interface MiraiBot : Bot {
     override val manager: MiraiBotManager
 
     override val username: String get() = nativeBot.nick
+
+    /**
+     * TODO 注释
+     */
+    override suspend fun uploadImage(resource: Resource): Image<*> {
+        return uploadImage(resource, false)
+    }
+
+    /**
+     * TODO 注释
+     */
+    public suspend fun uploadImage(resource: Resource, flash: Boolean): Image<*>
 
     override suspend fun join() {
         nativeBot.join()

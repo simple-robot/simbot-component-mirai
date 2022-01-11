@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.MiraiBot
-import love.forte.simbot.component.mirai.MiraiImage
 import love.forte.simbot.component.mirai.NativeMiraiBot
-import love.forte.simbot.component.mirai.SendOnlyImageMessage
+import love.forte.simbot.component.mirai.message.MiraiSendOnlyImageImpl
+import love.forte.simbot.component.mirai.message.asSimbot
 import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.event.EventProcessor
@@ -16,12 +16,10 @@ import love.forte.simbot.message.Image
 import love.forte.simbot.resources.IDResource
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.StreamableResource
+import net.mamoe.mirai.message.data.flash
 import org.slf4j.Logger
 import java.util.stream.Stream
 import net.mamoe.mirai.message.data.Image as miraiImageFunc
-
-
-public typealias NativeMiraiImage = miraiImageFunc
 
 
 /**
@@ -59,15 +57,14 @@ internal class MiraiBotImpl(
     override fun getGuilds(grouping: Grouping, limiter: Limiter): Stream<out Guild> = Stream.empty()
     override suspend fun guilds(grouping: Grouping, limiter: Limiter): Flow<Guild> = emptyFlow()
 
-    override suspend fun uploadImage(resource: Resource): Image<*> {
+
+    override suspend fun uploadImage(resource: Resource, flash: Boolean): Image<*> {
         return when (resource) {
             is IDResource -> {
                 val image = miraiImageFunc(resource.id.toString())
-                MiraiImage(
-                    image,
-                )
+                if (flash) image.flash().asSimbot() else image.asSimbot()
             }
-            is StreamableResource -> SendOnlyImageMessage(resource)
+            is StreamableResource -> MiraiSendOnlyImageImpl(resource, flash)
         }
     }
 

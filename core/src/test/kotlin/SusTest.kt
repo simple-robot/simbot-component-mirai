@@ -1,16 +1,41 @@
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 
-suspend fun main() {
-    val job = SupervisorJob()
+interface Element
 
-    val job1 = SupervisorJob(job)
+interface MyElement : Element
 
+@SerialName("myEleImpl")
+@Serializable
+data class MyElementImpl(val name: String) : MyElement
 
-    job1.cancel()
-    job1.join()
+fun main() {
+    val j = Json {
+        serializersModule = SerializersModule {
+            polymorphic(Element::class) {
+                polymorphic(MyElement::class) {
+                    subclass(MyElementImpl.serializer())
+                }
+                subclass(MyElementImpl.serializer())
+            }
 
-    println(job1.isCancelled)
-    println(job.isCancelled)
+        }
+    }
 
+    val list = listOf<Element>(
+        MyElementImpl("forte"),
+        MyElementImpl("forli")
+    )
 
+    val jsonStr = j.encodeToString(list)
+    println(jsonStr)
+
+    val list2 = j.decodeFromString<List<MyElement>>(jsonStr)
+    println(list2)
 }

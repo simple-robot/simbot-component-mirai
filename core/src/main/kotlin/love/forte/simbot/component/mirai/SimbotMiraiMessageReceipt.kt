@@ -4,6 +4,7 @@ import love.forte.simbot.ID
 import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.action.MessageReplyReceipt
 import love.forte.simbot.action.ReplySupport
+import love.forte.simbot.component.mirai.message.toNativeMiraiMessage
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageReceipt
 import net.mamoe.mirai.contact.Contact

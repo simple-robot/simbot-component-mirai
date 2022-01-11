@@ -4,7 +4,7 @@ import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.MiraiFriend
 import love.forte.simbot.component.mirai.NativeMiraiFriend
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
-import love.forte.simbot.component.mirai.toNativeMiraiMessage
+import love.forte.simbot.component.mirai.message.toNativeMiraiMessage
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageReceipt

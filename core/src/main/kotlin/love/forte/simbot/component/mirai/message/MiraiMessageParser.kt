@@ -1,7 +1,9 @@
 @file:JvmName("MiraiMessageParserUtil")
 
-package love.forte.simbot.component.mirai
+package love.forte.simbot.component.mirai.message
 
+import love.forte.simbot.ID
+import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
 import love.forte.simbot.message.AtAll
@@ -26,6 +28,7 @@ import net.mamoe.mirai.message.data.At as MiraiAtFunc
  */
 public typealias NativeMiraiMessage = net.mamoe.mirai.message.data.Message
 
+
 /**
  * Mirai中的原生消息类型 [net.mamoe.mirai.message.data.SingleMessage].
  *
@@ -35,10 +38,19 @@ public typealias NativeMiraiMessage = net.mamoe.mirai.message.data.Message
 public typealias NativeMiraiSingleMessage = SingleMessage
 
 
+@InternalApi
+public object EmptySingleMessage : NativeMiraiSingleMessage {
+    override fun contentToString(): String = "EmptySingleMessage"
+    override fun toString(): String = "EmptySingleMessage()"
+
+}
+
+
 /**
  * 将一个mirai原生的 [NativeMiraiMessage] 转化为Simbot（simbot-mirai组件下）的 [Message].
  */
-public fun NativeMiraiSingleMessage.toSimbotMessage(): MiraiSimbotMessage<*> = SimbotNativeMiraiMessage(this)
+public fun NativeMiraiSingleMessage.asSimbotMessage(): Message.Element<*> =
+    StandardParser.toSimbot(this)
 
 /**
  *
@@ -57,8 +69,8 @@ public fun simbotMessage(factory: (Contact) -> NativeMiraiMessage): Message =
  */
 public suspend fun Message.toNativeMiraiMessage(contact: Contact): NativeMiraiMessage {
     return when (this) {
-        is SimbotNativeMiraiMessage -> nativeMiraiMessage
-        is SimbotSendOnlyComputableMiraiMessage -> nativeMiraiMessage(contact)
+        is SimbotNativeMiraiMessage -> nativeMiraiSingleMessage
+        is MiraiNativeComputableSimbotMessage<*> -> nativeMiraiMessage(contact)
         else -> {
             val list = mutableListOf<NativeMiraiMessage>()
 
@@ -122,30 +134,24 @@ private object StandardParser : MiraiMessageParser {
                     // not support?
                 }
             }
-            is MiraiSimbotMessage<*> -> messages.add(message.nativeMiraiMessage(contact))
+            is MiraiNativeComputableSimbotMessage<*> -> messages.add(message.nativeMiraiMessage(contact))
         }
     }
 
+    /**
+     * mirai message 转化为 simbot message
+     */
     override fun toSimbot(message: SingleMessage): Message.Element<*> {
-        when (val m = message) {
-            is net.mamoe.mirai.message.data.At -> {
+        return when (message) {
+            is net.mamoe.mirai.message.data.At -> At(message.target.ID)
+            is net.mamoe.mirai.message.data.AtAll -> AtAll
+            is net.mamoe.mirai.message.data.PlainText -> Text { message.content }
+            is NativeMiraiImage -> message.asSimbot()
+            is NativeMiraiAudio -> message.asSimbot()
 
-            }
-            is Image -> {
-
-            }
-            is net.mamoe.mirai.message.data.PlainText -> {
-
-            }
-            is Audio -> {
-
-            }
-
-
-            else -> m.toSimbotMessage()
+            // other messages.
+            else -> SimbotNativeMiraiMessage(message)
         }
-
-        TODO()
     }
 }
 
