@@ -27,14 +27,14 @@ import kotlin.time.Duration
  */
 internal class MiraiGroupImpl(
     override val bot: MiraiBotImpl,
-    override val nativeGroup: NativeMiraiGroup,
+    override val nativeContact: NativeMiraiGroup,
 ) : MiraiGroup {
 
-    override val id: LongID = nativeGroup.id.ID
+    override val id: LongID = nativeContact.id.ID
 
 
     override suspend fun send(message: Message): MessageReceipt {
-        val receipt = nativeGroup.sendMessage(message.toNativeMiraiMessage(nativeGroup))
+        val receipt = nativeContact.sendMessage(message.toNativeMiraiMessage(nativeContact))
         return SimbotMiraiMessageReceipt(receipt)
     }
 
@@ -49,28 +49,27 @@ internal class MiraiGroupImpl(
 
 
     @OptIn(Api4J::class)
-    override val owner: MiraiMemberImpl = nativeGroup.owner.asSimbotMember(bot)
-    override val ownerId: LongID = nativeGroup.owner.id.ID
+    override val owner: MiraiMemberImpl = nativeContact.owner.asSimbotMember(bot)
+    override val ownerId: LongID = nativeContact.owner.id.ID
     override suspend fun owner(): MiraiMember = owner
 
-    @Api4J
     override fun getMembers(groupingId: ID?, limiter: Limiter): Stream<MiraiMemberImpl> {
-        return nativeGroup.members.stream().map { it.asSimbotMember(bot) }
+        return nativeContact.members.stream().map { it.asSimbotMember(bot) }
     }
 
     override suspend fun members(groupingId: ID?, limiter: Limiter): Flow<MiraiMemberImpl> {
-        return nativeGroup.members.asFlow().map { it.asSimbotMember(bot) }
+        return nativeContact.members.asFlow().map { it.asSimbotMember(bot) }
     }
 
     override suspend fun mute(duration: Duration): Boolean {
         val seconds = duration.inWholeSeconds
         if (seconds < 0) return false
-        nativeGroup.settings.isMuteAll = true
+        nativeContact.settings.isMuteAll = true
         if (seconds > 0) {
             bot.launch {
                 kotlin.runCatching {
                     delay(duration.inWholeMilliseconds)
-                    nativeGroup.settings.isMuteAll = false
+                    nativeContact.settings.isMuteAll = false
                 }
             }
         }

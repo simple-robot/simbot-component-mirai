@@ -1,6 +1,7 @@
 package love.forte.simbot.component.mirai
 
 import com.google.auto.service.AutoService
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import kotlinx.serialization.modules.polymorphic
@@ -26,6 +27,15 @@ public object ComponentMirai {
                 return Components[COMPONENT_ID]
             } else componentValue
         }
+
+    /**
+     * 一个可以由内部使用的默认Json序列化器。
+     */
+    internal val defaultJson = Json {
+        isLenient = true
+        ignoreUnknownKeys = true
+    }
+
 }
 
 

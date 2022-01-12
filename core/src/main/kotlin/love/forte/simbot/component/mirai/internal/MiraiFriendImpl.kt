@@ -16,14 +16,16 @@ import love.forte.simbot.message.MessageReceipt
  */
 internal class MiraiFriendImpl(
     override val bot: MiraiBotImpl,
-    override val nativeFriend: NativeMiraiFriend
+    override val nativeContact: NativeMiraiFriend
 ) : MiraiFriend {
 
-    override val id = nativeFriend.id.ID
+    override val id = nativeContact.id.ID
     override val status: UserStatus get() = NormalStatus
 
     override suspend fun send(message: Message): MessageReceipt {
-        val receipt = nativeFriend.sendMessage(message.toNativeMiraiMessage(nativeFriend))
+        val receipt = nativeContact.sendMessage(message.toNativeMiraiMessage(nativeContact))
         return SimbotMiraiMessageReceipt(receipt)
     }
 }
+
+internal fun NativeMiraiFriend.asSimbot(bot: MiraiBotImpl): MiraiFriendImpl = MiraiFriendImpl(bot, this)

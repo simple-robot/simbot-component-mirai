@@ -1,6 +1,7 @@
 package love.forte.simbot.component.mirai
 
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import love.forte.simbot.Api4J
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
@@ -14,33 +15,44 @@ public typealias NativeMiraiMember = net.mamoe.mirai.contact.Member
  * TODO 注释
  * @author ForteScarlet
  */
-public interface MiraiMember : GroupMember {
+public interface MiraiMember : GroupMember, MiraiContact {
 
-    public val nativeMember: NativeMiraiMember
+    override val nativeContact: NativeMiraiMember
 
     override val bot: MiraiBot
     override val id: LongID
-    override suspend fun group(): MiraiGroup
-    override suspend fun organization(): MiraiGroup = group()
 
-    @Api4J
-    override val group: MiraiGroup get() = runBlocking { group() }
-    @Api4J
-    override val organization: MiraiGroup get() = runBlocking { organization() }
+    @OptIn(Api4J::class)
+    override val group: MiraiGroup
+
+    //// Impl
+
+    override suspend fun group(): MiraiGroup = group
+    override suspend fun organization(): MiraiGroup = group
+
+    @OptIn(Api4J::class)
+    override val organization: MiraiGroup
+        get() = group
 
 
     override suspend fun mute(duration: Duration): Boolean {
-        nativeMember.mute(duration.inWholeSeconds.toInt())
+        nativeContact.mute(duration.inWholeSeconds.toInt())
         return true
     }
 
     override suspend fun unmute(): Boolean {
-        nativeMember.mute(0)
+        nativeContact.mute(0)
         return true
     }
 
+    @OptIn(Api4J::class)
+    override val roles: List<MiraiRole>
+
+    override suspend fun roles(): Flow<MiraiRole> = roles.asFlow()
+
+
     override val joinTime: Timestamp get() = Timestamp.NotSupport
-    override val nickname: String get() = nativeMember.nameCard
-    override val avatar: String get() = nativeMember.avatarUrl
-    override val username: String get() = nativeMember.nick
+    override val nickname: String get() = nativeContact.nameCard
+    override val avatar: String get() = nativeContact.avatarUrl
+    override val username: String get() = nativeContact.nick
 }

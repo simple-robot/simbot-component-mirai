@@ -2,7 +2,9 @@ package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.definition.Contact
 import love.forte.simbot.event.BaseEventKey
+import love.forte.simbot.event.ContactMessageEvent
 import love.forte.simbot.event.Event
 import love.forte.simbot.message.doSafeCast
 
@@ -19,6 +21,13 @@ public typealias NativeMiraiEvent = net.mamoe.mirai.event.Event
  * @see net.mamoe.mirai.event.events.BotEvent
  */
 public typealias NativeMiraiBotEvent = net.mamoe.mirai.event.events.BotEvent
+
+/**
+ * Mirai的原生事件类型。
+ *
+ * @see net.mamoe.mirai.event.events.MessageEvent
+ */
+public typealias NativeMiraiMessageEvent = net.mamoe.mirai.event.events.MessageEvent
 
 
 /**
@@ -57,6 +66,8 @@ public interface MiraiSimbotEvent<E : NativeMiraiEvent> : Event {
     }
 }
 
+public inline val <E : NativeMiraiEvent> MiraiSimbotEvent<E>.nativeEvent: E get() = metadata.nativeEvent
+
 
 public abstract class BaseMiraiSimbotEventMetadata<E : NativeMiraiEvent>(
     final override val nativeEvent: E
@@ -66,9 +77,10 @@ public abstract class BaseMiraiSimbotEventMetadata<E : NativeMiraiEvent>(
 }
 
 /**
- * TODO meta.
+ * 得到一个根据 [MiraiSimbotEvent.Metadata] 实现的最基础的meta实例。
  */
-public fun <E : NativeMiraiEvent> E.toMetadata(): MiraiSimbotEvent.Metadata<E> = SimpleMiraiSimbotEventMetadata(this)
+public fun <E : NativeMiraiEvent> E.toSimpleMetadata(): MiraiSimbotEvent.Metadata<E> =
+    SimpleMiraiSimbotEventMetadata(this)
 
 /**
  * 基础的 [BaseMiraiSimbotEventMetadata] 实现。
@@ -97,4 +109,24 @@ public interface MiraiSimbotBotEvent<E : NativeMiraiBotEvent> : MiraiSimbotEvent
 
 }
 
+public interface MiraiSimbotMessageEvent<E : NativeMiraiMessageEvent> :
+    MiraiSimbotBotEvent<E>,
+    ContactMessageEvent {
+
+    /**
+     * 事件中的bot对象。
+     */
+    override val bot: MiraiBot
+
+    override suspend fun user(): Contact
+
+    override val messageContent: MiraiReceivedMessageContent
+
+
+
+    public companion object Key :
+        BaseEventKey<MiraiSimbotMessageEvent<*>>("mirai.message_event", setOf(MiraiSimbotBotEvent)) {
+        override fun safeCast(value: Any): MiraiSimbotMessageEvent<*>? = doSafeCast(value)
+    }
+}
 
