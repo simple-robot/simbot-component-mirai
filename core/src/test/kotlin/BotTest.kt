@@ -7,11 +7,10 @@ suspend fun main() {
     // LoggerFactory.getLogger("a").debug("b")
      val manager = coreListenerManager {  }
      val botManager = miraiBotManager(manager)
-     val bot = botManager.register(2370606773, "LiChengYang9983.")
-
-     bot.start()
-
-     bot.friends()
-
-     bot.join()
+     //
+     // bot.start()
+     //
+     // bot.friends()
+     //
+     // bot.join()
 }
