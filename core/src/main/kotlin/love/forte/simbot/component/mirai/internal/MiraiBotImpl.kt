@@ -11,12 +11,15 @@ import love.forte.simbot.component.mirai.MiraiFriend
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.NativeMiraiBot
 import love.forte.simbot.component.mirai.event.MiraiFriendMessageEvent
+import love.forte.simbot.component.mirai.event.MiraiGroupMessageEvent
 import love.forte.simbot.component.mirai.event.MiraiSimbotEvent
 import love.forte.simbot.component.mirai.event.NativeMiraiEvent
 import love.forte.simbot.component.mirai.event.impl.MiraiFriendMessageEventImpl
+import love.forte.simbot.component.mirai.event.impl.MiraiGroupMessageEventImpl
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImageImpl
 import love.forte.simbot.component.mirai.message.asSimbot
 import love.forte.simbot.definition.UserStatus
+import love.forte.simbot.event.Event
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
 import love.forte.simbot.message.Image
@@ -24,7 +27,6 @@ import love.forte.simbot.resources.IDResource
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.StreamableResource
 import net.mamoe.mirai.event.Listener
-import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.message.data.flash
 import org.slf4j.Logger
 import java.util.stream.Stream
@@ -95,8 +97,13 @@ private val MiraiBotStatus = UserStatus.builder().bot().fakeUser().build()
 private fun MiraiBotImpl.registerEvents() {
 
     // friend event
-    doSubscribeAlways<FriendMessageEvent, MiraiFriendMessageEvent> {
+    doSubscribeAlways(MiraiFriendMessageEvent) {
         MiraiFriendMessageEventImpl(this@registerEvents, this)
+    }
+
+    // group event
+    doSubscribeAlways(MiraiGroupMessageEvent) {
+        MiraiGroupMessageEventImpl(this@registerEvents, this)
     }
 
 
@@ -105,10 +112,11 @@ private fun MiraiBotImpl.registerEvents() {
 
 private inline fun <reified E : NativeMiraiEvent, reified SE : MiraiSimbotEvent<E>>
         MiraiBotImpl.doSubscribeAlways(
+    key: Event.Key<SE>,
     noinline handler: suspend E.(bot: MiraiBotImpl) -> SE
 ): Listener<E> {
     return nativeBot.eventChannel.subscribeAlways { event ->
-        eventProcessor.pushIfProcessable {
+        eventProcessor.pushIfProcessable(key) {
             event.handler(this@doSubscribeAlways)
         }
     }

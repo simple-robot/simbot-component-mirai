@@ -22,7 +22,7 @@ import net.mamoe.mirai.message.data.*
 public open class MiraiReceivedMessageContent internal constructor(
     @Suppress("CanBeParameter")
     public val nativeMessageChain: MessageChain,
-    messageSource: MessageSource
+    public val messageSource: MessageSource
 ) : ReceivedMessageContent() {
 
     override val messages: Messages by lazy(
@@ -33,6 +33,8 @@ public open class MiraiReceivedMessageContent internal constructor(
     override val metadata: MiraiMessageMetadata = miraiMessageMetadata(messageSource)
 }
 
+internal fun MessageChain.toSimbotMessageContent(): MiraiReceivedMessageContent =
+    MiraiReceivedMessageContent(this, this.source)
 
 /**
  * 基于mirai的 [MessageSource] 的 [Message.Metadata] 实现。

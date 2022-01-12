@@ -15,7 +15,7 @@ public typealias NativeMiraiGroup = net.mamoe.mirai.contact.Group
  * TODO 注释
  * @author ForteScarlet
  */
-public interface MiraiGroup : Group, MiraiOrganization {
+public interface MiraiGroup : Group, MiraiChatroom {
     override val nativeContact: NativeMiraiGroup
 
     override val bot: MiraiBot

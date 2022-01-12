@@ -35,15 +35,15 @@ internal class MiraiGroupImpl(
 
 
     @OptIn(Api4J::class)
-    override val owner: MiraiMemberImpl = nativeContact.owner.asSimbotMember(bot)
+    override val owner: MiraiMemberImpl = nativeContact.owner.asSimbot(bot)
     override val ownerId: LongID = nativeContact.owner.id.ID
 
     override fun getMembers(groupingId: ID?, limiter: Limiter): Stream<MiraiMemberImpl> {
-        return nativeContact.members.stream().map { it.asSimbotMember(bot) }.withLimiter(limiter)
+        return nativeContact.members.stream().map { it.asSimbot(bot) }.withLimiter(limiter)
     }
 
     override suspend fun members(groupingId: ID?, limiter: Limiter): Flow<MiraiMemberImpl> {
-        return nativeContact.members.asFlow().map { it.asSimbotMember(bot) }.withLimiter(limiter)
+        return nativeContact.members.asFlow().map { it.asSimbot(bot) }.withLimiter(limiter)
     }
 
     override suspend fun mute(duration: Duration): Boolean {

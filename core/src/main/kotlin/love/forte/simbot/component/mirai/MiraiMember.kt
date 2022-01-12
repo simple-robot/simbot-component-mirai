@@ -9,10 +9,15 @@ import love.forte.simbot.definition.GroupMember
 import kotlin.time.Duration
 
 
+/**
+ * @see net.mamoe.mirai.contact.Member
+ */
 public typealias NativeMiraiMember = net.mamoe.mirai.contact.Member
 
 /**
- * TODO 注释
+ * 一个由simbot包装为 [GroupMember] 的 [NativeMiraiMember] 对象。
+ *
+ * @see NativeMiraiMember
  * @author ForteScarlet
  */
 public interface MiraiMember : GroupMember, MiraiContact {

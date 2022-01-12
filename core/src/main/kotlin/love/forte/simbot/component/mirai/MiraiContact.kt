@@ -2,8 +2,8 @@ package love.forte.simbot.component.mirai
 
 import love.forte.simbot.LongID
 import love.forte.simbot.definition.BotContainer
+import love.forte.simbot.definition.ChatRoom
 import love.forte.simbot.definition.Contact
-import love.forte.simbot.definition.Organization
 
 /**
  * Mirai的原生类型
@@ -11,6 +11,12 @@ import love.forte.simbot.definition.Organization
  * @see net.mamoe.mirai.contact.Contact
  */
 public typealias NativeMiraiContact = net.mamoe.mirai.contact.Contact
+/**
+ * Mirai的原生类型
+ *
+ * @see net.mamoe.mirai.contact.Contact
+ */
+public typealias NativeMiraiUser = net.mamoe.mirai.contact.User
 
 
 /**
@@ -45,13 +51,14 @@ public interface MiraiContact : Contact, MiraiBotContainer, MiraiContactContaine
 }
 
 /**
- * [Organization] 对应Mirai的 [联系人][NativeMiraiContact] 类型。
+ * [ChatRoom] 对应Mirai的 [联系人][NativeMiraiContact] 类型。
  *
  * @see MiraiGroup
  */
-public interface MiraiOrganization : Organization, MiraiBotContainer, MiraiContactContainer {
+public interface MiraiChatroom : ChatRoom, MiraiBotContainer, MiraiContactContainer {
     override val bot: MiraiBot
     override val nativeContact: NativeMiraiGroup
     override val id: LongID
+
 
 }

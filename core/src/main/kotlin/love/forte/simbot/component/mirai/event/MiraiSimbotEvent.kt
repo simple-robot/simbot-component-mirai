@@ -1,9 +1,9 @@
 package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.ID
-import love.forte.simbot.component.mirai.MiraiBot
-import love.forte.simbot.definition.Contact
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.event.BaseEventKey
+import love.forte.simbot.event.ChatroomMessageEvent
 import love.forte.simbot.event.ContactMessageEvent
 import love.forte.simbot.event.Event
 import love.forte.simbot.message.doSafeCast
@@ -28,6 +28,14 @@ public typealias NativeMiraiBotEvent = net.mamoe.mirai.event.events.BotEvent
  * @see net.mamoe.mirai.event.events.MessageEvent
  */
 public typealias NativeMiraiMessageEvent = net.mamoe.mirai.event.events.MessageEvent
+
+
+/**
+ * Mirai的原生事件类型。
+ *
+ * @see net.mamoe.mirai.event.events.UserMessageEvent
+ */
+public typealias NativeMiraiUserMessageEvent = net.mamoe.mirai.event.events.UserMessageEvent
 
 
 /**
@@ -109,7 +117,10 @@ public interface MiraiSimbotBotEvent<E : NativeMiraiBotEvent> : MiraiSimbotEvent
 
 }
 
-public interface MiraiSimbotMessageEvent<E : NativeMiraiMessageEvent> :
+/**
+ * 与mirai的 [NativeMiraiContact] 相关的事件。
+ */
+public interface MiraiSimbotContactMessageEvent<E : NativeMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
     ContactMessageEvent {
 
@@ -118,15 +129,64 @@ public interface MiraiSimbotMessageEvent<E : NativeMiraiMessageEvent> :
      */
     override val bot: MiraiBot
 
-    override suspend fun user(): Contact
+    override suspend fun user(): MiraiContact
 
     override val messageContent: MiraiReceivedMessageContent
 
 
+    public companion object Key :
+        BaseEventKey<MiraiSimbotContactMessageEvent<*>>("mirai.message_event", setOf(MiraiSimbotBotEvent)) {
+        override fun safeCast(value: Any): MiraiSimbotContactMessageEvent<*>? = doSafeCast(value)
+    }
+}
+
+/**
+ * 在 mirai [NativeMiraiContact] 下与 [love.forte.simbot.definition.Contact] 相关的事件。
+ */
+public interface MiraiSimbotUserMessageEvent<E : NativeMiraiMessageEvent> :
+    MiraiSimbotContactMessageEvent<E> {
+
+    /**
+     * 事件中的bot对象。
+     */
+    override val bot: MiraiBot
+
+    override suspend fun user(): MiraiContact
+
+    override val messageContent: MiraiReceivedMessageContent
+
 
     public companion object Key :
-        BaseEventKey<MiraiSimbotMessageEvent<*>>("mirai.message_event", setOf(MiraiSimbotBotEvent)) {
-        override fun safeCast(value: Any): MiraiSimbotMessageEvent<*>? = doSafeCast(value)
+        BaseEventKey<MiraiSimbotContactMessageEvent<*>>("mirai.message_event", setOf(MiraiSimbotBotEvent)) {
+        override fun safeCast(value: Any): MiraiSimbotContactMessageEvent<*>? = doSafeCast(value)
+    }
+}
+
+/**
+ * 在 mirai [NativeMiraiContact] 下与 [love.forte.simbot.definition.Group] 相关的事件。
+ */
+public interface MiraiSimbotChatroomMessageEvent<E : NativeMiraiMessageEvent> :
+    MiraiSimbotBotEvent<E>,
+    ChatroomMessageEvent {
+
+    /**
+     * 事件中的bot对象。
+     */
+    override val bot: MiraiBot
+
+    override suspend fun author(): MiraiMember
+    override suspend fun source(): MiraiGroup
+
+
+    override val visibleScope: Event.VisibleScope
+        get() = Event.VisibleScope.PUBLIC
+
+    override val messageContent: MiraiReceivedMessageContent
+
+
+    public companion object Key :
+        BaseEventKey<MiraiSimbotContactMessageEvent<*>>("mirai.message_event", setOf(MiraiSimbotBotEvent)) {
+        override fun safeCast(value: Any): MiraiSimbotContactMessageEvent<*>? = doSafeCast(value)
     }
 }
 

@@ -40,4 +40,4 @@ internal val NormalStatus = UserStatus.builder().normal().build()
 internal val AnonymousStatus = UserStatus.builder().anonymous().build()
 
 
-internal fun NativeMiraiMember.asSimbotMember(bot: MiraiBotImpl): MiraiMemberImpl = this.asSimbotMember(bot)
+internal fun NativeMiraiMember.asSimbot(bot: MiraiBotImpl): MiraiMemberImpl = MiraiMemberImpl(bot, this)
