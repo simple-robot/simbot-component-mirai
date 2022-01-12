@@ -2,20 +2,29 @@ package love.forte.simbot.component.mirai.internal
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiFriend
+import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.NativeMiraiBot
+import love.forte.simbot.component.mirai.event.MiraiFriendMessageEvent
+import love.forte.simbot.component.mirai.event.MiraiSimbotEvent
+import love.forte.simbot.component.mirai.event.NativeMiraiEvent
+import love.forte.simbot.component.mirai.event.impl.MiraiFriendMessageEventImpl
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImageImpl
 import love.forte.simbot.component.mirai.message.asSimbot
-import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.event.EventProcessor
+import love.forte.simbot.event.pushIfProcessable
 import love.forte.simbot.message.Image
 import love.forte.simbot.resources.IDResource
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.StreamableResource
+import net.mamoe.mirai.event.Listener
+import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.message.data.flash
 import org.slf4j.Logger
 import java.util.stream.Stream
@@ -35,28 +44,22 @@ internal class MiraiBotImpl(
     override val id: LongID = nativeBot.id.ID
     override val status: UserStatus get() = MiraiBotStatus
 
-    override suspend fun friends(grouping: Grouping, limiter: Limiter): Flow<MiraiFriendImpl> {
-        return nativeBot.friends.asFlow().map { MiraiFriendImpl(this, it) }
+    override suspend fun friends(limiter: Limiter): Flow<MiraiFriend> {
+        return nativeBot.friends.asFlow().map { it.asSimbot(this) }.withLimiter(limiter)
     }
 
-    @Api4J
-    override fun getFriends(grouping: Grouping, limiter: Limiter): Stream<MiraiFriendImpl> {
-        return nativeBot.friends.stream().map { MiraiFriendImpl(this, it) }
+    override fun getFriends(): Stream<out MiraiFriend> {
+        return nativeBot.friends.stream().map { it.asSimbot(this) }
     }
 
-    @Api4J
-    override fun getGroups(grouping: Grouping, limiter: Limiter): Stream<MiraiGroupImpl> {
-        return nativeBot.groups.stream().map { MiraiGroupImpl(this, it) }
+
+    override suspend fun groups(limiter: Limiter): Flow<MiraiGroup> {
+        return nativeBot.groups.asFlow().map { it.asSimbot(this) }.withLimiter(limiter)
     }
 
-    override suspend fun groups(grouping: Grouping, limiter: Limiter): Flow<MiraiGroupImpl> {
-        return nativeBot.groups.asFlow().map { MiraiGroupImpl(this, it) }
+    override fun getGroups(): Stream<out MiraiGroup> {
+        return nativeBot.groups.stream().map { it.asSimbot(this) }.withLimiter(limiter())
     }
-
-    @Api4J
-    override fun getGuilds(grouping: Grouping, limiter: Limiter): Stream<out Guild> = Stream.empty()
-    override suspend fun guilds(grouping: Grouping, limiter: Limiter): Flow<Guild> = emptyFlow()
-
 
     override suspend fun uploadImage(resource: Resource, flash: Boolean): Image<*> {
         return when (resource) {
@@ -68,19 +71,45 @@ internal class MiraiBotImpl(
         }
     }
 
-    // inner class MiraiContactCache {
-    //     init {
-    //         TODO("Impl")
-    //     }
-    //     internal val friendCache = ConcurrentHashMap<LongID, SoftReference<NativeMiraiFriend>>()
-    //     internal val groupCache = ConcurrentHashMap<LongID, SoftReference<NativeMiraiGroup>>()
-    //     internal val memberCache = ConcurrentHashMap<LongID, SoftReference<NativeMiraiMember>>()
-    //
-    //
-    // }
+
+    private val loginLock = Mutex()
+
+    @Volatile
+    private var eventRegistered = false
+
+    override suspend fun start(): Boolean = loginLock.withLock {
+        // 注册事件。
+        if (!eventRegistered) {
+            registerEvents()
+            eventRegistered = true
+        }
+        nativeBot.login()
+        true
+    }
+
 }
 
 private val MiraiBotStatus = UserStatus.builder().bot().fakeUser().build()
 
 
+private fun MiraiBotImpl.registerEvents() {
 
+    // friend event
+    doSubscribeAlways<FriendMessageEvent, MiraiFriendMessageEvent> {
+        MiraiFriendMessageEventImpl(this@registerEvents, this)
+    }
+
+
+    //TODO()
+}
+
+private inline fun <reified E : NativeMiraiEvent, reified SE : MiraiSimbotEvent<E>>
+        MiraiBotImpl.doSubscribeAlways(
+    noinline handler: suspend E.(bot: MiraiBotImpl) -> SE
+): Listener<E> {
+    return nativeBot.eventChannel.subscribeAlways { event ->
+        eventProcessor.pushIfProcessable {
+            event.handler(this@doSubscribeAlways)
+        }
+    }
+}

@@ -17,6 +17,8 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.properties.Properties
 import love.forte.simbot.*
 import love.forte.simbot.action.NotSupportActionException
+import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
+import love.forte.simbot.event.EventProcessor
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.utils.BotConfiguration
@@ -102,8 +104,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param code 账号
      * @param password 密码
      */
-    @Api4J // overloads for java
-    public fun register(code: Long, password: String): MiraiBot = register(code, password, BotConfiguration.Default)
+    public fun register(code: Long, password: String): MiraiBot = register(code, password, MiraiViaBotFileConfiguration(code, password).miraiBotConfiguration)
 
 
     /**
@@ -120,7 +121,6 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param code 账号
      * @param passwordMD5 密码的MD5字节数组
      */
-    @Api4J // overloads for java
     public fun register(code: Long, passwordMD5: ByteArray): MiraiBot =
         register(code, passwordMD5, BotConfiguration.Default)
 
@@ -153,7 +153,19 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     ): MiraiBot
 
 
+    public companion object {
+        @JvmStatic
+        public fun newInstance(eventProcessor: EventProcessor): MiraiBotManager {
+            return MiraiBotManagerImpl(eventProcessor)
+        }
+    }
+
 }
+
+
+public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
+    MiraiBotManager.newInstance(eventProcessor)
+
 
 // 只有在注册时候会使用到, 不保留为属性。
 

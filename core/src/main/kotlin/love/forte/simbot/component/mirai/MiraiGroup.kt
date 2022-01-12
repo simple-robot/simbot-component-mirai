@@ -1,6 +1,7 @@
 package love.forte.simbot.component.mirai
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import love.forte.simbot.*
 import love.forte.simbot.definition.Group
 import java.util.stream.Stream
@@ -24,6 +25,21 @@ public interface MiraiGroup : Group, MiraiOrganization {
     override val owner: MiraiMember
     override val ownerId: LongID
     // Impl
+
+    /**
+     * Mirai中，一个群内可能出现的权限是固定的。
+     *
+     * @see MiraiRole
+     */
+    @OptIn(Api4J::class)
+    override fun getRoles(groupingId: ID?, limiter: Limiter): Stream<MiraiRole> = Stream.of(*MiraiRole.values())
+
+    /**
+     * Mirai中，一个群内可能出现的权限是固定的。
+     *
+     * @see MiraiRole
+     */
+    override suspend fun roles(groupingId: ID?, limiter: Limiter): Flow<MiraiRole> = MiraiRole.values().asFlow()
 
     override val icon: String get() = nativeContact.avatarUrl
     override val name: String get() = nativeContact.name
