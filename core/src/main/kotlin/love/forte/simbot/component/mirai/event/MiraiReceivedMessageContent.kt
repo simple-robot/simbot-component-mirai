@@ -36,6 +36,8 @@ public open class MiraiReceivedMessageContent internal constructor(
 internal fun MessageChain.toSimbotMessageContent(): MiraiReceivedMessageContent =
     MiraiReceivedMessageContent(this, this.source)
 
+internal fun NativeMiraiMessageEvent.toSimbotMessageContent(): MiraiReceivedMessageContent = this.message.toSimbotMessageContent()
+
 /**
  * 基于mirai的 [MessageSource] 的 [Message.Metadata] 实现。
  *

@@ -16,7 +16,7 @@ internal class MiraiGroupMessageEventImpl(
     nativeEvent: NativeMiraiGroupMessageEvent
 ) : MiraiGroupMessageEvent {
     override val metadata: MiraiGroupMessageEvent.Metadata = MetadataImpl(nativeEvent)
-    override val messageContent: MiraiReceivedMessageContent = nativeEvent.message.toSimbotMessageContent()
+    override val messageContent: MiraiReceivedMessageContent = nativeEvent.toSimbotMessageContent()
     override val author: MiraiMemberImpl = nativeEvent.sender.asSimbot(bot)
     override val group: MiraiGroupImpl = nativeEvent.group.asSimbot(bot)
     override suspend fun delete(): Boolean {

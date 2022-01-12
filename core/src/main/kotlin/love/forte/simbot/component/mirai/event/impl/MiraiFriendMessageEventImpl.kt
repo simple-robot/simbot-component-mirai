@@ -13,7 +13,7 @@ internal class MiraiFriendMessageEventImpl(
 ) : MiraiFriendMessageEvent {
     override val metadata: MiraiFriendMessageEvent.Metadata = MetadataImpl(nativeEvent)
     override val timestamp: Timestamp = Timestamp.byInstant(Instant.ofEpochSecond(nativeEvent.time.toLong()))
-    override val messageContent: MiraiReceivedMessageContent = nativeEvent.message.toSimbotMessageContent()
+    override val messageContent: MiraiReceivedMessageContent = nativeEvent.toSimbotMessageContent()
 
     override val friend = nativeEvent.friend.asSimbot(bot)
 

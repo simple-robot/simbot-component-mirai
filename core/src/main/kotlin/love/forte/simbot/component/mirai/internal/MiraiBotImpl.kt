@@ -10,23 +10,23 @@ import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiFriend
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.NativeMiraiBot
-import love.forte.simbot.component.mirai.event.MiraiFriendMessageEvent
-import love.forte.simbot.component.mirai.event.MiraiGroupMessageEvent
-import love.forte.simbot.component.mirai.event.MiraiSimbotEvent
-import love.forte.simbot.component.mirai.event.NativeMiraiEvent
+import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.event.impl.MiraiFriendMessageEventImpl
 import love.forte.simbot.component.mirai.event.impl.MiraiGroupMessageEventImpl
+import love.forte.simbot.component.mirai.event.impl.MiraiMemberMessageEventImpl
+import love.forte.simbot.component.mirai.event.impl.MiraiStrangerMessageEventImpl
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImageImpl
 import love.forte.simbot.component.mirai.message.asSimbot
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.event.Event
+import love.forte.simbot.event.EventProcessingResult
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
 import love.forte.simbot.message.Image
 import love.forte.simbot.resources.IDResource
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.StreamableResource
-import net.mamoe.mirai.event.Listener
+import net.mamoe.mirai.event.events.GroupTempMessageEvent
 import net.mamoe.mirai.message.data.flash
 import org.slf4j.Logger
 import java.util.stream.Stream
@@ -96,28 +96,45 @@ private val MiraiBotStatus = UserStatus.builder().bot().fakeUser().build()
 
 private fun MiraiBotImpl.registerEvents() {
 
-    // friend event
-    doSubscribeAlways(MiraiFriendMessageEvent) {
-        MiraiFriendMessageEventImpl(this@registerEvents, this)
+    nativeBot.eventChannel.subscribeAlways<NativeMiraiEvent> {
+        when (this) {
+            // friend event
+            is NativeMiraiFriendMessageEvent ->
+                doHandler(this, MiraiFriendMessageEvent) { MiraiFriendMessageEventImpl(this@registerEvents, this) }
+            // stranger event
+            is NativeMiraiStrangerMessageEvent ->
+                doHandler(this, MiraiStrangerMessageEvent) { MiraiStrangerMessageEventImpl(this@registerEvents, this) }
+            // group event
+            is NativeMiraiGroupMessageEvent ->
+                doHandler(this, MiraiGroupMessageEvent) { MiraiGroupMessageEventImpl(this@registerEvents, this) }
+            // group temp event
+            is GroupTempMessageEvent ->
+                doHandler(this, MiraiMemberMessageEvent) { MiraiMemberMessageEventImpl(this@registerEvents, this) }
+
+            // todo
+
+            else -> {
+                // else other.
+
+                TODO()
+            }
+        }
+        // this.intercept()
     }
 
-    // group event
-    doSubscribeAlways(MiraiGroupMessageEvent) {
-        MiraiGroupMessageEventImpl(this@registerEvents, this)
-    }
+    // listener
 
-
-    //TODO()
 }
 
-private inline fun <reified E : NativeMiraiEvent, reified SE : MiraiSimbotEvent<E>>
-        MiraiBotImpl.doSubscribeAlways(
+private suspend inline fun <reified E : NativeMiraiEvent, reified SE : MiraiSimbotEvent<E>>
+        MiraiBotImpl.doHandler(
+    event: E,
     key: Event.Key<SE>,
     noinline handler: suspend E.(bot: MiraiBotImpl) -> SE
-): Listener<E> {
-    return nativeBot.eventChannel.subscribeAlways { event ->
-        eventProcessor.pushIfProcessable(key) {
-            event.handler(this@doSubscribeAlways)
-        }
+): EventProcessingResult? {
+    // return nativeBot.eventChannel.subscribeAlways { event ->
+    return eventProcessor.pushIfProcessable(key) {
+        event.handler(this)
     }
+    // }
 }

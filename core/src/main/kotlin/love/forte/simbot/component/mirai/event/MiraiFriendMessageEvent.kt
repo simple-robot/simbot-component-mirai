@@ -1,10 +1,9 @@
 package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.Api4J
-import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.MiraiBot
-import love.forte.simbot.component.mirai.MiraiContact
 import love.forte.simbot.component.mirai.MiraiFriend
+import love.forte.simbot.component.mirai.MiraiStranger
 import love.forte.simbot.event.BaseEventKey
 import love.forte.simbot.event.ContactMessageEvent
 import love.forte.simbot.event.Event
@@ -78,20 +77,17 @@ public interface MiraiStrangerMessageEvent :
 
     override val bot: MiraiBot
     override val key: Event.Key<MiraiStrangerMessageEvent> get() = Key
-    override val timestamp: Timestamp
-        get() = TODO("Not yet implemented")
     override val metadata: Metadata
 
-    override suspend fun user(): MiraiContact {
-        TODO("Not yet implemented")
-    }
+    @OptIn(Api4J::class)
+    override val user: MiraiStranger
 
-    override val messageContent: MiraiReceivedMessageContent
-        get() = TODO("Not yet implemented")
+    override suspend fun user(): MiraiStranger = user
+
 
 
     /**
-     * Metadata for [MiraiFriendMessageEvent].
+     * Metadata for [MiraiStrangerMessageEvent].
      */
     public interface Metadata : MiraiSimbotEvent.Metadata<NativeMiraiStrangerMessageEvent>
 

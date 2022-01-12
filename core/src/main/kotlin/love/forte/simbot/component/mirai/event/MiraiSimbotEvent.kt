@@ -1,5 +1,6 @@
 package love.forte.simbot.component.mirai.event
 
+import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.event.BaseEventKey
@@ -129,7 +130,10 @@ public interface MiraiSimbotContactMessageEvent<E : NativeMiraiMessageEvent> :
      */
     override val bot: MiraiBot
 
-    override suspend fun user(): MiraiContact
+    @OptIn(Api4J::class)
+    override val user: MiraiContact
+
+    override suspend fun user(): MiraiContact = user
 
     override val messageContent: MiraiReceivedMessageContent
 
