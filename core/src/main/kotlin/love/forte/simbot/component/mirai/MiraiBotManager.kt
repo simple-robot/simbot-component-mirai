@@ -1,6 +1,5 @@
 package love.forte.simbot.component.mirai
 
-import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -13,10 +12,8 @@ import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.properties.Properties
+import kotlinx.serialization.json.jsonObject
 import love.forte.simbot.*
-import love.forte.simbot.action.NotSupportActionException
 import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
 import love.forte.simbot.event.EventProcessor
 import net.mamoe.mirai.Bot
@@ -43,49 +40,20 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      */
     override suspend fun start(): Boolean = false
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun register(verifyInfo: BotVerifyInfo): MiraiBot {
         val serializer = MiraiViaBotFileConfiguration.serializer()
 
-        @OptIn(ExperimentalSerializationApi::class)
-        val configuration = verifyInfo.tryResolveVerifyInfo(
-            ::VerifyFailureException,
-            {
-                CJson.decodeFromStream(serializer, it)
-            },
-            CYaml?.let { yaml ->
-                (
-                        {
-                            yaml.decodeFromStream(serializer, it)
-                        }
-                        )
-            } ?: { throw NotSupportActionException("com.charleskorn.kaml.Yaml not in classpath") },
-            {
-                val p = java.util.Properties().also { p -> p.load(it) }
-                val stringMap = mutableMapOf<String, String>()
-                for (key in p.stringPropertyNames()) {
-                    stringMap[key] = p.getProperty(key)
-                }
-                // 鉴于 kotlinx properties 的限制，需要对 defaultIntents 属性进行特殊处理
-                val defaultIntents = stringMap.remove("defaultIntents")
-                if (defaultIntents != null) {
-                    val defaultIntentsSplit = defaultIntents.split(Regex(" *, *"))
-                    defaultIntentsSplit.forEachIndexed { index, intent ->
-                        stringMap["defaultIntents.$index"] = intent
-                    }
-                }
+        val json = CJson
+        val jsonElement = verifyInfo.inputStream().use { inp -> json.decodeFromStream(JsonElement.serializer(), inp) }
+        val component = jsonElement.jsonObject["component"]?.toString()
+            ?: throw NoSuchComponentException("Component is not found in [${verifyInfo.infoName}]")
 
-                CProp.decodeFromStringMap(serializer, stringMap)
-            },
-
-            ).getOrThrow()
-
-        if (configuration.component == null) {
-            throw NoSuchComponentException("Component is not found in [${verifyInfo.infoName}]")
+        if (component != ComponentMirai.COMPONENT_ID.toString()) {
+            throw ComponentMismatchException("[$component] != [${ComponentMirai.COMPONENT_ID}]")
         }
 
-        if (configuration.component != ComponentMirai.COMPONENT_ID.toString()) {
-            throw ComponentMismatchException("[${configuration.component}] != [${ComponentMirai.COMPONENT_ID}]")
-        }
+        val configuration = json.decodeFromJsonElement(serializer, jsonElement)
 
         return register(configuration.code, configuration.password, configuration.miraiBotConfiguration)
     }
@@ -104,7 +72,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param code 账号
      * @param password 密码
      */
-    public fun register(code: Long, password: String): MiraiBot = register(code, password, MiraiViaBotFileConfiguration(code, password).miraiBotConfiguration)
+    public fun register(code: Long, password: String): MiraiBot =
+        register(code, password, MiraiViaBotFileConfiguration(code, password).miraiBotConfiguration)
 
 
     /**
@@ -168,26 +137,6 @@ public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
 
 
 // 只有在注册时候会使用到, 不保留为属性。
-
-@OptIn(ExperimentalSerializationApi::class)
-private val CProp
-    get() = Properties(SerializersModule { })
-private val CYaml get() = CYamlFunction?.invoke()
-private val CYamlFunction: (() -> com.charleskorn.kaml.Yaml)? by lazy {
-    try {
-        return@lazy {
-            com.charleskorn.kaml.Yaml(
-                configuration = YamlConfiguration(
-                    strictMode = false
-                )
-            )
-        }
-    } catch (e: NoClassDefFoundError) {
-        LoggerFactory.getLogger(MiraiBotManager::class)
-            .error("[com.charleskorn.kaml.Yaml] not in your classpath. If you want to support for yaml, add 'com.charleskorn.kaml:kaml:\$version' into your classpath.")
-        return@lazy null
-    }
-}
 private val CJson
     get() = Json {
         isLenient = true

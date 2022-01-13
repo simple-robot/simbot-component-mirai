@@ -31,6 +31,7 @@ allprojects {
         mavenCentral()
     }
 
+    configurePublishing(name)
     println("[publishing-configure] - [$name] configured.")
     // set gpg file path to root
     val secretKeyRingFileKey = "signing.secretKeyRingFile"
