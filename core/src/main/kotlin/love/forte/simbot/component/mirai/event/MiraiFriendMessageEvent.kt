@@ -30,6 +30,7 @@ public typealias NativeMiraiStrangerMessageEvent = net.mamoe.mirai.event.events.
  */
 public interface MiraiFriendMessageEvent :
     MiraiSimbotContactMessageEvent<NativeMiraiFriendMessageEvent>,
+    MiraiFriendEvent<NativeMiraiFriendMessageEvent>,
     FriendMessageEvent {
 
     override val bot: MiraiBot
@@ -39,6 +40,7 @@ public interface MiraiFriendMessageEvent :
     override val friend: MiraiFriend
     //// impl
 
+    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
     override val key: Event.Key<MiraiFriendMessageEvent> get() = Key
     override suspend fun user(): MiraiFriend = friend
     override suspend fun source(): MiraiFriend = friend
@@ -61,7 +63,7 @@ public interface MiraiFriendMessageEvent :
     public companion object Key :
         BaseEventKey<MiraiFriendMessageEvent>(
             "mirai.friend_message",
-            MiraiSimbotContactMessageEvent, FriendMessageEvent
+            MiraiSimbotContactMessageEvent, MiraiFriendEvent, FriendMessageEvent
         ) {
         override fun safeCast(value: Any): MiraiFriendMessageEvent? = doSafeCast(value)
     }

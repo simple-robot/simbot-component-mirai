@@ -29,6 +29,10 @@ sealed class P : SimbotProject() {
     object ComponentMirai {
         const val GROUP = "${Simbot.GROUP}.component" // love.forte.simbot.component
         val VERSION = "${Simbot.VERSION}-${V.Mirai.VERSION_SIM}.0.1"
+
+        const val API = ":simbot-component-mirai-api"
+        const val CORE = ":simbot-component-mirai-core"
+        const val BOOT = ":simbot-component-mirai-boot"
     }
 
 }

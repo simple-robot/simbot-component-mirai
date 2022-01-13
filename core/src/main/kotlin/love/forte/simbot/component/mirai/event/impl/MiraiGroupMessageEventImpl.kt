@@ -31,5 +31,6 @@ internal class MiraiGroupMessageEventImpl(
     override val timestamp: Timestamp = Timestamp.bySecond(nativeEvent.time.toLong())
 
     private class MetadataImpl(nativeEvent: NativeMiraiGroupMessageEvent) :
-        MiraiGroupMessageEvent.Metadata, BaseMiraiSimbotEventMetadata<NativeMiraiGroupMessageEvent>(nativeEvent)
+        MiraiGroupMessageEvent.Metadata,
+        BaseMiraiSimbotEventMetadata<NativeMiraiGroupMessageEvent>(nativeEvent)
 }
