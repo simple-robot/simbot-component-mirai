@@ -23,6 +23,7 @@ import kotlin.time.Duration
 internal class MiraiGroupImpl(
     override val bot: MiraiBotImpl,
     override val nativeContact: NativeMiraiGroup,
+    initOwner: MiraiMemberImpl? = null
 ) : MiraiGroup {
 
     override val id: LongID = nativeContact.id.ID
@@ -35,7 +36,10 @@ internal class MiraiGroupImpl(
 
 
     @OptIn(Api4J::class)
-    override val owner: MiraiMemberImpl = nativeContact.owner.asSimbot(bot)
+    override val owner: MiraiMemberImpl = initOwner
+        ?: nativeContact.owner.asSimbot(bot, this)
+
+
     override val ownerId: LongID = nativeContact.owner.id.ID
 
     override fun getMembers(groupingId: ID?, limiter: Limiter): Stream<MiraiMemberImpl> {
@@ -65,3 +69,5 @@ internal class MiraiGroupImpl(
 
 
 internal fun NativeMiraiGroup.asSimbot(bot: MiraiBotImpl): MiraiGroupImpl = MiraiGroupImpl(bot, this)
+internal fun NativeMiraiGroup.asSimbot(bot: MiraiBotImpl, initOwner: MiraiMemberImpl): MiraiGroupImpl =
+    MiraiGroupImpl(bot, this, initOwner)

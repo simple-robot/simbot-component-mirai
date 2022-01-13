@@ -9,10 +9,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.decodeFromStream
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
 import love.forte.simbot.event.EventProcessor
@@ -22,6 +19,7 @@ import net.mamoe.mirai.utils.BotConfiguration
 import net.mamoe.mirai.utils.DeviceInfo
 import net.mamoe.mirai.utils.LoggerAdapters.asMiraiLogger
 import net.mamoe.mirai.utils.MiraiLogger
+import org.slf4j.Logger
 import java.io.File
 import kotlin.time.ExperimentalTime
 
@@ -33,6 +31,7 @@ import kotlin.time.ExperimentalTime
  * @author ForteScarlet
  */
 public abstract class MiraiBotManager : BotManager<MiraiBot>() {
+    protected abstract val logger: Logger
     override val component: Component get() = ComponentMirai.component
 
     /**
@@ -46,10 +45,13 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
 
         val json = CJson
         val jsonElement = verifyInfo.inputStream().use { inp -> json.decodeFromStream(JsonElement.serializer(), inp) }
-        val component = jsonElement.jsonObject["component"]?.toString()
+        val component = jsonElement.jsonObject["component"]?.jsonPrimitive?.content
             ?: throw NoSuchComponentException("Component is not found in [${verifyInfo.infoName}]")
 
+        logger.debug("[{}] json element load: {}", verifyInfo.infoName, jsonElement)
+
         if (component != ComponentMirai.COMPONENT_ID.toString()) {
+            logger.debug("[{}] mismatch: [{}] != [{}]", verifyInfo.infoName, component, ComponentMirai.COMPONENT_ID)
             throw ComponentMismatchException("[$component] != [${ComponentMirai.COMPONENT_ID}]")
         }
 

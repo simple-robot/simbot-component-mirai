@@ -13,6 +13,7 @@ import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.tryToLongID
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.utils.BotConfiguration
+import org.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
 
 
@@ -24,8 +25,10 @@ internal class MiraiBotManagerImpl(
     private val eventProcessor: EventProcessor
 ) : MiraiBotManager() {
     companion object {
-        private val logger = LoggerFactory.getLogger(MiraiBotManagerImpl::class)
+        private val LOGGER = LoggerFactory.getLogger(MiraiBotManagerImpl::class)
     }
+
+    override val logger: Logger get() = LOGGER
 
     private val completableJob = SupervisorJob()
     private val botCache = ConcurrentHashMap<Long, MiraiBotImpl>()
@@ -112,6 +115,9 @@ internal class MiraiBotManagerImpl(
 
     override fun get(id: ID): MiraiBot? = botCache[id.tryToLongID().number]
 
+    override fun all(): Sequence<MiraiBot> {
+        return botCache.values.asSequence()
+    }
 
     override fun invokeOnCompletion(handler: CompletionHandler) {
         completableJob.invokeOnCompletion(handler)

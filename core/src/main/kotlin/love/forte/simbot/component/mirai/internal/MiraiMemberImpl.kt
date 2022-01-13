@@ -18,6 +18,7 @@ import net.mamoe.mirai.contact.AnonymousMember
 internal class MiraiMemberImpl(
     override val bot: MiraiBotImpl,
     override val nativeContact: NativeMiraiMember,
+    initGroup: MiraiGroupImpl? = null
 ) : MiraiMember, SendSupport {
     override val id: LongID = nativeContact.id.ID
 
@@ -26,7 +27,7 @@ internal class MiraiMemberImpl(
         return SimbotMiraiMessageReceipt(receipt)
     }
 
-    override val group: MiraiGroup = MiraiGroupImpl(bot, nativeContact.group)
+    override val group: MiraiGroupImpl = initGroup ?: MiraiGroupImpl(bot, nativeContact.group)
     override val roles: List<MiraiRole> = listOf(nativeContact.simbotRole)
 
     override val status: UserStatus =
@@ -41,3 +42,4 @@ internal val AnonymousStatus = UserStatus.builder().anonymous().build()
 
 
 internal fun NativeMiraiMember.asSimbot(bot: MiraiBotImpl): MiraiMemberImpl = MiraiMemberImpl(bot, this)
+internal fun NativeMiraiMember.asSimbot(bot: MiraiBotImpl, initGroup: MiraiGroupImpl): MiraiMemberImpl = MiraiMemberImpl(bot, this, initGroup)

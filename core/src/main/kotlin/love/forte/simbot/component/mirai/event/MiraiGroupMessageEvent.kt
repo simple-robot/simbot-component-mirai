@@ -1,6 +1,8 @@
 package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.Api4J
+import love.forte.simbot.action.ReplySupport
+import love.forte.simbot.action.SendSupport
 import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
@@ -27,7 +29,7 @@ public typealias NativeMiraiGroupMessageEvent = net.mamoe.mirai.event.events.Gro
  */
 public interface MiraiGroupMessageEvent :
     MiraiSimbotChatroomMessageEvent<NativeMiraiGroupMessageEvent>,
-    GroupMessageEvent {
+    GroupMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
     override val metadata: Metadata

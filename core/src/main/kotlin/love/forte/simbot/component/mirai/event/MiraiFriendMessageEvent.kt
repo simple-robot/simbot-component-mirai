@@ -1,6 +1,8 @@
 package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.Api4J
+import love.forte.simbot.action.ReplySupport
+import love.forte.simbot.action.SendSupport
 import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiFriend
 import love.forte.simbot.component.mirai.MiraiStranger
@@ -31,7 +33,7 @@ public typealias NativeMiraiStrangerMessageEvent = net.mamoe.mirai.event.events.
 public interface MiraiFriendMessageEvent :
     MiraiSimbotContactMessageEvent<NativeMiraiFriendMessageEvent>,
     MiraiFriendEvent<NativeMiraiFriendMessageEvent>,
-    FriendMessageEvent {
+    FriendMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
     override val metadata: Metadata
@@ -75,7 +77,7 @@ public interface MiraiFriendMessageEvent :
  */
 public interface MiraiStrangerMessageEvent :
     MiraiSimbotContactMessageEvent<NativeMiraiStrangerMessageEvent>,
-    ContactMessageEvent {
+    ContactMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
     override val key: Event.Key<MiraiStrangerMessageEvent> get() = Key
