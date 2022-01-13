@@ -22,15 +22,50 @@ allprojects {
     group = P.ComponentMirai.GROUP
     version = P.ComponentMirai.VERSION
 
+    apply(plugin = "maven-publish")
+    apply(plugin = "java")
+    apply(plugin = "signing")
+
     repositories {
         mavenLocal()
         mavenCentral()
     }
 
-    apply(plugin = "maven-publish")
-    apply(plugin = "signing")
+    println("[publishing-configure] - [$name] configured.")
+    // set gpg file path to root
+    val secretKeyRingFileKey = "signing.secretKeyRingFile"
+    // val secretKeyRingFile = local().getProperty(secretKeyRingFileKey) ?: throw kotlin.NullPointerException(secretKeyRingFileKey)
+    val secretRingFile = File(project.rootDir, "ForteScarlet.gpg")
+    extra[secretKeyRingFileKey] = secretRingFile
+    setProperty(secretKeyRingFileKey, secretRingFile)
+
+    signing {
+        // val key = local().getProperty("signing.keyId")
+        // val password = local().getProperty("signing.password")
+        // this.useInMemoryPgpKeys(key, password)
+        sign(publishing.publications)
+    }
+
 }
 
 tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
+}
+
+
+val credentialsUsername: String? = local().getProperty("credentials.username")
+val credentialsPassword: String? = local().getProperty("credentials.password")
+
+if (credentialsUsername != null && credentialsPassword != null) {
+    nexusPublishing {
+        packageGroup.set(P.Simbot.GROUP)
+
+        repositories {
+            sonatype {
+                username.set(credentialsUsername)
+                password.set(credentialsPassword)
+            }
+
+        }
+    }
 }

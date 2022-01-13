@@ -19,6 +19,10 @@ internal lateinit var prop: Properties
 fun Project.local(): Properties {
     if (::prop.isInitialized) return prop
     val f = File(rootDir, "local.properties")
+    if (!f.exists()) {
+        prop = Properties()
+        return prop
+    }
     val properties = Properties().also {
         java.io.FileInputStream(f).use(it::load)
     }
