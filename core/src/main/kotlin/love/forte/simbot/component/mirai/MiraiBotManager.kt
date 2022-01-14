@@ -24,6 +24,21 @@ import java.io.File
 import kotlin.time.ExperimentalTime
 
 
+private fun hex(hex: String): ByteArray {
+    val result = ByteArray(hex.length / 2)
+    for (idx in result.indices) {
+        val srcIdx = idx * 2
+        val high = hex[srcIdx].toString().toInt(16) shl 4
+        val low = hex[srcIdx + 1].toString().toInt(16)
+        result[idx] = (high or low).toByte()
+    }
+
+    return result
+}
+
+
+
+
 /**
  *
  * Mirai组件中对 [MiraiBot] 进行管理的 [BotManager].
@@ -57,7 +72,14 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
 
         val configuration = json.decodeFromJsonElement(serializer, jsonElement)
 
-        return register(configuration.code, configuration.password, configuration.miraiBotConfiguration)
+        val password = configuration.password
+        if (password != null) {
+            return register(configuration.code, password = password, configuration.miraiBotConfiguration)
+        }
+        val passwordMD5 = configuration.passwordMD5
+            ?: throw VerifyFailureException("One of the [password] or [passwordMD5] must exist")
+
+        return register(configuration.code, passwordMD5 = hex(passwordMD5), configuration.miraiBotConfiguration)
     }
 
     /**
@@ -75,7 +97,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param password 密码
      */
     public fun register(code: Long, password: String): MiraiBot =
-        register(code, password, MiraiViaBotFileConfiguration(code, password).miraiBotConfiguration)
+        register(code, password, MiraiViaBotFileConfiguration(code, password = password).miraiBotConfiguration)
 
 
     /**
@@ -153,8 +175,8 @@ private val CJson
 @Serializable
 internal data class MiraiViaBotFileConfiguration(
     val code: Long,
-    val password: String, // support for password md5
-    val component: String? = null,
+    val password: String? = null,
+    val passwordMD5: String? = null,
 
     /** mirai配置自定义deviceInfoSeed的时候使用的随机种子。默认为1. */
     private val deviceInfoSeed: Long = 1,

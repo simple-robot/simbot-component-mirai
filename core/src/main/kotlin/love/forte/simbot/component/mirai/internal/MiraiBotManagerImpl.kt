@@ -127,6 +127,9 @@ internal class MiraiBotManagerImpl(
         completableJob.join()
     }
 
+    override fun toString(): String {
+        return "MiraiBotManager@${hashCode()}(botSize=${botCache.size}, isActive=$isActive, eventProcessor$eventProcessor)"
+    }
 
 }
 

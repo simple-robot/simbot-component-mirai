@@ -85,6 +85,10 @@ internal class MiraiBotImpl(
         true
     }
 
+
+    override fun toString(): String {
+        return "MiraiBot(id=$id, isActive=$isActive, eventProcessor=$eventProcessor, manager=$manager)"
+    }
 }
 
 private val MiraiBotStatus = UserStatus.builder().bot().fakeUser().build()
