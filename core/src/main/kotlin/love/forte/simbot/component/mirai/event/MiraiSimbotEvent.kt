@@ -9,6 +9,7 @@ import love.forte.simbot.event.ContactMessageEvent
 import love.forte.simbot.event.Event
 import love.forte.simbot.message.doSafeCast
 
+//region typealias
 /**
  * Mirai的原生事件类型。
  *
@@ -22,6 +23,12 @@ public typealias NativeMiraiEvent = net.mamoe.mirai.event.Event
  * @see net.mamoe.mirai.event.events.BotEvent
  */
 public typealias NativeMiraiBotEvent = net.mamoe.mirai.event.events.BotEvent
+/**
+ * Mirai的原生事件类型。
+ *
+ * @see net.mamoe.mirai.event.events.GroupEvent
+ */
+public typealias NativeMiraiGroupEvent = net.mamoe.mirai.event.events.GroupEvent
 
 /**
  * Mirai的原生事件类型。
@@ -37,6 +44,7 @@ public typealias NativeMiraiMessageEvent = net.mamoe.mirai.event.events.MessageE
  * @see net.mamoe.mirai.event.events.UserMessageEvent
  */
 public typealias NativeMiraiUserMessageEvent = net.mamoe.mirai.event.events.UserMessageEvent
+//endregion
 
 
 /**
@@ -210,7 +218,7 @@ public interface MiraiSimbotUserMessageEvent<E : NativeMiraiMessageEvent> :
 /**
  * 在 mirai [NativeMiraiContact] 下与 [love.forte.simbot.definition.Group] 相关的事件。
  */
-public interface MiraiSimbotChatroomMessageEvent<E : NativeMiraiMessageEvent> :
+public interface MiraiSimbotGroupMessageEvent<E : NativeMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
     ChatroomMessageEvent {
 

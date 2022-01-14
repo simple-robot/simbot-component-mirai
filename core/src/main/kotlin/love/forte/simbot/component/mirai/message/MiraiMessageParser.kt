@@ -58,10 +58,10 @@ public fun NativeMiraiSingleMessage.asSimbotMessage(): Message.Element<*> =
  *
  * **注意：通过此方式得到的 [Message] 不可参与序列化。 **
  *
- * @see SimbotSendOnlyComputableMiraiMessage
+ * @see SimpleMiraiSendOnlyComputableSimbotMessage
  */
 public fun simbotMessage(factory: (Contact) -> NativeMiraiMessage): Message =
-    SimbotSendOnlyComputableMiraiMessage(factory)
+    SimpleMiraiSendOnlyComputableSimbotMessage(factory)
 
 
 /**
@@ -69,7 +69,7 @@ public fun simbotMessage(factory: (Contact) -> NativeMiraiMessage): Message =
  */
 public suspend fun Message.toNativeMiraiMessage(contact: Contact): NativeMiraiMessage {
     return when (this) {
-        is SimbotNativeMiraiMessage -> nativeMiraiSingleMessage
+        is MiraiNativeDirectlySimbotMessage<*> -> nativeMiraiMessage
         is MiraiNativeComputableSimbotMessage<*> -> nativeMiraiMessage(contact)
         else -> {
             val list = mutableListOf<NativeMiraiMessage>()

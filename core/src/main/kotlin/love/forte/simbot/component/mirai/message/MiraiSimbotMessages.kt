@@ -26,7 +26,11 @@ public sealed interface MiraiSimbotMessage<E : MiraiSimbotMessage<E>> : Message.
  * 标记性质的接口。
  * 标记一个类型为 **仅** 用于发送使用的 [Message.Element]. 这类消息将 **不保证** 能够序列化。
  *
+ * @see MiraiShare
+ * @see MiraiMusicShare
+ * @see MiraiSendOnlyImage
  * @see MiraiSimbotMessage
+ * @see SimpleMiraiSendOnlyComputableSimbotMessage
  */
 public interface MiraiSendOnlySimbotMessage<E : MiraiSendOnlySimbotMessage<E>> : MiraiSimbotMessage<E>
 
@@ -36,6 +40,8 @@ public interface MiraiSendOnlySimbotMessage<E : MiraiSendOnlySimbotMessage<E>> :
  * mirai与simbot相互转化的用于发送的 [Message.Element]. 可计算的 message 通常可用于发送与接收。当作为接收消息使用的时候，
  * 必须保证其可以进行序列化。
  *
+ * 对于不需要计算的消息以及接收到的没有特殊对应实现的消息，通常都会使用 [SimbotNativeMiraiMessage] 进行直接包装。
+ *
  * @see MiraiSimbotMessage
  * @see SimbotNativeMiraiMessage
  */
@@ -43,6 +49,27 @@ public interface MiraiNativeComputableSimbotMessage<E : MiraiNativeComputableSim
     public suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage
 }
 
+/**
+ * 实现 [MiraiNativeComputableSimbotMessage], 并提供一个可以直接获取的属性 [nativeMiraiMessage] 来代替需要使用 [Contact] 来计算获取的函数。
+ * 此类型代表一些不需要计算便可直接获取到 [NativeMiraiMessage] 实例的消息类型。
+ *
+ * @see MiraiShare
+ * @see MiraiMusicShare
+ * @see SimbotNativeMiraiMessage
+ * @see MiraiNativeComputableSimbotMessage
+ */
+public interface MiraiNativeDirectlySimbotMessage<E : MiraiNativeComputableSimbotMessage<E>> :
+    MiraiNativeComputableSimbotMessage<E> {
+    /**
+     * 不需要通过 [Contact] 计算 [nativeMiraiMessage] 而直接获取 [NativeMiraiMessage] 对象。
+     */
+    public val nativeMiraiMessage: NativeMiraiMessage
+
+
+    override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
+        return nativeMiraiMessage
+    }
+}
 
 /**
  *
@@ -57,26 +84,24 @@ public interface MiraiSendOnlyComputableSimbotMessage<E : MiraiSendOnlyComputabl
 
 /**
  * 直接将一个 [NativeMiraiSingleMessage] 作为 [Message] 使用，将会忽略掉 [MiraiNativeComputableSimbotMessage.nativeMiraiMessage] 的参数 [Contact].
- * [NativeMiraiSingleMessage] -> [Message]
+ * [NativeMiraiSingleMessage] -> [Message].
+ *
+ * 所有未提供特殊实现的mirai消息对象都会使用此类型进行包装。
  */
 @SerialName("mirai.nativeMessage")
 @Serializable
 public class SimbotNativeMiraiMessage(
-    public val nativeMiraiSingleMessage: NativeMiraiSingleMessage
-) : MiraiNativeComputableSimbotMessage<SimbotNativeMiraiMessage> {
+    override val nativeMiraiMessage: NativeMiraiSingleMessage,
+) : MiraiNativeDirectlySimbotMessage<SimbotNativeMiraiMessage> {
     override val key: Message.Key<SimbotNativeMiraiMessage> get() = Key
-
-    override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiSingleMessage {
-        return nativeMiraiSingleMessage
-    }
 
     override fun equals(other: Any?): Boolean {
         if (other !is SimbotNativeMiraiMessage) return false
-        return other.nativeMiraiSingleMessage == this.nativeMiraiSingleMessage
+        return other.nativeMiraiMessage == this.nativeMiraiMessage
     }
 
-    override fun toString(): String = nativeMiraiSingleMessage.toString()
-    override fun hashCode(): Int = nativeMiraiSingleMessage.hashCode()
+    override fun toString(): String = nativeMiraiMessage.toString()
+    override fun hashCode(): Int = nativeMiraiMessage.hashCode()
 
     public companion object Key : Message.Key<SimbotNativeMiraiMessage> {
         override val component: Component
@@ -91,9 +116,9 @@ public class SimbotNativeMiraiMessage(
 /**
  * 通过函数 (suspend ([Contact]) -> [NativeMiraiMessage]) 得到一个 **仅用于发送** 的 [Message].
  *
- * [SimbotSendOnlyComputableMiraiMessage] **不可序列化**，仅用于在发送的时候使用任意的 [NativeMiraiMessage] 作为 [Message] 进行发送。
+ * [SimpleMiraiSendOnlyComputableSimbotMessage] **不可序列化**，仅用于在发送的时候使用任意的 [NativeMiraiMessage] 作为 [Message] 进行发送。
  *
- * [SimbotSendOnlyComputableMiraiMessage] 通过一个挂起函数 `suspend (Contact) -> NativeMiraiMessage`
+ * [SimpleMiraiSendOnlyComputableSimbotMessage] 通过一个挂起函数 `suspend (Contact) -> NativeMiraiMessage`
  * 接收一个 [Contact] 来根据当前发送消息的目标来获取一个消息实例。
  *
  * 如果你需要发送的消息能够忽略 [Contact] 并直接提供一个 [NativeMiraiMessage], 并且你希望此消息能够序列化
@@ -102,10 +127,10 @@ public class SimbotNativeMiraiMessage(
  * @see SimbotNativeMiraiMessage
  * @see MiraiNativeComputableSimbotMessage
  */
-public class SimbotSendOnlyComputableMiraiMessage(
+public class SimpleMiraiSendOnlyComputableSimbotMessage(
     private val factory: suspend (Contact) -> NativeMiraiMessage,
-) : MiraiSendOnlyComputableSimbotMessage<SimbotSendOnlyComputableMiraiMessage> {
-    override val key: Message.Key<SimbotSendOnlyComputableMiraiMessage> get() = Key
+) : MiraiSendOnlyComputableSimbotMessage<SimpleMiraiSendOnlyComputableSimbotMessage> {
+    override val key: Message.Key<SimpleMiraiSendOnlyComputableSimbotMessage> get() = Key
 
 
     override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
@@ -114,7 +139,7 @@ public class SimbotSendOnlyComputableMiraiMessage(
 
 
     override fun equals(other: Any?): Boolean {
-        if (other !is SimbotSendOnlyComputableMiraiMessage) return false
+        if (other !is SimpleMiraiSendOnlyComputableSimbotMessage) return false
         return other === this
     }
 
@@ -122,12 +147,12 @@ public class SimbotSendOnlyComputableMiraiMessage(
     override fun hashCode(): Int = factory.hashCode()
 
 
-    public companion object Key : Message.Key<SimbotSendOnlyComputableMiraiMessage> {
+    public companion object Key : Message.Key<SimpleMiraiSendOnlyComputableSimbotMessage> {
         override val component: Component
             get() = ComponentMirai.component
 
-        override val elementType: KClass<SimbotSendOnlyComputableMiraiMessage>
-            get() = SimbotSendOnlyComputableMiraiMessage::class
+        override val elementType: KClass<SimpleMiraiSendOnlyComputableSimbotMessage>
+            get() = SimpleMiraiSendOnlyComputableSimbotMessage::class
     }
 }
 

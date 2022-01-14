@@ -28,7 +28,7 @@ public typealias NativeMiraiGroupMessageEvent = net.mamoe.mirai.event.events.Gro
  * @author ForteScarlet
  */
 public interface MiraiGroupMessageEvent :
-    MiraiSimbotChatroomMessageEvent<NativeMiraiGroupMessageEvent>,
+    MiraiSimbotGroupMessageEvent<NativeMiraiGroupMessageEvent>,
     GroupMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
@@ -77,7 +77,7 @@ public interface MiraiGroupMessageEvent :
     public companion object Key :
         BaseEventKey<MiraiGroupMessageEvent>(
             "mirai.group_message",
-            MiraiSimbotChatroomMessageEvent, GroupMessageEvent
+            MiraiSimbotGroupMessageEvent, GroupMessageEvent
         ) {
         override fun safeCast(value: Any): MiraiGroupMessageEvent? = doSafeCast(value)
     }

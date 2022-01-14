@@ -6,13 +6,18 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import love.forte.simbot.CharSequenceID
 import love.forte.simbot.ID
+import love.forte.simbot.component.mirai.ID
+import love.forte.simbot.component.mirai.buildMessageSource
 import love.forte.simbot.component.mirai.event.MiraiMessageMetadata.Companion.of
 import love.forte.simbot.component.mirai.message.asSimbotMessage
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.Messages
 import love.forte.simbot.message.ReceivedMessageContent
 import love.forte.simbot.message.toMessages
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.MessageChain
+import net.mamoe.mirai.message.data.MessageSource
+import net.mamoe.mirai.message.data.SingleMessage
+import net.mamoe.mirai.message.data.source
 
 
 /**
@@ -54,54 +59,21 @@ public abstract class MiraiMessageMetadata : Message.Metadata() {
 
     /**
      * 三个定位属性 [ids][MessageSource.ids], [internalIds][MessageSource.internalIds], [time][MessageSource.time],
-     * 还有两个构建用属性 [botId][MessageSource.botId], [kind][MessageSource.kind],
+     * 还有两个构建用属性 [botId][MessageSource.botId], [kind][net.mamoe.mirai.message.data.MessageSourceKind],
      * 通过 `:` 拼接为字符ID。
      */
     override val id: CharSequenceID by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        with(source) {
-            buildString {
-                ids.joinTo(this, ARRAY_SEPARATOR)
-                append(ELEMENT_SEPARATOR)
-                internalIds.joinTo(this, ARRAY_SEPARATOR)
-                append(ELEMENT_SEPARATOR).append(time)
-                append(ELEMENT_SEPARATOR).append(botId)
-                append(ELEMENT_SEPARATOR).append(kind)
-            }
-        }.ID
+        source.ID
     }
 
     public companion object {
-        private const val ARRAY_SEPARATOR = "."
-        private const val ELEMENT_SEPARATOR = ":"
 
         /**
          * 根据ID解析为 [MiraiMessageMetadata].
          */
         @JvmStatic
         public fun of(id: ID): MiraiMessageMetadata {
-            val elements = id.toString().split(ELEMENT_SEPARATOR)
-            require(elements.size == 5) { "The number of elements in the ID must be 5, but ${elements.size}" }
-
-            // ids
-            val ids = elements[0].splitToSequence(ARRAY_SEPARATOR).map(String::toInt)
-
-            // internal ids
-            val internalIds = elements[1].splitToSequence(ARRAY_SEPARATOR).map(String::toInt)
-
-            // time
-            val time = elements[2].toInt()
-
-            // botId
-            val botId = elements[3].toLong()
-
-            // kind
-            val kind = MessageSourceKind.valueOf(elements[4])
-
-            val source = MessageSourceBuilder().id(*ids.toList().toIntArray())
-                .internalId(*internalIds.toList().toIntArray())
-                .time(time).build(botId, kind)
-
-            return miraiMessageMetadata(source)
+            return miraiMessageMetadata(id.buildMessageSource())
         }
 
 

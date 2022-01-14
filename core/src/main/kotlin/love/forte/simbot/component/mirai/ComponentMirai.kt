@@ -1,7 +1,6 @@
 package love.forte.simbot.component.mirai
 
 import com.google.auto.service.AutoService
-import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.plus
 import kotlinx.serialization.modules.polymorphic
@@ -10,6 +9,7 @@ import love.forte.simbot.*
 import love.forte.simbot.component.mirai.message.*
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.message.MessageSerializers
+import net.mamoe.mirai.utils.MiraiExperimentalApi
 
 
 /**
@@ -28,13 +28,13 @@ public object ComponentMirai {
             } else componentValue
         }
 
-    /**
-     * 一个可以由内部使用的默认Json序列化器。
-     */
-    internal val defaultJson = Json {
-        isLenient = true
-        ignoreUnknownKeys = true
-    }
+// /**
+    //  * 一个可以由内部使用的默认Json序列化器。
+    //  */
+    // internal val defaultJson = Json {
+    //     isLenient = true
+    //     ignoreUnknownKeys = true
+    // }
 
 }
 
@@ -66,15 +66,26 @@ private class MiraiComponentInformation : ComponentInformation {
                     polymorphic(Message.Element::class) {
                         subclass(SimbotNativeMiraiMessage.serializer())
 
+                        ////
+
                         polymorphic(MiraiImage::class) {
                             subclass(MiraiImageImpl.serializer())
                         }
                         subclass(MiraiImageImpl.serializer())
 
+                        ////
+
                         polymorphic(MiraiAudio::class) {
                             subclass(MiraiAudioImpl.serializer())
                         }
                         subclass(MiraiAudioImpl.serializer())
+
+                        ////
+                        @OptIn(MiraiExperimentalApi::class)
+                        subclass(MiraiShare.serializer())
+                        subclass(MiraiQuoteReply.serializer())
+                        subclass(MiraiMusicShare.serializer())
+
                     }
                 }
 
