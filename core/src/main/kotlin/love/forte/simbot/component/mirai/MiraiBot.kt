@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import love.forte.simbot.*
 import love.forte.simbot.definition.Guild
+import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.message.Image
 import love.forte.simbot.resources.Resource
@@ -26,7 +27,7 @@ public typealias NativeMiraiBot = net.mamoe.mirai.Bot
  * @see Bot
  * @author ForteScarlet
  */
-public interface MiraiBot : Bot {
+public interface MiraiBot : Bot, UserInfo {
 
     /**
      * 得到这个Bot所代表的原生mirai bot。

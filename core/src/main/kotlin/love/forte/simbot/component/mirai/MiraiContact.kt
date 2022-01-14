@@ -14,7 +14,7 @@ public typealias NativeMiraiContact = net.mamoe.mirai.contact.Contact
 /**
  * Mirai的原生类型
  *
- * @see net.mamoe.mirai.contact.Contact
+ * @see net.mamoe.mirai.contact.User
  */
 public typealias NativeMiraiUser = net.mamoe.mirai.contact.User
 
