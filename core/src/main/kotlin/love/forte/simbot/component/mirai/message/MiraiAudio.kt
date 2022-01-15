@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 import love.forte.simbot.Component
 import love.forte.simbot.component.mirai.ComponentMirai
 import love.forte.simbot.message.Message
-import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.StreamableResource
 import net.mamoe.mirai.contact.AudioSupported
 import net.mamoe.mirai.contact.Contact
@@ -32,9 +31,6 @@ public class MiraiSendOnlyAudio(
         if (other !is MiraiSendOnlyAudio) return false
         return other === this || other.resource == resource
     }
-
-    @Suppress("RedundantSuspendModifier")
-    public suspend fun resource(): Resource = resource
 
     override fun toString(): String {
         TODO("Not yet implemented")

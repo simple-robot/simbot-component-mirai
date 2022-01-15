@@ -2,6 +2,7 @@ package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.event.BaseEventKey
 import love.forte.simbot.event.ChangedEvent
 import love.forte.simbot.event.Event
@@ -58,14 +59,14 @@ public typealias NativeMiraiGroupAllowMemberInviteEvent = net.mamoe.mirai.event.
  * @see MiraiGroupAllowConfessTalkEvent
  * @see MiraiGroupAllowMemberInviteEvent
  */
-public interface MiraiGroupSettingEvent<T, E : NativeMiraiGroupSettingChangeEvent<T>>
-    : MiraiSimbotBotEvent<E>,
+public interface MiraiGroupSettingEvent<T, E : NativeMiraiGroupSettingChangeEvent<T>> : MiraiSimbotBotEvent<E>,
     ChangedEvent<MiraiGroup, T, T> {
 
     override val bot: MiraiBot
     override val source: MiraiGroup
     override val before: T
     override val after: T
+
 
     //// Impl
     override suspend fun after(): T = after
@@ -85,9 +86,16 @@ public interface MiraiGroupSettingEvent<T, E : NativeMiraiGroupSettingChangeEven
  * 群名改变事件。
  * @see NativeMiraiGroupNameChangeEvent
  */
-public interface MiraiGroupNameChangeEvent :
-    MiraiGroupSettingEvent<String, NativeMiraiGroupNameChangeEvent> {
+public interface MiraiGroupNameChangeEvent : MiraiGroupSettingEvent<String, NativeMiraiGroupNameChangeEvent> {
 
+    /**
+     * 操作者。
+     */
+    public val operator: MiraiMember
+
+    //// Impl
+
+    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
     override val key: Event.Key<MiraiGroupNameChangeEvent> get() = Key
 
     public companion object Key : BaseEventKey<MiraiGroupNameChangeEvent>(
@@ -104,6 +112,13 @@ public interface MiraiGroupNameChangeEvent :
 public interface MiraiGroupEntranceAnnouncementChangeEvent :
     MiraiGroupSettingEvent<String, NativeMiraiGroupEntranceAnnouncementChangeEvent> {
 
+    /**
+     * 操作者。
+     */
+    public val operator: MiraiMember
+    ////
+
+    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
     override val key: Event.Key<MiraiGroupEntranceAnnouncementChangeEvent> get() = Key
 
     public companion object Key : BaseEventKey<MiraiGroupEntranceAnnouncementChangeEvent>(
@@ -117,9 +132,15 @@ public interface MiraiGroupEntranceAnnouncementChangeEvent :
  * 群 "全员禁言" 功能状态改变
  * @see NativeMiraiGroupMuteAllEvent
  */
-public interface MiraiGroupMuteAllEvent :
-    MiraiGroupSettingEvent<Boolean, NativeMiraiGroupMuteAllEvent> {
+public interface MiraiGroupMuteAllEvent : MiraiGroupSettingEvent<Boolean, NativeMiraiGroupMuteAllEvent> {
 
+    /**
+     * 操作者。
+     */
+    public val operator: MiraiMember
+
+    ////
+    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
     override val key: Event.Key<MiraiGroupMuteAllEvent> get() = Key
 
     public companion object Key : BaseEventKey<MiraiGroupMuteAllEvent>(
@@ -136,6 +157,14 @@ public interface MiraiGroupMuteAllEvent :
 public interface MiraiGroupAllowAnonymousChatEvent :
     MiraiGroupSettingEvent<Boolean, NativeMiraiGroupAllowAnonymousChatEvent> {
 
+    /**
+     * 操作者。
+     */
+    public val operator: MiraiMember
+
+    ////
+    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
+
     override val key: Event.Key<MiraiGroupAllowAnonymousChatEvent> get() = Key
 
     public companion object Key : BaseEventKey<MiraiGroupAllowAnonymousChatEvent>(
@@ -151,7 +180,7 @@ public interface MiraiGroupAllowAnonymousChatEvent :
  */
 public interface MiraiGroupAllowConfessTalkEvent :
     MiraiGroupSettingEvent<Boolean, NativeMiraiGroupAllowConfessTalkEvent> {
-
+    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
     override val key: Event.Key<MiraiGroupAllowConfessTalkEvent> get() = Key
 
     public companion object Key : BaseEventKey<MiraiGroupAllowConfessTalkEvent>(
@@ -168,6 +197,13 @@ public interface MiraiGroupAllowConfessTalkEvent :
 public interface MiraiGroupAllowMemberInviteEvent :
     MiraiGroupSettingEvent<Boolean, NativeMiraiGroupAllowMemberInviteEvent> {
 
+    /**
+     * 操作者。
+     */
+    public val operator: MiraiMember
+
+    ////
+    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
     override val key: Event.Key<MiraiGroupAllowMemberInviteEvent> get() = Key
 
     public companion object Key : BaseEventKey<MiraiGroupAllowMemberInviteEvent>(

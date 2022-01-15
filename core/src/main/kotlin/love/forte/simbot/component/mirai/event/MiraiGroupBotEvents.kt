@@ -189,7 +189,6 @@ public sealed interface MiraiBotMuteRelateEvent<E : NativeMiraiGroupEvent> :
     //// Impl
 
     override val source: MiraiGroup get() = group
-    public suspend fun operator(): MiraiMember = operator
     override suspend fun after(): Boolean = after
     override suspend fun before(): Boolean = before
     override suspend fun source(): MiraiGroup = source

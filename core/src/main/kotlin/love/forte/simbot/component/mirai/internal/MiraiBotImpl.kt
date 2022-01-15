@@ -179,6 +179,38 @@ private fun MiraiBotImpl.registerEvents() {
                 }
             //endregion
 
+            //region Group settings event
+            is NativeMiraiGroupSettingChangeEvent<*> -> when(this) {
+                is NativeMiraiGroupNameChangeEvent ->
+                    doHandler(this, MiraiGroupNameChangeEvent) {
+                        MiraiGroupNameChangeEventImpl(this@registerEvents, this)
+                    }
+                is NativeMiraiGroupEntranceAnnouncementChangeEvent ->
+                    doHandler(this, MiraiGroupEntranceAnnouncementChangeEvent) {
+                        MiraiGroupEntranceAnnouncementChangeEventImpl(this@registerEvents, this)
+                    }
+                is NativeMiraiGroupMuteAllEvent ->
+                    doHandler(this, MiraiGroupMuteAllEvent) {
+                        MiraiGroupMuteAllEventImpl(this@registerEvents, this)
+                    }
+                is NativeMiraiGroupAllowAnonymousChatEvent ->
+                    doHandler(this, MiraiGroupAllowAnonymousChatEvent) {
+                        MiraiGroupAllowAnonymousChatEventImpl(this@registerEvents, this)
+                    }
+                is NativeMiraiGroupAllowConfessTalkEvent ->
+                    doHandler(this, MiraiGroupAllowConfessTalkEvent) {
+                        MiraiGroupAllowConfessTalkEventImpl(this@registerEvents, this)
+                    }
+                is NativeMiraiGroupAllowMemberInviteEvent ->
+                    doHandler(this, MiraiGroupAllowMemberInviteEvent) {
+                        MiraiGroupAllowMemberInviteEventImpl(this@registerEvents, this)
+                    }
+            }
+            //endregion
+
+
+
+
 
 
             else -> {
