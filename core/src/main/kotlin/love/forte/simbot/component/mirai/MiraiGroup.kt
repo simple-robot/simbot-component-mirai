@@ -50,6 +50,7 @@ public interface MiraiGroup : Group, MiraiChatroom {
 
 
     override suspend fun owner(): MiraiMember = owner
+
     @OptIn(Api4J::class)
     override fun getMembers(groupingId: ID?, limiter: Limiter): Stream<out MiraiMember>
     override suspend fun members(groupingId: ID?, limiter: Limiter): Flow<MiraiMember>
