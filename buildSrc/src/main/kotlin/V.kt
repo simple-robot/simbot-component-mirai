@@ -48,6 +48,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
 
         object Api : Simbot(id = "simbot-api")
         object Core : Simbot(id = "simbot-core")
+        object SimbotBootAnnotation : Simbot(group = P.Simboot.GROUP, id = "simboot-core-annotation")
         object ComponentCore : Simbot(id = "simbot-component-core")
 
     }

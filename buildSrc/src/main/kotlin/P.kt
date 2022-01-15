@@ -26,6 +26,11 @@ sealed class P : SimbotProject() {
         const val VERSION = "3.0.0.preview.0.6"
     }
 
+    object Simboot {
+        const val GROUP = "love.forte.simbot.boot"
+        const val VERSION = Simbot.VERSION
+    }
+
     object ComponentMirai {
         const val GROUP = "${Simbot.GROUP}.component" // love.forte.simbot.component
         val VERSION = "${Simbot.VERSION}-${V.Mirai.VERSION_SIM}.0.1"

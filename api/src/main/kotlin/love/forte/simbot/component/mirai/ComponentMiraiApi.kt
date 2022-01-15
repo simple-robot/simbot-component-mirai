@@ -7,6 +7,4 @@ package love.forte.simbot.component.mirai
  */
 public object ComponentMiraiApi {
     public const val COMPONENT_ID: String = "simbot.mirai"
-
-
 }

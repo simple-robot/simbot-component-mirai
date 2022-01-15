@@ -9,3 +9,6 @@ project(":core").name = "simbot-component-mirai-core"
 
 include(":boot")
 project(":boot").name = "simbot-component-mirai-boot"
+
+include(":boot-annotation")
+project(":boot-annotation").name = "simbot-component-mirai-boot-annotation"
