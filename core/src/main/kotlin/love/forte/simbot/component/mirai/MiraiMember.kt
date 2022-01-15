@@ -51,9 +51,9 @@ public interface MiraiMember : GroupMember, MiraiContact {
     }
 
     @OptIn(Api4J::class)
-    override val roles: List<MiraiRole>
+    override val roles: List<MemberRole>
 
-    override suspend fun roles(): Flow<MiraiRole> = roles.asFlow()
+    override suspend fun roles(): Flow<MemberRole> = roles.asFlow()
 
 
     override val joinTime: Timestamp get() = Timestamp.NotSupport

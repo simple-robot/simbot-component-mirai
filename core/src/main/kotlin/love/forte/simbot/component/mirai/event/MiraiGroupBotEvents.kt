@@ -11,6 +11,7 @@ import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.*
 import love.forte.simbot.message.doSafeCast
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 //region typealias
 /**
@@ -133,28 +134,28 @@ public interface MiraiBotLeaveEvent :
  * Bot 在群里的权限被改变。
  * 操作人一定是群主。
  *
- * 此事件属于一个 [已变动事件][ChangedEvent], [变动源][source] 为一个群，
+ * 此事件属于一个 [已变动事件][ChangedEvent], [变动源][source] 即当前bot，
  * 变动前后为bot在群里的权限。
  *
  * @see NativeMiraiBotGroupPermissionChangeEvent
  */
 public interface MiraiBotGroupPermissionChangeEvent :
     MiraiGroupBotEvent<NativeMiraiBotGroupPermissionChangeEvent>,
-    ChangedEvent<MiraiGroup, MiraiPermission, MiraiPermission> {
+    ChangedEvent<MiraiBot, MemberPermission, MemberPermission> {
     override val bot: MiraiBot
     override val group: MiraiGroup
-    override val before: MiraiPermission
-    override val after: MiraiPermission
+    override val before: MemberPermission
+    override val after: MemberPermission
 
     // Impl
 
-    override val source: MiraiGroup get() = group
+    override val source: MiraiBot get() = bot
     override val organization: MiraiGroup get() = group
     override suspend fun group(): MiraiGroup = group
     override suspend fun organization(): MiraiGroup = group
-    override suspend fun after(): MiraiPermission = after
-    override suspend fun before(): MiraiPermission = before
-    override suspend fun source(): MiraiGroup = group
+    override suspend fun after(): MemberPermission = after
+    override suspend fun before(): MemberPermission = before
+    override suspend fun source(): MiraiBot = bot
 
     override val key: Event.Key<MiraiBotGroupPermissionChangeEvent> get() = Key
 
@@ -180,6 +181,16 @@ public sealed interface MiraiBotMuteRelateEvent<E : NativeMiraiGroupEvent> :
 
     override val bot: MiraiBot
     override val group: MiraiGroup
+
+    /**
+     * 剩余禁言时间的时长。
+     */
+    public val duration: Duration
+
+    /**
+     * @see duration
+     */
+    public val durationSeconds: Int
 
     /**
      * 操作人。
@@ -219,8 +230,8 @@ public sealed interface MiraiBotMuteRelateEvent<E : NativeMiraiGroupEvent> :
  */
 public interface MiraiBotMuteEvent :
     MiraiGroupBotEvent<NativeMiraiBotMuteEvent>, MiraiBotMuteRelateEvent<NativeMiraiBotMuteEvent> {
-    public val duration: Duration
-    public val durationSeconds: Int
+    override val duration: Duration
+    override val durationSeconds: Int
 
     //// Impl
 
@@ -246,6 +257,8 @@ public interface MiraiBotMuteEvent :
 public interface MiraiBotUnmuteEvent :
     MiraiGroupBotEvent<NativeMiraiBotUnmuteEvent>,
     MiraiBotMuteRelateEvent<NativeMiraiBotUnmuteEvent> {
+    override val duration: Duration get() = 0.seconds
+    override val durationSeconds: Int get() = 0
 
     override val bot: MiraiBot
     override val group: MiraiGroup

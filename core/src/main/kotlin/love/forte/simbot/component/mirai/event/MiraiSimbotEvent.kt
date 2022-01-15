@@ -52,7 +52,7 @@ public typealias NativeMiraiUserMessageEvent = net.mamoe.mirai.event.events.User
  *
  * [MiraiEvent] 是 `sealed` 的，其只有两个实现：[MiraiSimbotEvent] 和 [UnsupportedMiraiEvent].
  *
- * [MiraiSimbotEvent] 是其他所有以提供针对性实现的mirai事件的父类型，而 [UnsupportedMiraiEvent] 是其他可能出现的一切未提供支持的事件的统一类型。
+ * [MiraiSimbotEvent] 是所有已提供针对性实现的mirai事件的父类型，而 [UnsupportedMiraiEvent] 是其他可能出现的一切未提供支持的事件的统一类型。
  *
  * @see MiraiSimbotEvent
  * @see UnsupportedMiraiEvent

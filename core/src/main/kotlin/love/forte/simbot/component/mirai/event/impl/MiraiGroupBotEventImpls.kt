@@ -2,9 +2,9 @@ package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.Timestamp
 import love.forte.simbot.action.ActionType
+import love.forte.simbot.component.mirai.MemberPermission
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
-import love.forte.simbot.component.mirai.MiraiPermission
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
@@ -25,8 +25,8 @@ internal class MiraiBotGroupPermissionChangeEventImpl(
     override val metadata: MiraiSimbotEvent.Metadata<NativeMiraiBotGroupPermissionChangeEvent> =
         nativeEvent.toSimpleMetadata()
     override val group: MiraiGroup = nativeEvent.group.asSimbot(bot)
-    override val before: MiraiPermission = nativeEvent.origin.simbotRole.permission
-    override val after: MiraiPermission = nativeEvent.new.simbotRole.permission
+    override val before: MemberPermission = nativeEvent.origin.simbotRole.permission
+    override val after: MemberPermission = nativeEvent.new.simbotRole.permission
 }
 
 /***/
@@ -68,7 +68,7 @@ internal class MiraiBotMuteEventImpl(
     override val group = nativeEvent.group.asSimbot(bot)
     override val operator = nativeEvent.operator.asSimbot(bot, group)
     override val durationSeconds: Int = nativeEvent.durationSeconds
-    override val duration: Duration = durationSeconds.seconds
+    override val duration: Duration get() = durationSeconds.seconds
 }
 
 /***/

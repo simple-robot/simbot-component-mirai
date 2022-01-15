@@ -25,7 +25,7 @@ internal class MiraiFriendRequestEventImpl(
     nativeEvent: NativeMiraiNewFriendRequestEvent
 ) : MiraiFriendRequestEvent {
     override val metadata = nativeEvent.toSimpleMetadata(nativeEvent.eventId.ID)
-    override val friend: RequestUserInfo = nativeEvent.toRequestUserInfo()
+    override val friend: RequestFriendInfo = nativeEvent.toRequestUserInfo()
     override val timestamp: Timestamp = Timestamp.now()
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
     override val type: RequestEvent.Type get() = RequestEvent.Type.APPLICATION
@@ -33,8 +33,8 @@ internal class MiraiFriendRequestEventImpl(
 }
 
 
-private fun NativeMiraiNewFriendRequestEvent.toRequestUserInfo(): RequestUserInfo {
-    return RequestUserInfo(
+private fun NativeMiraiNewFriendRequestEvent.toRequestUserInfo(): RequestFriendInfo {
+    return RequestFriendInfo(
         fromId = fromId,
         fromGroupId = fromGroupId,
         fromGroupName = this.fromGroup?.name,

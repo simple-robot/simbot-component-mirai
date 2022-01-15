@@ -29,17 +29,17 @@ public interface MiraiGroup : Group, MiraiChatroom {
     /**
      * Mirai中，一个群内可能出现的权限是固定的。
      *
-     * @see MiraiRole
+     * @see MemberRole
      */
     @OptIn(Api4J::class)
-    override fun getRoles(groupingId: ID?, limiter: Limiter): Stream<MiraiRole> = Stream.of(*MiraiRole.values())
+    override fun getRoles(groupingId: ID?, limiter: Limiter): Stream<MemberRole> = Stream.of(*MemberRole.values())
 
     /**
      * Mirai中，一个群内可能出现的权限是固定的。
      *
-     * @see MiraiRole
+     * @see MemberRole
      */
-    override suspend fun roles(groupingId: ID?, limiter: Limiter): Flow<MiraiRole> = MiraiRole.values().asFlow()
+    override suspend fun roles(groupingId: ID?, limiter: Limiter): Flow<MemberRole> = MemberRole.values().asFlow()
 
     override val icon: String get() = nativeContact.avatarUrl
     override val name: String get() = nativeContact.name

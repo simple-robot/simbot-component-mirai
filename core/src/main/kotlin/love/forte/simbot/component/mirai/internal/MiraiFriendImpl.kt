@@ -28,4 +28,5 @@ internal class MiraiFriendImpl(
     }
 }
 
-internal fun NativeMiraiFriend.asSimbot(bot: MiraiBotImpl): MiraiFriendImpl = MiraiFriendImpl(bot, this)
+internal fun NativeMiraiFriend.asSimbot(bot: MiraiBotImpl): MiraiFriendImpl =
+    bot.computeFriend(this) { MiraiFriendImpl(bot, this) }

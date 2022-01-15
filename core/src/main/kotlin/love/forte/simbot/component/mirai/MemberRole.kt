@@ -5,11 +5,12 @@ import kotlinx.coroutines.flow.asFlow
 import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.IntID
-import love.forte.simbot.component.mirai.MiraiRole.*
+import love.forte.simbot.component.mirai.MemberRole.*
 import love.forte.simbot.definition.Permission
 import love.forte.simbot.definition.PermissionStatus
 import love.forte.simbot.definition.Role
-import net.mamoe.mirai.contact.MemberPermission
+
+public typealias NativeMiraiMemberPermission = net.mamoe.mirai.contact.MemberPermission
 
 /**
  * 在Mirai中，也就是在QQ中，只有三种角色：
@@ -20,18 +21,18 @@ import net.mamoe.mirai.contact.MemberPermission
  * @property nativeMiraiPermission Mirai中的 [MemberPermission] 类型。
  */
 @Suppress("MemberVisibilityCanBePrivate")
-public enum class MiraiRole(
-    public val nativeMiraiPermission: MemberPermission,
-    public val permission: MiraiPermission
+public enum class MemberRole(
+    public val nativeMiraiPermission: NativeMiraiMemberPermission,
+    public val permission: MemberPermission
 ) : Role {
 
-    OWNER(MemberPermission.OWNER, MiraiPermission.OWNER),
-    ADMINISTRATOR(MemberPermission.ADMINISTRATOR, MiraiPermission.ADMINISTRATOR),
-    MEMBER(MemberPermission.MEMBER, MiraiPermission.MEMBER),
+    OWNER(NativeMiraiMemberPermission.OWNER, MemberPermission.OWNER),
+    ADMINISTRATOR(NativeMiraiMemberPermission.ADMINISTRATOR, MemberPermission.ADMINISTRATOR),
+    MEMBER(NativeMiraiMemberPermission.MEMBER, MemberPermission.MEMBER),
     ;
 
     /**
-     * ID, 等同于 [MemberPermission.level].
+     * ID, 等同于 [net.mamoe.mirai.contact.MemberPermission.level].
      */
     override val id: IntID = nativeMiraiPermission.level.ID
 
@@ -40,25 +41,25 @@ public enum class MiraiRole(
      * 权限列表。在Mirai中实际上的权限，一种角色只有一个。
      */
     @OptIn(Api4J::class)
-    override val permissions: List<MiraiPermission> = listOf(permission)
+    override val permissions: List<MemberPermission> = listOf(permission)
 
     /**
      * 权限列表。在Mirai中实际上的权限，一种角色只有一个。
      */
-    override suspend fun permissions(): Flow<MiraiPermission> = permissions.asFlow()
+    override suspend fun permissions(): Flow<MemberPermission> = permissions.asFlow()
 
 }
 
 
-public inline val MemberPermission.simbotRole: MiraiRole
+public inline val NativeMiraiMemberPermission.simbotRole: MemberRole
     get() =
         when (this) {
-            MemberPermission.OWNER -> OWNER
-            MemberPermission.MEMBER -> MEMBER
-            MemberPermission.ADMINISTRATOR -> ADMINISTRATOR
+            NativeMiraiMemberPermission.OWNER -> OWNER
+            NativeMiraiMemberPermission.MEMBER -> MEMBER
+            NativeMiraiMemberPermission.ADMINISTRATOR -> ADMINISTRATOR
         }
 
-public inline val NativeMiraiMember.simbotRole: MiraiRole
+public inline val NativeMiraiMember.simbotRole: MemberRole
     get() = permission.simbotRole
 
 
@@ -66,13 +67,13 @@ public inline val NativeMiraiMember.simbotRole: MiraiRole
  * Mirai中成员权限对应的 [Permission].
  */
 @Suppress("MemberVisibilityCanBePrivate")
-public enum class MiraiPermission(
+public enum class MemberPermission(
     @Suppress("CanBeParameter")
-    public val miraiPermission: MemberPermission,
+    public val nativePermission: NativeMiraiMemberPermission,
     override val status: PermissionStatus
 ) : Permission {
     OWNER(
-        MemberPermission.OWNER,
+        NativeMiraiMemberPermission.OWNER,
         PermissionStatus.builder()
             .owner()
             .admin()
@@ -81,17 +82,17 @@ public enum class MiraiPermission(
             .build()
     ),
     ADMINISTRATOR(
-        MemberPermission.ADMINISTRATOR,
+        NativeMiraiMemberPermission.ADMINISTRATOR,
         PermissionStatus.builder()
             .admin()
             .memberAdmin()
             .build()
     ),
     MEMBER(
-        MemberPermission.MEMBER,
+        NativeMiraiMemberPermission.MEMBER,
         PermissionStatus.builder().build()
     ),
     ;
 
-    override val id: IntID = miraiPermission.level.ID
+    override val id: IntID = nativePermission.level.ID
 }

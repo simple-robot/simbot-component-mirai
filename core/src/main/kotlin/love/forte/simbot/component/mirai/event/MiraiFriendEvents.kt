@@ -1,10 +1,13 @@
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import love.forte.simbot.Api4J
+import love.forte.simbot.Bot
+import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiFriend
 import love.forte.simbot.definition.Friend
-import love.forte.simbot.definition.FriendInfo
 import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.*
 import love.forte.simbot.message.doSafeCast
@@ -327,28 +330,6 @@ public interface MiraiFriendInputStatusChangedEvent :
 
 }
 
-/**
- * [MiraiFriendRequestEvent] 中的 [friend][MiraiFriendRequestEvent.friend] 属性返回值。
- * @see NativeMiraiNewFriendRequestEvent
- */
-public data class RequestUserInfo(
-    public val fromId: Long,
-    public val fromGroupId: Long,
-    public val fromGroupName: String?,
-    public val fromNick: String
-) : FriendInfo {
-    override val avatar: String get() = "https://q1.qlogo.cn/g?b=qq&nk=$fromId&s=640"
-
-    /**
-     * 如果存在 [fromGroupId], 则此处代表申请来源的群号，如果 [fromGroupId] 为 `0`, 则此处为 [Grouping.EMPTY].
-     */
-    override val grouping: Grouping =
-        if (fromGroupId != 0L) Grouping(fromGroupId.ID, fromGroupName ?: "") else Grouping.EMPTY
-    override val id: ID = fromId.ID
-    override val remark: String? get() = null
-    override val username: String get() = fromNick
-}
-
 
 /**
  * 一个好友添加申请。
@@ -363,7 +344,7 @@ public interface MiraiFriendRequestEvent :
     override val bot: MiraiBot
 
     @OptIn(Api4J::class)
-    override val friend: RequestUserInfo
+    override val friend: RequestFriendInfo
 
     override val message: String
 
@@ -384,6 +365,14 @@ public interface MiraiFriendRequestEvent :
         return true
     }
 
+    @Api4J
+    public fun rejectBlocking(blockList: Boolean): Boolean = runBlocking { reject(blockList) }
+
+    @Api4J
+    public fun rejectAsync(blockList: Boolean) {
+        bot.launch { reject(blockList) }
+    }
+
     /**
      * 普通的拒绝本次申请。
      */
@@ -391,17 +380,17 @@ public interface MiraiFriendRequestEvent :
     override suspend fun reject(): Boolean = reject(false)
 
     @OptIn(Api4J::class)
-    override val user: RequestUserInfo
+    override val user: RequestFriendInfo
         get() = friend
 
     @OptIn(Api4J::class)
-    override val requester: RequestUserInfo
+    override val requester: RequestFriendInfo
         get() = friend
     override val inviter: UserInfo? get() = null
 
-    override suspend fun friend(): RequestUserInfo = friend
-    override suspend fun user(): RequestUserInfo = friend
-    override suspend fun requester(): RequestUserInfo = friend
+    override suspend fun friend(): RequestFriendInfo = friend
+    override suspend fun user(): RequestFriendInfo = friend
+    override suspend fun requester(): RequestFriendInfo = friend
     override suspend fun inviter(): UserInfo? = null
 
     override val key: Event.Key<MiraiFriendRequestEvent> get() = Key
