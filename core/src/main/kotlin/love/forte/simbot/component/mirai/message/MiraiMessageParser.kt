@@ -67,10 +67,11 @@ public fun simbotMessage(factory: (Contact) -> NativeMiraiMessage): Message =
 /**
  * 将一个 [Message] 转化为 [NativeMiraiMessage] 以发送。
  */
+@OptIn(InternalApi::class)
 public suspend fun Message.toNativeMiraiMessage(contact: Contact): NativeMiraiMessage {
     return when (this) {
-        is MiraiNativeDirectlySimbotMessage<*> -> nativeMiraiMessage
-        is MiraiNativeComputableSimbotMessage<*> -> nativeMiraiMessage(contact)
+        is MiraiNativeDirectlySimbotMessage<*> -> nativeMiraiMessage.takeIf { it !== EmptySingleMessage } ?: EmptyMessageChain
+        is MiraiNativeComputableSimbotMessage<*> -> nativeMiraiMessage(contact).takeIf { it !== EmptySingleMessage } ?: EmptyMessageChain
         else -> {
             val list = mutableListOf<NativeMiraiMessage>()
 
@@ -111,6 +112,7 @@ internal interface MiraiMessageParser {
 
 
 private object StandardParser : MiraiMessageParser {
+    @OptIn(InternalApi::class)
     override suspend fun toMirai(
         message: Message.Element<*>,
         contact: Contact,
@@ -134,7 +136,7 @@ private object StandardParser : MiraiMessageParser {
                     // not support?
                 }
             }
-            is MiraiNativeComputableSimbotMessage<*> -> messages.add(message.nativeMiraiMessage(contact))
+            is MiraiNativeComputableSimbotMessage<*> -> message.nativeMiraiMessage(contact).takeIf { it !== EmptySingleMessage }?.also(messages::add)
         }
     }
 

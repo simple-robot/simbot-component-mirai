@@ -85,7 +85,7 @@ private class MiraiComponentInformation : ComponentInformation {
                         subclass(MiraiShare.serializer())
                         subclass(MiraiQuoteReply.serializer())
                         subclass(MiraiMusicShare.serializer())
-
+                        subclass(MiraiNudge.serializer())
                     }
                 }
 
