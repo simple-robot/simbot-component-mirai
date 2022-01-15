@@ -4,15 +4,13 @@ import love.forte.simbot.Api4J
 import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.ID
 import love.forte.simbot.action.ActionType
-import love.forte.simbot.component.mirai.MiraiBot
-import love.forte.simbot.component.mirai.MiraiGroup
-import love.forte.simbot.component.mirai.MiraiMember
-import love.forte.simbot.component.mirai.NativeMiraiUser
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.definition.GroupInfo
 import love.forte.simbot.definition.Organization
 import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.*
 import love.forte.simbot.message.doSafeCast
+import kotlin.time.Duration
 
 //region typealias
 /**
@@ -85,21 +83,86 @@ public interface MiraiGroupBotEvent<E : NativeMiraiGroupEvent> :
 
 
 /**
+ * 机器人被踢出群或在其他客户端主动退出一个群.
+ * 在事件广播前 Bot.groups 就已删除这个群.
+ *
+ * 此事件属于一个 [群成员减少事件][MemberDecreaseEvent], 减少的这个成员便是bot自己。
  *
  * @see NativeMiraiBotLeaveEvent
+ * @see MemberDecreaseEvent
  */
 public interface MiraiBotLeaveEvent :
-    MiraiGroupBotEvent<NativeMiraiBotLeaveEvent> {
+    MiraiGroupBotEvent<NativeMiraiBotLeaveEvent>,
+    MemberDecreaseEvent {
+    override val bot: MiraiBot
+    override val group: MiraiGroup
+    override val target: MiraiMember
 
+    @OptIn(Api4J::class)
+    override val operator: MiraiMember?
+    override val actionType: ActionType
+
+    // Impl
+
+    override val source: MiraiGroup get() = group
+    override val before: MiraiMember get() = target
+    override val after: MiraiMember? get() = null
+
+    @OptIn(Api4J::class)
+    override val organization: MiraiGroup
+        get() = group
+
+    override suspend fun target(): MiraiMember = target
+    override suspend fun operator(): MiraiMember? = operator
+    override suspend fun source(): MiraiGroup = group
+    override suspend fun before(): MiraiMember = target
+    override suspend fun after(): MiraiMember? = null
+    override suspend fun group(): MiraiGroup = group
+    override suspend fun organization(): MiraiGroup = group
+
+    override val key: Event.Key<MiraiBotLeaveEvent> get() = Key
+
+    public companion object Key : BaseEventKey<MiraiBotLeaveEvent>(
+        "mirai.bot_leave", MiraiGroupBotEvent, MemberDecreaseEvent
+    ) {
+        override fun safeCast(value: Any): MiraiBotLeaveEvent? = doSafeCast(value)
+    }
 }
 
 /**
+ * Bot 在群里的权限被改变。
+ * 操作人一定是群主。
+ *
+ * 此事件属于一个 [已变动事件][ChangedEvent], [变动源][source] 为一个群，
+ * 变动前后为bot在群里的权限。
  *
  * @see NativeMiraiBotGroupPermissionChangeEvent
  */
 public interface MiraiBotGroupPermissionChangeEvent :
-    MiraiGroupBotEvent<NativeMiraiBotGroupPermissionChangeEvent> {
+    MiraiGroupBotEvent<NativeMiraiBotGroupPermissionChangeEvent>,
+    ChangedEvent<MiraiGroup, MiraiPermission, MiraiPermission> {
+    override val bot: MiraiBot
+    override val group: MiraiGroup
+    override val before: MiraiPermission
+    override val after: MiraiPermission
 
+    // Impl
+
+    override val source: MiraiGroup get() = group
+    override val organization: MiraiGroup get() = group
+    override suspend fun group(): MiraiGroup = group
+    override suspend fun organization(): MiraiGroup = group
+    override suspend fun after(): MiraiPermission = after
+    override suspend fun before(): MiraiPermission = before
+    override suspend fun source(): MiraiGroup = group
+
+    override val key: Event.Key<MiraiBotGroupPermissionChangeEvent> get() = Key
+
+    public companion object Key : BaseEventKey<MiraiBotGroupPermissionChangeEvent>(
+        "mirai.bot_group_permission_change", MiraiGroupBotEvent, ChangedEvent
+    ) {
+        override fun safeCast(value: Any): MiraiBotGroupPermissionChangeEvent? = doSafeCast(value)
+    }
 }
 
 
@@ -118,11 +181,15 @@ public sealed interface MiraiBotMuteRelateEvent<E : NativeMiraiGroupEvent> :
     override val bot: MiraiBot
     override val group: MiraiGroup
 
+    /**
+     * 操作人。
+     */
+    public val operator: MiraiMember
 
     //// Impl
 
-
     override val source: MiraiGroup get() = group
+    public suspend fun operator(): MiraiMember = operator
     override suspend fun after(): Boolean = after
     override suspend fun before(): Boolean = before
     override suspend fun source(): MiraiGroup = source
@@ -147,15 +214,19 @@ public sealed interface MiraiBotMuteRelateEvent<E : NativeMiraiGroupEvent> :
  * 属于一个变化事件 [ChangedEvent], 其类型代表事件前后的禁言状态。
  * [before] 永远为false，[after] 永远为true。
  *
+ * 额外提供了 [duration] 属性来代表禁言的持续时间。
+ *
  * @see NativeMiraiBotMuteEvent
  */
 public interface MiraiBotMuteEvent :
     MiraiGroupBotEvent<NativeMiraiBotMuteEvent>, MiraiBotMuteRelateEvent<NativeMiraiBotMuteEvent> {
+    public val duration: Duration
+    public val durationSeconds: Int
 
+    //// Impl
 
     override val before: Boolean get() = false
     override val after: Boolean get() = true
-
 
     override val key: Event.Key<MiraiBotMuteEvent> get() = Key
 
@@ -228,7 +299,8 @@ public interface MiraiBotJoinGroupEvent :
 
     @OptIn(Api4J::class)
     override val organization: MiraiGroup
-    override val after: MiraiMember
+        get() = group
+    override val after: MiraiMember get() = target
     override val before: MiraiMember? get() = null
     override suspend fun before(): MiraiMember? = null
     override suspend fun after(): MiraiMember = after

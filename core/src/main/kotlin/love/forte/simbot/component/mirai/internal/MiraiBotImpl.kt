@@ -148,6 +148,39 @@ private fun MiraiBotImpl.registerEvents() {
                 }
             //endregion
 
+            //region Group bot events
+            is NativeMiraiBotInvitedJoinGroupRequestEvent ->
+                doHandler(
+                    this,
+                    MiraiBotInvitedJoinGroupRequestEvent
+                ) { MiraiBotInvitedJoinGroupRequestEventImpl(this@registerEvents, this) }
+
+            is NativeMiraiBotLeaveEvent ->
+                doHandler(this, MiraiBotLeaveEvent) { MiraiBotLeaveEventImpl(this@registerEvents, this) }
+
+            is NativeMiraiBotJoinGroupEvent ->
+                doHandler(this, MiraiBotJoinGroupEvent) { MiraiBotJoinGroupEventImpl(this@registerEvents, this) }
+
+            is NativeMiraiBotMuteEvent ->
+                doHandler(this, MiraiBotMuteEvent) { MiraiBotMuteEventImpl(this@registerEvents, this) }
+
+            is NativeMiraiBotGroupPermissionChangeEvent ->
+                doHandler(
+                    this,
+                    MiraiBotGroupPermissionChangeEvent
+                ) { MiraiBotGroupPermissionChangeEventImpl(this@registerEvents, this) }
+
+            is NativeMiraiBotUnmuteEvent ->
+                doHandler(this, MiraiBotUnmuteEvent) {
+                    MiraiBotUnmuteEventImpl(
+                        this@registerEvents,
+                        this
+                    )
+                }
+            //endregion
+
+
+
             else -> {
                 @OptIn(SimbotDiscreetApi::class)
                 eventProcessor.pushIfProcessable(UnsupportedMiraiEvent) {

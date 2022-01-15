@@ -29,6 +29,7 @@ internal class MiraiFriendRequestEventImpl(
     override val timestamp: Timestamp = Timestamp.now()
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
     override val type: RequestEvent.Type get() = RequestEvent.Type.APPLICATION
+    override val message: String = nativeEvent.message
 }
 
 

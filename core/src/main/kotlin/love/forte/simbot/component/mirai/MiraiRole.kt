@@ -17,12 +17,12 @@ import net.mamoe.mirai.contact.MemberPermission
  * - [管理员][ADMINISTRATOR]
  * - [成员][MEMBER]
  *
- * @property miraiPermission Mirai中的 [MemberPermission] 类型。
+ * @property nativeMiraiPermission Mirai中的 [MemberPermission] 类型。
  */
 @Suppress("MemberVisibilityCanBePrivate")
 public enum class MiraiRole(
-    public val miraiPermission: MemberPermission,
-    permission: MiraiPermission
+    public val nativeMiraiPermission: MemberPermission,
+    public val permission: MiraiPermission
 ) : Role {
 
     OWNER(MemberPermission.OWNER, MiraiPermission.OWNER),
@@ -33,7 +33,7 @@ public enum class MiraiRole(
     /**
      * ID, 等同于 [MemberPermission.level].
      */
-    override val id: IntID = miraiPermission.level.ID
+    override val id: IntID = nativeMiraiPermission.level.ID
 
 
     /**

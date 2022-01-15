@@ -328,7 +328,7 @@ public interface MiraiFriendInputStatusChangedEvent :
 }
 
 /**
- *
+ * [MiraiFriendRequestEvent] 中的 [friend][MiraiFriendRequestEvent.friend] 属性返回值。
  * @see NativeMiraiNewFriendRequestEvent
  */
 public data class RequestUserInfo(
@@ -365,6 +365,8 @@ public interface MiraiFriendRequestEvent :
     @OptIn(Api4J::class)
     override val friend: RequestUserInfo
 
+    override val message: String
+
     //// Impl
 
     @OptIn(ExperimentalSimbotApi::class)
@@ -389,11 +391,18 @@ public interface MiraiFriendRequestEvent :
     override suspend fun reject(): Boolean = reject(false)
 
     @OptIn(Api4J::class)
-    override val user: UserInfo
+    override val user: RequestUserInfo
         get() = friend
 
-    override suspend fun friend(): FriendInfo = friend
-    override suspend fun user(): UserInfo = friend
+    @OptIn(Api4J::class)
+    override val requester: RequestUserInfo
+        get() = friend
+    override val inviter: UserInfo? get() = null
+
+    override suspend fun friend(): RequestUserInfo = friend
+    override suspend fun user(): RequestUserInfo = friend
+    override suspend fun requester(): RequestUserInfo = friend
+    override suspend fun inviter(): UserInfo? = null
 
     override val key: Event.Key<MiraiFriendRequestEvent> get() = Key
 
