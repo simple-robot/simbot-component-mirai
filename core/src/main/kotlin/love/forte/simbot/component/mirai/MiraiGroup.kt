@@ -53,6 +53,17 @@ public interface MiraiGroup : Group, MiraiChatroom {
 
     @OptIn(Api4J::class)
     override fun getMembers(groupingId: ID?, limiter: Limiter): Stream<out MiraiMember>
+
+    @OptIn(Api4J::class)
+    override fun getMembers(groupingId: ID?): Stream<out MiraiMember> = getMembers(groupingId, Limiter)
+
+    @OptIn(Api4J::class)
+    override fun getMembers(limiter: Limiter): Stream<out MiraiMember> = getMembers(null, limiter)
+
+    @OptIn(Api4J::class)
+    override fun getMembers(): Stream<out MiraiMember> = getMembers(null, Limiter)
+
+
     override suspend fun members(groupingId: ID?, limiter: Limiter): Flow<MiraiMember>
     override suspend fun mute(duration: Duration): Boolean
 
