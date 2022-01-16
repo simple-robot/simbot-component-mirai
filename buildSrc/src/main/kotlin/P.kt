@@ -23,7 +23,7 @@ abstract class SimbotProject {
 sealed class P : SimbotProject() {
     object Simbot {
         const val GROUP = "love.forte.simbot"
-        const val VERSION = "3.0.0.preview.0.6"
+        const val VERSION = "3.0.0.preview.1.0"
     }
 
     object Simboot {
