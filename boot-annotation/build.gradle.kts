@@ -4,7 +4,11 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
+    `maven-publish`
+    signing
 }
+
+doPublish()
 
 repositories {
     mavenLocal()
@@ -32,9 +36,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
     kotlinOptions {
         javaParameters = true
         jvmTarget = "1.8"
-        freeCompilerArgs = listOf(
-            "-Xjvm-default=enable",
-        )
     }
 }
 

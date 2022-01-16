@@ -9,6 +9,8 @@ plugins {
     signing
 }
 
+doPublish()
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -41,9 +43,9 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
     kotlinOptions {
         javaParameters = true
         jvmTarget = "1.8"
-        freeCompilerArgs += listOf(
+        freeCompilerArgs = listOf(
             "-Xjvm-default=enable",
-        )
+        ) + freeCompilerArgs
     }
 }
 
@@ -64,18 +66,4 @@ kotlin {
 }
 
 
-configurePublishing(name)
-println("[publishing-configure] - [$name] configured.")
-// set gpg file path to root
-val secretKeyRingFileKey = "signing.secretKeyRingFile"
-// val secretKeyRingFile = local().getProperty(secretKeyRingFileKey) ?: throw kotlin.NullPointerException(secretKeyRingFileKey)
-val secretRingFile = File(project.rootDir, "ForteScarlet.gpg")
-extra[secretKeyRingFileKey] = secretRingFile
-setProperty(secretKeyRingFileKey, secretRingFile)
 
-signing {
-    // val key = local().getProperty("signing.keyId")
-    // val password = local().getProperty("signing.password")
-    // this.useInMemoryPgpKeys(key, password)
-    sign(publishing.publications)
-}
