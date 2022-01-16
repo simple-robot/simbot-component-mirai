@@ -7,7 +7,7 @@ plugins {
     signing
     // see https://github.com/gradle-nexus/publish-plugin
     id("io.github.gradle-nexus.publish-plugin") version "1.1.0"
-
+    idea
 }
 
 group = P.ComponentMirai.GROUP // love.forte.simbot.component
@@ -54,19 +54,27 @@ tasks.withType<JavaCompile>() {
 }
 
 
-val credentialsUsername: String? = local().getProperty("credentials.username")
-val credentialsPassword: String? = local().getProperty("credentials.password")
+val credentialsUsername: String? = getProp("credentials.username")?.toString()
+val credentialsPassword: String? = getProp("credentials.password")?.toString()
+
+println("credentialsUsername: $credentialsUsername")
 
 if (credentialsUsername != null && credentialsPassword != null) {
     nexusPublishing {
-        packageGroup.set(P.Simbot.GROUP)
+       packageGroup.set(P.ComponentMirai.GROUP)
+       repositories {
+           sonatype {
+               username.set(credentialsUsername)
+               password.set(credentialsPassword)
+           }
 
-        repositories {
-            sonatype {
-                username.set(credentialsUsername)
-                password.set(credentialsPassword)
-            }
-
-        }
+       }
     }
 }
+
+
+ idea {
+     module {
+         isDownloadSources = true
+     }
+ }

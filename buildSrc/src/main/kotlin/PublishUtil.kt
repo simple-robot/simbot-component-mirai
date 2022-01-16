@@ -21,7 +21,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 
 
-inline fun Project.configurePublishing(artifactId: String) {
+fun Project.configurePublishing(artifactId: String) {
 
     val sourcesJar by tasks.registering(Jar::class) {
         archiveClassifier.set("sources")
@@ -52,7 +52,7 @@ inline fun Project.configurePublishing(artifactId: String) {
         repositories {
             mavenLocal()
             maven {
-                if (version.toString().endsWith("SNAPSHOTS", true)) {
+                if (version.toString().contains("SNAPSHOTS", true)) {
                     // snapshot
                     name = Sonatype.`snapshot-oss`.NAME
                     url = uri(Sonatype.`snapshot-oss`.URL)
@@ -61,9 +61,12 @@ inline fun Project.configurePublishing(artifactId: String) {
                     url = uri(Sonatype.oss.URL)
                 }
 
-                val username0 = local().getProperty("sonatype.username")
-                    ?: throw NullPointerException("snapshots-sonatype-username")
-                val password0 = local().getProperty("sonatype.password")
+                val username0 = getProp("sonatype.username")?.toString() ?: run {
+                    println("[WARN] Cannot read property 'sonatype.username' from local() for $artifactId")
+                    return@maven
+                }
+                    // ?: throw NullPointerException("snapshots-sonatype-username")
+                val password0 = getProp("sonatype.password")?.toString()
                     ?: throw NullPointerException("snapshots-sonatype-password")
 
                 credentials {

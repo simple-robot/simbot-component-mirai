@@ -177,4 +177,4 @@ public annotation class OnMiraiMemberJoin
 @Target(FUNCTION)
 @Listen(UnsupportedMiraiEvent::class)
 @MustBeDocumented
-public annotation class OnUnsupportedMirai
+public annotation class OnUnsupportedMiraiEvent

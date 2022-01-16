@@ -2,6 +2,7 @@ package love.forte.simbot.component.mirai.internal
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletionHandler
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.SupervisorJob
 import love.forte.simbot.BotAlreadyRegisteredException
 import love.forte.simbot.ID
@@ -15,6 +16,7 @@ import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.utils.BotConfiguration
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.CoroutineContext
 
 
 /**
@@ -31,6 +33,7 @@ internal class MiraiBotManagerImpl(
     override val logger: Logger get() = LOGGER
 
     private val completableJob = SupervisorJob()
+    override val coroutineContext: CoroutineContext = completableJob + CoroutineName("MiraiBotManagerImpl")
     private val botCache = ConcurrentHashMap<Long, MiraiBotImpl>()
 
 
