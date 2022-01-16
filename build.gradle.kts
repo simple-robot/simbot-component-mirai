@@ -13,6 +13,8 @@ plugins {
 group = P.ComponentMirai.GROUP // love.forte.simbot.component
 version = P.ComponentMirai.VERSION
 
+println("=== Current version: $version ===")
+
 repositories {
     mavenLocal()
     mavenCentral()
