@@ -1,11 +1,11 @@
 package love.forte.simbot.component.mirai
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import love.forte.simbot.Api4J
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.definition.GroupMember
+import java.util.stream.Stream
 import kotlin.time.Duration
 
 
@@ -51,10 +51,10 @@ public interface MiraiMember : GroupMember, MiraiContact {
     }
 
     @OptIn(Api4J::class)
-    override val roles: List<MemberRole>
+    override val roles: Stream<MemberRole>
+    override suspend fun roles(): Flow<MemberRole>
 
-    override suspend fun roles(): Flow<MemberRole> = roles.asFlow()
-
+    //// Impl
 
     override val joinTime: Timestamp get() = Timestamp.NotSupport
     override val nickname: String get() = nativeContact.nameCard

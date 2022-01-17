@@ -13,7 +13,7 @@ import love.forte.simbot.definition.Role
 public typealias NativeMiraiMemberPermission = net.mamoe.mirai.contact.MemberPermission
 
 /**
- * 在Mirai中，也就是在QQ中，只有三种角色：
+ * 在Mirai中，也就是在QQ群中，只有三种角色：
  * - [群主][OWNER]
  * - [管理员][ADMINISTRATOR]
  * - [成员][MEMBER]
