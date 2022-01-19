@@ -149,6 +149,7 @@ private object StandardParser : MiraiMessageParser {
             is net.mamoe.mirai.message.data.AtAll -> AtAll
             is net.mamoe.mirai.message.data.PlainText -> Text { message.content }
             is NativeMiraiImage -> message.asSimbot()
+            is NativeMiraiFlashImage -> message.asSimbot()
             is NativeMiraiAudio -> message.asSimbot()
 
             // other messages.
