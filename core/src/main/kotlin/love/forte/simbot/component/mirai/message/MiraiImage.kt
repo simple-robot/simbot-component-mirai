@@ -180,13 +180,15 @@ public interface MiraiImage :
     public companion object Key : Message.Key<MiraiImage> {
 
         @JvmStatic
-        public fun of(nativeImage: NativeMiraiImage): MiraiImage {
-            return MiraiImageImpl(nativeImage, false)
+        @JvmOverloads
+        public fun of(nativeImage: NativeMiraiImage, isFlash: Boolean = false): MiraiImage {
+            return MiraiImageImpl(nativeImage, isFlash)
         }
 
         @JvmStatic
-        public fun of(nativeImage: NativeMiraiFlashImage): MiraiImage {
-            return MiraiImageImpl(nativeImage.image, true)
+        @JvmOverloads
+        public fun of(nativeImage: NativeMiraiFlashImage, isFlash: Boolean = true): MiraiImage {
+            return MiraiImageImpl(nativeImage.image, isFlash)
         }
 
         override val component: Component
@@ -220,5 +222,5 @@ internal class MiraiImageImpl(
 
 }
 
-public fun NativeMiraiImage.asSimbot(): MiraiImage = MiraiImage.of(this)
-public fun NativeMiraiFlashImage.asSimbot(): MiraiImage = MiraiImage.of(this)
+public fun NativeMiraiImage.asSimbot(isFlash: Boolean = false): MiraiImage = MiraiImage.of(this, isFlash)
+public fun NativeMiraiFlashImage.asSimbot(isFlash: Boolean = true): MiraiImage = MiraiImage.of(this, isFlash)
