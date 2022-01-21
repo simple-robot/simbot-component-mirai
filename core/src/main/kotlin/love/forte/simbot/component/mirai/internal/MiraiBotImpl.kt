@@ -12,6 +12,7 @@ import love.forte.simbot.component.mirai.event.impl.*
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImageImpl
 import love.forte.simbot.component.mirai.message.asSimbot
 import love.forte.simbot.component.mirai.util.LRUCacheMap
+import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.event.Event
 import love.forte.simbot.event.EventProcessingResult
@@ -57,6 +58,25 @@ internal class MiraiBotImpl(
     override fun getGroups(): Stream<out MiraiGroup> {
         return nativeBot.groups.stream().map { it.asSimbot(this) }.withLimiter(limiter())
     }
+
+
+
+    @OptIn(Api4J::class)
+    override fun getFriend(id: ID): MiraiFriend? =
+        nativeBot.getFriend(id.tryToLongID().number)?.asSimbot(this)
+
+    @OptIn(Api4J::class)
+    override fun getGroup(id: ID): MiraiGroup? =
+        nativeBot.getGroup(id.tryToLongID().number)?.asSimbot(this)
+
+
+
+    override suspend fun friend(id: ID): MiraiFriend? = getFriend(id)
+    override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
+
+    override suspend fun guild(id: ID): Guild? = null
+    @OptIn(Api4J::class)
+    override fun getGuild(id: ID): Guild? = null
 
     override suspend fun uploadImage(resource: Resource, flash: Boolean): Image<*> {
         return when (resource) {

@@ -4,7 +4,7 @@ import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.component.mirai.MiraiStranger
 import love.forte.simbot.component.mirai.NativeMiraiStranger
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
 import love.forte.simbot.component.mirai.message.toNativeMiraiMessage
 import love.forte.simbot.message.Message
 
@@ -19,10 +19,10 @@ internal class MiraiStrangerImpl(
 ) : MiraiStranger {
     override val id: LongID = nativeContact.id.ID
 
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiStranger> {
+    override suspend fun send(message: Message): SimbotMiraiMessageReceiptImpl<NativeMiraiStranger> {
         val nativeMessage = message.toNativeMiraiMessage(nativeContact)
         val receipt = nativeContact.sendMessage(nativeMessage)
-        return SimbotMiraiMessageReceipt(receipt)
+        return SimbotMiraiMessageReceiptImpl(receipt)
     }
 }
 

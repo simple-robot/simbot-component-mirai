@@ -1,5 +1,6 @@
 package love.forte.simbot.component.mirai
 
+import love.forte.simbot.Api4J
 import love.forte.simbot.CharSequenceID
 import love.forte.simbot.ID
 import love.forte.simbot.action.DeleteSupport
@@ -7,15 +8,51 @@ import love.forte.simbot.action.MessageReplyReceipt
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.component.mirai.message.toNativeMiraiMessage
 import love.forte.simbot.message.Message
+import love.forte.simbot.message.MessageContent
 import love.forte.simbot.message.MessageReceipt
+import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.message.data.MessageSource
-import net.mamoe.mirai.message.data.MessageSourceBuilder
-import net.mamoe.mirai.message.data.MessageSourceKind
-import net.mamoe.mirai.message.data.kind
+import net.mamoe.mirai.message.data.*
 
 
+/**
+ * @see net.mamoe.mirai.message.MessageReceipt
+ */
 public typealias NativeMiraiMessageReceipt<C> = net.mamoe.mirai.message.MessageReceipt<C>
+
+
+/**
+ * Mirai组件中，封装使用 [NativeMiraiMessageReceipt] 作为消息发送的回执对象。
+ *
+ *
+ */
+public interface SimbotMiraiMessageReceipt<C : Contact> : MessageReceipt, MessageReplyReceipt, DeleteSupport,
+    ReplySupport {
+    public val receipt: NativeMiraiMessageReceipt<C>
+
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact>
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact>
+    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact>
+    override suspend fun delete(): Boolean
+
+    //// Impl
+
+    @Api4J
+    override fun deleteBlocking(): Boolean = runInBlocking { delete() }
+
+    @Api4J
+    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<Contact> = runInBlocking { reply(text) }
+
+    @Api4J
+    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<Contact> = runInBlocking { reply(message) }
+
+    @Api4J
+    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<Contact> =
+        runInBlocking { reply(message) }
+
+
+}
+
 
 /**
  *
@@ -23,9 +60,9 @@ public typealias NativeMiraiMessageReceipt<C> = net.mamoe.mirai.message.MessageR
  * @see ReplySupport
  * @author ForteScarlet
  */
-internal class SimbotMiraiMessageReceipt<C : Contact>(
-    private val receipt: NativeMiraiMessageReceipt<C>
-) : MessageReceipt, MessageReplyReceipt, DeleteSupport, ReplySupport {
+internal class SimbotMiraiMessageReceiptImpl<C : Contact>(
+    override val receipt: NativeMiraiMessageReceipt<C>
+) : SimbotMiraiMessageReceipt<C> {
     override val id: ID = receipt.source.ID
     override val isSuccess: Boolean get() = true
     override val isReplySuccess: Boolean get() = true
@@ -38,14 +75,24 @@ internal class SimbotMiraiMessageReceipt<C : Contact>(
         return true
     }
 
-    /**
-     *
-     */
-    override suspend fun reply(message: Message): MessageReplyReceipt {
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val sendMessage = message.toNativeMiraiMessage(receipt.target)
         val newReceipt = receipt.target.sendMessage(quote + sendMessage)
-        return SimbotMiraiMessageReceipt(newReceipt)
+        return SimbotMiraiMessageReceiptImpl(newReceipt)
+    }
+
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact> {
+        val quote = receipt.quote()
+        val newReceipt = receipt.target.sendMessage(quote + text.toPlainText())
+        return SimbotMiraiMessageReceiptImpl(newReceipt)
+    }
+
+    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact> {
+        val quote = receipt.quote()
+        val sendMessage = message.messages.toNativeMiraiMessage(receipt.target)
+        val newReceipt = receipt.target.sendMessage(quote + sendMessage)
+        return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
 }
 

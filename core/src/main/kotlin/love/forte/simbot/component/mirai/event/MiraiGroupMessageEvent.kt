@@ -3,14 +3,15 @@ package love.forte.simbot.component.mirai.event
 import love.forte.simbot.Api4J
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.action.SendSupport
-import love.forte.simbot.component.mirai.MiraiBot
-import love.forte.simbot.component.mirai.MiraiGroup
-import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.event.BaseEventKey
 import love.forte.simbot.event.Event
 import love.forte.simbot.event.FriendMessageEvent
 import love.forte.simbot.event.GroupMessageEvent
+import love.forte.simbot.message.Message
+import love.forte.simbot.message.MessageContent
 import love.forte.simbot.message.doSafeCast
+import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.message.data.MessageSource.Key.recall
 
 
@@ -33,8 +34,10 @@ public interface MiraiGroupMessageEvent :
 
     override val bot: MiraiBot
     override val metadata: Metadata
+
     @OptIn(Api4J::class)
     override val author: MiraiMember
+
     @OptIn(Api4J::class)
     override val group: MiraiGroup
     override val messageContent: MiraiReceivedMessageContent
@@ -47,6 +50,27 @@ public interface MiraiGroupMessageEvent :
      * @see net.mamoe.mirai.message.data.MessageSource.recall
      */
     override suspend fun delete(): Boolean
+
+    /**
+     * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
+     */
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+
+    /**
+     * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
+     */
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+
+    /**
+     * 向次事件的群发送消息。
+     */
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+
+    /**
+     * 向次事件的群发送消息。
+     */
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+
 
     //// Impl
 
@@ -62,12 +86,45 @@ public interface MiraiGroupMessageEvent :
     override suspend fun group(): MiraiGroup = group
     override suspend fun organization(): MiraiGroup = group
     override suspend fun source(): MiraiGroup = group
-    @OptIn(Api4J::class)
-    override val source: MiraiGroup get() = group
 
     @OptIn(Api4J::class)
-    override val organization: MiraiGroup get() = group
+    override val source: MiraiGroup
+        get() = group
 
+    @OptIn(Api4J::class)
+    override val organization: MiraiGroup
+        get() = group
+
+
+    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+        reply(message.messages)
+
+    @Api4J
+    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+        runInBlocking { reply(text) }
+
+    @Api4J
+    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+        runInBlocking { reply(message) }
+
+    @Api4J
+    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+        runInBlocking { reply(message) }
+
+
+    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+        send(message.messages)
+
+    @Api4J
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup> = runInBlocking { send(text) }
+
+    @Api4J
+    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+        runInBlocking { send(message) }
+
+    @Api4J
+    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+        runInBlocking { send(message) }
 
     /**
      * [MiraiGroupMessageEvent] 的元数据类型。

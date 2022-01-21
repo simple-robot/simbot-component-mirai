@@ -6,12 +6,10 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import love.forte.simbot.*
-import love.forte.simbot.component.mirai.MiraiGroup
-import love.forte.simbot.component.mirai.NativeMiraiGroup
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.toNativeMiraiMessage
 import love.forte.simbot.message.Message
-import love.forte.simbot.message.MessageReceipt
+import net.mamoe.mirai.contact.getMember
 import java.util.stream.Stream
 import kotlin.time.Duration
 
@@ -29,11 +27,18 @@ internal class MiraiGroupImpl(
     override val id: LongID = nativeContact.id.ID
 
 
-    override suspend fun send(message: Message): MessageReceipt {
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup> {
         val receipt = nativeContact.sendMessage(message.toNativeMiraiMessage(nativeContact))
-        return SimbotMiraiMessageReceipt(receipt)
+        return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup> {
+        return SimbotMiraiMessageReceiptImpl(nativeContact.sendMessage(text))
+    }
+
+    override suspend fun member(id: ID): MiraiMember? {
+        return nativeContact.getMember(id.tryToLongID().number)?.asSimbot(bot, this)
+    }
 
     @OptIn(Api4J::class)
     override val owner: MiraiMemberImpl

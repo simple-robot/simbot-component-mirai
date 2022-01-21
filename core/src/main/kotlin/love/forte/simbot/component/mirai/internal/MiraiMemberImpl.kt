@@ -9,7 +9,6 @@ import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.toNativeMiraiMessage
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.message.Message
-import love.forte.simbot.message.MessageReceipt
 import net.mamoe.mirai.contact.AnonymousMember
 import java.util.stream.Stream
 
@@ -25,10 +24,17 @@ internal class MiraiMemberImpl(
 ) : MiraiMember, SendSupport {
     override val id: LongID = nativeContact.id.ID
 
-    override suspend fun send(message: Message): MessageReceipt {
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember> {
         val receipt = nativeContact.sendMessage(message.toNativeMiraiMessage(nativeContact))
-        return SimbotMiraiMessageReceipt(receipt)
+        return SimbotMiraiMessageReceiptImpl(receipt)
     }
+
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember> {
+        return SimbotMiraiMessageReceiptImpl(nativeContact.sendMessage(text))
+    }
+
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember> = send(text)
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember> = send(message)
 
     override val group: MiraiGroupImpl get() = initGroup ?: nativeContact.group.asSimbot(bot)
     override val roles: Stream<MemberRole> = Stream.of(nativeContact.simbotRole)
