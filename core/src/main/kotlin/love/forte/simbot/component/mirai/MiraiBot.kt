@@ -84,12 +84,25 @@ public interface MiraiBot : Bot, UserInfo {
 
 
     /**
+     * 获取指定的好友。在mirai中，好友的获取不是挂起的，因此可以安全的使用 [getFriend]
+     */
+    @OptIn(Api4J::class)
+    override fun getFriend(id: ID): MiraiFriend?
+
+    /**
      * 获取当前bot所有的好友信息。
      *
      * @see friends
      */
     @OptIn(Api4J::class)
     override fun getFriends(): Stream<out MiraiFriend>
+
+
+    /**
+     * 获取指定的好友。在mirai中，好友的获取不是挂起的，因此可以安全的使用 [getFriend]
+     */
+    override suspend fun friend(id: ID): MiraiFriend? = getFriend(id)
+
 
     /**
      * 获取当前bot的好友信息，并可以通过 [limiter] 进行限流。
@@ -130,6 +143,21 @@ public interface MiraiBot : Bot, UserInfo {
     @OptIn(Api4J::class)
     override fun getGroups(): Stream<out MiraiGroup>
 
+
+    /**
+     * 获取指定的群.
+     * mirai的群组获取没有真正的挂起，因此可以安全的使用 [getGroup].
+     */
+    @OptIn(Api4J::class)
+    override fun getGroup(id: ID): MiraiGroup?
+
+    /**
+     * 获取指定的群.
+     * mirai的群组获取没有真正的挂起，因此可以安全的使用 [getGroup].
+     * @see getGroup
+     */
+    override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
+
     /**
      * 获取当前Bot中的群组列表，并可以通过 [limiter] 进行限流。
      *
@@ -138,7 +166,6 @@ public interface MiraiBot : Bot, UserInfo {
      */
     @OptIn(Api4J::class)
     override fun getGroups(limiter: Limiter): Stream<out MiraiGroup> = getGroups().withLimiter(limiter)
-
 
 
     @Deprecated("Mirai群组没有分组信息", ReplaceWith("getFriends(limiter)"))
@@ -168,6 +195,13 @@ public interface MiraiBot : Bot, UserInfo {
     @OptIn(Api4J::class)
     @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("Stream.empty()", "java.util.stream.Stream"))
     override fun getGuilds(limiter: Limiter): Stream<out Guild> = Stream.empty()
+
+    @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("Stream.empty()", "java.util.stream.Stream"))
+    override suspend fun guild(id: ID): Guild? = null
+
+    @OptIn(Api4J::class)
+    @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("Stream.empty()", "java.util.stream.Stream"))
+    override fun getGuild(id: ID): Guild? = null
 
     //endregion
 
