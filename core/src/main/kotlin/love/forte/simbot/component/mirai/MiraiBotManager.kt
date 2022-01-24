@@ -1,9 +1,6 @@
 package love.forte.simbot.component.mirai
 
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -21,6 +18,10 @@ import net.mamoe.mirai.utils.LoggerAdapters.asMiraiLogger
 import net.mamoe.mirai.utils.MiraiLogger
 import org.slf4j.Logger
 import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.exists
+import kotlin.io.path.readText
 import kotlin.time.ExperimentalTime
 
 
@@ -35,8 +36,6 @@ private fun hex(hex: String): ByteArray {
 
     return result
 }
-
-
 
 
 /**
@@ -201,8 +200,9 @@ internal data class MiraiViaBotFileConfiguration(
 
     private val highwayUploadCoroutineCount: Int = BotConfiguration.Default.highwayUploadCoroutineCount,
 
-    // 如果是字符串，尝试解析为json，否则视为文件路径，必须保证文件扩展名为 'json'. 如果bot本身为json格式，则允许此处直接为json对象。
-    // 如果是Yaml解析，此处可能会出错。
+    // 如果是字符串，尝试解析为json
+    // 否则视为文件路径。
+    // 如果bot本身为json格式，则允许此处直接为json对象。
     private val deviceInfoJson: JsonElement? = null,
 
 
@@ -225,23 +225,6 @@ internal data class MiraiViaBotFileConfiguration(
      *  }
      * }
      * ```
-     *
-     * properties:
-     * ```properties
-     * contactListCache.saveIntervalMillis = 60000
-     * contactListCache.friendListCacheEnabled = true
-     * contactListCache.groupMemberListCacheEnabled = true
-     * ```
-     *
-     * yaml:
-     * ```yaml
-     * contactListCache:
-     *    saveIntervalMillis: 60000
-     *    friendListCacheEnabled: true
-     *    groupMemberListCacheEnabled: true
-     *
-     * ```
-     *
      */
     @SerialName("contactListCache")
     private val contactListCacheConfiguration: ContactListCacheConfiguration = ContactListCacheConfiguration(),
@@ -254,11 +237,64 @@ internal data class MiraiViaBotFileConfiguration(
     ) {
 
 
-    private val deviceInfo: ((Bot) -> DeviceInfo) = { simbotMiraiDeviceInfo(it.id, deviceInfoSeed) }
+    @Transient
+    private val deviceInfo: (Bot) -> DeviceInfo = d@{ bot ->
+        if (deviceInfoJson == null) {
+            simbotMiraiDeviceInfo(bot.id, deviceInfoSeed)
+        } else {
+            val json = CJson
+            if (deviceInfoJson is JsonPrimitive && deviceInfoJson.isString) {
+                // file path
+                val filePath = deviceInfoJson.content
+                when {
+                    filePath.startsWith("classpath:") -> {
+                        val path = filePath.substring(9)
+                        json.readResourceDeviceInfo(path)
+                    }
+                    filePath.startsWith("file:") -> {
+                        val path = filePath.substring(5)
+                        json.readFileDeviceInfo(Path(path))
+                    }
+                    else -> {
+                        // 先看看文件存不存在
+                        val file = Path(filePath)
+                        if (file.exists()) {
+                            json.readFileDeviceInfo(file)
+                        } else {
+                            json.readResourceDeviceInfo(filePath)
+                        }
+                    }
+                }
+
+            } else if (deviceInfoJson is JsonObject) {
+                json.decodeFromJsonElement(DeviceInfo.serializer(), deviceInfoJson)
+            } else {
+                // 'deviceInfoJson' 的类型必须是jsonObject或json
+                throw SimbotIllegalArgumentException("The type of 'deviceInfoJson' must be json object or string")
+            }
+
+        }
+    }
+
+    private fun Json.readFileDeviceInfo(path: Path): DeviceInfo {
+        return decodeFromString(DeviceInfo.serializer(), path.readText())
+    }
+
+    private fun Json.readResourceDeviceInfo(path: String): DeviceInfo {
+        val text = javaClass.classLoader.getResourceAsStream(path)
+            ?.bufferedReader()
+            ?.readText()
+            ?: throw NoSuchElementException("Bot device info resource: $path")
+        return decodeFromString(DeviceInfo.serializer(), text)
+    }
+
+
+    @Transient
     private val botLoggerSupplier: ((Bot) -> MiraiLogger) = {
         val name = "love.forte.simbot.mirai.bot.${it.id}"
         LoggerFactory.getLogger(name).asMiraiLogger()
     }
+    @Transient
     private val networkLoggerSupplier: ((Bot) -> MiraiLogger) = {
         val name = "love.forte.simbot.mirai.net.${it.id}"
         LoggerFactory.getLogger(name).asMiraiLogger()

@@ -1,0 +1,53 @@
+{
+  "code": 123,
+  "password": "密码",
+  "passwordMD5": null,
+  "deviceInfoSeed": 1,
+  "workingDir": ".",
+  "heartbeatPeriodMillis": 60000,
+  "statHeartbeatPeriodMillis": 300000,
+  "heartbeatTimeoutMillis": 5000,
+  "heartbeatStrategy": "STAT_HB",
+  "reconnectionRetryTimes": 2147483647,
+  "autoReconnectOnForceOffline": false,
+  "protocol": "ANDROID_PHONE",
+  "highwayUploadCoroutineCount": 16,
+  "deviceInfoJson": {
+    "display": [77, 73, 82, 65, 73, 45, 83, 73, 77, 66, 79, 84, 46, 50, 48, 48, 49, 50, 50, 46, 48, 48, 49],
+    "product": [109, 105, 114, 97, 105, 45, 115, 105, 109, 98, 111, 116],
+    "device": [109, 105, 114, 97, 105, 45, 115, 105, 109, 98, 111, 116],
+    "board": [109, 105, 114, 97, 105, 45, 115, 105, 109, 98, 111, 116],
+    "brand": [102, 111, 114, 116, 101],
+    "model": [109, 105, 114, 97, 105, 45, 115, 105, 109, 98, 111, 116],
+    "bootloader": [117, 110, 107, 110, 111, 119, 110],
+    "fingerprint": [109, 97, 109, 111, 101, 47, 109, 105, 114, 97, 105, 47, 109, 105, 114, 97, 105, 58, 49, 48, 47, 77, 73, 82, 65, 73, 46, 50, 48, 48, 49, 50, 50, 46, 48, 48, 49, 47, 54, 53, 56, 51, 55, 54, 48, 58, 117, 115, 101, 114, 47, 114, 101, 108, 101, 97, 115, 101, 45, 107, 101, 121, 115],
+    "bootId": [-44, 29, -116, -39, -113, 0, -78, 4, -23, -128, 9, -104, -20, -8, 66, 126],
+    "procVersion": [76, 105, 110, 117, 120, 32, 118, 101, 114, 115, 105, 111, 110, 32, 51, 46, 48, 46, 51, 49, 45, 50, 71, 54, 57, 72, 122, 115, 105, 32, 40, 97, 110, 100, 114, 111, 105, 100, 45, 98, 117, 105, 108, 100, 64, 120, 120, 120, 46, 120, 120, 120, 46, 120, 120, 120, 46, 120, 120, 120, 46, 99, 111, 109, 41],
+    "baseBand": [],
+    "version": {
+      "incremental": [53, 56, 57, 49, 57, 51, 56],
+      "release": [49, 48],
+      "codename": [82, 69, 76],
+      "sdk": 29
+    },
+    "simInfo": [84, 45, 77, 111, 98, 105, 108, 101],
+    "osType": [97, 110, 100, 114, 111, 105, 100],
+    "macAddress": [48, 50, 58, 48, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48],
+    "wifiBSSID": [48, 50, 58, 48, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48, 58, 48, 48],
+    "wifiSSID": [60, 117, 110, 107, 110, 111, 119, 110, 32, 115, 115, 105, 100, 62],
+    "imsiMd5": [-44, 29, -116, -39, -113, 0, -78, 4, -23, -128, 9, -104, -20, -8, 66, 126],
+    "imei": "899752952597699",
+    "apn": [119, 105, 102, 105]
+  },
+  "noNetworkLog": false,
+  "noBotLog": false,
+  "isShowingVerboseEventLog": false,
+  "cacheDir": "cache",
+  "contactListCache": {
+    "saveIntervalMillis": 60000,
+    "friendListCacheEnabled": false,
+    "groupMemberListCacheEnabled": false
+  },
+  "loginCacheEnabled": true,
+  "convertLineSeparator": true
+}
