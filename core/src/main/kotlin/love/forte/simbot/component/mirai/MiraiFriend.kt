@@ -47,11 +47,14 @@ public interface MiraiFriend : Friend, MiraiContact {
      * mirai原生的好友对象。
      */
     override val nativeContact: NativeMiraiFriend
+    @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend>
+    @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend>
 
     //// Impl
 
+    @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
         send(message.messages)
 

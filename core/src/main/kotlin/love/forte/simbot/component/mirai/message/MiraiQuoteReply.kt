@@ -71,6 +71,7 @@ public class MiraiQuoteReply(
     /**
      * @see nativeMiraiMessage
      */
+    @JvmSynthetic
     override suspend fun nativeMiraiMessage(contact: Contact): QuoteReply = quoteReply
 
     public companion object Key : Message.Key<MiraiQuoteReply> {

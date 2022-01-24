@@ -51,15 +51,20 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
     @OptIn(Api4J::class)
     override val group: MiraiGroup
 
+    @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember>
+    @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember>
+    @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember>
+    @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember>
 
 
     //// Impl
 
 
+    @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember> =
         send(message.messages)
 
@@ -76,6 +81,7 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
         runInBlocking { send(message) }
 
 
+    @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember> =
         reply(message.messages)
 
@@ -92,7 +98,9 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
         runInBlocking { reply(message) }
 
 
+    @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
 
     @OptIn(Api4J::class)
@@ -100,11 +108,13 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
         get() = group
 
 
+    @JvmSynthetic
     override suspend fun mute(duration: Duration): Boolean {
         nativeContact.mute(duration.inWholeSeconds.toInt())
         return true
     }
 
+    @JvmSynthetic
     override suspend fun unmute(): Boolean {
         nativeContact.mute(0)
         return true
@@ -112,6 +122,7 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
 
     @OptIn(Api4J::class)
     override val roles: Stream<MemberRole>
+    @JvmSynthetic
     override suspend fun roles(): Flow<MemberRole>
 
     //// Impl

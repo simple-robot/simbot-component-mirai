@@ -39,18 +39,22 @@ internal class MiraiFriendMessageEventImpl(
 
     override val friend = nativeEvent.friend.asSimbot(bot)
 
+    @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend> {
         val miraiMessage = message.toNativeMiraiMessage(nativeEvent.friend)
         val receipt = nativeEvent.friend.sendMessage(miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
+    @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend> {
         val receipt = nativeEvent.friend.sendMessage(text)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
+    @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend> = reply(message)
+    @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend> = reply(text)
 
 

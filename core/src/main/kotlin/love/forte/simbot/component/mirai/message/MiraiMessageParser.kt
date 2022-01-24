@@ -112,6 +112,7 @@ public suspend fun Message.toNativeMiraiMessage(contact: Contact): NativeMiraiMe
 
 
 internal interface MiraiMessageParser {
+    @JvmSynthetic
     suspend fun toMirai(
         message: Message.Element<*>,
         contact: Contact,
@@ -130,6 +131,7 @@ internal interface MiraiMessageParser {
 
 private object StandardParser : MiraiMessageParser {
     @OptIn(InternalApi::class)
+    @JvmSynthetic
     override suspend fun toMirai(
         message: Message.Element<*>,
         contact: Contact,

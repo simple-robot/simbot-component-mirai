@@ -58,14 +58,19 @@ public interface MiraiMemberMessageEvent
     override val metadata: Metadata
 
 
+    @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember>
+    @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember>
 
+    @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember>
+    @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember>
 
 
     //// Impl
+    @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember>
         = reply(message.messages)
 
@@ -82,6 +87,7 @@ public interface MiraiMemberMessageEvent
         = runInBlocking { reply(message) }
 
 
+    @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember>
         = send(message.messages)
 

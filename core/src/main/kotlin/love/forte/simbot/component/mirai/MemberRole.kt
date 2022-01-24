@@ -63,6 +63,7 @@ public enum class MemberRole(
     /**
      * 权限列表。在Mirai中实际上的权限，一种角色只有一个。
      */
+    @JvmSynthetic
     override suspend fun permissions(): Flow<MemberPermission> = permissions.asFlow()
 
 }

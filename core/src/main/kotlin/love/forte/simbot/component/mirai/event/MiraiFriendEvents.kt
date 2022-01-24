@@ -99,7 +99,9 @@ public interface MiraiFriendEvent<E : NativeMiraiFriendEvent> :
     override val user: MiraiFriend
         get() = friend
 
+    @JvmSynthetic
     override suspend fun user(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun friend(): MiraiFriend = friend
 
     /**
@@ -138,9 +140,12 @@ public interface MiraiFriendRemarkChangeEvent :
     override val before: String
 
     //// Impl
+    @JvmSynthetic
     override suspend fun after(): String = after
+    @JvmSynthetic
     override suspend fun before(): String = before
     override val source: MiraiFriend get() = friend
+    @JvmSynthetic
     override suspend fun source(): MiraiFriend = friend
 
     override val key: Event.Key<MiraiFriendRemarkChangeEvent> get() = Key
@@ -171,10 +176,15 @@ public interface MiraiFriendIncreaseEvent :
     override val after: MiraiFriend get() = friend
     override val target: MiraiFriend get() = friend
     override val before: MiraiFriend? get() = null
+    @JvmSynthetic
     override suspend fun friend(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun after(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun source(): MiraiBot = bot
+    @JvmSynthetic
     override suspend fun target(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun before(): MiraiFriend? = null
 
     /**
@@ -206,20 +216,26 @@ public interface MiraiFriendDecreaseEvent : MiraiFriendEvent<NativeMiraiFriendDe
 
     //// Impl
 
+    @JvmSynthetic
     override suspend fun friend(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun source(): MiraiBot = bot
     override val source: MiraiBot get() = bot
     override val after: MiraiFriend? get() = null
     override val before: MiraiFriend get() = friend
     override val target: MiraiFriend get() = friend
+    @JvmSynthetic
     override suspend fun after(): Friend? = friend
+    @JvmSynthetic
     override suspend fun before(): Friend = friend
+    @JvmSynthetic
     override suspend fun target(): Friend = friend
 
     @OptIn(Api4J::class)
     override val user: MiraiFriend
         get() = friend
 
+    @JvmSynthetic
     override suspend fun user(): MiraiFriend = friend
 
     /**
@@ -260,10 +276,15 @@ public interface MiraiFriendAvatarChangedEvent :
     override val source: MiraiFriend get() = friend
     override val user: MiraiFriend get() = friend
 
+    @JvmSynthetic
     override suspend fun friend(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun user(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun after(): String = after
+    @JvmSynthetic
     override suspend fun before(): String? = null
+    @JvmSynthetic
     override suspend fun source(): MiraiFriend = friend
 
     override val key: Event.Key<MiraiFriendAvatarChangedEvent> get() = Key
@@ -296,10 +317,15 @@ public interface MiraiFriendNickChangedEvent :
     override val source: MiraiFriend get() = friend
     override val user: MiraiFriend get() = friend
 
+    @JvmSynthetic
     override suspend fun after(): String = after
+    @JvmSynthetic
     override suspend fun before(): String = before
+    @JvmSynthetic
     override suspend fun source(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun user(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun friend(): MiraiFriend = friend
 
     override val key: Event.Key<MiraiFriendNickChangedEvent> get() = Key
@@ -331,10 +357,15 @@ public interface MiraiFriendInputStatusChangedEvent :
     override val source: MiraiFriend get() = friend
     override val user: MiraiFriend get() = friend
 
+    @JvmSynthetic
     override suspend fun after(): Boolean = after
+    @JvmSynthetic
     override suspend fun before(): Boolean = before
+    @JvmSynthetic
     override suspend fun source(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun user(): MiraiFriend = friend
+    @JvmSynthetic
     override suspend fun friend(): MiraiFriend = friend
 
     override val key: Event.Key<MiraiFriendInputStatusChangedEvent> get() = Key
@@ -368,6 +399,7 @@ public interface MiraiFriendRequestEvent :
     //// Impl
 
     @OptIn(ExperimentalSimbotApi::class)
+    @JvmSynthetic
     override suspend fun accept(): Boolean {
         metadata.nativeEvent.reject()
         return true
@@ -377,6 +409,7 @@ public interface MiraiFriendRequestEvent :
     /**
      * 拒绝申请，并选择是否添加此人为黑名单。
      */
+    @JvmSynthetic
     public suspend fun reject(blockList: Boolean): Boolean {
         metadata.nativeEvent.reject(blockList)
         return true
@@ -394,6 +427,7 @@ public interface MiraiFriendRequestEvent :
      * 普通的拒绝本次申请。
      */
     @OptIn(ExperimentalSimbotApi::class)
+    @JvmSynthetic
     override suspend fun reject(): Boolean = reject(false)
 
     @OptIn(Api4J::class)
@@ -405,9 +439,13 @@ public interface MiraiFriendRequestEvent :
         get() = friend
     override val inviter: UserInfo? get() = null
 
+    @JvmSynthetic
     override suspend fun friend(): RequestFriendInfo = friend
+    @JvmSynthetic
     override suspend fun user(): RequestFriendInfo = friend
+    @JvmSynthetic
     override suspend fun requester(): RequestFriendInfo = friend
+    @JvmSynthetic
     override suspend fun inviter(): UserInfo? = null
 
     override val key: Event.Key<MiraiFriendRequestEvent> get() = Key

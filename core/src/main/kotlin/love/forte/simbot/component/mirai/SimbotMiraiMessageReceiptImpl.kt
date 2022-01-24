@@ -47,9 +47,13 @@ public interface SimbotMiraiMessageReceipt<C : Contact> : MessageReceipt, Messag
     ReplySupport {
     public val receipt: NativeMiraiMessageReceipt<C>
 
+    @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact>
+    @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact>
+    @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact>
+    @JvmSynthetic
     override suspend fun delete(): Boolean
 
     //// Impl
@@ -87,11 +91,13 @@ internal class SimbotMiraiMessageReceiptImpl<C : Contact>(
     /**
      * 删除/撤回这条消息.
      */
+    @JvmSynthetic
     override suspend fun delete(): Boolean {
         receipt.recall()
         return true
     }
 
+    @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val sendMessage = message.toNativeMiraiMessage(receipt.target)
@@ -99,12 +105,14 @@ internal class SimbotMiraiMessageReceiptImpl<C : Contact>(
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
 
+    @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val newReceipt = receipt.target.sendMessage(quote + text.toPlainText())
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
 
+    @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val sendMessage = message.messages.toNativeMiraiMessage(receipt.target)

@@ -199,6 +199,7 @@ public interface MiraiSimbotContactMessageEvent<E : NativeMiraiMessageEvent> :
     @OptIn(Api4J::class)
     override val user: MiraiContact
 
+    @JvmSynthetic
     override suspend fun user(): MiraiContact = user
 
     override val messageContent: MiraiReceivedMessageContent
@@ -221,6 +222,7 @@ public interface MiraiSimbotUserMessageEvent<E : NativeMiraiMessageEvent> :
      */
     override val bot: MiraiBot
 
+    @JvmSynthetic
     override suspend fun user(): MiraiContact
 
     override val messageContent: MiraiReceivedMessageContent
@@ -244,7 +246,9 @@ public interface MiraiSimbotGroupMessageEvent<E : NativeMiraiMessageEvent> :
      */
     override val bot: MiraiBot
 
+    @JvmSynthetic
     override suspend fun author(): MiraiMember
+    @JvmSynthetic
     override suspend fun source(): MiraiGroup
 
 

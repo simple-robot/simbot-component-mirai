@@ -19,9 +19,11 @@ package love.forte.simbot.component.mirai.message
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import love.forte.simbot.Api4J
 import love.forte.simbot.Component
 import love.forte.simbot.component.mirai.ComponentMirai
 import love.forte.simbot.message.Message
+import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Contact
 import kotlin.reflect.KClass
 
@@ -63,7 +65,11 @@ public interface MiraiSendOnlySimbotMessage<E : MiraiSendOnlySimbotMessage<E>> :
  * @see SimbotNativeMiraiMessage
  */
 public interface MiraiNativeComputableSimbotMessage<E : MiraiNativeComputableSimbotMessage<E>> : MiraiSimbotMessage<E> {
+    @JvmSynthetic
     public suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage
+
+    @Api4J
+    public fun getNativeMiraiMessage(contact: Contact): NativeMiraiMessage = runInBlocking { nativeMiraiMessage(contact) }
 }
 
 /**
@@ -83,6 +89,7 @@ public interface MiraiNativeDirectlySimbotMessage<E : MiraiNativeComputableSimbo
     public val nativeMiraiMessage: NativeMiraiMessage
 
 
+    @JvmSynthetic
     override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
         return nativeMiraiMessage
     }
@@ -150,6 +157,7 @@ public class SimpleMiraiSendOnlyComputableSimbotMessage(
     override val key: Message.Key<SimpleMiraiSendOnlyComputableSimbotMessage> get() = Key
 
 
+    @JvmSynthetic
     override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
         return factory(contact)
     }

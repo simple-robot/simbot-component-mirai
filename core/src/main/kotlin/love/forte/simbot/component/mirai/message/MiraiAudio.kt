@@ -49,14 +49,11 @@ public class MiraiSendOnlyAudio(
         return other === this || other.resource == resource
     }
 
-    override fun toString(): String {
-        TODO("Not yet implemented")
-    }
+    override fun toString(): String = resource.toString()
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
+    override fun hashCode(): Int = resource.hashCode()
 
+    @JvmSynthetic
     override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
         return resource.openStream().use {
             if (contact is AudioSupported) {
@@ -101,6 +98,7 @@ public interface MiraiAudio : MiraiNativeComputableSimbotMessage<MiraiAudio> {
     public val codec: AudioCodec get() = nativeAudio.codec
     public val extraData: ByteArray? get() = nativeAudio.extraData
 
+    @JvmSynthetic
     override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage = nativeAudio
 
     public companion object Key : Message.Key<MiraiAudio> {

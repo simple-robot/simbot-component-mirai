@@ -111,9 +111,13 @@ public interface MiraiGroupMemberEvent<E : NativeMiraiGroupMemberEvent> : MiraiS
     override val organization: MiraiGroup
         get() = group
 
+    @JvmSynthetic
     override suspend fun member(): MiraiMember = member
+    @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun user(): MiraiMember = member
 
     public companion object Key : BaseEventKey<MiraiGroupMemberEvent<*>>(
@@ -150,11 +154,17 @@ public interface MiraiGroupTalkativeChangeEvent : MiraiSimbotBotEvent<NativeMira
     override val operator: MiraiMember
         get() = after
 
+    @JvmSynthetic
     override suspend fun after(): MiraiMember = after
+    @JvmSynthetic
     override suspend fun before(): MiraiMember = before
+    @JvmSynthetic
     override suspend fun source(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun operator(): MiraiMember = after
+    @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
 
@@ -189,8 +199,11 @@ public interface MiraiMemberHonorChangeEvent : MiraiGroupMemberEvent<NativeMirai
     //// Impl
 
     override val source: MiraiMember get() = member
+    @JvmSynthetic
     override suspend fun source(): MiraiMember = member
+    @JvmSynthetic
     override suspend fun after(): GroupHonorType? = after
+    @JvmSynthetic
     override suspend fun before(): GroupHonorType? = before
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
 
@@ -235,8 +248,11 @@ public interface MiraiMemberMuteRelateEvent<E : NativeMiraiGroupMemberEvent> : M
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
     //// Impl
 
+    @JvmSynthetic
     override suspend fun before(): Boolean = before
+    @JvmSynthetic
     override suspend fun after(): Boolean = after
+    @JvmSynthetic
     override suspend fun source(): MiraiMember = member
     override val source: MiraiMember get() = member
 
@@ -335,10 +351,15 @@ public interface MiraiMemberPermissionChangeEvent : MiraiGroupMemberEvent<Native
 
     override val source: MiraiMember get() = member
     override val organization: MiraiGroup get() = group
+    @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun after(): MemberPermission = after
+    @JvmSynthetic
     override suspend fun before(): MemberPermission = before
+    @JvmSynthetic
     override suspend fun source(): MiraiMember = member
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
 
@@ -374,8 +395,11 @@ public interface MiraiMemberSpecialTitleChangeEvent : MiraiGroupMemberEvent<Nati
 
     //// Impl
     override val source: MiraiMember get() = member
+    @JvmSynthetic
     override suspend fun after(): String = after
+    @JvmSynthetic
     override suspend fun before(): String = before
+    @JvmSynthetic
     override suspend fun source(): MiraiMember = member
 
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.INTERNAL
@@ -404,8 +428,11 @@ public interface MiraiMemberCardChangeEvent : MiraiGroupMemberEvent<NativeMiraiM
 
     //// Impl
     override val source: MiraiMember get() = member
+    @JvmSynthetic
     override suspend fun after(): String = after
+    @JvmSynthetic
     override suspend fun before(): String = before
+    @JvmSynthetic
     override suspend fun source(): MiraiMember = member
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.INTERNAL
     override val key: Event.Key<MiraiMemberCardChangeEvent> get() = Key
@@ -447,9 +474,13 @@ public interface MiraiMemberJoinRequestEvent :
 
     //// Impl
 
+    @JvmSynthetic
     override suspend fun group(): GroupInfo = group
+    @JvmSynthetic
     override suspend fun requester(): RequestMemberInfo = requester
+    @JvmSynthetic
     override suspend fun inviter(): RequestMemberInviterInfo? = inviter
+    @JvmSynthetic
     override suspend fun user(): RequestMemberInfo = requester
 
     @OptIn(Api4J::class)
@@ -458,6 +489,7 @@ public interface MiraiMemberJoinRequestEvent :
 
     /** 接收申请 */
     @ExperimentalSimbotApi
+    @JvmSynthetic
     override suspend fun accept(): Boolean {
         metadata.nativeEvent.accept()
         return true
@@ -466,6 +498,7 @@ public interface MiraiMemberJoinRequestEvent :
 
     /** 拒绝申请 */
     @ExperimentalSimbotApi
+    @JvmSynthetic
     override suspend fun reject(): Boolean = reject(false, "")
 
     /**
@@ -473,6 +506,7 @@ public interface MiraiMemberJoinRequestEvent :
      * @param blockList 添加到黑名单
      * @param message 拒绝原因
      */
+    @JvmSynthetic
     public suspend fun reject(blockList: Boolean, message: String): Boolean {
         metadata.nativeEvent.reject(blockList, message)
         return true
@@ -542,14 +576,23 @@ public interface MiraiMemberLeaveEvent :
     override val organization: MiraiGroup
         get() = group
 
+    @JvmSynthetic
     override suspend fun before(): MiraiMember = before
+    @JvmSynthetic
     override suspend fun after(): MiraiMember? = null
+    @JvmSynthetic
     override suspend fun operator(): MiraiMember = operator
+    @JvmSynthetic
     override suspend fun source(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun target(): MiraiMember = member
+    @JvmSynthetic
     override suspend fun member(): MiraiMember = member
+    @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun user(): MiraiMember = member
 
     override val key: Event.Key<MiraiMemberLeaveEvent> get() = Key
@@ -599,14 +642,23 @@ public interface MiraiMemberJoinEvent :
     override val organization: MiraiGroup
         get() = group
 
+    @JvmSynthetic
     override suspend fun before(): MiraiMember? = null
+    @JvmSynthetic
     override suspend fun after(): MiraiMember = after
+    @JvmSynthetic
     override suspend fun operator(): MiraiMember? = null
+    @JvmSynthetic
     override suspend fun source(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun target(): MiraiMember = member
+    @JvmSynthetic
     override suspend fun member(): MiraiMember = member
+    @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun user(): MiraiMember = member
 
 

@@ -45,21 +45,27 @@ public interface MiraiGroup : Group, MiraiChatroom {
     override val owner: MiraiMember
     override val ownerId: LongID
 
+    @JvmSynthetic
     override suspend fun members(groupingId: ID?, limiter: Limiter): Flow<MiraiMember>
 
     @OptIn(Api4J::class)
     override fun getMembers(groupingId: ID?, limiter: Limiter): Stream<out MiraiMember>
 
+    @JvmSynthetic
     override suspend fun mute(duration: Duration): Boolean
 
+    @JvmSynthetic
     override suspend fun member(id: ID): MiraiMember?
 
+    @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup>
 
     // Impl
 
 
+    @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup>
             = send(message.messages)
 
@@ -89,6 +95,7 @@ public interface MiraiGroup : Group, MiraiChatroom {
      *
      * @see MemberRole
      */
+    @JvmSynthetic
     override suspend fun roles(groupingId: ID?, limiter: Limiter): Flow<MemberRole> = MemberRole.values().asFlow()
 
     override val icon: String get() = nativeContact.avatarUrl
@@ -99,6 +106,7 @@ public interface MiraiGroup : Group, MiraiChatroom {
     override val maximumMember: Int get() = -1
 
 
+    @JvmSynthetic
     override suspend fun owner(): MiraiMember = owner
 
 
@@ -113,6 +121,7 @@ public interface MiraiGroup : Group, MiraiChatroom {
 
     override fun getMember(id: ID): MiraiMember? = runInBlocking { member(id) }
 
+    @JvmSynthetic
     override suspend fun unmute(): Boolean {
         val settings = nativeContact.settings
         val muteAll = settings.isMuteAll
@@ -122,6 +131,7 @@ public interface MiraiGroup : Group, MiraiChatroom {
         } else false
     }
 
+    @JvmSynthetic
     override suspend fun previous(): Group? = null
 }
 

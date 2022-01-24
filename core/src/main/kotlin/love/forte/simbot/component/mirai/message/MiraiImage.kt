@@ -104,6 +104,7 @@ internal class MiraiSendOnlyImageImpl(
 
     override val id: ID get() = _id.get()
 
+    @JvmSynthetic
     override suspend fun resource(): Resource = resource
     override val key: Message.Key<MiraiSendOnlyImage>
         get() = MiraiSendOnlyImage.Key
@@ -116,6 +117,7 @@ internal class MiraiSendOnlyImageImpl(
     /**
      * 返回值只可能是 [NativeMiraiFlashImage] 或 [NativeMiraiImage].
      */
+    @JvmSynthetic
     override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
         return resource.openStream().use {
             contact.uploadImage(it).let { image ->
@@ -189,6 +191,7 @@ public interface MiraiImage :
     /**
      * 通过 [queryUrl] 查询并得到 [Resource] 对象。
      */
+    @JvmSynthetic
     override suspend fun resource(): Resource {
         return URL(nativeImage.queryUrl()).toResource()
     }

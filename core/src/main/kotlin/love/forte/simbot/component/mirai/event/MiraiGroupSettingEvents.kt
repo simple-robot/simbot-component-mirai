@@ -86,8 +86,11 @@ public interface MiraiGroupSettingEvent<T, E : NativeMiraiGroupSettingChangeEven
 
 
     //// Impl
+    @JvmSynthetic
     override suspend fun after(): T = after
+    @JvmSynthetic
     override suspend fun before(): T = before
+    @JvmSynthetic
     override suspend fun source(): MiraiGroup = source
 
 

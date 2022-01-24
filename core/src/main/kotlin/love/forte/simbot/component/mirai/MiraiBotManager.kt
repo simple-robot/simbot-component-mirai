@@ -68,6 +68,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     /**
      * manager中的 [start] 没有效果。
      */
+    @JvmSynthetic
     override suspend fun start(): Boolean = false
 
     @OptIn(ExperimentalSerializationApi::class)

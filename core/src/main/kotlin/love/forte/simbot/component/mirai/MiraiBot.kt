@@ -97,6 +97,7 @@ public interface MiraiBot : Bot, UserInfo {
      * 在mirai中，没有真正的分页API，因此使用 [limiter] 的效果等同于直接操作 flow 流。
      *
      */
+    @JvmSynthetic
     public suspend fun friends(limiter: Limiter = Limiter): Flow<MiraiFriend>
 
 
@@ -118,6 +119,7 @@ public interface MiraiBot : Bot, UserInfo {
     /**
      * 获取指定的好友。在mirai中，好友的获取不是挂起的，因此可以安全的使用 [getFriend]
      */
+    @JvmSynthetic
     override suspend fun friend(id: ID): MiraiFriend? = getFriend(id)
 
 
@@ -132,6 +134,7 @@ public interface MiraiBot : Bot, UserInfo {
 
 
     @Deprecated("Mirai好友没有分组信息", ReplaceWith("friends(limiter)"))
+    @JvmSynthetic
     override suspend fun friends(grouping: Grouping, limiter: Limiter): Flow<MiraiFriend> = friends(limiter)
 
     @OptIn(Api4J::class)
@@ -149,6 +152,7 @@ public interface MiraiBot : Bot, UserInfo {
      *
      * 在mirai中，没有实际的限流或分页api，因此使用 [limiter] 等同于直接操作 flow 流。
      */
+    @JvmSynthetic
     public suspend fun groups(limiter: Limiter = Limiter): Flow<MiraiGroup>
 
 
@@ -173,6 +177,7 @@ public interface MiraiBot : Bot, UserInfo {
      * mirai的群组获取没有真正的挂起，因此可以安全的使用 [getGroup].
      * @see getGroup
      */
+    @JvmSynthetic
     override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
 
     /**
@@ -186,6 +191,7 @@ public interface MiraiBot : Bot, UserInfo {
 
 
     @Deprecated("Mirai群组没有分组信息", ReplaceWith("getFriends(limiter)"))
+    @JvmSynthetic
     override suspend fun groups(grouping: Grouping, limiter: Limiter): Flow<MiraiGroup> = groups(limiter)
 
     @OptIn(Api4J::class)
@@ -199,6 +205,7 @@ public interface MiraiBot : Bot, UserInfo {
     //region guild apis
 
     @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("emptyFlow()", "kotlinx.coroutines.flow.emptyFlow"))
+    @JvmSynthetic
     override suspend fun guilds(grouping: Grouping, limiter: Limiter): Flow<Guild> = emptyFlow()
 
     @OptIn(Api4J::class)
@@ -214,6 +221,7 @@ public interface MiraiBot : Bot, UserInfo {
     override fun getGuilds(limiter: Limiter): Stream<out Guild> = Stream.empty()
 
     @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("Stream.empty()", "java.util.stream.Stream"))
+    @JvmSynthetic
     override suspend fun guild(id: ID): Guild? = null
 
     @OptIn(Api4J::class)
@@ -234,6 +242,7 @@ public interface MiraiBot : Bot, UserInfo {
      *
      *
      */
+    @JvmSynthetic
     override suspend fun uploadImage(resource: Resource): Image<*> {
         return uploadImage(resource, false)
     }
@@ -251,12 +260,15 @@ public interface MiraiBot : Bot, UserInfo {
      * 可以通过 [flash] 对象来构建一个 *闪照* 图片对象。
      *
      */
+    @JvmSynthetic
     public suspend fun uploadImage(resource: Resource, flash: Boolean): Image<*>
 
+    @JvmSynthetic
     override suspend fun join() {
         nativeBot.join()
     }
 
+    @JvmSynthetic
     override suspend fun cancel(reason: Throwable?): Boolean {
         return if (isCancelled) false
         else true.also {

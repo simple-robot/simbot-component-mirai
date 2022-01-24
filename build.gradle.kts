@@ -50,6 +50,12 @@ allprojects {
         mavenCentral()
     }
 
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions {
+            freeCompilerArgs = freeCompilerArgs + listOf("-Xjvm-default=all")
+        }
+    }
+
 
 }
 

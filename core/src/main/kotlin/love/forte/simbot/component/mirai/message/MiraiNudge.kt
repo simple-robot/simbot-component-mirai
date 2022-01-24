@@ -52,6 +52,7 @@ public data class MiraiNudge constructor(
     override val key: Message.Key<MiraiNudge> get() = Key
 
     @OptIn(InternalApi::class)
+    @JvmSynthetic
     override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
         if (target != null) {
             if (target.number == contact.bot.id) {

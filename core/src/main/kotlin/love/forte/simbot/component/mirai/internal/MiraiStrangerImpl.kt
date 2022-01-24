@@ -36,6 +36,7 @@ internal class MiraiStrangerImpl(
 ) : MiraiStranger {
     override val id: LongID = nativeContact.id.ID
 
+    @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceiptImpl<NativeMiraiStranger> {
         val nativeMessage = message.toNativeMiraiMessage(nativeContact)
         val receipt = nativeContact.sendMessage(nativeMessage)

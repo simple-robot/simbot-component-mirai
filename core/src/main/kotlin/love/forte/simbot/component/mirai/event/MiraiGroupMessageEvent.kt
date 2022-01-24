@@ -66,26 +66,31 @@ public interface MiraiGroupMessageEvent :
      *
      * @see net.mamoe.mirai.message.data.MessageSource.recall
      */
+    @JvmSynthetic
     override suspend fun delete(): Boolean
 
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
+    @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup>
 
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
+    @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup>
 
     /**
      * 向次事件的群发送消息。
      */
+    @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup>
 
     /**
      * 向次事件的群发送消息。
      */
+    @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup>
 
 
@@ -99,9 +104,13 @@ public interface MiraiGroupMessageEvent :
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
 
 
+    @JvmSynthetic
     override suspend fun author(): MiraiMember = author
+    @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
+    @JvmSynthetic
     override suspend fun source(): MiraiGroup = group
 
     @OptIn(Api4J::class)
@@ -113,6 +122,7 @@ public interface MiraiGroupMessageEvent :
         get() = group
 
 
+    @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
         reply(message.messages)
 
@@ -129,6 +139,7 @@ public interface MiraiGroupMessageEvent :
         runInBlocking { reply(message) }
 
 
+    @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
         send(message.messages)
 
