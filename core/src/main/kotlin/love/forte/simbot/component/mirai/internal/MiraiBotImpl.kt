@@ -20,6 +20,7 @@ package love.forte.simbot.component.mirai.internal
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import love.forte.simbot.*
@@ -29,10 +30,8 @@ import love.forte.simbot.component.mirai.event.impl.*
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImageImpl
 import love.forte.simbot.component.mirai.message.asSimbot
 import love.forte.simbot.component.mirai.util.LRUCacheMap
-import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.event.Event
-import love.forte.simbot.event.EventProcessingResult
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
 import love.forte.simbot.message.Image
@@ -77,7 +76,6 @@ internal class MiraiBotImpl(
     }
 
 
-
     @OptIn(Api4J::class)
     override fun getFriend(id: ID): MiraiFriend? =
         nativeBot.getFriend(id.tryToLongID().number)?.asSimbot(this)
@@ -87,13 +85,8 @@ internal class MiraiBotImpl(
         nativeBot.getGroup(id.tryToLongID().number)?.asSimbot(this)
 
 
-
     override suspend fun friend(id: ID): MiraiFriend? = getFriend(id)
     override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
-
-    override suspend fun guild(id: ID): Guild? = null
-    @OptIn(Api4J::class)
-    override fun getGuild(id: ID): Guild? = null
 
     override suspend fun uploadImage(resource: Resource, flash: Boolean): Image<*> {
         return when (resource) {
@@ -175,8 +168,15 @@ private fun MiraiBotImpl.registerEvents() {
         when (this) {
             //region Message events
             // friend message
-            is NativeMiraiFriendMessageEvent ->
-                doHandler(this, MiraiFriendMessageEvent) { MiraiFriendMessageEventImpl(this@registerEvents, this) }
+            is NativeMiraiFriendMessageEvent -> {
+                // 临时处理，不接受friend为bot自己的消息
+                // fix in 2.9.2
+                if (this.sender.id != bot.id) {
+                    doHandler(this, MiraiFriendMessageEvent) {
+                        MiraiFriendMessageEventImpl(this@registerEvents, this)
+                    }
+                }
+            }
             // stranger message
             is NativeMiraiStrangerMessageEvent ->
                 doHandler(this, MiraiStrangerMessageEvent) { MiraiStrangerMessageEventImpl(this@registerEvents, this) }
@@ -346,9 +346,13 @@ private suspend inline fun <reified E : NativeMiraiEvent, reified SE : MiraiSimb
         MiraiBotImpl.doHandler(
     event: E,
     key: Event.Key<SE>,
-    noinline handler: suspend E.(bot: MiraiBotImpl) -> SE
-): EventProcessingResult? {
-    return eventProcessor.pushIfProcessable(key) {
-        event.handler(this)
+    crossinline handler: E.(bot: MiraiBotImpl) -> SE
+) {
+    launch {
+        val b = this@doHandler
+        if (eventProcessor.isProcessable(key)) {
+            eventProcessor.push(event.handler(b))
+        }
     }
 }
+
