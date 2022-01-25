@@ -25,6 +25,7 @@ import love.forte.simbot.event.ChatroomMessageEvent
 import love.forte.simbot.event.ContactMessageEvent
 import love.forte.simbot.event.Event
 import love.forte.simbot.message.doSafeCast
+import love.forte.simbot.randomID
 
 //region typealias
 /**
@@ -145,7 +146,7 @@ public inline val <E : NativeMiraiEvent> MiraiSimbotEvent<E>.nativeEvent: E get(
 
 public abstract class BaseMiraiSimbotEventMetadata<E : NativeMiraiEvent>(
     final override val nativeEvent: E,
-    override val id: ID = nativeEvent.hashCode().ID
+    override val id: ID = randomID()
 ) : MiraiSimbotEvent.Metadata<E> {
     public val isIntercepted: Boolean get() = nativeEvent.isIntercepted
 }
