@@ -111,6 +111,9 @@ internal class MiraiBotImpl(
             eventRegistered = true
         }
         nativeBot.login()
+        eventProcessor.pushIfProcessable(MiraiBotStartedEvent) {
+            MiraiBotStartedEventImpl(this)
+        }
         true
     }
 

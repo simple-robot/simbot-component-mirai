@@ -17,17 +17,18 @@
 
 package love.forte.simbot.component.mirai.internal
 
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletionHandler
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import love.forte.simbot.BotAlreadyRegisteredException
 import love.forte.simbot.ID
 import love.forte.simbot.LoggerFactory
 import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiBotManager
 import love.forte.simbot.component.mirai.NativeMiraiBot
+import love.forte.simbot.component.mirai.event.MiraiBotRegisteredEvent
+import love.forte.simbot.component.mirai.event.impl.MiraiBotRegisteredEventImpl
+import love.forte.simbot.event.EventProcessingResult
 import love.forte.simbot.event.EventProcessor
+import love.forte.simbot.event.pushIfProcessable
 import love.forte.simbot.tryToLongID
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.utils.BotConfiguration
@@ -58,6 +59,8 @@ internal class MiraiBotManagerImpl(
         logger.debug("Register bot {} with password: <length {}>", code, password.length)
         return processMiraiBot(code) {
             BotFactory.newBot(code, password, configuration.configurationProcess())
+        }.also { bot ->
+            launch { pushRegisteredEvent(bot) }
         }
     }
 
@@ -65,6 +68,8 @@ internal class MiraiBotManagerImpl(
         logger.debug("Register bot {} with password(MD5): <size {}>", code, passwordMD5.size)
         return processMiraiBot(code) {
             BotFactory.newBot(code, passwordMD5, configuration.configurationProcess())
+        }.also { bot ->
+            launch { pushRegisteredEvent(bot) }
         }
     }
 
@@ -77,6 +82,8 @@ internal class MiraiBotManagerImpl(
         logger.debug("Register bot {} with password: <length {}>", code, password.length)
         return processMiraiBot(code) {
             BotFactory.newBot(code, password, configuration.configurationProcess())
+        }.also { bot ->
+            launch { pushRegisteredEvent(bot) }
         }
     }
 
@@ -88,6 +95,15 @@ internal class MiraiBotManagerImpl(
         logger.debug("Register bot {} with password(MD5): <size {}>", code, passwordMD5.size)
         return processMiraiBot(code) {
             BotFactory.newBot(code, passwordMD5, configuration.configurationProcess())
+        }.also { bot ->
+            launch { pushRegisteredEvent(bot) }
+        }
+    }
+
+
+    private suspend fun pushRegisteredEvent(bot: MiraiBotImpl): EventProcessingResult? {
+        return eventProcessor.pushIfProcessable(MiraiBotRegisteredEvent) {
+            MiraiBotRegisteredEventImpl(bot)
         }
     }
 
