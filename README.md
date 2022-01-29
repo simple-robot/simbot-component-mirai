@@ -5,6 +5,6 @@
 </h2>
 </div>
 
-simple-robot 3.x 版本对mirai的组件支持。
+[simbot3](https://github.com/ForteScarlet/simpler-robot/tree/v3-dev) 对mirai的组件支持。
 
 
