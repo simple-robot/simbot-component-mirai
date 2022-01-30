@@ -165,6 +165,7 @@ internal class MiraiMemberJoinRequestEventImpl(
         val groupId: Long,
         override val name: String,
     ) : GroupInfo {
+        override val id: ID = groupId.ID
         override val createTime: Timestamp get() = Timestamp.NotSupport
         override val currentMember: Int get() = -1
         override val description: String get() = ""

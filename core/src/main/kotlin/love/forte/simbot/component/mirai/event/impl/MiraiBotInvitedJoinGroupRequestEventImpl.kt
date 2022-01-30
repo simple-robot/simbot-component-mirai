@@ -45,6 +45,7 @@ internal class MiraiBotInvitedJoinGroupRequestEventImpl(
 }
 
 private data class InvitedJoinGroupInfo(private val groupId: Long, private val groupName: String) : GroupInfo {
+    override val id: ID = groupId.ID
     override val createTime: Timestamp get() = Timestamp.NotSupport
     override val currentMember: Int get() = -1
     override val description: String get() = ""
