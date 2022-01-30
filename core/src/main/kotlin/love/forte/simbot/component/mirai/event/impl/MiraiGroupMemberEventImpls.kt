@@ -93,6 +93,7 @@ internal class MiraiMemberMuteEventImpl(
     override val timestamp: Timestamp get() = changedTime
     override val durationSeconds: Int = nativeEvent.durationSeconds
     override val duration: Duration get() = durationSeconds.seconds
+    override val operator: MiraiMember = nativeEvent.operatorOrBot.asSimbot(bot, group)
 }
 
 internal class MiraiMemberPermissionChangeEventImpl(

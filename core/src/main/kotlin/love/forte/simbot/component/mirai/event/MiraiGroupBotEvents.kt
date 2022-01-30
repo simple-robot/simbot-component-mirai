@@ -268,7 +268,6 @@ public interface MiraiBotMuteEvent :
     MiraiGroupBotEvent<NativeMiraiBotMuteEvent>, MiraiBotMuteRelateEvent<NativeMiraiBotMuteEvent> {
     override val duration: Duration
     override val durationSeconds: Int
-
     //// Impl
 
     override val before: Boolean get() = false
