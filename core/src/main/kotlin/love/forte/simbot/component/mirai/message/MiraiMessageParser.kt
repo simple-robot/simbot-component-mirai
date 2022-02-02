@@ -21,19 +21,17 @@ package love.forte.simbot.component.mirai.message
 
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.internal.InternalApi
+import love.forte.simbot.literal
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
 import love.forte.simbot.message.AtAll
 import love.forte.simbot.message.Face
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.PlainText
-import love.forte.simbot.resources.IDResource
-import love.forte.simbot.resources.StreamableResource
 import love.forte.simbot.tryToLongID
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
 import net.mamoe.mirai.message.data.*
-import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.At as MiraiAtFunc
 
 
@@ -87,8 +85,10 @@ public fun simbotMessage(factory: (Contact) -> NativeMiraiMessage): Message =
 @OptIn(InternalApi::class)
 public suspend fun Message.toNativeMiraiMessage(contact: Contact): NativeMiraiMessage {
     return when (this) {
-        is MiraiNativeDirectlySimbotMessage<*> -> nativeMiraiMessage.takeIf { it !== EmptySingleMessage } ?: EmptyMessageChain
-        is MiraiNativeComputableSimbotMessage<*> -> nativeMiraiMessage(contact).takeIf { it !== EmptySingleMessage } ?: EmptyMessageChain
+        is MiraiNativeDirectlySimbotMessage<*> -> nativeMiraiMessage.takeIf { it !== EmptySingleMessage }
+            ?: EmptyMessageChain
+        is MiraiNativeComputableSimbotMessage<*> -> nativeMiraiMessage(contact).takeIf { it !== EmptySingleMessage }
+            ?: EmptyMessageChain
         else -> {
             val list = mutableListOf<NativeMiraiMessage>()
 
@@ -155,7 +155,8 @@ private object StandardParser : MiraiMessageParser {
                     // not support?
                 }
             }
-            is MiraiNativeComputableSimbotMessage<*> -> message.nativeMiraiMessage(contact).takeIf { it !== EmptySingleMessage }?.also(messages::add)
+            is MiraiNativeComputableSimbotMessage<*> -> message.nativeMiraiMessage(contact)
+                .takeIf { it !== EmptySingleMessage }?.also(messages::add)
         }
     }
 
@@ -179,19 +180,22 @@ private object StandardParser : MiraiMessageParser {
 
 
 private suspend fun love.forte.simbot.message.Image<*>.toMirai(contact: Contact): NativeMiraiMessage {
-    val id = id.toString()
+    val id = id.literal
     if (id.isNotEmpty()) {
         return Image(id)
     }
 
-    val image: Image = when (val resource = resource()) {
-        is IDResource -> Image(resource.id.toString())
-        is StreamableResource -> {
-            resource.use { r ->
-                r.openStream().use { i -> contact.uploadImage(i) }
-            }
+    val image: NativeMiraiImage = when (this) {
+        is MiraiImage -> nativeImage
+        is MiraiSendOnlyImage -> when (val ntImg = nativeMiraiMessage(contact)) {
+            is NativeMiraiImage -> ntImg
+            is NativeMiraiFlashImage -> ntImg.image
+            else -> throw IllegalStateException("Can not resolve type of img content in MiraiSendOnlyImage")
         }
+        else -> resource().use { r -> r.openStream().use { i -> contact.uploadImage(i) } }
     }
+
+
     return image
 }
 

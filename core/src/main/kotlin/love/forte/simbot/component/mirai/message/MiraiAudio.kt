@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
 import love.forte.simbot.Component
 import love.forte.simbot.component.mirai.ComponentMirai
 import love.forte.simbot.message.Message
-import love.forte.simbot.resources.StreamableResource
+import love.forte.simbot.resources.Resource
 import net.mamoe.mirai.contact.AudioSupported
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.AudioCodec
@@ -38,7 +38,7 @@ public typealias NativeMiraiAudio = net.mamoe.mirai.message.data.Audio
 @SerialName("mirai.sendOnlyAudio")
 @Serializable
 public class MiraiSendOnlyAudio(
-    private val resource: StreamableResource
+    private val resource: Resource
 ) : MiraiSendOnlyComputableSimbotMessage<MiraiSendOnlyAudio> {
 
     override val key: Message.Key<MiraiSendOnlyAudio>

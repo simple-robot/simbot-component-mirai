@@ -27,18 +27,16 @@ import love.forte.simbot.*
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.event.impl.*
+import love.forte.simbot.component.mirai.message.MiraiImage
+import love.forte.simbot.component.mirai.message.MiraiImageImpl
+import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImageImpl
-import love.forte.simbot.component.mirai.message.asSimbot
 import love.forte.simbot.component.mirai.util.LRUCacheMap
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.event.Event
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
-import love.forte.simbot.message.Image
-import love.forte.simbot.resources.IDResource
 import love.forte.simbot.resources.Resource
-import love.forte.simbot.resources.StreamableResource
-import net.mamoe.mirai.message.data.flash
 import net.mamoe.mirai.utils.MiraiExperimentalApi
 import org.slf4j.Logger
 import java.util.stream.Stream
@@ -88,14 +86,17 @@ internal class MiraiBotImpl(
     override suspend fun friend(id: ID): MiraiFriend? = getFriend(id)
     override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
 
-    override suspend fun uploadImage(resource: Resource, flash: Boolean): Image<*> {
-        return when (resource) {
-            is IDResource -> {
-                val image = miraiImageFunc(resource.id.toString())
-                if (flash) image.flash().asSimbot() else image.asSimbot()
-            }
-            is StreamableResource -> MiraiSendOnlyImageImpl(resource, flash)
-        }
+    override fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage {
+        return MiraiSendOnlyImageImpl(resource, flash)
+    }
+
+    override fun idImage(
+        id: ID,
+        flash: Boolean,
+        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit
+    ): MiraiImage {
+        val img = miraiImageFunc(id.literal, builderAction)
+        return MiraiImageImpl(img, flash)
     }
 
 

@@ -20,6 +20,8 @@ package love.forte.simbot.component.mirai
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import love.forte.simbot.*
+import love.forte.simbot.component.mirai.message.MiraiImage
+import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
 import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.EventProcessor
@@ -233,35 +235,89 @@ public interface MiraiBot : Bot, UserInfo {
     /**
      * 通过 [resource] 上传并得到一个可以且仅可用于在mirai组件中进行 **发送** 的图片消息对象。
      *
-     * 当使用 [love.forte.simbot.resources.IDResource] 的时候，会直接通过mirai的函数
-     * [net.mamoe.mirai.message.data.Image] 直接通过此ID获取对应图片。
-     * 此时的 [Image] 对象是可以序列化的。
-     *
-     * 如果通过 [love.forte.simbot.resources.StreamableResource] 来构建 [Image],
+     * 如果通过 [love.forte.simbot.resources.Resource] 来构建 [Image],
      * 那么得到的 [Image] 对象只是一个尚未初始化的伪[Image], 他会在发送消息的时候根据对应的 [NativeMiraiContact] 来进行上传并发送。
-     *
-     *
      */
-    @JvmSynthetic
-    override suspend fun uploadImage(resource: Resource): Image<*> {
-        return uploadImage(resource, false)
-    }
+    public fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage
+
 
     /**
-     * 通过 [resource] 上传并得到一个可以且仅可用于在mirai组件中进行 **发送** 的图片消息对象。
-     *
-     * 当使用 [love.forte.simbot.resources.IDResource] 的时候，会直接通过mirai的函数
-     * [net.mamoe.mirai.message.data.Image] 直接通过此ID获取对应图片。
-     * 此时的 [Image] 对象是可以序列化的。
-     *
-     * 如果通过 [love.forte.simbot.resources.StreamableResource] 来构建 [Image],
-     * 那么得到的 [Image] 对象只是一个尚未初始化的伪[Image], 他会在发送消息的时候根据对应的 [NativeMiraiContact] 来进行上传并发送。
-     *
-     * 可以通过 [flash] 对象来构建一个 *闪照* 图片对象。
-     *
+     * @see sendOnlyImage
      */
     @JvmSynthetic
-    public suspend fun uploadImage(resource: Resource, flash: Boolean): Image<*>
+    override suspend fun uploadImage(resource: Resource): MiraiSendOnlyImage = sendOnlyImage(resource, false)
+
+    /**
+     * @see sendOnlyImage
+     */
+    @JvmSynthetic
+    public suspend fun uploadImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
+        sendOnlyImage(resource, flash)
+
+    /**
+     * @see sendOnlyImage
+     */
+    @OptIn(Api4J::class)
+    override fun uploadImageBlocking(resource: Resource): MiraiSendOnlyImage = sendOnlyImage(resource, false)
+
+    /**
+     * @see sendOnlyImage
+     */
+    @OptIn(Api4J::class)
+    public fun uploadImageBlocking(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
+        sendOnlyImage(resource, flash)
+
+
+    //// id image
+
+    /**
+     * 尝试通过一个 [ID] 解析得到一个图片对象。
+     * 当使用 [ID]的时候， 会直接通过mirai的函数
+     * [net.mamoe.mirai.message.data.Image] 直接通过此ID获取对应图片。
+     * 此时的 [Image] 对象是可以序列化的。
+     */
+    public fun idImage(
+        id: ID,
+        flash: Boolean,
+        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {}
+    ): MiraiImage
+
+
+    /**
+     * @see idImage
+     */
+    @JvmSynthetic
+    override suspend fun resolveImage(id: ID): MiraiImage = idImage(id, false)
+
+    /**
+     * @see idImage
+     */
+    @JvmSynthetic
+    public suspend fun resolveImage(
+        id: ID,
+        flash: Boolean,
+        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {}
+    ): MiraiImage = idImage(id, flash, builderAction)
+
+    /**
+     * @see idImage
+     */
+    @OptIn(Api4J::class)
+    override fun resolveImageBlocking(id: ID): MiraiImage = idImage(id, false)
+
+    /**
+     * @see idImage
+     */
+    public fun resolveImageBlocking(id: ID, flash: Boolean): MiraiImage = idImage(id, flash)
+
+    /**
+     * @see idImage
+     */
+    public fun resolveImageBlocking(
+        id: ID,
+        flash: Boolean,
+        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit
+    ): MiraiImage = idImage(id, flash, builderAction)
 
     @JvmSynthetic
     override suspend fun join() {

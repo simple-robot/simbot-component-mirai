@@ -27,7 +27,6 @@ import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.message.Image
 import love.forte.simbot.message.Message
 import love.forte.simbot.resources.Resource
-import love.forte.simbot.resources.StreamableResource
 import love.forte.simbot.resources.toResource
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
@@ -52,10 +51,10 @@ public typealias NativeMiraiFlashImage = net.mamoe.mirai.message.data.FlashImage
  * 一个仅用于发送的临时 [NativeMiraiImage] 类型，通过 [MiraiBot.uploadImage] 有可能会得到。
  * 不建议对其进行长久的序列化，因为其内部的 [resource] 中保存的内容很有可能是 **临时** 内容。
  *
- * [MiraiSendOnlyImage] 是通过 [StreamableResource] 作为上传资源使用的，
- * 如果你希望仅通过一个ID来获取图片，请参考 [love.forte.simbot.resources.IDResource] 并使用在 [MiraiBot.uploadImage] 中。
+ * [MiraiSendOnlyImage] 是通过 [Resource] 作为上传资源使用的，
+ * 如果你希望仅通过一个ID来获取图片，请参考 [love.forte.simbot.resources.Resource] 并使用在 [MiraiBot.uploadImage] 中。
  *
- * @see StreamableResource
+ * @see Resource
  * @see MiraiBot.uploadImage
  *
  */
@@ -66,7 +65,7 @@ public interface MiraiSendOnlyImage :
     /**
      * 图片发送所使用的资源对象。
      */
-    public val resource: StreamableResource
+    public val resource: Resource
 
     /**
      * 是否作为一个闪照。
@@ -96,7 +95,7 @@ public interface MiraiSendOnlyImage :
 @SerialName("mirai.sendOnlyImage")
 @Serializable
 internal class MiraiSendOnlyImageImpl(
-    override val resource: StreamableResource,
+    override val resource: Resource,
     override val isFlash: Boolean
 ) : MiraiSendOnlyImage {
     @Transient
