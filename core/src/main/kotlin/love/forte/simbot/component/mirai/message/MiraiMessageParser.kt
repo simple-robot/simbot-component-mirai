@@ -171,6 +171,7 @@ private object StandardParser : MiraiMessageParser {
             is NativeMiraiImage -> message.asSimbot()
             is NativeMiraiFlashImage -> message.asSimbot()
             is NativeMiraiAudio -> message.asSimbot()
+            is net.mamoe.mirai.message.data.Face -> Face(message.id.ID)
 
             // other messages.
             else -> SimbotNativeMiraiMessage(message)
