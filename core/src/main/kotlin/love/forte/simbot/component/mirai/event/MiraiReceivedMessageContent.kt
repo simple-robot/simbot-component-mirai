@@ -53,6 +53,8 @@ public open class MiraiReceivedMessageContent internal constructor(
     )
 
     override val metadata: MiraiMessageMetadata = miraiMessageMetadata(messageSource)
+
+    override fun toString(): String = "MiraiReceivedMessageContent(content=$nativeMessageChain)"
 }
 
 internal fun MessageChain.toSimbotMessageContent(): MiraiReceivedMessageContent =
