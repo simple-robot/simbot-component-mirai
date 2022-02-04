@@ -120,6 +120,7 @@ public class SimbotNativeMiraiMessage(
     override val key: Message.Key<SimbotNativeMiraiMessage> get() = Key
 
     override fun equals(other: Any?): Boolean {
+        if (other === this) return true
         if (other !is SimbotNativeMiraiMessage) return false
         return other.nativeMiraiMessage == this.nativeMiraiMessage
     }

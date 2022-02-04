@@ -129,6 +129,7 @@ internal class MiraiAudioImpl(
         get() = MiraiAudio.Key
 
     override fun equals(other: Any?): Boolean {
+        if (other === this) return true
         if (other !is MiraiAudio) return false
         return nativeAudio == other.nativeAudio
     }

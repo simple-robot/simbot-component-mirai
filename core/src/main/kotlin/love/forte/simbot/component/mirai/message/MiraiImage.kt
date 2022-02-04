@@ -109,8 +109,9 @@ internal class MiraiSendOnlyImageImpl(
         get() = MiraiSendOnlyImage.Key
 
     override fun equals(other: Any?): Boolean {
+        if (other === this) return true
         if (other !is MiraiSendOnlyImageImpl) return false
-        return this === other || resource === other.resource
+        return resource === other.resource
     }
 
     /**
@@ -231,6 +232,7 @@ internal class MiraiImageImpl(
 
 
     override fun equals(other: Any?): Boolean {
+        if (other === this) return true
         if (other !is MiraiImage) return false
         return nativeImage == other.nativeImage
     }

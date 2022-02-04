@@ -57,6 +57,7 @@ public class MiraiQuoteReply(
         get() = Key
 
     override fun equals(other: Any?): Boolean {
+        if (other === this) return true
         if (other !is MiraiQuoteReply) return false
         return other.source == source
     }
