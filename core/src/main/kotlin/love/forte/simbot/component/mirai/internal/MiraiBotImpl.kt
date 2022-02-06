@@ -111,7 +111,14 @@ internal class MiraiBotImpl(
             registerEvents()
             eventRegistered = true
         }
-        nativeBot.login()
+        try {
+            nativeBot.login()
+        } catch (e: Throwable) {
+            // close cause
+            e.initCause(null)
+            val cause = e.cause
+            throw IllegalStateException("Bot login failed. cause: $cause", e)
+        }
         eventProcessor.pushIfProcessable(MiraiBotStartedEvent) {
             MiraiBotStartedEventImpl(this)
         }
