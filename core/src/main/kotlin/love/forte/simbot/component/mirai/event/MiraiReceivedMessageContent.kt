@@ -49,7 +49,8 @@ public open class MiraiReceivedMessageContent internal constructor(
 
     override val messages: Messages by lazy(
         LazyThreadSafetyMode.PUBLICATION,
-        nativeMessageChain.map(SingleMessage::asSimbotMessage)::toMessages
+        // 消息链中不追加source. 如果需要, 使用 [nativeMessageChain] 或者 [messageSource]
+        nativeMessageChain.filter { it !is MessageSource }.map(SingleMessage::asSimbotMessage)::toMessages
     )
 
     override val metadata: MiraiMessageMetadata = miraiMessageMetadata(messageSource)
