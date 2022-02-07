@@ -29,6 +29,7 @@ sealed class P : SimbotProject() {
     object Simbot {
         const val GROUP = "love.forte.simbot"
         const val VERSION = "3.0.0.preview.2.0"
+
     }
 
     object Simboot {
