@@ -58,7 +58,7 @@ public inline fun miraiComponents(): List<MiraiBotManager> = OriginBotManager.fi
  * 获取其中为 [MiraiBotManager] 的管理器。
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline fun Iterable<BotManager<*>>.filterIsMiraiBotManager(): List<MiraiBotManager> =
+public inline fun Iterable<BotManager<*>>.filterIsMiraiBotManagers(): List<MiraiBotManager> =
     filterIsInstance<MiraiBotManager>()
 
 
@@ -66,7 +66,7 @@ public inline fun Iterable<BotManager<*>>.filterIsMiraiBotManager(): List<MiraiB
  * 过滤获取其中为 [MiraiBotManager] 的管理器。
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline fun Sequence<BotManager<*>>.filterIsMiraiBotManager(): Sequence<MiraiBotManager> =
+public inline fun Sequence<BotManager<*>>.filterIsMiraiBotManagers(): Sequence<MiraiBotManager> =
     filterIsInstance<MiraiBotManager>()
 //endregion
 
