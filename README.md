@@ -20,6 +20,38 @@
 
 </div>
 
-[simbot3](https://github.com/ForteScarlet/simpler-robot/tree/v3-dev) 对mirai的组件支持。
+此为 [simbot3](https://github.com/ForteScarlet/simpler-robot/tree/v3-dev) 下基于simbot标准API对 [mirai](https://github.com/mamoe/mirai) 的组件支持。
+
+更多详情请参考 [simbot3文档](https://www.yuque.com/simpler-robot/simpler-robot-doc/mudleb)
 
 
+### 快速开始
+参考文档的 [《快速开始》](https://www.yuque.com/simpler-robot/simpler-robot-doc/fvdmq1)
+
+
+### 走马观花
+
+```kotlin
+// simbot-core / simbot-boot
+suspend fun MiraiFriendMessageEvent.onEvent() {
+    author().send("Hello World")
+}
+```
+
+
+```kotlin
+// simbot-boot
+@Listener
+@Filter("签到")
+suspend fun MiraiGroupMessageEvent.onEvent() {
+    reply("签到成功")
+}
+```
+
+```kotlin
+@Listener
+@Filter("叫我{{name,.+}}")
+suspend fun MiraiGroupMessageEvent.onEvent(name: String) {
+    group.send(At(author.id) + "好的，以后就叫你$name了".toText())
+}
+```
