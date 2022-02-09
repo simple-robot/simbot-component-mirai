@@ -46,6 +46,7 @@ public object ComponentMirai {
         }
 }
 
+//region manager获取扩展
 /**
  * 通过 [OriginBotManager] 获取所有的 [MiraiBotManager]
  */
@@ -67,6 +68,7 @@ public inline fun Iterable<BotManager<*>>.filterIsMiraiBotManager(): List<MiraiB
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Sequence<BotManager<*>>.filterIsMiraiBotManager(): Sequence<MiraiBotManager> =
     filterIsInstance<MiraiBotManager>()
+//endregion
 
 
 /**
