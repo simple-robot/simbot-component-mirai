@@ -44,16 +44,31 @@ public object ComponentMirai {
                 return Components[COMPONENT_ID]
             } else componentValue
         }
-
-// /**
-    //  * 一个可以由内部使用的默认Json序列化器。
-    //  */
-    // internal val defaultJson = Json {
-    //     isLenient = true
-    //     ignoreUnknownKeys = true
-    // }
-
 }
+
+//region manager获取扩展
+/**
+ * 通过 [OriginBotManager] 获取所有的 [MiraiBotManager]
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline fun miraiComponents(): List<MiraiBotManager> = OriginBotManager.filterIsInstance<MiraiBotManager>()
+
+
+/**
+ * 获取其中为 [MiraiBotManager] 的管理器。
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline fun Iterable<BotManager<*>>.filterIsMiraiBotManager(): List<MiraiBotManager> =
+    filterIsInstance<MiraiBotManager>()
+
+
+/**
+ * 过滤获取其中为 [MiraiBotManager] 的管理器。
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline fun Sequence<BotManager<*>>.filterIsMiraiBotManager(): Sequence<MiraiBotManager> =
+    filterIsInstance<MiraiBotManager>()
+//endregion
 
 
 /**
