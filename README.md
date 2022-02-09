@@ -20,6 +20,9 @@
 
 </div>
 
+<br>
+<br>
+
 此为 [simbot3](https://github.com/ForteScarlet/simpler-robot/tree/v3-dev) 下基于simbot标准API对 [mirai](https://github.com/mamoe/mirai) 的组件支持。
 
 更多详情请参考 [simbot3文档](https://www.yuque.com/simpler-robot/simpler-robot-doc/mudleb)
