@@ -30,6 +30,7 @@ import love.forte.simbot.component.mirai.simbotRole
 import love.forte.simbot.definition.GroupInfo
 import love.forte.simbot.event.Event
 import love.forte.simbot.event.RequestEvent
+import love.forte.simbot.randomID
 import net.mamoe.mirai.data.GroupHonorType
 import net.mamoe.mirai.event.events.MemberHonorChangeEvent
 import net.mamoe.mirai.event.events.MemberJoinEvent
@@ -42,20 +43,20 @@ import kotlin.time.Duration.Companion.seconds
 
 internal abstract class BaseMiraiGroupMemberEvent<E : NativeMiraiGroupMemberEvent>(
     final override val bot: MiraiBotImpl,
-    nativeEvent: E
+    final override val nativeEvent: E
 ) : MiraiGroupMemberEvent<E> {
+    override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
     final override val group = nativeEvent.group.asSimbot(bot)
     override val member: MiraiMember = nativeEvent.member.asSimbot(bot, group)
-    override val metadata = nativeEvent.toSimpleMetadata()
 }
 
 
 internal class MiraiGroupTalkativeChangeEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiGroupTalkativeChangeEvent
+    override val nativeEvent: NativeMiraiGroupTalkativeChangeEvent
 ) : MiraiGroupTalkativeChangeEvent {
-    override val metadata = nativeEvent.toSimpleMetadata()
+    override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
     override val group = nativeEvent.group.asSimbot(bot)
     override val before: MiraiMember = nativeEvent.previous.asSimbot(bot, group)
@@ -139,8 +140,9 @@ internal class MiraiMemberCardChangeEventImpl(
 
 internal class MiraiMemberJoinRequestEventImpl(
     override val bot: MiraiBotImpl,
-    private val nativeEvent: NativeMiraiMemberJoinRequestEvent
+    override val nativeEvent: NativeMiraiMemberJoinRequestEvent
 ) : MiraiMemberJoinRequestEvent {
+    override val id: ID = nativeEvent.eventId.ID
     override val timestamp: Timestamp = Timestamp.now()
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.INTERNAL
     override val type: RequestEvent.Type =
@@ -160,7 +162,6 @@ internal class MiraiMemberJoinRequestEventImpl(
         nativeEvent.fromId.ID, nativeEvent.groupId,
         nativeEvent.groupName, nativeEvent.fromNick
     )
-    override val metadata = nativeEvent.toSimpleMetadata(nativeEvent.eventId.ID)
 
     private data class GroupInfoImpl(
         val groupId: Long,

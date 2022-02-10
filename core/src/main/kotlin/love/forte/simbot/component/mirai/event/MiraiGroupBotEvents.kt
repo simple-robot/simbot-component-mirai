@@ -434,7 +434,7 @@ public interface MiraiBotInvitedJoinGroupRequestEvent :
     @ExperimentalSimbotApi
     @JvmSynthetic
     override suspend fun accept(): Boolean {
-        metadata.nativeEvent.accept()
+        nativeEvent.accept()
         return true
     }
 
@@ -446,7 +446,7 @@ public interface MiraiBotInvitedJoinGroupRequestEvent :
     @ExperimentalSimbotApi
     @JvmSynthetic
     override suspend fun reject(): Boolean {
-        metadata.nativeEvent.ignore()
+        nativeEvent.ignore()
         return true
     }
 

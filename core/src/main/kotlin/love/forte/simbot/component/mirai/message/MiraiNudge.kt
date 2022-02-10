@@ -73,7 +73,7 @@ public data class MiraiNudge constructor(
             // 没有target
             val event = currentCoroutineContext()[EventProcessingContext]?.event
             if (event is MiraiSimbotEvent<*>) {
-                when (val nativeEvent = event.metadata.nativeEvent) {
+                when (val nativeEvent = event.nativeEvent) {
                     is NativeMiraiGroupMemberEvent -> nativeEvent.member.sendNudge(nativeEvent.member.nudge())
                     is NativeMiraiGroupMessageEvent -> nativeEvent.group.sendNudge(nativeEvent.sender.nudge())
                     is NativeMiraiGroupEvent -> nativeEvent.group.sendNudge(nativeEvent.group.bot.nudge())

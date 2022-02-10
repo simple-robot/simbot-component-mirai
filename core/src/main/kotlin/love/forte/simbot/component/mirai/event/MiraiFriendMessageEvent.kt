@@ -54,7 +54,6 @@ public interface MiraiFriendMessageEvent :
     FriendMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
-    override val metadata: Metadata
 
     @OptIn(Api4J::class)
     override val friend: MiraiFriend
@@ -120,11 +119,6 @@ public interface MiraiFriendMessageEvent :
     override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
         runInBlocking { reply(message) }
 
-    /**
-     * Metadata for [MiraiFriendMessageEvent].
-     */
-    public interface Metadata : MiraiSimbotEvent.Metadata<NativeMiraiFriendMessageEvent>
-
     public companion object Key :
         BaseEventKey<MiraiFriendMessageEvent>(
             "mirai.friend_message",
@@ -144,7 +138,6 @@ public interface MiraiStrangerMessageEvent :
 
     override val bot: MiraiBot
     override val key: Event.Key<MiraiStrangerMessageEvent> get() = Key
-    override val metadata: Metadata
 
     @OptIn(Api4J::class)
     override val user: MiraiStranger
@@ -196,11 +189,6 @@ public interface MiraiStrangerMessageEvent :
     override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiStranger> =
         runInBlocking { send(message) }
 
-
-    /**
-     * Metadata for [MiraiStrangerMessageEvent].
-     */
-    public interface Metadata : MiraiSimbotEvent.Metadata<NativeMiraiStrangerMessageEvent>
 
     public companion object Key :
         BaseEventKey<MiraiStrangerMessageEvent>(

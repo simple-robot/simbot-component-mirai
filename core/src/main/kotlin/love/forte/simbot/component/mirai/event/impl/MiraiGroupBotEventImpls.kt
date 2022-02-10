@@ -17,6 +17,7 @@
 
 package love.forte.simbot.component.mirai.event.impl
 
+import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.action.ActionType
 import love.forte.simbot.component.mirai.MemberPermission
@@ -26,6 +27,7 @@ import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
 import love.forte.simbot.component.mirai.simbotRole
+import love.forte.simbot.randomID
 import net.mamoe.mirai.event.events.BotJoinGroupEvent
 import net.mamoe.mirai.event.events.BotLeaveEvent
 import net.mamoe.mirai.utils.MiraiExperimentalApi
@@ -36,11 +38,10 @@ import kotlin.time.Duration.Companion.seconds
 /***/
 internal class MiraiBotGroupPermissionChangeEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiBotGroupPermissionChangeEvent
+    override val nativeEvent: NativeMiraiBotGroupPermissionChangeEvent
 ) : MiraiBotGroupPermissionChangeEvent {
+    override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val metadata: MiraiSimbotEvent.Metadata<NativeMiraiBotGroupPermissionChangeEvent> =
-        nativeEvent.toSimpleMetadata()
     override val group: MiraiGroup = nativeEvent.group.asSimbot(bot)
     override val before: MemberPermission = nativeEvent.origin.simbotRole.permission
     override val after: MemberPermission = nativeEvent.new.simbotRole.permission
@@ -49,10 +50,10 @@ internal class MiraiBotGroupPermissionChangeEventImpl(
 /***/
 internal class MiraiBotJoinGroupEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiBotJoinGroupEvent
+    override val nativeEvent: NativeMiraiBotJoinGroupEvent
 ) : MiraiBotJoinGroupEvent {
+    override val id: ID = randomID()
     override val changedTime = Timestamp.now()
-    override val metadata = nativeEvent.toSimpleMetadata()
     override val group = nativeEvent.group.asSimbot(bot)
 
     @OptIn(MiraiExperimentalApi::class)
@@ -67,10 +68,10 @@ internal class MiraiBotJoinGroupEventImpl(
 /***/
 internal class MiraiBotUnmuteEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiBotUnmuteEvent
+    override val nativeEvent: NativeMiraiBotUnmuteEvent
 ) : MiraiBotUnmuteEvent {
+    override val id: ID = randomID()
     override val changedTime = Timestamp.now()
-    override val metadata = nativeEvent.toSimpleMetadata()
     override val group = nativeEvent.group.asSimbot(bot)
     override val operator = nativeEvent.operator.asSimbot(bot, group)
 }
@@ -78,10 +79,10 @@ internal class MiraiBotUnmuteEventImpl(
 /***/
 internal class MiraiBotMuteEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiBotMuteEvent
+    override val nativeEvent: NativeMiraiBotMuteEvent
 ) : MiraiBotMuteEvent {
+    override val id: ID = randomID()
     override val changedTime = Timestamp.now()
-    override val metadata = nativeEvent.toSimpleMetadata()
     override val group = nativeEvent.group.asSimbot(bot)
     override val operator = nativeEvent.operator.asSimbot(bot, group)
     override val durationSeconds: Int = nativeEvent.durationSeconds
@@ -91,10 +92,10 @@ internal class MiraiBotMuteEventImpl(
 /***/
 internal class MiraiBotLeaveEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiBotLeaveEvent
+    override val nativeEvent: NativeMiraiBotLeaveEvent
 ) : MiraiBotLeaveEvent {
+    override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val metadata: MiraiSimbotEvent.Metadata<NativeMiraiBotLeaveEvent> = nativeEvent.toSimpleMetadata()
     override val group = nativeEvent.group.asSimbot(bot)
     override val target = nativeEvent.group.botAsMember.asSimbot(bot, group)
 

@@ -25,7 +25,6 @@ import love.forte.simbot.event.ChatroomMessageEvent
 import love.forte.simbot.event.ContactMessageEvent
 import love.forte.simbot.event.Event
 import love.forte.simbot.message.doSafeCast
-import love.forte.simbot.randomID
 
 //region typealias
 /**
@@ -80,25 +79,16 @@ public sealed interface MiraiEvent : Event {
     override val bot: MiraiBot
 
     /**
-     * mirai事件的元数据。可以通过 [Metadata.nativeEvent] 得到此事件的原始事件对象。
+     * 事件的唯一标识。
+     * Mirai事件中并不一定存在id，当原始事件中没有ID的情况下，将会生成一个随机ID。
      */
-    override val metadata: Metadata
+    override val id: ID
 
     /**
-     * Mirai事件在simbot中的 metadata对象。
+     * 原生的mirai事件对象
      */
-    public interface Metadata : Event.Metadata {
-        /**
-         * Mirai事件中并不一定存在id，当原始事件中没有ID的情况下，
-         * 将会使用事件对象的hash作为ID值。
-         */
-        override val id: ID
+    public val nativeEvent: NativeMiraiEvent
 
-        /**
-         * 得到此事件中的原生 mirai 事件对象。
-         */
-        public val nativeEvent: NativeMiraiEvent
-    }
 
     public companion object Key : BaseEventKey<MiraiEvent>("mirai.root") {
         override fun safeCast(value: Any): MiraiEvent? = doSafeCast(value)
@@ -114,56 +104,19 @@ public sealed interface MiraiEvent : Event {
  */
 public interface MiraiSimbotEvent<E : NativeMiraiEvent> : MiraiEvent {
 
+    override val id: ID
+
     /**
-     * 得到此事件的 metadata，其中可以通过 [MiraiSimbotEvent.Metadata.nativeEvent] 得到原生的mirai事件对象。
+     * 原生的mirai事件对象
      */
-    override val metadata: Metadata<E>
+    override val nativeEvent: E
+
 
     public companion object Key : BaseEventKey<MiraiSimbotBotEvent<*>>("mirai.event", MiraiEvent) {
         override fun safeCast(value: Any): MiraiSimbotBotEvent<*>? = doSafeCast(value)
     }
 
-
-    /**
-     * Mirai事件在simbot中的 metadata对象。
-     */
-    public interface Metadata<E : NativeMiraiEvent> : MiraiEvent.Metadata {
-        /**
-         * Mirai事件中并不一定存在id，当原始事件中没有ID的情况下，
-         * 将会使用事件对象的hash作为ID值。
-         */
-        override val id: ID
-
-        /**
-         * 得到此事件中的原生 mirai 事件对象。
-         */
-        override val nativeEvent: E
-    }
 }
-
-public inline val <E : NativeMiraiEvent> MiraiSimbotEvent<E>.nativeEvent: E get() = metadata.nativeEvent
-
-
-public abstract class BaseMiraiSimbotEventMetadata<E : NativeMiraiEvent>(
-    final override val nativeEvent: E,
-    override val id: ID = randomID()
-) : MiraiSimbotEvent.Metadata<E> {
-    public val isIntercepted: Boolean get() = nativeEvent.isIntercepted
-}
-
-/**
- * 得到一个根据 [MiraiSimbotEvent.Metadata] 实现的最基础的meta实例。
- */
-public fun <E : NativeMiraiEvent> E.toSimpleMetadata(id: ID? = null): MiraiSimbotEvent.Metadata<E> =
-    SimpleMiraiSimbotEventMetadata(this, id ?: this.hashCode().ID)
-
-/**
- * 基础的 [BaseMiraiSimbotEventMetadata] 实现。
- */
-private class SimpleMiraiSimbotEventMetadata<E : NativeMiraiEvent>(
-    nativeEvent: E,
-    id: ID
-) : BaseMiraiSimbotEventMetadata<E>(nativeEvent, id)
 
 
 /**
@@ -249,6 +202,7 @@ public interface MiraiSimbotGroupMessageEvent<E : NativeMiraiMessageEvent> :
 
     @JvmSynthetic
     override suspend fun author(): MiraiMember
+
     @JvmSynthetic
     override suspend fun source(): MiraiGroup
 

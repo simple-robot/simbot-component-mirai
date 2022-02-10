@@ -21,7 +21,6 @@ package love.forte.simbot.component.mirai.event
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import love.forte.simbot.CharSequenceID
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.ID
 import love.forte.simbot.component.mirai.buildMessageSource
@@ -53,7 +52,8 @@ public open class MiraiReceivedMessageContent internal constructor(
         nativeMessageChain.filter { it !is MessageSource }.map(SingleMessage::asSimbotMessage)::toMessages
     )
 
-    override val metadata: MiraiMessageMetadata = miraiMessageMetadata(messageSource)
+    override val messageId: ID by lazy(LazyThreadSafetyMode.PUBLICATION) { messageSource.ID }
+    // public val metadata: MiraiMessageMetadata = miraiMessageMetadata(messageSource)
 
     override fun toString(): String = "MiraiReceivedMessageContent(content=$nativeMessageChain)"
 }
@@ -61,7 +61,8 @@ public open class MiraiReceivedMessageContent internal constructor(
 internal fun MessageChain.toSimbotMessageContent(): MiraiReceivedMessageContent =
     MiraiReceivedMessageContent(this, this.source)
 
-internal fun NativeMiraiMessageEvent.toSimbotMessageContent(): MiraiReceivedMessageContent = this.message.toSimbotMessageContent()
+internal fun NativeMiraiMessageEvent.toSimbotMessageContent(): MiraiReceivedMessageContent =
+    this.message.toSimbotMessageContent()
 
 /**
  * 基于mirai的 [MessageSource] 的 [Message.Metadata] 实现。
@@ -70,21 +71,21 @@ internal fun NativeMiraiMessageEvent.toSimbotMessageContent(): MiraiReceivedMess
  */
 @SerialName("mirai.message.metadata")
 @Serializable
-public abstract class MiraiMessageMetadata : Message.Metadata() {
+public abstract class MiraiMessageMetadata {
 
     /**
      * mirai的原生对象 [MessageSource].
      */
     public abstract val source: MessageSource
 
-    /**
-     * 三个定位属性 [ids][MessageSource.ids], [internalIds][MessageSource.internalIds], [time][MessageSource.time],
-     * 还有两个构建用属性 [botId][MessageSource.botId], [kind][net.mamoe.mirai.message.data.MessageSourceKind],
-     * 通过 `:` 拼接为字符ID。
-     */
-    override val id: CharSequenceID by lazy(LazyThreadSafetyMode.PUBLICATION) {
-        source.ID
-    }
+    // /**
+    //  * 三个定位属性 [ids][MessageSource.ids], [internalIds][MessageSource.internalIds], [time][MessageSource.time],
+    //  * 还有两个构建用属性 [botId][MessageSource.botId], [kind][net.mamoe.mirai.message.data.MessageSourceKind],
+    //  * 通过 `:` 拼接为字符ID。
+    //  */
+    // public val id: CharSequenceID by lazy(LazyThreadSafetyMode.PUBLICATION) {
+    //     source.ID
+    // }
 
     public companion object {
 

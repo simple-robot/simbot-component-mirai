@@ -17,17 +17,22 @@
 
 package love.forte.simbot.component.mirai.event.impl
 
+import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.NativeMiraiGroup
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
-import love.forte.simbot.component.mirai.event.*
+import love.forte.simbot.component.mirai.event.MiraiGroupMessageEvent
+import love.forte.simbot.component.mirai.event.MiraiReceivedMessageContent
+import love.forte.simbot.component.mirai.event.NativeMiraiGroupMessageEvent
+import love.forte.simbot.component.mirai.event.toSimbotMessageContent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.MiraiGroupImpl
 import love.forte.simbot.component.mirai.internal.MiraiMemberImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
 import love.forte.simbot.component.mirai.message.toNativeMiraiMessage
 import love.forte.simbot.message.Message
+import love.forte.simbot.randomID
 import net.mamoe.mirai.message.data.MessageSource.Key.recall
 import net.mamoe.mirai.message.data.QuoteReply
 import net.mamoe.mirai.message.data.toPlainText
@@ -37,9 +42,9 @@ import net.mamoe.mirai.message.data.toPlainText
  */
 internal class MiraiGroupMessageEventImpl(
     override val bot: MiraiBotImpl,
-    private val nativeEvent: NativeMiraiGroupMessageEvent
+    override val nativeEvent: NativeMiraiGroupMessageEvent
 ) : MiraiGroupMessageEvent {
-    override val metadata: MiraiGroupMessageEvent.Metadata = MetadataImpl(nativeEvent)
+    override val id: ID = randomID()
     override val messageContent: MiraiReceivedMessageContent = nativeEvent.toSimbotMessageContent()
     override val author: MiraiMemberImpl = nativeEvent.sender.asSimbot(bot)
     override val group: MiraiGroupImpl = nativeEvent.group.asSimbot(bot)
@@ -78,7 +83,4 @@ internal class MiraiGroupMessageEventImpl(
 
     override val timestamp: Timestamp = Timestamp.bySecond(nativeEvent.time.toLong())
 
-    private class MetadataImpl(nativeEvent: NativeMiraiGroupMessageEvent) :
-        MiraiGroupMessageEvent.Metadata,
-        BaseMiraiSimbotEventMetadata<NativeMiraiGroupMessageEvent>(nativeEvent)
 }

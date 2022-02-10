@@ -25,23 +25,24 @@ import love.forte.simbot.component.mirai.internal.MiraiFriendImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
 import love.forte.simbot.event.Event
 import love.forte.simbot.event.RequestEvent
+import love.forte.simbot.randomID
 
 /**
  * @see MiraiFriendEvent
  */
 internal abstract class BaseMiraiFriendEventImpl<E : NativeMiraiFriendEvent>(
     final override val bot: MiraiBotImpl,
-    nativeEvent: E
+    final override val nativeEvent: E
 ) : MiraiFriendEvent<E> {
-    override val metadata: MiraiSimbotEvent.Metadata<E> = nativeEvent.toSimpleMetadata()
+    override val id: ID = randomID()
     override val friend: MiraiFriendImpl = nativeEvent.friend.asSimbot(bot)
 }
 
 internal class MiraiFriendRequestEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiNewFriendRequestEvent
+    override val nativeEvent: NativeMiraiNewFriendRequestEvent
 ) : MiraiFriendRequestEvent {
-    override val metadata = nativeEvent.toSimpleMetadata(nativeEvent.eventId.ID)
+    override val id: ID = nativeEvent.eventId.ID
     override val friend: RequestFriendInfo = nativeEvent.toRequestUserInfo()
     override val timestamp: Timestamp = Timestamp.now()
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
@@ -72,9 +73,9 @@ internal class MiraiFriendInputStatusChangedEventImpl(
 
 internal class MiraiFriendNickChangedEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiFriendNickChangedEvent
+    override val nativeEvent: NativeMiraiFriendNickChangedEvent
 ) : MiraiFriendNickChangedEvent {
-    override val metadata: MiraiSimbotEvent.Metadata<NativeMiraiFriendNickChangedEvent> = nativeEvent.toSimpleMetadata()
+    override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
     override val friend = nativeEvent.friend.asSimbot(bot)
     override val before: String = nativeEvent.from
@@ -83,38 +84,36 @@ internal class MiraiFriendNickChangedEventImpl(
 
 internal class MiraiFriendAvatarChangedEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiFriendAvatarChangedEvent
+    override val nativeEvent: NativeMiraiFriendAvatarChangedEvent
 ) : MiraiFriendAvatarChangedEvent {
-    override val metadata: MiraiSimbotEvent.Metadata<NativeMiraiFriendAvatarChangedEvent> =
-        nativeEvent.toSimpleMetadata()
+    override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
     override val friend = nativeEvent.friend.asSimbot(bot)
 }
 
 internal class MiraiFriendDecreaseEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiFriendDeleteEvent
+    override val nativeEvent: NativeMiraiFriendDeleteEvent
 ) : MiraiFriendDecreaseEvent {
-    override val metadata: MiraiSimbotEvent.Metadata<NativeMiraiFriendDeleteEvent> = nativeEvent.toSimpleMetadata()
+    override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
     override val friend = nativeEvent.friend.asSimbot(bot)
 }
 
 internal class MiraiFriendIncreaseEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiFriendAddEvent
+    override val nativeEvent: NativeMiraiFriendAddEvent
 ) : MiraiFriendIncreaseEvent {
-    override val metadata: MiraiSimbotEvent.Metadata<NativeMiraiFriendAddEvent> = nativeEvent.toSimpleMetadata()
+    override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
     override val friend = nativeEvent.friend.asSimbot(bot)
 }
 
 internal class MiraiFriendRemarkChangeEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiFriendRemarkChangeEvent
+    override val nativeEvent: NativeMiraiFriendRemarkChangeEvent
 ) : MiraiFriendRemarkChangeEvent {
-    override val metadata: MiraiSimbotEvent.Metadata<NativeMiraiFriendRemarkChangeEvent> =
-        nativeEvent.toSimpleMetadata()
+    override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
     override val friend = nativeEvent.friend.asSimbot(bot)
     override val before: String = nativeEvent.oldRemark
