@@ -523,7 +523,7 @@ public interface MiraiMemberJoinRequestEvent :
     @ExperimentalSimbotApi
     @JvmSynthetic
     override suspend fun accept(): Boolean {
-        metadata.nativeEvent.accept()
+        nativeEvent.accept()
         return true
     }
 
@@ -540,7 +540,7 @@ public interface MiraiMemberJoinRequestEvent :
      */
     @JvmSynthetic
     public suspend fun reject(blockList: Boolean, message: String): Boolean {
-        metadata.nativeEvent.reject(blockList, message)
+        nativeEvent.reject(blockList, message)
         return true
     }
 

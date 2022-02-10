@@ -24,6 +24,7 @@ import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.event.BaseEventKey
 import love.forte.simbot.event.Event
 import love.forte.simbot.message.doSafeCast
+import love.forte.simbot.randomID
 
 /**
  * 所有未提供针对性实现的其他mirai事件的包装体。
@@ -55,14 +56,13 @@ import love.forte.simbot.message.doSafeCast
  */
 @SimbotDiscreetApi
 public class UnsupportedMiraiEvent
-internal constructor(override val bot: MiraiBot, nativeEvent: NativeMiraiEvent) : MiraiEvent {
+internal constructor(override val bot: MiraiBot, override val nativeEvent: NativeMiraiEvent) : MiraiEvent {
+    override val id: ID = randomID()
+
     override val key: Event.Key<UnsupportedMiraiEvent> get() = Key
     override val timestamp: Timestamp = Timestamp.now()
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
-    override val metadata: Metadata = Metadata("".ID, nativeEvent)
 
-
-    public data class Metadata(override val id: ID, override val nativeEvent: NativeMiraiEvent) : MiraiEvent.Metadata
 
     public companion object Key : BaseEventKey<UnsupportedMiraiEvent>("mirai.unsupported", MiraiEvent) {
         override fun safeCast(value: Any): UnsupportedMiraiEvent? = doSafeCast(value)
@@ -74,7 +74,7 @@ internal constructor(override val bot: MiraiBot, nativeEvent: NativeMiraiEvent) 
  */
 @OptIn(SimbotDiscreetApi::class)
 public inline fun <reified E : NativeMiraiEvent> UnsupportedMiraiEvent.ifIs(block: E.() -> Unit) {
-    val e = metadata.nativeEvent
+    val e = nativeEvent
     if (e is E) {
         e.block()
     }

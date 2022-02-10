@@ -50,7 +50,6 @@ public interface MiraiGroupMessageEvent :
     GroupMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
-    override val metadata: Metadata
 
     @OptIn(Api4J::class)
     override val author: MiraiMember
@@ -153,11 +152,6 @@ public interface MiraiGroupMessageEvent :
     @Api4J
     override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
         runInBlocking { send(message) }
-
-    /**
-     * [MiraiGroupMessageEvent] 的元数据类型。
-     */
-    public interface Metadata : MiraiSimbotEvent.Metadata<NativeMiraiGroupMessageEvent>
 
     public companion object Key :
         BaseEventKey<MiraiGroupMessageEvent>(

@@ -55,7 +55,6 @@ public interface MiraiMemberMessageEvent
     override val user: MiraiMember
 
     override val key: Event.Key<MiraiMemberMessageEvent> get() = Key
-    override val metadata: Metadata
 
 
     @JvmSynthetic
@@ -102,8 +101,6 @@ public interface MiraiMemberMessageEvent
     @Api4J
     override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember>
         = runInBlocking { send(message) }
-
-    public interface Metadata : MiraiSimbotEvent.Metadata<GroupTempMessageEvent>
 
     public companion object Key : BaseEventKey<MiraiMemberMessageEvent>(
         "mirai.group_temp_message",

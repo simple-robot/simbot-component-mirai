@@ -17,16 +17,21 @@
 
 package love.forte.simbot.component.mirai.event.impl
 
+import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.MiraiStranger
 import love.forte.simbot.component.mirai.NativeMiraiStranger
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
-import love.forte.simbot.component.mirai.event.*
+import love.forte.simbot.component.mirai.event.MiraiReceivedMessageContent
+import love.forte.simbot.component.mirai.event.MiraiStrangerMessageEvent
+import love.forte.simbot.component.mirai.event.NativeMiraiStrangerMessageEvent
+import love.forte.simbot.component.mirai.event.toSimbotMessageContent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
 import love.forte.simbot.component.mirai.message.toNativeMiraiMessage
 import love.forte.simbot.message.Message
+import love.forte.simbot.randomID
 
 
 /**
@@ -35,11 +40,11 @@ import love.forte.simbot.message.Message
  */
 internal class MiraiStrangerMessageEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiStrangerMessageEvent
+    override val nativeEvent: NativeMiraiStrangerMessageEvent
 ) : MiraiStrangerMessageEvent {
+    override val id: ID = randomID()
 
     override val timestamp: Timestamp = Timestamp.Companion.bySecond(nativeEvent.time.toLong())
-    override val metadata: MiraiStrangerMessageEvent.Metadata = MetadataImpl(nativeEvent)
     override val user: MiraiStranger = nativeEvent.stranger.asSimbot(bot)
     override val messageContent: MiraiReceivedMessageContent = nativeEvent.toSimbotMessageContent()
 
@@ -55,8 +60,5 @@ internal class MiraiStrangerMessageEventImpl(
 
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiStranger> = reply(message)
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiStranger> = reply(text)
-
-    private class MetadataImpl(nativeEvent: NativeMiraiStrangerMessageEvent) :
-        MiraiStrangerMessageEvent.Metadata, BaseMiraiSimbotEventMetadata<NativeMiraiStrangerMessageEvent>(nativeEvent)
 
 }

@@ -15,6 +15,7 @@
  *
  */
 
+import kotlinx.coroutines.delay
 import love.forte.simbot.component.mirai.miraiBotManager
 import love.forte.simbot.core.event.coreListenerManager
 
@@ -24,7 +25,8 @@ suspend fun main() {
     // LoggerFactory.getLogger("a").debug("b")
      val manager = coreListenerManager {  }
      val botManager = miraiBotManager(manager)
-     //
+     delay(1)
+     println(botManager)
      // bot.start()
      //
      // bot.friends()

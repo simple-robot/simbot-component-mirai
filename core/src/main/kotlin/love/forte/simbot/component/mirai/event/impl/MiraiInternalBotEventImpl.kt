@@ -22,18 +22,14 @@ import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.event.MiraiBotRegisteredEvent
 import love.forte.simbot.component.mirai.event.MiraiBotStartedEvent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
-import love.forte.simbot.event.Event
+import love.forte.simbot.randomID
 
 internal class MiraiBotRegisteredEventImpl(override val bot: MiraiBotImpl) : MiraiBotRegisteredEvent() {
     override val timestamp: Timestamp = Timestamp.now()
-    override val metadata: Event.Metadata = MetadataImpl(timestamp.millisecond.ID)
-
-    class MetadataImpl(override val id: ID) : Event.Metadata
+    override val id: ID = randomID()
 }
 
 internal class MiraiBotStartedEventImpl(override val bot: MiraiBotImpl) : MiraiBotStartedEvent() {
     override val timestamp: Timestamp = Timestamp.now()
-    override val metadata: Event.Metadata = MetadataImpl(timestamp.millisecond.ID)
-
-    class MetadataImpl(override val id: ID) : Event.Metadata
+    override val id: ID = randomID()
 }

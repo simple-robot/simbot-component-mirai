@@ -17,16 +17,21 @@
 
 package love.forte.simbot.component.mirai.event.impl
 
+import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.NativeMiraiMember
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
-import love.forte.simbot.component.mirai.event.*
+import love.forte.simbot.component.mirai.event.MiraiMemberMessageEvent
+import love.forte.simbot.component.mirai.event.MiraiReceivedMessageContent
+import love.forte.simbot.component.mirai.event.NativeMiraiGroupTempMessageEvent
+import love.forte.simbot.component.mirai.event.toSimbotMessageContent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
 import love.forte.simbot.component.mirai.message.toNativeMiraiMessage
 import love.forte.simbot.message.Message
+import love.forte.simbot.randomID
 
 
 /**
@@ -35,11 +40,11 @@ import love.forte.simbot.message.Message
  */
 internal class MiraiMemberMessageEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiGroupTempMessageEvent
+    override val nativeEvent: NativeMiraiGroupTempMessageEvent
 ) : MiraiMemberMessageEvent {
+    override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.bySecond(nativeEvent.time.toLong())
     override val user: MiraiMember = nativeEvent.sender.asSimbot(bot)
-    override val metadata: MiraiMemberMessageEvent.Metadata = MetadataImpl(nativeEvent)
     override val messageContent: MiraiReceivedMessageContent = nativeEvent.toSimbotMessageContent()
 
 
@@ -57,6 +62,4 @@ internal class MiraiMemberMessageEventImpl(
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember> = reply(message)
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember> = reply(text)
 
-    private class MetadataImpl(nativeEvent: NativeMiraiGroupTempMessageEvent) :
-        MiraiMemberMessageEvent.Metadata, BaseMiraiSimbotEventMetadata<NativeMiraiGroupTempMessageEvent>(nativeEvent)
 }

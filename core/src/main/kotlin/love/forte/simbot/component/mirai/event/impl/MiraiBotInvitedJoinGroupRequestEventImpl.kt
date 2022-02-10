@@ -19,7 +19,9 @@ package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
-import love.forte.simbot.component.mirai.event.*
+import love.forte.simbot.component.mirai.event.InvitorUserInfo
+import love.forte.simbot.component.mirai.event.MiraiBotInvitedJoinGroupRequestEvent
+import love.forte.simbot.component.mirai.event.NativeMiraiBotInvitedJoinGroupRequestEvent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.definition.GroupInfo
 
@@ -29,8 +31,9 @@ import love.forte.simbot.definition.GroupInfo
  */
 internal class MiraiBotInvitedJoinGroupRequestEventImpl(
     override val bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiBotInvitedJoinGroupRequestEvent
+    override val nativeEvent: NativeMiraiBotInvitedJoinGroupRequestEvent
 ) : MiraiBotInvitedJoinGroupRequestEvent {
+    override val id: ID = nativeEvent.eventId.ID
 
     override val timestamp: Timestamp = Timestamp.now()
     override val group: GroupInfo = InvitedJoinGroupInfo(nativeEvent.groupId, nativeEvent.groupName)
@@ -40,8 +43,8 @@ internal class MiraiBotInvitedJoinGroupRequestEventImpl(
         nativeEvent.invitorId,
         nativeEvent.invitorNick
     )
-    override val metadata: MiraiSimbotEvent.Metadata<NativeMiraiBotInvitedJoinGroupRequestEvent> =
-        nativeEvent.toSimpleMetadata(nativeEvent.eventId.ID)
+
+
 }
 
 private data class InvitedJoinGroupInfo(private val groupId: Long, private val groupName: String) : GroupInfo {
