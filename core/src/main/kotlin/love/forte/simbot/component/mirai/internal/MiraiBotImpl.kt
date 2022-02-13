@@ -253,8 +253,8 @@ private fun MiraiBotImpl.registerEvents() {
             is NativeMiraiBotGroupPermissionChangeEvent ->
                 doHandler(
                     this,
-                    MiraiBotGroupPermissionChangeEvent
-                ) { MiraiBotGroupPermissionChangeEventImpl(this@registerEvents, this) }
+                    MiraiBotGroupRoleChangeEvent
+                ) { MiraiBotGroupRoleChangeEventImpl(this@registerEvents, this) }
 
             is NativeMiraiBotUnmuteEvent ->
                 doHandler(this, MiraiBotUnmuteEvent) {
@@ -312,8 +312,8 @@ private fun MiraiBotImpl.registerEvents() {
                     MiraiMemberMuteEventImpl(this@registerEvents, this)
                 }
             is NativeMiraiMemberPermissionChangeEvent ->
-                doHandler(this, MiraiMemberPermissionChangeEvent) {
-                    MiraiMemberPermissionChangeEventImpl(this@registerEvents, this)
+                doHandler(this, MiraiMemberRoleChangeEvent) {
+                    MiraiMemberRoleChangeEventImpl(this@registerEvents, this)
                 }
             is NativeMiraiMemberSpecialTitleChangeEvent ->
                 doHandler(this, MiraiMemberSpecialTitleChangeEvent) {

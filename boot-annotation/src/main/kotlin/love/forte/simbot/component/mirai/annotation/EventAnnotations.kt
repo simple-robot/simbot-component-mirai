@@ -100,7 +100,7 @@ public annotation class OnMiraiBotJoinGroup
 public annotation class OnMiraiBotMute
 
 @Target(FUNCTION)
-@Listen(MiraiBotGroupPermissionChangeEvent::class)
+@Listen(MiraiBotGroupRoleChangeEvent::class)
 @MustBeDocumented
 public annotation class OnMiraiBotGroupPermissionChange
 
@@ -161,7 +161,7 @@ public annotation class OnMiraiMemberUnmute
 public annotation class OnMiraiMemberMute
 
 @Target(FUNCTION)
-@Listen(MiraiMemberPermissionChangeEvent::class)
+@Listen(MiraiMemberRoleChangeEvent::class)
 @MustBeDocumented
 public annotation class OnMiraiMemberPermissionChange
 

@@ -20,7 +20,7 @@ package love.forte.simbot.component.mirai.event.impl
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.action.ActionType
-import love.forte.simbot.component.mirai.MemberPermission
+import love.forte.simbot.component.mirai.MemberRole
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.event.*
@@ -36,15 +36,15 @@ import kotlin.time.Duration.Companion.seconds
 
 
 /***/
-internal class MiraiBotGroupPermissionChangeEventImpl(
+internal class MiraiBotGroupRoleChangeEventImpl(
     override val bot: MiraiBotImpl,
     override val nativeEvent: NativeMiraiBotGroupPermissionChangeEvent
-) : MiraiBotGroupPermissionChangeEvent {
+) : MiraiBotGroupRoleChangeEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
     override val group: MiraiGroup = nativeEvent.group.asSimbot(bot)
-    override val before: MemberPermission = nativeEvent.origin.simbotRole.permission
-    override val after: MemberPermission = nativeEvent.new.simbotRole.permission
+    override val before: MemberRole = nativeEvent.origin.simbotRole
+    override val after: MemberRole = nativeEvent.new.simbotRole
 }
 
 /***/

@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import love.forte.simbot.Api4J
 import love.forte.simbot.ExperimentalSimbotApi
-import love.forte.simbot.component.mirai.MemberPermission
+import love.forte.simbot.component.mirai.MemberRole
 import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
@@ -351,19 +351,19 @@ public interface MiraiMemberMuteEvent : MiraiMemberMuteRelateEvent<NativeMiraiMe
 /**
  * 成员权限改变的事件. 成员不可能是机器人自己.
  *
- * 有关bot权限变更的事件可以参考 [MiraiBotGroupPermissionChangeEvent].
+ * 有关bot权限变更的事件可以参考 [MiraiBotGroupRoleChangeEvent].
  *
  * @see NativeMiraiMemberPermissionChangeEvent
- * @see MiraiBotGroupPermissionChangeEvent
+ * @see MiraiBotGroupRoleChangeEvent
  */
-public interface MiraiMemberPermissionChangeEvent : MiraiGroupMemberEvent<NativeMiraiMemberPermissionChangeEvent>,
-    ChangedEvent<MiraiMember, MemberPermission, MemberPermission> {
+public interface MiraiMemberRoleChangeEvent : MiraiGroupMemberEvent<NativeMiraiMemberPermissionChangeEvent>,
+    ChangedEvent<MiraiMember, MemberRole, MemberRole> {
 
     override val bot: MiraiBot
     override val member: MiraiMember
     override val group: MiraiGroup
-    override val before: MemberPermission
-    override val after: MemberPermission
+    override val before: MemberRole
+    override val after: MemberRole
 
     // Impl
 
@@ -377,21 +377,21 @@ public interface MiraiMemberPermissionChangeEvent : MiraiGroupMemberEvent<Native
     override suspend fun organization(): MiraiGroup = group
 
     @JvmSynthetic
-    override suspend fun after(): MemberPermission = after
+    override suspend fun after(): MemberRole = after
 
     @JvmSynthetic
-    override suspend fun before(): MemberPermission = before
+    override suspend fun before(): MemberRole = before
 
     @JvmSynthetic
     override suspend fun source(): MiraiMember = member
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
 
-    override val key: Event.Key<MiraiMemberPermissionChangeEvent> get() = Key
+    override val key: Event.Key<MiraiMemberRoleChangeEvent> get() = Key
 
-    public companion object Key : BaseEventKey<MiraiMemberPermissionChangeEvent>(
-        "mirai.member_permission_change", MiraiGroupMemberEvent, ChangedEvent
+    public companion object Key : BaseEventKey<MiraiMemberRoleChangeEvent>(
+        "mirai.member_role_change", MiraiGroupMemberEvent, ChangedEvent
     ) {
-        override fun safeCast(value: Any): MiraiMemberPermissionChangeEvent? = doSafeCast(value)
+        override fun safeCast(value: Any): MiraiMemberRoleChangeEvent? = doSafeCast(value)
     }
 }
 

@@ -67,7 +67,7 @@ public typealias NativeMiraiBotInvitedJoinGroupRequestEvent = net.mamoe.mirai.ev
  *
  *
  * @see MiraiBotLeaveEvent
- * @see MiraiBotGroupPermissionChangeEvent
+ * @see MiraiBotGroupRoleChangeEvent
  * @see MiraiBotMuteEvent
  * @see MiraiBotUnmuteEvent
  * @see MiraiBotJoinGroupEvent
@@ -157,7 +157,7 @@ public interface MiraiBotLeaveEvent :
 }
 
 /**
- * Bot 在群里的权限被改变。
+ * Bot 在群里的权限(角色)被改变。
  * 操作人一定是群主。
  *
  * 此事件属于一个 [已变动事件][ChangedEvent], [变动源][source] 即当前bot，
@@ -165,13 +165,13 @@ public interface MiraiBotLeaveEvent :
  *
  * @see NativeMiraiBotGroupPermissionChangeEvent
  */
-public interface MiraiBotGroupPermissionChangeEvent :
+public interface MiraiBotGroupRoleChangeEvent :
     MiraiGroupBotEvent<NativeMiraiBotGroupPermissionChangeEvent>,
-    ChangedEvent<MiraiBot, MemberPermission, MemberPermission> {
+    ChangedEvent<MiraiBot, MemberRole, MemberRole> {
     override val bot: MiraiBot
     override val group: MiraiGroup
-    override val before: MemberPermission
-    override val after: MemberPermission
+    override val before: MemberRole
+    override val after: MemberRole
 
     // Impl
 
@@ -182,18 +182,18 @@ public interface MiraiBotGroupPermissionChangeEvent :
     @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
     @JvmSynthetic
-    override suspend fun after(): MemberPermission = after
+    override suspend fun after(): MemberRole = after
     @JvmSynthetic
-    override suspend fun before(): MemberPermission = before
+    override suspend fun before(): MemberRole = before
     @JvmSynthetic
     override suspend fun source(): MiraiBot = bot
 
-    override val key: Event.Key<MiraiBotGroupPermissionChangeEvent> get() = Key
+    override val key: Event.Key<MiraiBotGroupRoleChangeEvent> get() = Key
 
-    public companion object Key : BaseEventKey<MiraiBotGroupPermissionChangeEvent>(
-        "mirai.bot_group_permission_change", MiraiGroupBotEvent, ChangedEvent
+    public companion object Key : BaseEventKey<MiraiBotGroupRoleChangeEvent>(
+        "mirai.bot_group_role_change", MiraiGroupBotEvent, ChangedEvent
     ) {
-        override fun safeCast(value: Any): MiraiBotGroupPermissionChangeEvent? = doSafeCast(value)
+        override fun safeCast(value: Any): MiraiBotGroupRoleChangeEvent? = doSafeCast(value)
     }
 }
 
