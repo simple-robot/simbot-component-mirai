@@ -401,7 +401,7 @@ public interface MiraiFriendRequestEvent :
     @OptIn(ExperimentalSimbotApi::class)
     @JvmSynthetic
     override suspend fun accept(): Boolean {
-        nativeEvent.reject()
+        nativeEvent.accept()
         return true
     }
 

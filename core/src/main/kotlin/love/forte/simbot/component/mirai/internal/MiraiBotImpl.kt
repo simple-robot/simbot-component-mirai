@@ -130,26 +130,26 @@ internal class MiraiBotImpl(
     }
 
 
-    internal var friendCache =
+    private var friendCache =
         LRUCacheMap<NativeMiraiFriend, MiraiFriendImpl>(nativeBot.friends.size.takeIf { it > 0 }?.let { it / 2 } ?: 16)
-        private set
-    internal var groupCache =
+    private var groupCache =
         LRUCacheMap<NativeMiraiGroup, MiraiGroupImpl>(nativeBot.groups.size.takeIf { it > 0 }?.let { it / 2 } ?: 16)
-        private set
-    internal var memberCache =
+    private var memberCache =
         LRUCacheMap<NativeMiraiMember, MiraiMemberImpl>(nativeBot.groups.sumOf { g -> g.members.size }.takeIf { it > 0 }
             ?.let { it / 2 } ?: 16)
-        private set
 
 
     internal inline fun <K, V> computeCache(cache: LRUCacheMap<K, V>, key: K, ifMiss: () -> V): V {
-        return cache[key] ?: synchronized(cache) {
-            cache[key] ?: run {
-                val newValue = ifMiss()
-                cache[key] = newValue
-                newValue
-            }
-        }
+        // 暂时不启用缓存
+        return ifMiss()
+
+        // return cache[key] ?: synchronized(cache) {
+        //     cache[key] ?: run {
+        //         val newValue = ifMiss()
+        //         cache[key] = newValue
+        //         newValue
+        //     }
+        // }
     }
 
     // 无效的Map
@@ -266,32 +266,32 @@ private fun MiraiBotImpl.registerEvents() {
             //endregion
 
             //region Group settings event
-            is NativeMiraiGroupSettingChangeEvent<*> -> when (this) {
-                is NativeMiraiGroupNameChangeEvent ->
-                    doHandler(this, MiraiGroupNameChangeEvent) {
-                        MiraiGroupNameChangeEventImpl(this@registerEvents, this)
-                    }
-                is NativeMiraiGroupEntranceAnnouncementChangeEvent ->
-                    doHandler(this, MiraiGroupEntranceAnnouncementChangeEvent) {
-                        MiraiGroupEntranceAnnouncementChangeEventImpl(this@registerEvents, this)
-                    }
-                is NativeMiraiGroupMuteAllEvent ->
-                    doHandler(this, MiraiGroupMuteAllEvent) {
-                        MiraiGroupMuteAllEventImpl(this@registerEvents, this)
-                    }
-                is NativeMiraiGroupAllowAnonymousChatEvent ->
-                    doHandler(this, MiraiGroupAllowAnonymousChatEvent) {
-                        MiraiGroupAllowAnonymousChatEventImpl(this@registerEvents, this)
-                    }
-                is NativeMiraiGroupAllowConfessTalkEvent ->
-                    doHandler(this, MiraiGroupAllowConfessTalkEvent) {
-                        MiraiGroupAllowConfessTalkEventImpl(this@registerEvents, this)
-                    }
-                is NativeMiraiGroupAllowMemberInviteEvent ->
-                    doHandler(this, MiraiGroupAllowMemberInviteEvent) {
-                        MiraiGroupAllowMemberInviteEventImpl(this@registerEvents, this)
-                    }
-            }
+            // is NativeMiraiGroupSettingChangeEvent<*> -> when (this) {
+            is NativeMiraiGroupNameChangeEvent ->
+                doHandler(this, MiraiGroupNameChangeEvent) {
+                    MiraiGroupNameChangeEventImpl(this@registerEvents, this)
+                }
+            is NativeMiraiGroupEntranceAnnouncementChangeEvent ->
+                doHandler(this, MiraiGroupEntranceAnnouncementChangeEvent) {
+                    MiraiGroupEntranceAnnouncementChangeEventImpl(this@registerEvents, this)
+                }
+            is NativeMiraiGroupMuteAllEvent ->
+                doHandler(this, MiraiGroupMuteAllEvent) {
+                    MiraiGroupMuteAllEventImpl(this@registerEvents, this)
+                }
+            is NativeMiraiGroupAllowAnonymousChatEvent ->
+                doHandler(this, MiraiGroupAllowAnonymousChatEvent) {
+                    MiraiGroupAllowAnonymousChatEventImpl(this@registerEvents, this)
+                }
+            is NativeMiraiGroupAllowConfessTalkEvent ->
+                doHandler(this, MiraiGroupAllowConfessTalkEvent) {
+                    MiraiGroupAllowConfessTalkEventImpl(this@registerEvents, this)
+                }
+            is NativeMiraiGroupAllowMemberInviteEvent ->
+                doHandler(this, MiraiGroupAllowMemberInviteEvent) {
+                    MiraiGroupAllowMemberInviteEventImpl(this@registerEvents, this)
+                }
+            // }
             //endregion
 
             //region Group member events
@@ -323,18 +323,21 @@ private fun MiraiBotImpl.registerEvents() {
                 doHandler(this, MiraiMemberCardChangeEvent) {
                     MiraiMemberCardChangeEventImpl(this@registerEvents, this)
                 }
-            is NativeMiraiMemberJoinRequestEvent ->
+            is NativeMiraiMemberJoinRequestEvent -> {
                 doHandler(this, MiraiMemberJoinRequestEvent) {
                     MiraiMemberJoinRequestEventImpl(this@registerEvents, this)
                 }
-            is NativeMiraiMemberLeaveEvent ->
+            }
+            is NativeMiraiMemberLeaveEvent -> {
                 doHandler(this, MiraiMemberLeaveEvent) {
                     MiraiMemberLeaveEventImpl(this@registerEvents, this)
                 }
-            is NativeMiraiMemberJoinEvent ->
+            }
+            is NativeMiraiMemberJoinEvent -> {
                 doHandler(this, MiraiMemberJoinEvent) {
                     MiraiMemberJoinEventImpl(this@registerEvents, this)
                 }
+            }
             //endregion
 
 
