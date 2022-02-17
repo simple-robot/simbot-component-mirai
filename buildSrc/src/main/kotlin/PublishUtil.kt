@@ -31,9 +31,9 @@ import java.io.File
 fun Project.doPublish(artifactId: String = name) {
     configurePublishing(artifactId)
     println("[publishing-configure] - [$artifactId] configured.")
-// set gpg file path to root
+    // set gpg file path to root
     val secretKeyRingFileKey = "signing.secretKeyRingFile"
-// val secretKeyRingFile = local().getProperty(secretKeyRingFileKey) ?: throw kotlin.NullPointerException(secretKeyRingFileKey)
+    // val secretKeyRingFile = local().getProperty(secretKeyRingFileKey) ?: throw kotlin.NullPointerException(secretKeyRingFileKey)
     val secretRingFile = File(project.rootDir, "ForteScarlet.gpg")
     extra[secretKeyRingFileKey] = secretRingFile
     setProperty(secretKeyRingFileKey, secretRingFile)
@@ -100,7 +100,7 @@ fun Project.configurePublishing(artifactId: String) {
         repositories {
             mavenLocal()
             maven {
-                if (version.toString().contains("SNAPSHOTS", true)) {
+                if (version.toString().contains("SNAPSHOT", true)) {
                     // snapshot
                     name = Sonatype.`snapshot-oss`.NAME
                     url = uri(Sonatype.`snapshot-oss`.URL)
@@ -108,6 +108,9 @@ fun Project.configurePublishing(artifactId: String) {
                     name = Sonatype.oss.NAME
                     url = uri(Sonatype.oss.URL)
                 }
+
+                println("Publish repositories - name: $name")
+                println("Publish repositories - url:  $url")
 
                 val username0 = getProp("sonatype.username")?.toString() ?: run {
                     println("[WARN] Cannot read property 'sonatype.username' from local() for $artifactId")

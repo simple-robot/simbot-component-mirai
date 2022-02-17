@@ -35,10 +35,13 @@ println("=== Current version: $version ===")
 repositories {
     mavenLocal()
     mavenCentral()
+    if (P.ComponentMirai.isSnapshot) {
+        maven(Sonatype.`snapshot-oss`.URL)
+    }
 }
 
 allprojects {
-    group = P.ComponentMirai.GROUP
+    // group = P.ComponentMirai.GROUP
     version = P.ComponentMirai.VERSION
 
     apply(plugin = "maven-publish")
@@ -64,18 +67,29 @@ tasks.withType<JavaCompile>() {
 }
 
 
-val credentialsUsername: String? = getProp("credentials.username")?.toString()
-val credentialsPassword: String? = getProp("credentials.password")?.toString()
+val sonatypeUsername: String? = getProp("sonatype.username")?.toString()
+val sonatypePassword: String? = getProp("sonatype.password")?.toString()
 
-println("credentialsUsername: $credentialsUsername")
+println("credentialsUsername: $sonatypeUsername")
 
-if (credentialsUsername != null && credentialsPassword != null) {
+if (sonatypeUsername != null && sonatypePassword != null) {
     nexusPublishing {
        packageGroup.set(P.ComponentMirai.GROUP)
        repositories {
+
+           useStaging.set(
+               project.provider { !project.version.toString().endsWith("SNAPSHOT", ignoreCase = true) }
+           )
+
+           transitionCheckOptions {
+               maxRetries.set(20)
+               delayBetween.set(java.time.Duration.ofSeconds(5))
+           }
+
            sonatype {
-               username.set(credentialsUsername)
-               password.set(credentialsPassword)
+               snapshotRepositoryUrl.set(uri(Sonatype.`snapshot-oss`.URL))
+               username.set(sonatypeUsername)
+               password.set(sonatypePassword)
            }
 
        }
