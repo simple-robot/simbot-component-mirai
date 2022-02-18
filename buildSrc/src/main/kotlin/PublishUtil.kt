@@ -231,6 +231,7 @@ object Sonatype {
     object `snapshot-oss` {
         const val NAME = "snapshot-oss"
         const val URL = "https://oss.sonatype.org/content/repositories/snapshots/"
+        // const val URL = "https://oss.sonatype.org/content/repositories/snapshots/"
 
     }
 }

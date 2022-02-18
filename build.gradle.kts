@@ -35,8 +35,11 @@ println("=== Current version: $version ===")
 repositories {
     //mavenLocal()
     mavenCentral()
-    if (P.ComponentMirai.isSnapshot) {
-        maven(Sonatype.`snapshot-oss`.URL)
+    maven {
+        url = uri(Sonatype.`snapshot-oss`.URL)
+        mavenContent {
+            snapshotsOnly()
+        }
     }
 }
 
@@ -51,6 +54,12 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven {
+            url = uri(Sonatype.`snapshot-oss`.URL)
+            mavenContent {
+                snapshotsOnly()
+            }
+        }
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
