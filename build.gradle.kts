@@ -33,7 +33,7 @@ version = P.ComponentMirai.VERSION
 println("=== Current version: $version ===")
 
 repositories {
-    mavenLocal()
+    //mavenLocal()
     mavenCentral()
     if (P.ComponentMirai.isSnapshot) {
         maven(Sonatype.`snapshot-oss`.URL)

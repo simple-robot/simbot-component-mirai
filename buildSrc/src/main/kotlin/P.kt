@@ -27,7 +27,7 @@ abstract class SimbotProject {
  */
 sealed class P : SimbotProject() {
     object Simbot {
-        private const val SNAPSHOT = true
+        const val SNAPSHOT = true
         const val GROUP = "love.forte.simbot"
         private const val REAL_VERSION = "3.0.0.preview.3.0"
 
@@ -41,7 +41,7 @@ sealed class P : SimbotProject() {
     }
 
     object ComponentMirai {
-        val isSnapshot = Simbot.VERSION.contains("snapshot", ignoreCase = true)
+        val isSnapshot get() = Simbot.SNAPSHOT
         const val GROUP = "${Simbot.GROUP}.component"
         private const val REAL_VERSION = "0.1"
         private val MERGE_VERSION = "${Simbot.VERSION}-${V.Mirai.VERSION_SIM}.$REAL_VERSION"

@@ -17,7 +17,6 @@
 
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra
-import java.io.File
 import java.util.*
 
 /*
@@ -33,19 +32,5 @@ import java.util.*
  */
 
 internal lateinit var prop: Properties
-
-fun Project.local(): Properties {
-    if (::prop.isInitialized) return prop
-    val f = File(rootDir, "local.properties")
-    if (!f.exists()) {
-        prop = Properties()
-        return prop
-    }
-    val properties = Properties().also {
-        java.io.FileInputStream(f).use(it::load)
-    }
-    prop = properties
-    return prop
-}
 
 fun Project.getProp(key: String): Any? = if (extra.has(key)) extra.get(key) else null
