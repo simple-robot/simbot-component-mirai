@@ -28,6 +28,10 @@
 更多详情请参考 [simbot3文档](https://www.yuque.com/simpler-robot/simpler-robot-doc/mudleb)
 
 
+## 文档
+你可以参考 [语雀说明文档](https://www.yuque.com/simpler-robot) 的 `simbot3` 部分，或者查看simbot3-mirai组件的 [API Doc](https://simple-robot-library.github.io/simbot3-component-mirai-apiDoc/) .
+
+
 ### 快速开始
 参考文档的 [《快速开始》](https://www.yuque.com/simpler-robot/simpler-robot-doc/fvdmq1)
 
