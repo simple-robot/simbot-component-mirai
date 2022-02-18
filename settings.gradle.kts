@@ -14,7 +14,11 @@
  *
  *
  */
-
+pluginManagement {
+    plugins {
+        id("org.jetbrains.dokka") version "1.6.10"
+    }
+}
 
 rootProject.name = "simbot-component-mirai"
 

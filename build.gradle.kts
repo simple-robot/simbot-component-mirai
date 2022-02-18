@@ -17,9 +17,9 @@
 
 
 plugins {
-    kotlin("jvm") version "1.6.0" apply false
-    kotlin("plugin.serialization") version "1.6.0" apply false
-    id("org.jetbrains.dokka") version "1.5.30" apply false
+    kotlin("jvm") version "1.6.10" apply false
+    kotlin("plugin.serialization") version "1.6.10" apply false
+    id("org.jetbrains.dokka")
     `maven-publish`
     signing
     // see https://github.com/gradle-nexus/publish-plugin
@@ -102,3 +102,16 @@ if (sonatypeUsername != null && sonatypePassword != null) {
          isDownloadSources = true
      }
  }
+
+// config dokka
+
+fun org.jetbrains.dokka.gradle.AbstractDokkaTask.configOutput(format: String) {
+    outputDirectory.set(rootProject.file("dokka/$format/"))
+}
+
+tasks.dokkaHtmlMultiModule.configure {
+    configOutput("html")
+}
+tasks.dokkaGfmMultiModule.configure {
+    configOutput("gfm")
+}
