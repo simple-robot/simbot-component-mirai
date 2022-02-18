@@ -48,4 +48,4 @@ fun Project.local(): Properties {
     return prop
 }
 
-fun Project.getProp(key: String): Any? = local().getProperty(key) ?: extra.get(key)
+fun Project.getProp(key: String): Any? = if (extra.has(key)) extra.get(key) else null
