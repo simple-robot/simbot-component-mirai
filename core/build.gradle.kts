@@ -22,16 +22,8 @@ plugins {
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
     kotlin("kapt")
-    `maven-publish`
-    signing
 }
 
-doPublish()
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
 
 dependencies {
     api(project(":simbot-component-mirai-api"))

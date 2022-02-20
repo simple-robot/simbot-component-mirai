@@ -18,15 +18,6 @@
 plugins {
     `java-library`
     kotlin("jvm")
-    `maven-publish`
-    signing
-}
-
-doPublish()
-
-repositories {
-    mavenLocal()
-    mavenCentral()
 }
 
 dependencies {

@@ -19,9 +19,12 @@ package love.forte.simbot.component.mirai
 
 
 /**
- * Mirai在simbot下的组件.
+ * Mirai在simbot下的组件ID信息。
  *
  */
 public object ComponentMiraiApi {
+    /**
+     * mirai组件的ID字符串常量。
+     */
     public const val COMPONENT_ID: String = "simbot.mirai"
 }

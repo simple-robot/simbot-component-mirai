@@ -33,7 +33,6 @@ version = P.ComponentMirai.VERSION
 println("=== Current version: $version ===")
 
 repositories {
-    //mavenLocal()
     mavenCentral()
     maven {
         url = uri(Sonatype.`snapshot-oss`.URL)
@@ -43,16 +42,33 @@ repositories {
     }
 }
 
+val isSnapshotOnly = System.getProperty("snapshotOnly") != null
+val isReleaseOnly = System.getProperty("releaseOnly") != null
+
+val isPublishConfigurable = when {
+    isSnapshotOnly -> P.Simbot.SNAPSHOT
+    isReleaseOnly -> !P.Simbot.SNAPSHOT
+    else -> true
+}
+
+
+println("isSnapshotOnly: $isSnapshotOnly")
+println("isReleaseOnly: $isReleaseOnly")
+println("isPublishConfigurable: $isPublishConfigurable")
+
 allprojects {
     // group = P.ComponentMirai.GROUP
     version = P.ComponentMirai.VERSION
 
-    apply(plugin = "maven-publish")
     apply(plugin = "java")
-    apply(plugin = "signing")
+
+    if (isPublishConfigurable) {
+        apply(plugin = "maven-publish")
+        apply(plugin = "signing")
+        doPublish()
+    }
 
     repositories {
-        mavenLocal()
         mavenCentral()
         maven {
             url = uri(Sonatype.`snapshot-oss`.URL)
@@ -81,36 +97,38 @@ val sonatypePassword: String? = getProp("sonatype.password")?.toString()
 
 println("credentialsUsername: $sonatypeUsername")
 
-if (sonatypeUsername != null && sonatypePassword != null) {
-    nexusPublishing {
-       packageGroup.set(P.ComponentMirai.GROUP)
-       repositories {
+if (isPublishConfigurable) {
+    if (sonatypeUsername != null && sonatypePassword != null) {
+        nexusPublishing {
+            packageGroup.set(P.ComponentMirai.GROUP)
+            repositories {
 
-           useStaging.set(
-               project.provider { !project.version.toString().endsWith("SNAPSHOT", ignoreCase = true) }
-           )
+                useStaging.set(
+                    project.provider { !project.version.toString().endsWith("SNAPSHOT", ignoreCase = true) }
+                )
 
-           transitionCheckOptions {
-               maxRetries.set(20)
-               delayBetween.set(java.time.Duration.ofSeconds(5))
-           }
+                transitionCheckOptions {
+                    maxRetries.set(20)
+                    delayBetween.set(java.time.Duration.ofSeconds(5))
+                }
 
-           sonatype {
-               snapshotRepositoryUrl.set(uri(Sonatype.`snapshot-oss`.URL))
-               username.set(sonatypeUsername)
-               password.set(sonatypePassword)
-           }
+                sonatype {
+                    snapshotRepositoryUrl.set(uri(Sonatype.`snapshot-oss`.URL))
+                    username.set(sonatypeUsername)
+                    password.set(sonatypePassword)
+                }
 
-       }
+            }
+        }
     }
 }
 
 
- idea {
-     module {
-         isDownloadSources = true
-     }
- }
+idea {
+    module {
+        isDownloadSources = true
+    }
+}
 
 // config dokka
 
@@ -132,7 +150,8 @@ tasks.register("dokkaHtmlMultiModuleAndPost") {
         val outDir = rootProject.file("dokka/html")
         val indexFile = File(outDir, "index.html")
         indexFile.createNewFile()
-        indexFile.writeText("""
+        indexFile.writeText(
+            """
             <html xmlns="http://www.w3.org/1999/xhtml">
             <head>
                 <meta http-equiv="refresh" content="0;URL='v$version'" />
@@ -140,7 +159,8 @@ tasks.register("dokkaHtmlMultiModuleAndPost") {
             <body>
             </body>
             </html>
-        """.trimIndent())
+        """.trimIndent()
+        )
 
         // TODO readme
     }

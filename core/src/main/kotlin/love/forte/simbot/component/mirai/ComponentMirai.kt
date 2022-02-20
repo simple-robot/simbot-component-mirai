@@ -30,14 +30,21 @@ import net.mamoe.mirai.utils.MiraiExperimentalApi
 
 
 /**
- * Mirai在simbot下的组件.
+ * Mirai在simbot下的组件信息.
  *
  */
 public object ComponentMirai {
+    /**
+     * Mirai组件的ID标识。
+     */
     @JvmField
     public val COMPONENT_ID: CharSequenceID = ComponentMiraiApi.COMPONENT_ID.ID
     internal lateinit var componentValue: Component
 
+    /**
+     * Mirai组件的 [组件][Component] 实例。当simbot核心加载后初始化。
+     */
+    @JvmStatic
     public val component: Component
         get() {
             return if (!::componentValue.isInitialized) {

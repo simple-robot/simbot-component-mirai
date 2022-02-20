@@ -19,8 +19,6 @@ val kotlinVersion = "1.6.0"
 
 plugins {
     `kotlin-dsl`
-    // kotlin("gradle-plugin") version "1.6.0"
-    // kotlin("gradle-plugin")
 }
 
 repositories {

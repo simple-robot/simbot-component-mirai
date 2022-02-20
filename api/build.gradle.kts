@@ -22,15 +22,6 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
-    `maven-publish`
-    signing
-}
-
-doPublish()
-
-repositories {
-    mavenLocal()
-    mavenCentral()
 }
 
 dependencies {
