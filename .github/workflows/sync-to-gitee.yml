@@ -1,0 +1,13 @@
+name: Sync To Gitee
+on: push
+jobs: 
+  sync-to-gitee:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Sync To Gitee Mirror.
+        uses: Yikun/hub-mirror-action@v1.2
+        with:
+          src: github/simple-robot
+          dst: gitee/simple-robot-project
+          dst_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          dst_token: ${{ secrets.GITEE_TOKEN }}
