@@ -84,7 +84,14 @@ allprojects {
         }
     }
 
-
+    configurations.all {
+        // check for updates every build
+        resolutionStrategy.cacheChangingModulesFor(0, "seconds")
+    }
+}
+configurations.all {
+    // check for updates every build
+    resolutionStrategy.cacheChangingModulesFor(0, "seconds")
 }
 
 tasks.withType<JavaCompile>() {

@@ -25,7 +25,6 @@ package love.forte.simbot.component.mirai
 public object ComponentMiraiApi {
     /**
      * mirai组件的ID字符串常量。
-     *
      */
     public const val COMPONENT_ID: String = "simbot.mirai"
 }
