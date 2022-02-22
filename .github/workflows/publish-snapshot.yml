@@ -1,4 +1,4 @@
-name: Publish
+name: Publish Snapshot
 on:
   push:
     branches:
@@ -9,15 +9,15 @@ on:
 
 jobs:
   publish-snapshot:
-    name: Publish snapshot
+    name: Publish Snapshot
     runs-on: ubuntu-latest
     steps:
       # 检出仓库代码
-      - name: Check out repo
+      - name: Check Out Repo
         uses: actions/checkout@v2
 
       # setup Java
-      - name: Setup java
+      - name: Setup Java
         uses: actions/setup-java@v2
         with:
           distribution: 'temurin'
@@ -25,13 +25,13 @@ jobs:
           cache: 'gradle'
 
       # the gpg
-      - name: Decode gpg file
+      - name: Decode Gpg File
         run: |
           echo "${{ secrets.GPG_B64 }}" > ForteScarlet.gpg.b64
           base64 -d ForteScarlet.gpg.b64 > ForteScarlet.gpg
 
       # setup Gradle
-      - name: Gradle publish snapshot
+      - name: Gradle Publish Snapshot
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 7.4

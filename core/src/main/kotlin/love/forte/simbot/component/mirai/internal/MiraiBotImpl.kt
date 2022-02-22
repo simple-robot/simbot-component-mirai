@@ -139,6 +139,7 @@ internal class MiraiBotImpl(
             ?.let { it / 2 } ?: 16)
 
 
+    @Suppress("UNUSED_PARAMETER")
     internal inline fun <K, V> computeCache(cache: LRUCacheMap<K, V>, key: K, ifMiss: () -> V): V {
         // 暂时不启用缓存
         return ifMiss()
