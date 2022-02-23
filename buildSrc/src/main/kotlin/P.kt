@@ -27,7 +27,7 @@ abstract class SimbotProject {
  */
 sealed class P : SimbotProject() {
     object Simbot {
-        const val SNAPSHOT = true
+        val SNAPSHOT = System.getProperty("isSnapshot")?.equals("true", true) ?: false
         const val GROUP = "love.forte.simbot"
         private const val REAL_VERSION = "3.0.0.preview.3.0"
 
