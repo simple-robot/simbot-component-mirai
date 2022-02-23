@@ -237,11 +237,10 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
     sealed class Mirai(group: String, id: String, version: String = VERSION) : V(group, id, version) {
         companion object {
             const val VERSION = "2.10.0"
-            val VERSION_SIM = VERSION.replace(".", "")
+            const val VERSION_SIM = "21000" // VERSION.replace(".", "")
         }
         object CoreJvm : Mirai("net.mamoe", "mirai-core-jvm")
     }
-
 
 
 
