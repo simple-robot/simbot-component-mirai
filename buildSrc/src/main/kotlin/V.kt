@@ -42,7 +42,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
     companion object {
         @Suppress("ObjectPropertyName")
         val dependencies: Set<Dep> by lazy {
-            V::class.all().toSet()
+            V::class.allSealedSub().toSet()
         }
     }
 
@@ -59,8 +59,8 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
     }
 
     // org.jetbrains:annotations:23.0.0
-    sealed class Jetbrains(group: String = "org.jetbrains", id: String, version: String): V(group, id, version) {
-        object Annotations: Jetbrains(id = "annotations", version = "23.0.0")
+    sealed class Jetbrains(group: String = "org.jetbrains", id: String, version: String) : V(group, id, version) {
+        object Annotations : Jetbrains(id = "annotations", version = "23.0.0")
 
     }
 
@@ -76,6 +76,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
         sealed class Stdlib(id: String) : Kotlin(id = "stdlib-$id") {
             object Common : Stdlib("common")
         }
+
         object GradlePlugin : Kotlin("gradle-plugin")
         object CompilerEmbeddable : Kotlin("compiler-embeddable")
         object Reflect : Kotlin("reflect")
@@ -94,7 +95,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
     sealed class Kotlinx(id: String, version: String?, override val isAbsolute: Boolean) :
         V("org.jetbrains.kotlinx", "kotlinx-$id", version) {
 
-        sealed class IO(id: String): Kotlinx(id = "kotlinx-io-$id", VERSION, true) {
+        sealed class IO(id: String) : Kotlinx(id = "kotlinx-io-$id", VERSION, true) {
             companion object {
                 const val VERSION = "0.1.1"
             }
@@ -115,6 +116,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
                 object Jvm : Coroutines("core-jvm")
                 object Js : Coroutines("core-js")
             }
+
             object Debug : Coroutines("debug")
             object Test : Coroutines("test")
 
@@ -148,7 +150,6 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
                 object Slf4j : Integration("slf4j")
                 object PlayServices : Integration("play-services")
             }
-
 
 
         }
@@ -188,11 +189,11 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
         }
 
         // client
-        sealed class Client(id: String): Ktor(id = "client-$id") {
+        sealed class Client(id: String) : Ktor(id = "client-$id") {
             object Serialization : Client("serialization")
             object Auth : Client("auth")
             object Websockets : Client("websockets")
-            sealed class Jvm(id: String): Client(id) {
+            sealed class Jvm(id: String) : Client(id) {
                 object Core : Jvm("core")
                 object Apache : Jvm("apache")
                 object Java : Jvm("java")
@@ -223,6 +224,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
         companion object {
             const val VERSION = "2.14.1"
         }
+
         object Api : Log4j("api")
         object Core : Log4j("core")
         object Slf4jImpl : Log4j("slf4j-impl")
@@ -236,18 +238,26 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
 
     sealed class Mirai(group: String, id: String, version: String = VERSION) : V(group, id, version) {
         companion object {
-            const val VERSION = "2.10.0"
-            const val VERSION_SIM = "21000" // VERSION.replace(".", "")
+            const val MAJOR = 2
+            const val MINOR = 10
+            const val PATCH = 0
+            const val VERSION = "$MAJOR.$MINOR.$PATCH"
+            val VERSION_SIM = "2${MINOR.toVersionStr()}${PATCH.toVersionStr()}" // VERSION.replace(".", "")
         }
+
         object CoreJvm : Mirai("net.mamoe", "mirai-core-jvm")
     }
 
 
+}
+
+fun <T : Any> KClass<T>.allSealedSub(): Sequence<T> {
+    if (!this.isSealed) return this.objectInstance?.let { sequenceOf(it) } ?: emptySequence()
+    return this.sealedSubclasses.asSequence().flatMap { t -> t.allSealedSub() }
 
 }
 
-fun <T : Any> KClass<T>.all(): Sequence<T> {
-    if (!this.isSealed) return this.objectInstance?.let { sequenceOf(it) } ?: emptySequence()
-    return this.sealedSubclasses.asSequence().flatMap { t -> t.all() }
 
+private fun Int.toVersionStr(): String {
+    return if (this < 9) "0$this" else this.toString()
 }
