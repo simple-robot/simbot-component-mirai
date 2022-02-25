@@ -21,11 +21,13 @@ import kotlinx.coroutines.flow.Flow
 import love.forte.simbot.Api4J
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.definition.GroupMember
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.PermissionDeniedException
 import java.util.stream.Stream
 import kotlin.time.Duration
 
@@ -36,12 +38,22 @@ import kotlin.time.Duration
 public typealias NativeMiraiMember = net.mamoe.mirai.contact.Member
 
 /**
+ * @see net.mamoe.mirai.contact.NormalMember
+ */
+public typealias NativeNormalMiraiMember = net.mamoe.mirai.contact.NormalMember
+
+/**
  * 一个由simbot包装为 [GroupMember] 的 [NativeMiraiMember] 对象。
+ *
+ * ### [DeleteSupport]
+ * 一个 mirai 的群成员是 [支持删除][DeleteSupport] 操作的. [delete] 行为相当于 [踢出][net.mamoe.mirai.contact.NormalMember.kick] 操作。
+ *
+ * 当 [nativeContact] 的类型不是 [NativeNormalMiraiMember] 的时候，[delete] 行为将会无效。
  *
  * @see NativeMiraiMember
  * @author ForteScarlet
  */
-public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
+public interface MiraiMember : GroupMember, MiraiContact, ReplySupport, DeleteSupport {
 
     override val nativeContact: NativeMiraiMember
 
@@ -53,10 +65,13 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
 
     @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember>
+
     @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember>
+
     @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember>
+
     @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember>
 
@@ -64,23 +79,25 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
     //// Impl
 
 
+    //region send support
     @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember> =
         send(message.messages)
 
     @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember> =
-        runInBlocking { send(text) }
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember> = runInBlocking { send(text) }
 
     @Api4J
     override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember> =
         runInBlocking { send(message) }
 
     @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember>  =
+    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember> =
         runInBlocking { send(message) }
+    //endregion
 
 
+    //region reply support
     @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember> =
         reply(message.messages)
@@ -96,10 +113,53 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
     @Api4J
     override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiMember> =
         runInBlocking { reply(message) }
+    //endregion
+
+
+    /**
+     * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
+     *
+     * @param message 踢出时提供的消息。可能无实际意义。
+     * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
+     * @return 是否为普通成员且踢出执行成功。
+     */
+    public suspend fun kick(message: String, block: Boolean): Boolean {
+        val contact = nativeContact
+        if (contact is NativeNormalMiraiMember) {
+            contact.kick(message, block)
+            return true
+        }
+        return false
+    }
+
+    /**
+     * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
+     *
+     * @param message 踢出时提供的消息。可能无实际意义。
+     * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
+     * @return 是否为普通成员且踢出执行成功。
+     */
+    public suspend fun kick(message: String): Boolean = kick("", false)
+
+    /**
+     * 行为同 [kick], 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
+     *
+     * @see kick
+     */
+    override suspend fun delete(): Boolean = kick("")
+
+    /**
+     * 行为同 [kick], 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
+     *
+     * @see kick
+     */
+    @Api4J
+    override fun deleteBlocking(): Boolean = runInBlocking { kick("") }
 
 
     @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
 
@@ -122,6 +182,7 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport {
 
     @OptIn(Api4J::class)
     override val roles: Stream<MemberRole>
+
     @JvmSynthetic
     override suspend fun roles(): Flow<MemberRole>
 

@@ -20,6 +20,7 @@ package love.forte.simbot.component.mirai
 import love.forte.simbot.Api4J
 import love.forte.simbot.Grouping
 import love.forte.simbot.LongID
+import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.definition.Friend
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
@@ -37,9 +38,13 @@ public typealias NativeMiraiFriend = net.mamoe.mirai.contact.Friend
  *
  * 在simbot中 [NativeMiraiFriend] 的表现形式。
  *
+ * ### [DeleteSupport]
+ *
+ * mirai好友支持 [删除操作][DeleteSupport]. [delete] 相当于删除好友，等同于 [net.mamoe.mirai.contact.Friend.delete].
+ *
  * @author ForteScarlet
  */
-public interface MiraiFriend : Friend, MiraiContact {
+public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
     override val bot: MiraiBot
     override val id: LongID
 
@@ -54,6 +59,7 @@ public interface MiraiFriend : Friend, MiraiContact {
 
     //// Impl
 
+    //region send support
     @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
         send(message.messages)
@@ -68,6 +74,28 @@ public interface MiraiFriend : Friend, MiraiContact {
     @Api4J
     override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
         runInBlocking { send(message) }
+    //endregion
+
+    /**
+     * 行为同 [net.mamoe.mirai.contact.Friend.delete], 删除当前好友。
+     *
+     * @see net.mamoe.mirai.contact.Friend.delete
+     * @return true.
+     */
+    override suspend fun delete(): Boolean {
+        nativeContact.delete()
+        return true
+    }
+
+    /**
+     * 行为同 [net.mamoe.mirai.contact.Friend.delete], 删除当前好友。
+     *
+     * @see net.mamoe.mirai.contact.Friend.delete
+     * @see delete
+     * @return true.
+     */
+    @Api4J
+    override fun deleteBlocking(): Boolean = runInBlocking { delete() }
 
 
     override val avatar: String get() = nativeContact.avatarUrl
