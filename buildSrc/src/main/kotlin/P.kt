@@ -62,7 +62,7 @@ sealed class P : SimbotProject() {
     object ComponentMirai {
         val isSnapshot get() = SNAPSHOT
         const val GROUP = "${Simbot.GROUP}.component"
-        private const val REAL_VERSION = "0.1"
+        private const val REAL_VERSION = "0.2"
         private val MERGE_VERSION = "${Simbot.REAL_VERSION}-${V.Mirai.VERSION_SIM}.$REAL_VERSION"
         val VERSION: String =
             if (isSnapshot) "$MERGE_VERSION-SNAPSHOT"
