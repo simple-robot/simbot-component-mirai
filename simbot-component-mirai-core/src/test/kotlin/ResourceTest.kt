@@ -14,22 +14,22 @@
  *
  *
  */
-pluginManagement {
-    plugins {
-        id("org.jetbrains.dokka") version "1.6.10"
+
+import love.forte.simbot.resources.*
+import java.net.*
+
+fun main() {
+
+    val url = URL("http://forte.love")
+
+    url.toResource().use { r ->
+        r.openStream().reader().use {
+            println(it.readText())
+        }
+
+
     }
+
+
+
 }
-
-rootProject.name = "simbot-component-mirai"
-
-include(":simbot-component-mirai-api")
-// project(":simbot-component-mirai-api").name = "simbot-component-mirai-api"
-
-include(":simbot-component-mirai-core")
-// project(":core").name = "simbot-component-mirai-core"
-
-include(":simbot-component-mirai-boot")
-// project(":boot").name = "simbot-component-mirai-boot"
-
-// include(":boot-annotation")
-// project(":boot-annotation").name = "simbot-component-mirai-boot-annotation"

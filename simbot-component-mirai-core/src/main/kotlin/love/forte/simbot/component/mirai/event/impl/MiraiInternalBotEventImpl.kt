@@ -14,22 +14,19 @@
  *
  *
  */
-pluginManagement {
-    plugins {
-        id("org.jetbrains.dokka") version "1.6.10"
-    }
+
+package love.forte.simbot.component.mirai.event.impl
+
+import love.forte.simbot.*
+import love.forte.simbot.component.mirai.event.*
+import love.forte.simbot.component.mirai.internal.*
+
+internal class MiraiBotRegisteredEventImpl(override val bot: MiraiBotImpl) : MiraiBotRegisteredEvent() {
+    override val timestamp: Timestamp = Timestamp.now()
+    override val id: ID = randomID()
 }
 
-rootProject.name = "simbot-component-mirai"
-
-include(":simbot-component-mirai-api")
-// project(":simbot-component-mirai-api").name = "simbot-component-mirai-api"
-
-include(":simbot-component-mirai-core")
-// project(":core").name = "simbot-component-mirai-core"
-
-include(":simbot-component-mirai-boot")
-// project(":boot").name = "simbot-component-mirai-boot"
-
-// include(":boot-annotation")
-// project(":boot-annotation").name = "simbot-component-mirai-boot-annotation"
+internal class MiraiBotStartedEventImpl(override val bot: MiraiBotImpl) : MiraiBotStartedEvent() {
+    override val timestamp: Timestamp = Timestamp.now()
+    override val id: ID = randomID()
+}

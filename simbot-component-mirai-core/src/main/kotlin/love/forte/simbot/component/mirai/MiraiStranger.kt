@@ -14,22 +14,36 @@
  *
  *
  */
-pluginManagement {
-    plugins {
-        id("org.jetbrains.dokka") version "1.6.10"
-    }
+
+package love.forte.simbot.component.mirai
+
+import love.forte.simbot.definition.*
+
+
+/**
+ * @see net.mamoe.mirai.contact.Stranger
+ */
+public typealias NativeMiraiStranger = net.mamoe.mirai.contact.Stranger
+
+/**
+ *
+ * Mirai的陌生人对象实例。
+ * @author ForteScarlet
+ */
+public interface MiraiStranger : Contact, MiraiContact {
+
+    override val bot: MiraiBot
+    override val nativeContact: NativeMiraiStranger
+
+    override val avatar: String
+        get() = nativeContact.avatarUrl
+
+    override val status: UserStatus
+        get() = strangerStatus
+
+    override val username: String
+        get() = nativeContact.nick
+
 }
 
-rootProject.name = "simbot-component-mirai"
-
-include(":simbot-component-mirai-api")
-// project(":simbot-component-mirai-api").name = "simbot-component-mirai-api"
-
-include(":simbot-component-mirai-core")
-// project(":core").name = "simbot-component-mirai-core"
-
-include(":simbot-component-mirai-boot")
-// project(":boot").name = "simbot-component-mirai-boot"
-
-// include(":boot-annotation")
-// project(":boot-annotation").name = "simbot-component-mirai-boot-annotation"
+private val strangerStatus = UserStatus.builder().normal().build()

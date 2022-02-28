@@ -14,22 +14,22 @@
  *
  *
  */
-pluginManagement {
-    plugins {
-        id("org.jetbrains.dokka") version "1.6.10"
+
+package love.forte.simboot.component.mirai
+
+import love.forte.simboot.factory.*
+import love.forte.simbot.*
+import love.forte.simbot.component.mirai.*
+import love.forte.simbot.event.*
+import javax.inject.*
+
+/**
+ * Mirai bot注册器工厂。
+ * @author ForteScarlet
+ */
+@Named("miraiBotRegistrarFactory")
+public class MiraiBotRegistrarFactory : BotRegistrarFactory {
+    override fun invoke(processor: EventProcessor): BotRegistrar {
+        return miraiBotManager(processor)
     }
 }
-
-rootProject.name = "simbot-component-mirai"
-
-include(":simbot-component-mirai-api")
-// project(":simbot-component-mirai-api").name = "simbot-component-mirai-api"
-
-include(":simbot-component-mirai-core")
-// project(":core").name = "simbot-component-mirai-core"
-
-include(":simbot-component-mirai-boot")
-// project(":boot").name = "simbot-component-mirai-boot"
-
-// include(":boot-annotation")
-// project(":boot-annotation").name = "simbot-component-mirai-boot-annotation"

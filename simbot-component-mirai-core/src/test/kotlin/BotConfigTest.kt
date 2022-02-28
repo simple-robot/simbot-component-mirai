@@ -14,22 +14,31 @@
  *
  *
  */
-pluginManagement {
-    plugins {
-        id("org.jetbrains.dokka") version "1.6.10"
+
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
+import love.forte.simbot.component.mirai.*
+
+@OptIn(ExperimentalSerializationApi::class)
+fun main() {
+    val json = Json {
+        // isLenient = true
+        // ignoreUnknownKeys = true
+        explicitNulls = true
+        //prettyPrint = true
+        encodeDefaults = true
     }
+
+    val deviceInfo = simbotMiraiDeviceInfo(123, 1)
+    val info = json.encodeToJsonElement(deviceInfo)
+    val config = MiraiViaBotFileConfiguration(
+        code = 123,
+        password = "密码",
+        deviceInfoJson = info,
+    )
+
+    val jsonstr = json.encodeToString(config)
+
+    println(jsonstr)
+
 }
-
-rootProject.name = "simbot-component-mirai"
-
-include(":simbot-component-mirai-api")
-// project(":simbot-component-mirai-api").name = "simbot-component-mirai-api"
-
-include(":simbot-component-mirai-core")
-// project(":core").name = "simbot-component-mirai-core"
-
-include(":simbot-component-mirai-boot")
-// project(":boot").name = "simbot-component-mirai-boot"
-
-// include(":boot-annotation")
-// project(":boot-annotation").name = "simbot-component-mirai-boot-annotation"
