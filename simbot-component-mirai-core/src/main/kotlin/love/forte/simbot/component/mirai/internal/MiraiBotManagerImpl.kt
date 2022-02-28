@@ -18,6 +18,7 @@
 package love.forte.simbot.component.mirai.internal
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
 import love.forte.simbot.*
 import love.forte.simbot.LoggerFactory
 import love.forte.simbot.component.mirai.*
