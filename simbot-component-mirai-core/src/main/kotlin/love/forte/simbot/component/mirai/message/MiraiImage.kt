@@ -34,15 +34,15 @@ import kotlin.reflect.*
 /**
  * Mirai的原生图片类型 [net.mamoe.mirai.message.data.Image]
  */
-public typealias NativeMiraiImage = net.mamoe.mirai.message.data.Image
+public typealias OriginalMiraiImage = net.mamoe.mirai.message.data.Image
 
 /**
  * Mirai的原生图片类型 [net.mamoe.mirai.message.data.FlashImage]
  */
-public typealias NativeMiraiFlashImage = net.mamoe.mirai.message.data.FlashImage
+public typealias OriginalMiraiFlashImage = FlashImage
 
 /**
- * 一个仅用于发送的临时 [NativeMiraiImage] 类型，通过 [MiraiBot.uploadImage] 有可能会得到。
+ * 一个仅用于发送的临时 [OriginalMiraiImage] 类型，通过 [MiraiBot.uploadImage] 有可能会得到。
  * 不建议对其进行长久的序列化，因为其内部的 [resource] 中保存的内容很有可能是 **临时** 内容。
  *
  * [MiraiSendOnlyImage] 是通过 [Resource] 作为上传资源使用的，
@@ -53,7 +53,7 @@ public typealias NativeMiraiFlashImage = net.mamoe.mirai.message.data.FlashImage
  *
  */
 public interface MiraiSendOnlyImage :
-    MiraiSendOnlyComputableSimbotMessage<MiraiSendOnlyImage>,
+    MiraiSendOnlyComputableMessage<MiraiSendOnlyImage>,
     Image<MiraiSendOnlyImage> {
 
     /**
@@ -68,7 +68,7 @@ public interface MiraiSendOnlyImage :
 
     /**
      * 作为仅用于发送的图片时的类型，
-     * 在真正获取过图片(执行过一次 [nativeMiraiMessage])之前将无法获取到ID，因此在那之前 [id] 的值将为空。
+     * 在真正获取过图片(执行过一次 [originalMiraiMessage])之前将无法获取到ID，因此在那之前 [id] 的值将为空。
      * 并且此ID不稳定，图片的上传目前 **没有** 缓存，每次执行后得到的ImageId可能会不同，
      * 但是 [id] 在更新后将不会再次变更。
      *
@@ -109,10 +109,10 @@ internal class MiraiSendOnlyImageImpl(
     }
 
     /**
-     * 返回值只可能是 [NativeMiraiFlashImage] 或 [NativeMiraiImage].
+     * 返回值只可能是 [OriginalMiraiFlashImage] 或 [OriginalMiraiImage].
      */
     @JvmSynthetic
-    override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
+    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
         return resource.openStream().use {
             contact.uploadImage(it).let { image ->
                 _id.compareAndSet(ID, image.imageId.ID)
@@ -131,7 +131,7 @@ internal class MiraiSendOnlyImageImpl(
 }
 
 /**
- * 将一个 [NativeMiraiImage] 作为 simbot的 [love.forte.simbot.message.Image] 进行使用。
+ * 将一个 [OriginalMiraiImage] 作为 simbot的 [love.forte.simbot.message.Image] 进行使用。
  *
  */
 public interface MiraiImage :
@@ -139,13 +139,13 @@ public interface MiraiImage :
     Image<MiraiImage> {
 
     /**
-     * 得到Mirai的原生图片类型 [NativeMiraiImage].
+     * 得到Mirai的原生图片类型 [OriginalMiraiImage].
      */
-    public val nativeImage: NativeMiraiImage
+    public val originalImage: OriginalMiraiImage
 
     /**
      * 此图片是否为一个 `闪照`。
-     * @see NativeMiraiFlashImage
+     * @see OriginalMiraiFlashImage
      *
      */
     public val isFlash: Boolean
@@ -158,28 +158,28 @@ public interface MiraiImage :
     /**
      * 图片的宽度 (px), 当无法获取时为 0
      */
-    public val width: Int get() = nativeImage.width
+    public val width: Int get() = originalImage.width
 
     /**
      * 图片的高度 (px), 当无法获取时为 0
      */
-    public val height: Int get() = nativeImage.height
+    public val height: Int get() = originalImage.height
 
     /**
      * 图片的大小（字节）, 当无法获取时为 0
      */
-    public val size: Long get() = nativeImage.size
+    public val size: Long get() = originalImage.size
 
     /**
      * 图片的类型, 当无法获取时为未知 [ImageType.UNKNOWN]
      * @see ImageType
      */
-    public val imageType: ImageType get() = nativeImage.imageType
+    public val imageType: ImageType get() = originalImage.imageType
 
     /**
      * 判断该图片是否为 `动画表情`
      */
-    public val isEmoji: Boolean get() = nativeImage.isEmoji
+    public val isEmoji: Boolean get() = originalImage.isEmoji
 
 
     /**
@@ -187,7 +187,7 @@ public interface MiraiImage :
      */
     @JvmSynthetic
     override suspend fun resource(): Resource {
-        return URL(nativeImage.queryUrl()).toResource()
+        return URL(originalImage.queryUrl()).toResource()
     }
 
 
@@ -195,13 +195,13 @@ public interface MiraiImage :
 
         @JvmStatic
         @JvmOverloads
-        public fun of(nativeImage: NativeMiraiImage, isFlash: Boolean = false): MiraiImage {
+        public fun of(nativeImage: OriginalMiraiImage, isFlash: Boolean = false): MiraiImage {
             return MiraiImageImpl(nativeImage, isFlash)
         }
 
         @JvmStatic
         @JvmOverloads
-        public fun of(nativeImage: NativeMiraiFlashImage, isFlash: Boolean = true): MiraiImage {
+        public fun of(nativeImage: OriginalMiraiFlashImage, isFlash: Boolean = true): MiraiImage {
             return MiraiImageImpl(nativeImage.image, isFlash)
         }
 
@@ -218,24 +218,24 @@ public interface MiraiImage :
 @SerialName("mirai.image")
 @Serializable
 internal class MiraiImageImpl(
-    override val nativeImage: NativeMiraiImage,
+    override val originalImage: OriginalMiraiImage,
     override val isFlash: Boolean
 ) : MiraiImage {
-    override val id: ID = nativeImage.imageId.ID
+    override val id: ID = originalImage.imageId.ID
     override val key: Message.Key<MiraiImage> get() = MiraiImage.Key
 
 
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is MiraiImage) return false
-        return nativeImage == other.nativeImage
+        return originalImage == other.originalImage
     }
 
-    override fun toString(): String = nativeImage.toString()
-    override fun hashCode(): Int = nativeImage.hashCode()
+    override fun toString(): String = originalImage.toString()
+    override fun hashCode(): Int = originalImage.hashCode()
 
 
 }
 
-public fun NativeMiraiImage.asSimbot(isFlash: Boolean = false): MiraiImage = MiraiImage.of(this, isFlash)
-public fun NativeMiraiFlashImage.asSimbot(isFlash: Boolean = true): MiraiImage = MiraiImage.of(this, isFlash)
+public fun OriginalMiraiImage.asSimbot(isFlash: Boolean = false): MiraiImage = MiraiImage.of(this, isFlash)
+public fun OriginalMiraiFlashImage.asSimbot(isFlash: Boolean = true): MiraiImage = MiraiImage.of(this, isFlash)

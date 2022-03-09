@@ -28,12 +28,12 @@ import love.forte.simbot.utils.*
  *
  * @see net.mamoe.mirai.contact.Friend
  */
-public typealias NativeMiraiFriend = net.mamoe.mirai.contact.Friend
+public typealias OriginalMiraiFriend = net.mamoe.mirai.contact.Friend
 
 
 /**
  *
- * 在simbot中 [NativeMiraiFriend] 的表现形式。
+ * 在simbot中 [OriginalMiraiFriend] 的表现形式。
  *
  * ### [DeleteSupport]
  *
@@ -48,28 +48,28 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
     /**
      * mirai原生的好友对象。
      */
-    override val nativeContact: NativeMiraiFriend
+    override val originalContact: OriginalMiraiFriend
     @JvmSynthetic
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend>
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     @JvmSynthetic
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend>
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
 
     //// Impl
 
     //region send support
     @JvmSynthetic
-    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         send(message.messages)
 
     @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend> = runInBlocking { send(text) }
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> = runInBlocking { send(text) }
 
     @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         runInBlocking { send(message) }
 
     @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         runInBlocking { send(message) }
     //endregion
 
@@ -80,7 +80,7 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
      * @return true.
      */
     override suspend fun delete(): Boolean {
-        nativeContact.delete()
+        originalContact.delete()
         return true
     }
 
@@ -95,13 +95,13 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
     override fun deleteBlocking(): Boolean = runInBlocking { delete() }
 
 
-    override val avatar: String get() = nativeContact.avatarUrl
+    override val avatar: String get() = originalContact.avatarUrl
 
     /**
      * 无法得到好友的分组信息。
      */
     override val grouping: Grouping get() = Grouping.EMPTY
-    override val username: String get() = nativeContact.nick
-    override val remark: String? get() = nativeContact.remark.takeIf { it.isNotEmpty() }
+    override val username: String get() = originalContact.nick
+    override val remark: String? get() = originalContact.remark.takeIf { it.isNotEmpty() }
 }
 

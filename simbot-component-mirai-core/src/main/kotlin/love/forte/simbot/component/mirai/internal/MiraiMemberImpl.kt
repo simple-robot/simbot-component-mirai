@@ -34,29 +34,29 @@ import java.util.stream.*
  */
 internal class MiraiMemberImpl(
     override val bot: MiraiBotImpl,
-    override val nativeContact: NativeMiraiMember,
+    override val originalContact: OriginalMiraiMember,
     private val initGroup: MiraiGroupImpl? = null
 ) : MiraiMember, SendSupport {
-    override val id: LongID = nativeContact.id.ID
+    override val id: LongID = originalContact.id.ID
 
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember> {
-        val receipt = nativeContact.sendMessage(message.toNativeMiraiMessage(nativeContact))
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
+        val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember> {
-        return SimbotMiraiMessageReceiptImpl(nativeContact.sendMessage(text))
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
+        return SimbotMiraiMessageReceiptImpl(originalContact.sendMessage(text))
     }
 
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember> = send(text)
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember> = send(message)
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> = send(text)
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> = send(message)
 
-    override val group: MiraiGroupImpl get() = initGroup ?: nativeContact.group.asSimbot(bot)
-    override val roles: Stream<MemberRole> = Stream.of(nativeContact.simbotRole)
-    override suspend fun roles(): Flow<MemberRole> = flowOf(nativeContact.simbotRole)
+    override val group: MiraiGroupImpl get() = initGroup ?: originalContact.group.asSimbot(bot)
+    override val roles: Stream<MemberRole> = Stream.of(originalContact.simbotRole)
+    override suspend fun roles(): Flow<MemberRole> = flowOf(originalContact.simbotRole)
 
     override val status: UserStatus =
-        when (nativeContact) {
+        when (originalContact) {
             is AnonymousMember -> AnonymousStatus
             else -> NormalStatus
         }
@@ -66,8 +66,8 @@ internal val NormalStatus = UserStatus.builder().normal().build()
 internal val AnonymousStatus = UserStatus.builder().anonymous().build()
 
 
-internal fun NativeMiraiMember.asSimbot(bot: MiraiBotImpl): MiraiMemberImpl =
+internal fun OriginalMiraiMember.asSimbot(bot: MiraiBotImpl): MiraiMemberImpl =
     bot.computeMember(this) { MiraiMemberImpl(bot, this) }
 
-internal fun NativeMiraiMember.asSimbot(bot: MiraiBotImpl, initGroup: MiraiGroupImpl): MiraiMemberImpl =
+internal fun OriginalMiraiMember.asSimbot(bot: MiraiBotImpl, initGroup: MiraiGroupImpl): MiraiMemberImpl =
     bot.computeMember(this) { MiraiMemberImpl(bot, this, initGroup) }

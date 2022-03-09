@@ -28,32 +28,32 @@ import java.time.*
 
 internal class MiraiFriendMessageEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiFriendMessageEvent
+    override val originalEvent: OriginalMiraiFriendMessageEvent
 ) : MiraiFriendMessageEvent {
     override val id: ID = randomID()
-    override val timestamp: Timestamp = Timestamp.byInstant(Instant.ofEpochSecond(nativeEvent.time.toLong()))
-    override val messageContent: MiraiReceivedMessageContent = nativeEvent.toSimbotMessageContent()
+    override val timestamp: Timestamp = Timestamp.byInstant(Instant.ofEpochSecond(originalEvent.time.toLong()))
+    override val messageContent: MiraiReceivedMessageContent = originalEvent.toSimbotMessageContent()
 
-    override val friend = nativeEvent.friend.asSimbot(bot)
+    override val friend = originalEvent.friend.asSimbot(bot)
 
     @JvmSynthetic
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend> {
-        val miraiMessage = message.toNativeMiraiMessage(nativeEvent.friend)
-        val receipt = nativeEvent.friend.sendMessage(miraiMessage)
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
+        val miraiMessage = message.toOriginalMiraiMessage(originalEvent.friend)
+        val receipt = originalEvent.friend.sendMessage(miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
     @JvmSynthetic
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend> {
-        val receipt = nativeEvent.friend.sendMessage(text)
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
+        val receipt = originalEvent.friend.sendMessage(text)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
     @JvmSynthetic
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend> = reply(message)
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> = reply(message)
 
     @JvmSynthetic
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend> = reply(text)
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> = reply(text)
 
 
 }

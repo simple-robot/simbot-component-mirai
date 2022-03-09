@@ -32,49 +32,49 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * @see net.mamoe.mirai.event.events.GroupMemberEvent
  */
-public typealias NativeMiraiGroupMemberEvent = net.mamoe.mirai.event.events.GroupMemberEvent
+public typealias OriginalMiraiGroupMemberEvent = net.mamoe.mirai.event.events.GroupMemberEvent
 
 /**
  * @see net.mamoe.mirai.event.events.GroupTalkativeChangeEvent
  */
-public typealias NativeMiraiGroupTalkativeChangeEvent = net.mamoe.mirai.event.events.GroupTalkativeChangeEvent
+public typealias OriginalMiraiGroupTalkativeChangeEvent = net.mamoe.mirai.event.events.GroupTalkativeChangeEvent
 /**
  * @see net.mamoe.mirai.event.events.MemberHonorChangeEvent
  */
 @MiraiExperimentalApi
-public typealias NativeMiraiMemberHonorChangeEvent = net.mamoe.mirai.event.events.MemberHonorChangeEvent
+public typealias OriginalMiraiMemberHonorChangeEvent = net.mamoe.mirai.event.events.MemberHonorChangeEvent
 /**
  * @see net.mamoe.mirai.event.events.MemberUnmuteEvent
  */
-public typealias NativeMiraiMemberUnmuteEvent = net.mamoe.mirai.event.events.MemberUnmuteEvent
+public typealias OriginalMiraiMemberUnmuteEvent = net.mamoe.mirai.event.events.MemberUnmuteEvent
 /**
  * @see net.mamoe.mirai.event.events.MemberMuteEvent
  */
-public typealias NativeMiraiMemberMuteEvent = net.mamoe.mirai.event.events.MemberMuteEvent
+public typealias OriginalMiraiMemberMuteEvent = net.mamoe.mirai.event.events.MemberMuteEvent
 /**
  * @see net.mamoe.mirai.event.events.MemberPermissionChangeEvent
  */
-public typealias NativeMiraiMemberPermissionChangeEvent = net.mamoe.mirai.event.events.MemberPermissionChangeEvent
+public typealias OriginalMiraiMemberPermissionChangeEvent = net.mamoe.mirai.event.events.MemberPermissionChangeEvent
 /**
  * @see net.mamoe.mirai.event.events.MemberSpecialTitleChangeEvent
  */
-public typealias NativeMiraiMemberSpecialTitleChangeEvent = net.mamoe.mirai.event.events.MemberSpecialTitleChangeEvent
+public typealias OriginalMiraiMemberSpecialTitleChangeEvent = net.mamoe.mirai.event.events.MemberSpecialTitleChangeEvent
 /**
  * @see net.mamoe.mirai.event.events.MemberCardChangeEvent
  */
-public typealias NativeMiraiMemberCardChangeEvent = net.mamoe.mirai.event.events.MemberCardChangeEvent
+public typealias OriginalMiraiMemberCardChangeEvent = net.mamoe.mirai.event.events.MemberCardChangeEvent
 /**
  * @see net.mamoe.mirai.event.events.MemberJoinRequestEvent
  */
-public typealias NativeMiraiMemberJoinRequestEvent = net.mamoe.mirai.event.events.MemberJoinRequestEvent
+public typealias OriginalMiraiMemberJoinRequestEvent = net.mamoe.mirai.event.events.MemberJoinRequestEvent
 /**
  * @see net.mamoe.mirai.event.events.MemberLeaveEvent
  */
-public typealias NativeMiraiMemberLeaveEvent = net.mamoe.mirai.event.events.MemberLeaveEvent
+public typealias OriginalMiraiMemberLeaveEvent = net.mamoe.mirai.event.events.MemberLeaveEvent
 /**
  * @see net.mamoe.mirai.event.events.MemberJoinEvent
  */
-public typealias NativeMiraiMemberJoinEvent = net.mamoe.mirai.event.events.MemberJoinEvent
+public typealias OriginalMiraiMemberJoinEvent = net.mamoe.mirai.event.events.MemberJoinEvent
 //endregion
 
 
@@ -83,7 +83,7 @@ public typealias NativeMiraiMemberJoinEvent = net.mamoe.mirai.event.events.Membe
  *
  * 参考 `net.mamoe.mirai.event.events.group.kt`。
  */
-public interface MiraiGroupMemberEvent<E : NativeMiraiGroupMemberEvent> : MiraiSimbotBotEvent<E>, GroupEvent,
+public interface MiraiGroupMemberEvent<E : OriginalMiraiGroupMemberEvent> : MiraiSimbotBotEvent<E>, GroupEvent,
     MemberEvent {
 
 
@@ -128,10 +128,10 @@ public interface MiraiGroupMemberEvent<E : NativeMiraiGroupMemberEvent> : MiraiS
 
 /**
  * Group 龙王改变时的事件. 此事件属于一种 [成员变动事件][MemberChangedEvent]。
- * @see NativeMiraiGroupTalkativeChangeEvent
+ * @see OriginalMiraiGroupTalkativeChangeEvent
  * @see MemberChangedEvent
  */
-public interface MiraiGroupTalkativeChangeEvent : MiraiSimbotBotEvent<NativeMiraiGroupTalkativeChangeEvent>,
+public interface MiraiGroupTalkativeChangeEvent : MiraiSimbotBotEvent<OriginalMiraiGroupTalkativeChangeEvent>,
     MemberChangedEvent<MiraiMember, MiraiMember>, GroupEvent {
 
     override val bot: MiraiBot
@@ -186,10 +186,10 @@ public interface MiraiGroupTalkativeChangeEvent : MiraiSimbotBotEvent<NativeMira
  * 理论上来讲，[before] 与 [after] 不会同时为null，当 [before] 为null时，代表对应成员得到了此荣耀，
  * 相反，如果 [before] 不为null但是 [after] 为null的时候，代表对应成员失去了此荣耀。
  *
- * @see NativeMiraiMemberHonorChangeEvent
+ * @see OriginalMiraiMemberHonorChangeEvent
  */
 @MiraiExperimentalApi
-public interface MiraiMemberHonorChangeEvent : MiraiGroupMemberEvent<NativeMiraiMemberHonorChangeEvent>,
+public interface MiraiMemberHonorChangeEvent : MiraiGroupMemberEvent<OriginalMiraiMemberHonorChangeEvent>,
     ChangedEvent<MiraiMember, GroupHonorType?, GroupHonorType?> {
 
     override val bot: MiraiBot
@@ -231,7 +231,7 @@ public interface MiraiMemberHonorChangeEvent : MiraiGroupMemberEvent<NativeMirai
  * @see MiraiMemberUnmuteEvent
  * @see MiraiMemberMuteEvent
  */
-public interface MiraiMemberMuteRelateEvent<E : NativeMiraiGroupMemberEvent> : MiraiGroupMemberEvent<E>,
+public interface MiraiMemberMuteRelateEvent<E : OriginalMiraiGroupMemberEvent> : MiraiGroupMemberEvent<E>,
     ChangedEvent<MiraiMember, Boolean, Boolean> {
 
     override val bot: MiraiBot
@@ -281,10 +281,10 @@ public interface MiraiMemberMuteRelateEvent<E : NativeMiraiGroupMemberEvent> : M
  *
  * 对于bot被取消禁言事件可以参考 [MiraiBotUnmuteEvent].
  *
- * @see NativeMiraiMemberUnmuteEvent
+ * @see OriginalMiraiMemberUnmuteEvent
  * @see MiraiBotUnmuteEvent
  */
-public interface MiraiMemberUnmuteEvent : MiraiMemberMuteRelateEvent<NativeMiraiMemberUnmuteEvent> {
+public interface MiraiMemberUnmuteEvent : MiraiMemberMuteRelateEvent<OriginalMiraiMemberUnmuteEvent> {
 
     override val bot: MiraiBot
     override val member: MiraiMember
@@ -314,9 +314,9 @@ public interface MiraiMemberUnmuteEvent : MiraiMemberMuteRelateEvent<NativeMirai
  *
  * 机器人禁言事件可以参考 [MiraiBotMuteEvent].
  *
- * @see NativeMiraiMemberMuteEvent
+ * @see OriginalMiraiMemberMuteEvent
  */
-public interface MiraiMemberMuteEvent : MiraiMemberMuteRelateEvent<NativeMiraiMemberMuteEvent> {
+public interface MiraiMemberMuteEvent : MiraiMemberMuteRelateEvent<OriginalMiraiMemberMuteEvent> {
 
     override val bot: MiraiBot
     override val member: MiraiMember
@@ -348,10 +348,10 @@ public interface MiraiMemberMuteEvent : MiraiMemberMuteRelateEvent<NativeMiraiMe
  *
  * 有关bot权限变更的事件可以参考 [MiraiBotGroupRoleChangeEvent].
  *
- * @see NativeMiraiMemberPermissionChangeEvent
+ * @see OriginalMiraiMemberPermissionChangeEvent
  * @see MiraiBotGroupRoleChangeEvent
  */
-public interface MiraiMemberRoleChangeEvent : MiraiGroupMemberEvent<NativeMiraiMemberPermissionChangeEvent>,
+public interface MiraiMemberRoleChangeEvent : MiraiGroupMemberEvent<OriginalMiraiMemberPermissionChangeEvent>,
     ChangedEvent<MiraiMember, MemberRole, MemberRole> {
 
     override val bot: MiraiBot
@@ -395,9 +395,9 @@ public interface MiraiMemberRoleChangeEvent : MiraiGroupMemberEvent<NativeMiraiM
  *
  * > 由于服务器并不会告知特殊头衔的重置, 因此此事件在特殊头衔重置后只能由 mirai 在发现变动时才广播.
  *
- * @see NativeMiraiMemberSpecialTitleChangeEvent
+ * @see OriginalMiraiMemberSpecialTitleChangeEvent
  */
-public interface MiraiMemberSpecialTitleChangeEvent : MiraiGroupMemberEvent<NativeMiraiMemberSpecialTitleChangeEvent>,
+public interface MiraiMemberSpecialTitleChangeEvent : MiraiGroupMemberEvent<OriginalMiraiMemberSpecialTitleChangeEvent>,
     ChangedEvent<MiraiMember, String, String> {
     override val bot: MiraiBot
     override val group: MiraiGroup
@@ -437,9 +437,9 @@ public interface MiraiMemberSpecialTitleChangeEvent : MiraiGroupMemberEvent<Nati
  * 成员群名片改动. 此事件广播前修改就已经完成.
  *
  * > 由于服务器并不会告知名片变动, 此事件只能由 mirai 在发现变动时才广播. 不要依赖于这个事件.
- * @see NativeMiraiMemberCardChangeEvent
+ * @see OriginalMiraiMemberCardChangeEvent
  */
-public interface MiraiMemberCardChangeEvent : MiraiGroupMemberEvent<NativeMiraiMemberCardChangeEvent>,
+public interface MiraiMemberCardChangeEvent : MiraiGroupMemberEvent<OriginalMiraiMemberCardChangeEvent>,
     ChangedEvent<MiraiMember, String, String> {
     override val bot: MiraiBot
     override val group: MiraiGroup
@@ -470,10 +470,10 @@ public interface MiraiMemberCardChangeEvent : MiraiGroupMemberEvent<NativeMiraiM
 
 /**
  * 一个账号请求加入群事件, Bot 在此群中是管理员或群主.
- * @see NativeMiraiMemberJoinRequestEvent
+ * @see OriginalMiraiMemberJoinRequestEvent
  */
 public interface MiraiMemberJoinRequestEvent :
-    MiraiSimbotBotEvent<NativeMiraiMemberJoinRequestEvent>,
+    MiraiSimbotBotEvent<OriginalMiraiMemberJoinRequestEvent>,
     GroupJoinRequestEvent {
     override val bot: MiraiBot
 
@@ -518,7 +518,7 @@ public interface MiraiMemberJoinRequestEvent :
     @ExperimentalSimbotApi
     @JvmSynthetic
     override suspend fun accept(): Boolean {
-        nativeEvent.accept()
+        originalEvent.accept()
         return true
     }
 
@@ -535,7 +535,7 @@ public interface MiraiMemberJoinRequestEvent :
      */
     @JvmSynthetic
     public suspend fun reject(blockList: Boolean, message: String): Boolean {
-        nativeEvent.reject(blockList, message)
+        originalEvent.reject(blockList, message)
         return true
     }
 
@@ -576,10 +576,10 @@ public interface MiraiMemberJoinRequestEvent :
 /**
  * 成员**已经**离开群的事件.
  *
- * @see NativeMiraiMemberLeaveEvent
+ * @see OriginalMiraiMemberLeaveEvent
  */
 public interface MiraiMemberLeaveEvent :
-    MiraiGroupMemberEvent<NativeMiraiMemberLeaveEvent>,
+    MiraiGroupMemberEvent<OriginalMiraiMemberLeaveEvent>,
     MemberDecreaseEvent {
     override val bot: MiraiBot
     override val member: MiraiMember
@@ -642,10 +642,10 @@ public interface MiraiMemberLeaveEvent :
 /**
  * 成员已经加入群的事件.
  *
- * @see NativeMiraiMemberJoinEvent
+ * @see OriginalMiraiMemberJoinEvent
  */
 public interface MiraiMemberJoinEvent :
-    MiraiGroupMemberEvent<NativeMiraiMemberJoinEvent>,
+    MiraiGroupMemberEvent<OriginalMiraiMemberJoinEvent>,
     MemberIncreaseEvent {
     override val bot: MiraiBot
     override val member: MiraiMember

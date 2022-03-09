@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -48,7 +48,7 @@ sealed class P : SimbotProject() {
     object Simbot {
         val SNAPSHOT = System.getProperty("isSnapshot")?.equals("true", true) ?: false
         const val GROUP = "love.forte.simbot"
-        const val REAL_VERSION = "3.0.0.preview.4.0"
+        const val REAL_VERSION = "3.0.0.preview.4.1"
 
         val VERSION = if (SNAPSHOT) "$REAL_VERSION-SNAPSHOT" else REAL_VERSION
 
@@ -62,7 +62,7 @@ sealed class P : SimbotProject() {
     object ComponentMirai {
         val isSnapshot get() = SNAPSHOT
         const val GROUP = "${Simbot.GROUP}.component"
-        private const val REAL_VERSION = "0.2"
+        private const val REAL_VERSION = "1.0"
         private val MERGE_VERSION = "${Simbot.REAL_VERSION}-${V.Mirai.VERSION_SIM}.$REAL_VERSION"
         val VERSION: String =
             if (isSnapshot) "$MERGE_VERSION-SNAPSHOT"

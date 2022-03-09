@@ -30,10 +30,10 @@ import kotlin.reflect.*
  *
  * 使用消息的ID作为Mirai的引用回复对象。
  * 如果你有一个现成的 [QuoteReply] 对象希望直接发送，
- * 请考虑使用 [SimbotNativeMiraiMessage].
+ * 请考虑使用 [SimbotOriginalMiraiMessage].
  *
- * [MiraiQuoteReply] 与 [SimbotNativeMiraiMessage] 类似，不会使用函数 [nativeMiraiMessage] 的参数 `contact`,
- * 你可以直接通过属性 [nativeMiraiMessage] 获取 [QuoteReply] 实例。
+ * [MiraiQuoteReply] 与 [SimbotOriginalMiraiMessage] 类似，不会使用函数 [originalMiraiMessage] 的参数 `contact`,
+ * 你可以直接通过属性 [originalMiraiMessage] 获取 [QuoteReply] 实例。
  *
  * @author ForteScarlet
  */
@@ -41,7 +41,7 @@ import kotlin.reflect.*
 @Serializable
 public class MiraiQuoteReply(
     private val source: MessageSource // = id.buildMessageSource()
-) : MiraiNativeComputableSimbotMessage<MiraiQuoteReply> {
+) : OriginalMiraiComputableSimbotMessage<MiraiQuoteReply> {
     public constructor(id: ID) : this(id.buildMessageSource())
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -61,14 +61,14 @@ public class MiraiQuoteReply(
     override fun hashCode(): Int = source.hashCode()
 
     @Suppress("MemberVisibilityCanBePrivate")
-    public val nativeMiraiMessage: QuoteReply
+    public val originalMiraiMessage: QuoteReply
         get() = quoteReply
 
     /**
-     * @see nativeMiraiMessage
+     * @see originalMiraiMessage
      */
     @JvmSynthetic
-    override suspend fun nativeMiraiMessage(contact: Contact): QuoteReply = quoteReply
+    override suspend fun originalMiraiMessage(contact: Contact): QuoteReply = quoteReply
 
     public companion object Key : Message.Key<MiraiQuoteReply> {
         override val component: Component

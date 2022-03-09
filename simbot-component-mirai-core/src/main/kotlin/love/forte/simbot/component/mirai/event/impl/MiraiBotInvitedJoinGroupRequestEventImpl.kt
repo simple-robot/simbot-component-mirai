@@ -28,17 +28,17 @@ import love.forte.simbot.definition.*
  */
 internal class MiraiBotInvitedJoinGroupRequestEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiBotInvitedJoinGroupRequestEvent
+    override val originalEvent: OriginalMiraiBotInvitedJoinGroupRequestEvent
 ) : MiraiBotInvitedJoinGroupRequestEvent {
-    override val id: ID = nativeEvent.eventId.ID
+    override val id: ID = originalEvent.eventId.ID
 
     override val timestamp: Timestamp = Timestamp.now()
-    override val group: GroupInfo = InvitedJoinGroupInfo(nativeEvent.groupId, nativeEvent.groupName)
+    override val group: GroupInfo = InvitedJoinGroupInfo(originalEvent.groupId, originalEvent.groupName)
 
     override val inviter: InvitorUserInfo = InvitorUserInfo(
-        nativeEvent.invitor,
-        nativeEvent.invitorId,
-        nativeEvent.invitorNick
+        originalEvent.invitor,
+        originalEvent.invitorId,
+        originalEvent.invitorNick
     )
 
 

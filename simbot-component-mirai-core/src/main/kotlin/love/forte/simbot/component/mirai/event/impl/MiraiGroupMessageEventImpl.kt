@@ -31,12 +31,12 @@ import net.mamoe.mirai.message.data.MessageSource.Key.recall
  */
 internal class MiraiGroupMessageEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiGroupMessageEvent
+    override val originalEvent: OriginalMiraiGroupMessageEvent
 ) : MiraiGroupMessageEvent {
     override val id: ID = randomID()
-    override val messageContent: MiraiReceivedMessageContent = nativeEvent.toSimbotMessageContent()
-    override val author: MiraiMemberImpl = nativeEvent.sender.asSimbot(bot)
-    override val group: MiraiGroupImpl = nativeEvent.group.asSimbot(bot)
+    override val messageContent: MiraiReceivedMessageContent = originalEvent.toSimbotMessageContent()
+    override val author: MiraiMemberImpl = originalEvent.sender.asSimbot(bot)
+    override val group: MiraiGroupImpl = originalEvent.group.asSimbot(bot)
     override suspend fun delete(): Boolean {
         return try {
             messageContent.messageSource.recall()
@@ -47,29 +47,29 @@ internal class MiraiGroupMessageEventImpl(
     }
 
 
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup> {
-        val miraiMessage = message.toNativeMiraiMessage(nativeEvent.group)
-        val receipt = nativeEvent.group.sendMessage(QuoteReply(nativeEvent.source) + miraiMessage)
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
+        val miraiMessage = message.toOriginalMiraiMessage(originalEvent.group)
+        val receipt = originalEvent.group.sendMessage(QuoteReply(originalEvent.source) + miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup> {
-        val receipt = nativeEvent.group.sendMessage(QuoteReply(nativeEvent.source) + text.toPlainText())
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
+        val receipt = originalEvent.group.sendMessage(QuoteReply(originalEvent.source) + text.toPlainText())
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup> {
-        val miraiMessage = message.toNativeMiraiMessage(nativeEvent.group)
-        val receipt = nativeEvent.group.sendMessage(miraiMessage)
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
+        val miraiMessage = message.toOriginalMiraiMessage(originalEvent.group)
+        val receipt = originalEvent.group.sendMessage(miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup> {
-        val receipt = nativeEvent.group.sendMessage(text)
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
+        val receipt = originalEvent.group.sendMessage(text)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
 
-    override val timestamp: Timestamp = Timestamp.bySecond(nativeEvent.time.toLong())
+    override val timestamp: Timestamp = Timestamp.bySecond(originalEvent.time.toLong())
 
 }

@@ -34,13 +34,13 @@ import kotlin.coroutines.*
 /**
  * 原生的MiraiBot [net.mamoe.mirai.Bot] 类型。
  */
-public typealias NativeMiraiBot = net.mamoe.mirai.Bot
+public typealias OriginalMiraiBot = net.mamoe.mirai.Bot
 
 /**
  *
- * Mirai的Bot [NativeMiraiBot] 在 simbot中的整合类型。
+ * Mirai的Bot [OriginalMiraiBot] 在 simbot中的整合类型。
  *
- * @see NativeMiraiBot
+ * @see OriginalMiraiBot
  * @see Bot
  * @author ForteScarlet
  */
@@ -49,9 +49,9 @@ public interface MiraiBot : Bot, UserInfo {
     /**
      * 得到这个Bot所代表的原生mirai bot。
      *
-     * @see NativeMiraiBot
+     * @see OriginalMiraiBot
      */
-    public val nativeBot: NativeMiraiBot
+    public val originalBot: OriginalMiraiBot
 
     /**
      * bot的id。
@@ -75,20 +75,20 @@ public interface MiraiBot : Bot, UserInfo {
     /**
      *  @see Bot.avatar
      */
-    override val avatar: String get() = nativeBot.avatarUrl
+    override val avatar: String get() = originalBot.avatarUrl
 
     override val component: Component get() = ComponentMirai.component
 
-    /** 直接使用 [nativeBot] 的协程作用域。 */
-    override val coroutineContext: CoroutineContext get() = nativeBot.coroutineContext
+    /** 直接使用 [originalBot] 的协程作用域。 */
+    override val coroutineContext: CoroutineContext get() = originalBot.coroutineContext
 
-    override val isActive: Boolean get() = nativeBot.supervisorJob.isActive
-    override val isCancelled: Boolean get() = nativeBot.supervisorJob.isCancelled
+    override val isActive: Boolean get() = originalBot.supervisorJob.isActive
+    override val isCancelled: Boolean get() = originalBot.supervisorJob.isCancelled
     override val isStarted: Boolean get() = isCancelled || isActive
 
     override val manager: MiraiBotManager
 
-    override val username: String get() = nativeBot.nick
+    override val username: String get() = originalBot.nick
 
     //region friend apis
     /**
@@ -234,7 +234,7 @@ public interface MiraiBot : Bot, UserInfo {
      * 通过 [resource] 上传并得到一个可以且仅可用于在mirai组件中进行 **发送** 的图片消息对象。
      *
      * 如果通过 [love.forte.simbot.resources.Resource] 来构建 [Image],
-     * 那么得到的 [Image] 对象只是一个尚未初始化的伪[Image], 他会在发送消息的时候根据对应的 [NativeMiraiContact] 来进行上传并发送。
+     * 那么得到的 [Image] 对象只是一个尚未初始化的伪[Image], 他会在发送消息的时候根据对应的 [OriginalMiraiContact] 来进行上传并发送。
      */
     public fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage
 
@@ -319,14 +319,14 @@ public interface MiraiBot : Bot, UserInfo {
 
     @JvmSynthetic
     override suspend fun join() {
-        nativeBot.join()
+        originalBot.join()
     }
 
     @JvmSynthetic
     override suspend fun cancel(reason: Throwable?): Boolean {
         return if (isCancelled) false
         else true.also {
-            nativeBot.close(reason)
+            originalBot.close(reason)
         }
     }
 }

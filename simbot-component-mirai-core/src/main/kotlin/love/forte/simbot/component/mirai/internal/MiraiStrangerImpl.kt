@@ -29,17 +29,17 @@ import love.forte.simbot.message.*
  */
 internal class MiraiStrangerImpl(
     override val bot: MiraiBotImpl,
-    override val nativeContact: NativeMiraiStranger
+    override val originalContact: OriginalMiraiStranger
 ) : MiraiStranger {
-    override val id: LongID = nativeContact.id.ID
+    override val id: LongID = originalContact.id.ID
 
     @JvmSynthetic
-    override suspend fun send(message: Message): SimbotMiraiMessageReceiptImpl<NativeMiraiStranger> {
-        val nativeMessage = message.toNativeMiraiMessage(nativeContact)
-        val receipt = nativeContact.sendMessage(nativeMessage)
+    override suspend fun send(message: Message): SimbotMiraiMessageReceiptImpl<OriginalMiraiStranger> {
+        val nativeMessage = message.toOriginalMiraiMessage(originalContact)
+        val receipt = originalContact.sendMessage(nativeMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 }
 
 
-internal fun NativeMiraiStranger.asSimbot(bot: MiraiBotImpl): MiraiStrangerImpl = MiraiStrangerImpl(bot, this)
+internal fun OriginalMiraiStranger.asSimbot(bot: MiraiBotImpl): MiraiStrangerImpl = MiraiStrangerImpl(bot, this)

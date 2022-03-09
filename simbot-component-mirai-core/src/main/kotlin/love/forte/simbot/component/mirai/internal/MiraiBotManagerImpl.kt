@@ -115,7 +115,7 @@ internal class MiraiBotManagerImpl(
         }
     }
 
-    private inline fun processMiraiBot(code: Long, crossinline factory: () -> NativeMiraiBot): MiraiBotImpl {
+    private inline fun processMiraiBot(code: Long, crossinline factory: () -> OriginalMiraiBot): MiraiBotImpl {
         return botCache.compute(code) { key, old ->
             if (old != null) {
                 throw BotAlreadyRegisteredException("$key")

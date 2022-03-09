@@ -31,76 +31,76 @@ import kotlin.time.Duration.Companion.seconds
 /***/
 internal class MiraiBotGroupRoleChangeEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiBotGroupPermissionChangeEvent
+    override val originalEvent: OriginalMiraiBotGroupPermissionChangeEvent
 ) : MiraiBotGroupRoleChangeEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val group: MiraiGroup = nativeEvent.group.asSimbot(bot)
-    override val before: MemberRole = nativeEvent.origin.simbotRole
-    override val after: MemberRole = nativeEvent.new.simbotRole
+    override val group: MiraiGroup = originalEvent.group.asSimbot(bot)
+    override val before: MemberRole = originalEvent.origin.simbotRole
+    override val after: MemberRole = originalEvent.new.simbotRole
 }
 
 /***/
 internal class MiraiBotJoinGroupEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiBotJoinGroupEvent
+    override val originalEvent: OriginalMiraiBotJoinGroupEvent
 ) : MiraiBotJoinGroupEvent {
     override val id: ID = randomID()
     override val changedTime = Timestamp.now()
-    override val group = nativeEvent.group.asSimbot(bot)
+    override val group = originalEvent.group.asSimbot(bot)
 
     @OptIn(MiraiExperimentalApi::class)
-    override val operator = if (nativeEvent is BotJoinGroupEvent.Invite) {
-        nativeEvent.invitor.asSimbot(bot, group)
+    override val operator = if (originalEvent is BotJoinGroupEvent.Invite) {
+        originalEvent.invitor.asSimbot(bot, group)
     } else {
         null
     }
-    override val target: MiraiMember = nativeEvent.group.botAsMember.asSimbot(bot, group)
+    override val target: MiraiMember = originalEvent.group.botAsMember.asSimbot(bot, group)
 }
 
 /***/
 internal class MiraiBotUnmuteEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiBotUnmuteEvent
+    override val originalEvent: OriginalMiraiBotUnmuteEvent
 ) : MiraiBotUnmuteEvent {
     override val id: ID = randomID()
     override val changedTime = Timestamp.now()
-    override val group = nativeEvent.group.asSimbot(bot)
-    override val operator = nativeEvent.operator.asSimbot(bot, group)
+    override val group = originalEvent.group.asSimbot(bot)
+    override val operator = originalEvent.operator.asSimbot(bot, group)
 }
 
 /***/
 internal class MiraiBotMuteEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiBotMuteEvent
+    override val originalEvent: OriginalMiraiBotMuteEvent
 ) : MiraiBotMuteEvent {
     override val id: ID = randomID()
     override val changedTime = Timestamp.now()
-    override val group = nativeEvent.group.asSimbot(bot)
-    override val operator = nativeEvent.operator.asSimbot(bot, group)
-    override val durationSeconds: Int = nativeEvent.durationSeconds
+    override val group = originalEvent.group.asSimbot(bot)
+    override val operator = originalEvent.operator.asSimbot(bot, group)
+    override val durationSeconds: Int = originalEvent.durationSeconds
     override val duration: Duration get() = durationSeconds.seconds
 }
 
 /***/
 internal class MiraiBotLeaveEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiBotLeaveEvent
+    override val originalEvent: OriginalMiraiBotLeaveEvent
 ) : MiraiBotLeaveEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val group = nativeEvent.group.asSimbot(bot)
-    override val target = nativeEvent.group.botAsMember.asSimbot(bot, group)
+    override val group = originalEvent.group.asSimbot(bot)
+    override val target = originalEvent.group.botAsMember.asSimbot(bot, group)
 
     @OptIn(MiraiExperimentalApi::class)
-    override val operator: MiraiMember = when (nativeEvent) {
-        is BotLeaveEvent.Kick -> nativeEvent.operator.asSimbot(bot, group)
-        is BotLeaveEvent.Disband -> nativeEvent.operator.asSimbot(bot, group)
+    override val operator: MiraiMember = when (originalEvent) {
+        is BotLeaveEvent.Kick -> originalEvent.operator.asSimbot(bot, group)
+        is BotLeaveEvent.Disband -> originalEvent.operator.asSimbot(bot, group)
         else -> target
     }
 
     @OptIn(MiraiExperimentalApi::class)
-    override val actionType: ActionType = when (nativeEvent) {
+    override val actionType: ActionType = when (originalEvent) {
         is BotLeaveEvent.Kick -> ActionType.PASSIVE
         is BotLeaveEvent.Disband -> ActionType.PASSIVE
         else -> ActionType.PROACTIVE

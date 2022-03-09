@@ -25,7 +25,7 @@ import net.mamoe.mirai.contact.*
 /**
  * @see net.mamoe.mirai.contact.MemberPermission
  */
-public typealias NativeMiraiMemberPermission = net.mamoe.mirai.contact.MemberPermission
+public typealias OriginalMiraiMemberPermission = MemberPermission
 
 /**
  * 在Mirai中，也就是在QQ群中，只有三种角色：
@@ -36,24 +36,24 @@ public typealias NativeMiraiMemberPermission = net.mamoe.mirai.contact.MemberPer
  */
 @Suppress("MemberVisibilityCanBePrivate")
 public enum class MemberRole(
-    public val nativeMiraiPermission: NativeMiraiMemberPermission,
+    public val originalMiraiPermission: OriginalMiraiMemberPermission,
 ) : Role {
 
-    MEMBER(NativeMiraiMemberPermission.MEMBER),
-    ADMINISTRATOR(NativeMiraiMemberPermission.ADMINISTRATOR),
-    OWNER(NativeMiraiMemberPermission.OWNER),
+    MEMBER(OriginalMiraiMemberPermission.MEMBER),
+    ADMINISTRATOR(OriginalMiraiMemberPermission.ADMINISTRATOR),
+    OWNER(OriginalMiraiMemberPermission.OWNER),
     ;
 
     /**
      * ID, 等同于 [net.mamoe.mirai.contact.MemberPermission.level].
      */
-    override val id: IntID = nativeMiraiPermission.level.ID
+    override val id: IntID = originalMiraiPermission.level.ID
 
     override val isAdmin: Boolean
-        get() = nativeMiraiPermission.isOperator()
+        get() = originalMiraiPermission.isOperator()
 
     override val isOwner: Boolean
-        get() = nativeMiraiPermission.isOwner()
+        get() = originalMiraiPermission.isOwner()
 
     //
     // /**
@@ -71,13 +71,13 @@ public enum class MemberRole(
 }
 
 
-public inline val NativeMiraiMemberPermission.simbotRole: MemberRole
+public inline val OriginalMiraiMemberPermission.simbotRole: MemberRole
     get() =
         when (this) {
-            NativeMiraiMemberPermission.MEMBER -> MEMBER
-            NativeMiraiMemberPermission.ADMINISTRATOR -> ADMINISTRATOR
-            NativeMiraiMemberPermission.OWNER -> OWNER
+            OriginalMiraiMemberPermission.MEMBER -> MEMBER
+            OriginalMiraiMemberPermission.ADMINISTRATOR -> ADMINISTRATOR
+            OriginalMiraiMemberPermission.OWNER -> OWNER
         }
 
-public inline val NativeMiraiMember.simbotRole: MemberRole
+public inline val OriginalMiraiMember.simbotRole: MemberRole
     get() = permission.simbotRole

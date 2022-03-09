@@ -24,37 +24,37 @@ import love.forte.simbot.message.*
 /**
  * @see net.mamoe.mirai.event.events.GroupSettingChangeEvent
  */
-public typealias NativeMiraiGroupSettingChangeEvent<T> = net.mamoe.mirai.event.events.GroupSettingChangeEvent<T>
+public typealias OriginalMiraiGroupSettingChangeEvent<T> = net.mamoe.mirai.event.events.GroupSettingChangeEvent<T>
 
 /**
  * @see net.mamoe.mirai.event.events.GroupNameChangeEvent
  */
-public typealias NativeMiraiGroupNameChangeEvent = net.mamoe.mirai.event.events.GroupNameChangeEvent
+public typealias OriginalMiraiGroupNameChangeEvent = net.mamoe.mirai.event.events.GroupNameChangeEvent
 
 /**
  * @see net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent
  */
-public typealias NativeMiraiGroupEntranceAnnouncementChangeEvent = net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent
+public typealias OriginalMiraiGroupEntranceAnnouncementChangeEvent = net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent
 
 /**
  * @see net.mamoe.mirai.event.events.GroupMuteAllEvent
  */
-public typealias NativeMiraiGroupMuteAllEvent = net.mamoe.mirai.event.events.GroupMuteAllEvent
+public typealias OriginalMiraiGroupMuteAllEvent = net.mamoe.mirai.event.events.GroupMuteAllEvent
 
 /**
  * @see net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent
  */
-public typealias NativeMiraiGroupAllowAnonymousChatEvent = net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent
+public typealias OriginalMiraiGroupAllowAnonymousChatEvent = net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent
 
 /**
  * @see net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent
  */
-public typealias NativeMiraiGroupAllowConfessTalkEvent = net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent
+public typealias OriginalMiraiGroupAllowConfessTalkEvent = net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent
 
 /**
  * @see net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent
  */
-public typealias NativeMiraiGroupAllowMemberInviteEvent = net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent
+public typealias OriginalMiraiGroupAllowMemberInviteEvent = net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent
 
 
 /**
@@ -72,7 +72,7 @@ public typealias NativeMiraiGroupAllowMemberInviteEvent = net.mamoe.mirai.event.
  * @see MiraiGroupAllowConfessTalkEvent
  * @see MiraiGroupAllowMemberInviteEvent
  */
-public interface MiraiGroupSettingEvent<T, E : NativeMiraiGroupSettingChangeEvent<T>> : MiraiSimbotBotEvent<E>,
+public interface MiraiGroupSettingEvent<T, E : OriginalMiraiGroupSettingChangeEvent<T>> : MiraiSimbotBotEvent<E>,
     ChangedEvent<MiraiGroup, T, T> {
 
     override val bot: MiraiBot
@@ -100,9 +100,9 @@ public interface MiraiGroupSettingEvent<T, E : NativeMiraiGroupSettingChangeEven
 
 /**
  * 群名改变事件。
- * @see NativeMiraiGroupNameChangeEvent
+ * @see OriginalMiraiGroupNameChangeEvent
  */
-public interface MiraiGroupNameChangeEvent : MiraiGroupSettingEvent<String, NativeMiraiGroupNameChangeEvent> {
+public interface MiraiGroupNameChangeEvent : MiraiGroupSettingEvent<String, OriginalMiraiGroupNameChangeEvent> {
 
     /**
      * 操作者。
@@ -123,10 +123,10 @@ public interface MiraiGroupNameChangeEvent : MiraiGroupSettingEvent<String, Nati
 
 /**
  * 入群公告改变.
- * @see NativeMiraiGroupEntranceAnnouncementChangeEvent
+ * @see OriginalMiraiGroupEntranceAnnouncementChangeEvent
  */
 public interface MiraiGroupEntranceAnnouncementChangeEvent :
-    MiraiGroupSettingEvent<String, NativeMiraiGroupEntranceAnnouncementChangeEvent> {
+    MiraiGroupSettingEvent<String, OriginalMiraiGroupEntranceAnnouncementChangeEvent> {
 
     /**
      * 操作者。
@@ -146,9 +146,9 @@ public interface MiraiGroupEntranceAnnouncementChangeEvent :
 
 /**
  * 群 "全员禁言" 功能状态改变
- * @see NativeMiraiGroupMuteAllEvent
+ * @see OriginalMiraiGroupMuteAllEvent
  */
-public interface MiraiGroupMuteAllEvent : MiraiGroupSettingEvent<Boolean, NativeMiraiGroupMuteAllEvent> {
+public interface MiraiGroupMuteAllEvent : MiraiGroupSettingEvent<Boolean, OriginalMiraiGroupMuteAllEvent> {
 
     /**
      * 操作者。
@@ -168,10 +168,10 @@ public interface MiraiGroupMuteAllEvent : MiraiGroupSettingEvent<Boolean, Native
 
 /**
  * 群 "匿名聊天" 功能状态改变
- * @see NativeMiraiGroupAllowAnonymousChatEvent
+ * @see OriginalMiraiGroupAllowAnonymousChatEvent
  */
 public interface MiraiGroupAllowAnonymousChatEvent :
-    MiraiGroupSettingEvent<Boolean, NativeMiraiGroupAllowAnonymousChatEvent> {
+    MiraiGroupSettingEvent<Boolean, OriginalMiraiGroupAllowAnonymousChatEvent> {
 
     /**
      * 操作者。
@@ -192,10 +192,10 @@ public interface MiraiGroupAllowAnonymousChatEvent :
 
 /**
  * 群 "坦白说" 功能状态改变.
- * @see NativeMiraiGroupAllowConfessTalkEvent
+ * @see OriginalMiraiGroupAllowConfessTalkEvent
  */
 public interface MiraiGroupAllowConfessTalkEvent :
-    MiraiGroupSettingEvent<Boolean, NativeMiraiGroupAllowConfessTalkEvent> {
+    MiraiGroupSettingEvent<Boolean, OriginalMiraiGroupAllowConfessTalkEvent> {
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
     override val key: Event.Key<MiraiGroupAllowConfessTalkEvent> get() = Key
 
@@ -208,10 +208,10 @@ public interface MiraiGroupAllowConfessTalkEvent :
 
 /**
  * 群 "允许群员邀请好友加群" 功能状态改变.
- * @see NativeMiraiGroupAllowMemberInviteEvent
+ * @see OriginalMiraiGroupAllowMemberInviteEvent
  */
 public interface MiraiGroupAllowMemberInviteEvent :
-    MiraiGroupSettingEvent<Boolean, NativeMiraiGroupAllowMemberInviteEvent> {
+    MiraiGroupSettingEvent<Boolean, OriginalMiraiGroupAllowMemberInviteEvent> {
 
     /**
      * 操作者。

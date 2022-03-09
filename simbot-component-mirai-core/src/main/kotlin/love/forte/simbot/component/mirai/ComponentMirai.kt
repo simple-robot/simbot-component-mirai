@@ -100,7 +100,7 @@ private class MiraiComponentInformation : ComponentInformation {
         MessageSerializers.serializersModule +
                 SerializersModule {
                     polymorphic(Message.Element::class) {
-                        subclass(SimbotNativeMiraiMessage.serializer())
+                        subclass(SimbotOriginalMiraiMessage.serializer())
 
                         ////
 

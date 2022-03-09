@@ -30,7 +30,7 @@ public class MyTest {
 
         final MiraiBot miraiBot = manager.register(1, "1");
 
-        final Bot nativeBot = miraiBot.getNativeBot();
+        final Bot nativeBot = miraiBot.getOriginalBot();
 
     }
 }

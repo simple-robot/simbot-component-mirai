@@ -31,7 +31,7 @@ import kotlin.reflect.*
  * 此类型不会在接收消息中存在，仅用于发送。直接通过 [RichMessage.share] 构建真实的消息对象，
  * 请注意参考此函数的相关限制。
  *
- * 可以通过 [nativeMiraiMessage] 获取构建后的 [ServiceMessage] 对象实例。
+ * 可以通过 [originalMiraiMessage] 获取构建后的 [ServiceMessage] 对象实例。
  *
  * @see RichMessage
  * @see RichMessage.share
@@ -46,9 +46,9 @@ public data class MiraiShare @JvmOverloads constructor(
     private val content: String? = null,
     private val coverUrl: String? = null
 ) : MiraiSendOnlySimbotMessage<MiraiShare>,
-    MiraiNativeDirectlySimbotMessage<MiraiShare> {
+    OriginalMiraiDirectlySimbotMessage<MiraiShare> {
 
-    override val nativeMiraiMessage: ServiceMessage = RichMessage.share(
+    override val originalMiraiMessage: ServiceMessage = RichMessage.share(
         url, title, content, coverUrl
     )
 

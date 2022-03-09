@@ -31,17 +31,17 @@ import net.mamoe.mirai.message.data.*
 /**
  * @see net.mamoe.mirai.message.MessageReceipt
  */
-public typealias NativeMiraiMessageReceipt<C> = net.mamoe.mirai.message.MessageReceipt<C>
+public typealias OriginalMiraiMessageReceipt<C> = net.mamoe.mirai.message.MessageReceipt<C>
 
 
 /**
- * Mirai组件中，封装使用 [NativeMiraiMessageReceipt] 作为消息发送的回执对象。
+ * Mirai组件中，封装使用 [OriginalMiraiMessageReceipt] 作为消息发送的回执对象。
  *
  *
  */
 public interface SimbotMiraiMessageReceipt<C : Contact> : MessageReceipt, MessageReplyReceipt, DeleteSupport,
     ReplySupport {
-    public val receipt: NativeMiraiMessageReceipt<C>
+    public val receipt: OriginalMiraiMessageReceipt<C>
 
     @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact>
@@ -78,7 +78,7 @@ public interface SimbotMiraiMessageReceipt<C : Contact> : MessageReceipt, Messag
  * @author ForteScarlet
  */
 internal class SimbotMiraiMessageReceiptImpl<C : Contact>(
-    override val receipt: NativeMiraiMessageReceipt<C>
+    override val receipt: OriginalMiraiMessageReceipt<C>
 ) : SimbotMiraiMessageReceipt<C> {
     override val id: ID = receipt.source.ID
     override val isSuccess: Boolean get() = true
@@ -96,7 +96,7 @@ internal class SimbotMiraiMessageReceiptImpl<C : Contact>(
     @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
-        val sendMessage = message.toNativeMiraiMessage(receipt.target)
+        val sendMessage = message.toOriginalMiraiMessage(receipt.target)
         val newReceipt = receipt.target.sendMessage(quote + sendMessage)
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
@@ -111,7 +111,7 @@ internal class SimbotMiraiMessageReceiptImpl<C : Contact>(
     @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
-        val sendMessage = message.messages.toNativeMiraiMessage(receipt.target)
+        val sendMessage = message.messages.toOriginalMiraiMessage(receipt.target)
         val newReceipt = receipt.target.sendMessage(quote + sendMessage)
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }

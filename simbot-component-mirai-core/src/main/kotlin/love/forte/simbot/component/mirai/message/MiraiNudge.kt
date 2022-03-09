@@ -45,12 +45,12 @@ import kotlin.reflect.*
 @Serializable
 public data class MiraiNudge constructor(
     public val target: LongID? = null,
-) : MiraiSendOnlyComputableSimbotMessage<MiraiNudge> {
+) : MiraiSendOnlyComputableMessage<MiraiNudge> {
     override val key: Message.Key<MiraiNudge> get() = Key
 
     @OptIn(InternalApi::class)
     @JvmSynthetic
-    override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
+    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
         if (target != null) {
             if (target.number == contact.bot.id) {
                 contact.sendNudge(contact.bot.nudge())
@@ -58,23 +58,23 @@ public data class MiraiNudge constructor(
             }
 
             when (contact) {
-                is NativeMiraiGroup -> {
+                is OriginalMiraiGroup -> {
                     val nudge = contact.getMemberOrFail(target.number).nudge()
                     contact.sendNudge(nudge)
                 }
-                is NativeMiraiFriend -> contact.sendNudge(contact.nudge())
-                is NativeMiraiMember -> contact.sendNudge(contact.nudge())
-                is NativeMiraiStranger -> contact.sendNudge(contact.nudge())
+                is OriginalMiraiFriend -> contact.sendNudge(contact.nudge())
+                is OriginalMiraiMember -> contact.sendNudge(contact.nudge())
+                is OriginalMiraiStranger -> contact.sendNudge(contact.nudge())
             }
         } else {
             // 没有target
             val event = currentCoroutineContext()[EventProcessingContext]?.event
             if (event is MiraiSimbotEvent<*>) {
-                when (val nativeEvent = event.nativeEvent) {
-                    is NativeMiraiGroupMemberEvent -> nativeEvent.member.sendNudge(nativeEvent.member.nudge())
-                    is NativeMiraiGroupMessageEvent -> nativeEvent.group.sendNudge(nativeEvent.sender.nudge())
-                    is NativeMiraiGroupEvent -> nativeEvent.group.sendNudge(nativeEvent.group.bot.nudge())
-                    is NativeMiraiFriendEvent -> nativeEvent.friend.sendNudge(nativeEvent.friend.nudge())
+                when (val nativeEvent = event.originalEvent) {
+                    is OriginalMiraiGroupMemberEvent -> nativeEvent.member.sendNudge(nativeEvent.member.nudge())
+                    is OriginalMiraiGroupMessageEvent -> nativeEvent.group.sendNudge(nativeEvent.sender.nudge())
+                    is OriginalMiraiGroupEvent -> nativeEvent.group.sendNudge(nativeEvent.group.bot.nudge())
+                    is OriginalMiraiFriendEvent -> nativeEvent.friend.sendNudge(nativeEvent.friend.nudge())
                     is StrangerEvent -> nativeEvent.stranger.sendNudge(nativeEvent.stranger.nudge())
                 }
             } else {
