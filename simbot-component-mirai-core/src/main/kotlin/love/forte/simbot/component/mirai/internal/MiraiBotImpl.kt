@@ -334,6 +334,32 @@ private fun MiraiBotImpl.registerEvents() {
             }
             //endregion
 
+            //region message post send
+            is NativeMiraiMessagePostSendEvent<*> -> when (this) {
+                is NativeMiraiFriendMessagePostSendEvent ->
+                    doHandler(this, MiraiFriendMessagePostSendEvent) {
+                        MiraiFriendMessagePostSendEventImpl(this@registerEvents, this)
+                    }
+
+                is NativeMiraiGroupMessagePostSendEvent ->
+                    doHandler(this, MiraiGroupMessagePostSendEvent) {
+                        MiraiGroupMessagePostSendEventImpl(this@registerEvents, this)
+                    }
+
+                is NativeMiraiGroupTempMessagePostSendEvent ->
+                    doHandler(this, MiraiGroupTempMessagePostSendEvent) {
+                        MiraiGroupTempMessagePostSendEventImpl(this@registerEvents, this)
+                    }
+
+                is NativeMiraiStrangerMessagePostSendEvent ->
+                    doHandler(this, MiraiStrangerMessagePostSendEvent) {
+                        MiraiStrangerMessagePostSendEventImpl(this@registerEvents, this)
+                    }
+
+
+            }
+            //endregion
+
 
             else -> {
                 @OptIn(SimbotDiscreetApi::class)
