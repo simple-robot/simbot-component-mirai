@@ -54,6 +54,12 @@ public typealias NativeMiraiStrangerMessagePostSendEvent = net.mamoe.mirai.event
  * 例如 [MiraiFriendMessagePostSendEvent] 不会实现 [FriendMessageEvent],
  * 而是会分别实现 [MessageEvent], [FriendInfoContainer], 这使得它们有别于普通的消息事件。
  *
+ *
+ * @see MiraiFriendMessagePostSendEvent
+ * @see MiraiStrangerMessagePostSendEvent
+ * @see MiraiGroupTempMessagePostSendEvent
+ * @see MiraiGroupMessagePostSendEvent
+ *
  */
 public interface MiraiMessagePostSendEvent<C : NativeMiraiContact, E : NativeMiraiMessagePostSendEvent<C>> :
     MiraiSimbotBotEvent<E> {
