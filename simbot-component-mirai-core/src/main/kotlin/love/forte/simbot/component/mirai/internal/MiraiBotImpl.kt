@@ -341,15 +341,21 @@ private fun MiraiBotImpl.registerEvents() {
                         MiraiFriendMessagePostSendEventImpl(this@registerEvents, this)
                     }
 
-                is NativeMiraiGroupMessagePostSendEvent -> doHandler(this, MiraiGroupMessagePostSendEvent) {
-                    MiraiGroupMessagePostSendEventImpl(this@registerEvents, this)
-                }
+                is NativeMiraiGroupMessagePostSendEvent ->
+                    doHandler(this, MiraiGroupMessagePostSendEvent) {
+                        MiraiGroupMessagePostSendEventImpl(this@registerEvents, this)
+                    }
 
-                is NativeMiraiGroupTempMessagePostSendEvent -> doHandler(this, MiraiGroupTempMessagePostSendEvent) {
-                    MiraiGroupTempMessagePostSendEventImpl(this@registerEvents, this)
-                }
+                is NativeMiraiGroupTempMessagePostSendEvent ->
+                    doHandler(this, MiraiGroupTempMessagePostSendEvent) {
+                        MiraiGroupTempMessagePostSendEventImpl(this@registerEvents, this)
+                    }
 
-                is NativeMiraiStrangerMessagePostSendEvent -> TODO()
+                is NativeMiraiStrangerMessagePostSendEvent ->
+                    doHandler(this, MiraiStrangerMessagePostSendEvent) {
+                        MiraiStrangerMessagePostSendEventImpl(this@registerEvents, this)
+                    }
+
 
             }
             //endregion
