@@ -35,10 +35,9 @@ dependencies {
 
 
     testImplementation(V.Kotlin.Test.Junit5.notation)
-    testImplementation(V.Log4j.Api.notation)
-    testImplementation(V.Log4j.Core.notation)
-    testImplementation(V.Log4j.Slf4jImpl.notation)
-
+    // testImplementation(V.Log4j.Api.notation)
+    // testImplementation(V.Log4j.Core.notation)
+    // testImplementation(V.Log4j.Slf4jImpl.notation)
     //compileOnly("com.google.auto.service:auto-service:1.0.1")
     //kapt("com.google.auto.service:auto-service:1.0.1")
 }

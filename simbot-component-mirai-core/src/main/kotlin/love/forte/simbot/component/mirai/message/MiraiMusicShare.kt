@@ -20,6 +20,7 @@ package love.forte.simbot.component.mirai.message
 import kotlinx.serialization.*
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.*
+import love.forte.simbot.message.*
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.message.data.*
 import kotlin.reflect.*
@@ -94,10 +95,6 @@ public data class MiraiMusicShare(
     )
 
     public companion object Key : Message.Key<MiraiMusicShare> {
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<MiraiMusicShare>
-            get() = MiraiMusicShare::class
+        override fun safeCast(value: Any): MiraiMusicShare? = doSafeCast(value)
     }
 }

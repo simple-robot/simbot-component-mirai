@@ -43,11 +43,21 @@ import net.mamoe.mirai.message.data.Image as miraiImageFunc
 internal class MiraiBotImpl(
     override val originalBot: OriginalMiraiBot,
     override val manager: MiraiBotManagerImpl,
-    override val eventProcessor: EventProcessor
+    override val eventProcessor: EventProcessor,
+    override val component: Component
 ) : MiraiBot {
     override val logger: Logger = LoggerFactory.getLogger("love.forte.simbot.mirai.bot.${originalBot.id}")
     override val id: LongID = originalBot.id.ID
     override val status: UserStatus get() = MiraiBotStatus
+
+    override fun isMe(id: ID): Boolean {
+        return when (id) {
+            is LongID -> id.value == this.id.value
+            is NumericalID<*> -> id.toLong() == this.id.value
+            else -> id.literal == this.id.literal
+        }
+    }
+
 
     override suspend fun friends(limiter: Limiter): Flow<MiraiFriend> {
         return originalBot.friends.asFlow().map { it.asSimbot(this) }.withLimiter(limiter)
@@ -124,11 +134,13 @@ internal class MiraiBotImpl(
 
 
     private var friendCache =
-        LRUCacheMap<OriginalMiraiFriend, MiraiFriendImpl>(originalBot.friends.size.takeIf { it > 0 }?.let { it / 2 } ?: 16)
+        LRUCacheMap<OriginalMiraiFriend, MiraiFriendImpl>(originalBot.friends.size.takeIf { it > 0 }?.let { it / 2 }
+            ?: 16)
     private var groupCache =
         LRUCacheMap<OriginalMiraiGroup, MiraiGroupImpl>(originalBot.groups.size.takeIf { it > 0 }?.let { it / 2 } ?: 16)
     private var memberCache =
-        LRUCacheMap<OriginalMiraiMember, MiraiMemberImpl>(originalBot.groups.sumOf { g -> g.members.size }.takeIf { it > 0 }
+        LRUCacheMap<OriginalMiraiMember, MiraiMemberImpl>(originalBot.groups.sumOf { g -> g.members.size }
+            .takeIf { it > 0 }
             ?.let { it / 2 } ?: 16)
 
 
@@ -362,7 +374,7 @@ private fun MiraiBotImpl.registerEvents() {
 
 
             else -> {
-                @OptIn(SimbotDiscreetApi::class)
+                @OptIn(DiscreetSimbotApi::class)
                 eventProcessor.pushIfProcessable(UnsupportedMiraiEvent) {
                     UnsupportedMiraiEvent(this@registerEvents, this)
                 }

@@ -18,14 +18,12 @@
 package love.forte.simbot.component.mirai.message
 
 import kotlinx.serialization.*
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.message.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.resources.*
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
-import kotlin.reflect.*
 
 /**
  * Mirai的原生图片类型 [net.mamoe.mirai.message.data.Audio]
@@ -65,11 +63,7 @@ public class MiraiSendOnlyAudio(
     }
 
     public companion object Key : Message.Key<MiraiSendOnlyAudio> {
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<MiraiSendOnlyAudio>
-            get() = MiraiSendOnlyAudio::class
+        override fun safeCast(value: Any): MiraiSendOnlyAudio? = doSafeCast(value)
     }
 }
 
@@ -109,11 +103,7 @@ public interface MiraiAudio : OriginalMiraiComputableSimbotMessage<MiraiAudio> {
             return MiraiAudioImpl(nativeAudio)
         }
 
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<MiraiAudio>
-            get() = MiraiAudio::class
+        override fun safeCast(value: Any): MiraiAudio? = doSafeCast(value)
     }
 }
 

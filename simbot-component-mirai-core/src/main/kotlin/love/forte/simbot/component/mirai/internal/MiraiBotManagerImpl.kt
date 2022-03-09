@@ -43,6 +43,9 @@ internal class MiraiBotManagerImpl(
         private val LOGGER = LoggerFactory.getLogger(MiraiBotManagerImpl::class)
     }
 
+    // init component from processor
+    override val component = eventProcessor.getComponent(MiraiComponent.ID)
+
     override val logger: Logger get() = LOGGER
 
     private val completableJob = SupervisorJob()
@@ -120,7 +123,7 @@ internal class MiraiBotManagerImpl(
             if (old != null) {
                 throw BotAlreadyRegisteredException("$key")
             }
-            MiraiBotImpl(factory(), this@MiraiBotManagerImpl, eventProcessor)
+            MiraiBotImpl(factory(), this@MiraiBotManagerImpl, eventProcessor, component)
         }!!.also {
             invokeOnCompletion {
                 botCache.remove(code)
@@ -159,7 +162,7 @@ internal class MiraiBotManagerImpl(
     }
 
     override fun toString(): String {
-        return "MiraiBotManager@${hashCode()}(botSize=${botCache.size}, isActive=$isActive, eventProcessor$eventProcessor)"
+        return "MiraiBotManager@${hashCode()}(bots=${botCache.keys().asSequence().joinToString(", ", prefix = "[", postfix = "]")}, isActive=$isActive, eventProcessor$eventProcessor)"
     }
 
 }

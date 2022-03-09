@@ -19,11 +19,9 @@ package love.forte.simbot.component.mirai.message
 
 import kotlinx.serialization.*
 import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
 import love.forte.simbot.message.*
 import love.forte.simbot.utils.*
 import net.mamoe.mirai.contact.*
-import kotlin.reflect.*
 
 
 /**
@@ -62,12 +60,14 @@ public interface MiraiSendOnlySimbotMessage<E : MiraiSendOnlySimbotMessage<E>> :
  * @see MiraiSimbotMessage
  * @see SimbotOriginalMiraiMessage
  */
-public interface OriginalMiraiComputableSimbotMessage<E : OriginalMiraiComputableSimbotMessage<E>> : MiraiSimbotMessage<E> {
+public interface OriginalMiraiComputableSimbotMessage<E : OriginalMiraiComputableSimbotMessage<E>> :
+    MiraiSimbotMessage<E> {
     @JvmSynthetic
     public suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage
 
     @Api4J
-    public fun getOriginalMiraiMessage(contact: Contact): OriginalMiraiMessage = runInBlocking { originalMiraiMessage(contact) }
+    public fun getOriginalMiraiMessage(contact: Contact): OriginalMiraiMessage =
+        runInBlocking { originalMiraiMessage(contact) }
 }
 
 /**
@@ -127,11 +127,7 @@ public class SimbotOriginalMiraiMessage(
     override fun hashCode(): Int = originalMiraiMessage.hashCode()
 
     public companion object Key : Message.Key<SimbotOriginalMiraiMessage> {
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<SimbotOriginalMiraiMessage>
-            get() = SimbotOriginalMiraiMessage::class
+        override fun safeCast(value: Any): SimbotOriginalMiraiMessage? = doSafeCast(value)
     }
 }
 
@@ -172,11 +168,7 @@ public class SimpleMiraiSendOnlyComputableMessage(
 
 
     public companion object Key : Message.Key<SimpleMiraiSendOnlyComputableMessage> {
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<SimpleMiraiSendOnlyComputableMessage>
-            get() = SimpleMiraiSendOnlyComputableMessage::class
+        override fun safeCast(value: Any): SimpleMiraiSendOnlyComputableMessage? = doSafeCast(value)
     }
 }
 

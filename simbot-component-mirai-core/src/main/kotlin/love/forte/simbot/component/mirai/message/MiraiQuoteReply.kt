@@ -20,10 +20,10 @@ package love.forte.simbot.component.mirai.message
 import kotlinx.serialization.*
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.*
+import love.forte.simbot.message.*
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.message.data.*
-import kotlin.reflect.*
 
 
 /**
@@ -71,10 +71,6 @@ public class MiraiQuoteReply(
     override suspend fun originalMiraiMessage(contact: Contact): QuoteReply = quoteReply
 
     public companion object Key : Message.Key<MiraiQuoteReply> {
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<MiraiQuoteReply>
-            get() = MiraiQuoteReply::class
+        override fun safeCast(value: Any): MiraiQuoteReply? = doSafeCast(value)
     }
 }

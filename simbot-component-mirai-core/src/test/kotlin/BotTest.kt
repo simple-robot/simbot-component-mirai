@@ -15,18 +15,21 @@
  *
  */
 
-import kotlinx.coroutines.*
+import love.forte.simbot.*
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.core.event.*
 
 
-suspend fun main() {
-    // LoggerFactory.getLogger("a").info("a")
-    // LoggerFactory.getLogger("a").debug("b")
-     val manager = coreListenerManager {  }
+@OptIn(ExperimentalSimbotApi::class)
+fun main() {
+     val manager = coreListenerManager {
+          installAll()
+     }
      val botManager = miraiBotManager(manager)
-     delay(1)
      println(botManager)
+
+     println(botManager.component)
+
      // bot.start()
      //
      // bot.friends()

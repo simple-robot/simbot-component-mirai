@@ -77,8 +77,6 @@ public interface MiraiBot : Bot, UserInfo {
      */
     override val avatar: String get() = originalBot.avatarUrl
 
-    override val component: Component get() = ComponentMirai.component
-
     /** 直接使用 [originalBot] 的协程作用域。 */
     override val coroutineContext: CoroutineContext get() = originalBot.coroutineContext
 

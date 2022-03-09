@@ -28,7 +28,6 @@ import love.forte.simbot.message.*
 import net.mamoe.mirai.contact.*
 import net.mamoe.mirai.event.events.*
 import net.mamoe.mirai.message.action.Nudge.Companion.sendNudge
-import kotlin.reflect.*
 
 /**
  * 仅用于发送的 nudge 对象, 不会在接收中出现。
@@ -88,11 +87,7 @@ public data class MiraiNudge constructor(
     override fun toString(): String = "MiraiNudge(target=$target)"
 
     public companion object Key : Message.Key<MiraiNudge> {
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<MiraiNudge>
-            get() = MiraiNudge::class
+        override fun safeCast(value: Any): MiraiNudge? = doSafeCast(value)
     }
 }
 

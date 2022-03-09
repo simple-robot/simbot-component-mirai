@@ -58,7 +58,6 @@ private fun hex(hex: String): ByteArray {
  */
 public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     protected abstract val logger: Logger
-    override val component: Component get() = ComponentMirai.component
 
     /**
      * manager中的 [start] 没有效果。
@@ -77,9 +76,9 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
 
         logger.debug("[{}] json element load: {}", verifyInfo.infoName, jsonElement)
 
-        if (component != ComponentMirai.COMPONENT_ID.toString()) {
-            logger.debug("[{}] mismatch: [{}] != [{}]", verifyInfo.infoName, component, ComponentMirai.COMPONENT_ID)
-            throw ComponentMismatchException("[$component] != [${ComponentMirai.COMPONENT_ID}]")
+        if (component != this.component.id.toString()) {
+            logger.debug("[{}] mismatch: [{}] != [{}]", verifyInfo.infoName, component, this.component.id)
+            throw ComponentMismatchException("[$component] != [${this.component.id}]")
         }
 
         val configuration = json.decodeFromJsonElement(serializer, jsonElement)

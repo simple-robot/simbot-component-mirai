@@ -15,4 +15,4 @@
 #
 #
 
-love.forte.simbot.component.mirai.MiraiComponentRegistrar
+love.forte.simbot.component.mirai.MiraiComponentRegistrarFactory

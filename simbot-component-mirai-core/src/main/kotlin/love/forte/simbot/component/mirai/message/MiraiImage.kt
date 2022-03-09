@@ -20,6 +20,7 @@ package love.forte.simbot.component.mirai.message
 import kotlinx.serialization.*
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.*
+import love.forte.simbot.message.*
 import love.forte.simbot.message.Image
 import love.forte.simbot.message.Message
 import love.forte.simbot.resources.*
@@ -29,7 +30,6 @@ import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import java.net.*
 import java.util.concurrent.atomic.*
-import kotlin.reflect.*
 
 /**
  * Mirai的原生图片类型 [net.mamoe.mirai.message.data.Image]
@@ -77,11 +77,7 @@ public interface MiraiSendOnlyImage :
     override val id: ID
 
     public companion object Key : Message.Key<MiraiSendOnlyImage> {
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<MiraiSendOnlyImage>
-            get() = MiraiSendOnlyImage::class
+        override fun safeCast(value: Any): MiraiSendOnlyImage? = doSafeCast(value)
     }
 }
 
@@ -205,11 +201,7 @@ public interface MiraiImage :
             return MiraiImageImpl(nativeImage.image, isFlash)
         }
 
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<MiraiImage>
-            get() = MiraiImage::class
+        override fun safeCast(value: Any): MiraiImage? = doSafeCast(value)
     }
 
 }

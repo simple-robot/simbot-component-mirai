@@ -18,12 +18,10 @@
 package love.forte.simbot.component.mirai.message
 
 import kotlinx.serialization.*
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.message.*
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.utils.*
-import kotlin.reflect.*
 
 /**
  * mirai的(链接)分享模板实例。
@@ -56,11 +54,7 @@ public data class MiraiShare @JvmOverloads constructor(
         get() = Key
 
     public companion object Key : Message.Key<MiraiShare> {
-        override val component: Component
-            get() = ComponentMirai.component
-
-        override val elementType: KClass<MiraiShare>
-            get() = MiraiShare::class
+        override fun safeCast(value: Any): MiraiShare? = doSafeCast(value)
     }
 }
 

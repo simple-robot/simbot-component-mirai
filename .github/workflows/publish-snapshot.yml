@@ -30,10 +30,17 @@ jobs:
           echo "${{ secrets.GPG_B64 }}" > ForteScarlet.gpg.b64
           base64 -d ForteScarlet.gpg.b64 > ForteScarlet.gpg
 
+      # create properties
+      - name: Create gradle.properties
+        run: |
+          echo "org.gradle.parallel=true" > gradle.properties
+          echo "org.gradle.workers.max=16" >> gradle.properties
+          echo "org.gradle.jvmargs=-Xmx8G -Xms4G -XX:MaxMetaspaceSize=1G -Dfile.encoding=UTF-8 -DisSnapshot=true -DsnapshotOnly" >> gradle.properties
+
       # setup Gradle
       - name: Gradle Publish Snapshot
         uses: gradle/gradle-build-action@v2
         with:
           gradle-version: 7.4
-          arguments: clean build test publishToSonatype closeAndReleaseStagingRepository -DsnapshotOnly -DisSnapshot=true -Psigning.secretKeyRingFile=ForteScarlet.gpg -Psigning.keyId=${{ secrets.SIGN_KEY_ID }} -Psigning.password=${{ secrets.SIGN_PASS }} -Psonatype.username=${{ secrets.OSS_USERNAME }} -Psonatype.password=${{ secrets.OSS_PASSWORD }} -Porg.gradle.jvmargs="org.gradle.jvmargs=-Xmx4G -Xms4G -XX:MaxMetaspaceSize=512m -Dfile.encoding=UT-8"
+          arguments: clean build test publishToSonatype closeAndReleaseStagingRepository -DsnapshotOnly -DisSnapshot=true -Psigning.secretKeyRingFile=ForteScarlet.gpg -Psigning.keyId=${{ secrets.SIGN_KEY_ID }} -Psigning.password=${{ secrets.SIGN_PASS }} -Psonatype.username=${{ secrets.OSS_USERNAME }} -Psonatype.password=${{ secrets.OSS_PASSWORD }}
 
