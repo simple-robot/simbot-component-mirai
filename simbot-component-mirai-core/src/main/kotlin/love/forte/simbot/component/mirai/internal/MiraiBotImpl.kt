@@ -345,7 +345,10 @@ private fun MiraiBotImpl.registerEvents() {
                     MiraiGroupMessagePostSendEventImpl(this@registerEvents, this)
                 }
 
-                is NativeMiraiGroupTempMessagePostSendEvent -> TODO()
+                is NativeMiraiGroupTempMessagePostSendEvent -> doHandler(this, MiraiGroupTempMessagePostSendEvent) {
+                    MiraiGroupTempMessagePostSendEventImpl(this@registerEvents, this)
+                }
+
                 is NativeMiraiStrangerMessagePostSendEvent -> TODO()
 
             }

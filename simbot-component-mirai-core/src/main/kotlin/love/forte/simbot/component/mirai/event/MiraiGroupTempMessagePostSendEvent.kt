@@ -24,33 +24,44 @@ import love.forte.simbot.event.*
 import love.forte.simbot.message.*
 
 /**
- * 群消息发送后的消息事件。此事件不会实现 [GroupMessageEvent], 取而代之的是使用 [GroupInfoContainer], [MessageEvent].
+ * 群临时会话消息发送后的消息事件。此事件不会实现 [ContactMessageEvent], 取而代之的是使用 [GroupInfoContainer], [MemberInfoContainer], [MessageEvent].
  * 此消息本质上并非"群中得到的消息"，而只是对bot的行为的后置处理。
  *
  * @author ForteScarlet
  */
-public interface MiraiGroupMessagePostSendEvent :
-    MiraiMessagePostSendEvent<NativeMiraiGroup, NativeMiraiGroupMessagePostSendEvent>,
-    GroupInfoContainer, MessageEvent {
+public interface MiraiGroupTempMessagePostSendEvent :
+    MiraiMessagePostSendEvent<NativeMiraiMember, NativeMiraiGroupTempMessagePostSendEvent>,
+    GroupInfoContainer, MemberInfoContainer, MessageEvent {
 
     override val bot: MiraiBot
     override val id: ID
     override val timestamp: Timestamp
     override val messageContent: MiraiReceivedMessageContent
-    override val nativeEvent: NativeMiraiGroupMessagePostSendEvent
+    override val nativeEvent: NativeMiraiGroupTempMessagePostSendEvent
 
     /**
-     * 发送目标群对象。
+     * 发送目标群成员所属群对象。
      */
     @OptIn(Api4J::class)
     override val group: MiraiGroup
 
+    /**
+     * 发送目标群成员对象。
+     */
+    @OptIn(Api4J::class)
+    override val member: MiraiMember
+
 
     // Impl
     /**
-     * 发送目标群对象。
+     * 发送目标群成员所属群对象。
      */
     override suspend fun group(): MiraiGroup = group
+
+    /**
+     * 发送目标群成员对象。
+     */
+    override suspend fun member(): MemberInfo = member
 
     /**
      * 所有 `post send` 相关事件的源头均来自于bot自身。
@@ -65,11 +76,11 @@ public interface MiraiGroupMessagePostSendEvent :
     override suspend fun source(): MiraiBot = bot
 
 
-    override val key: Event.Key<out MiraiGroupMessagePostSendEvent> get() = Key
+    override val key: Event.Key<out MiraiGroupTempMessagePostSendEvent> get() = Key
 
-    public companion object Key : BaseEventKey<MiraiGroupMessagePostSendEvent>(
-        "mirai.group_message_post_send_event", MiraiMessagePostSendEvent, MessageEvent
+    public companion object Key : BaseEventKey<MiraiGroupTempMessagePostSendEvent>(
+        "mirai.group_temp_message_post_send_event", MiraiMessagePostSendEvent, MessageEvent
     ) {
-        override fun safeCast(value: Any): MiraiGroupMessagePostSendEvent? = doSafeCast(value)
+        override fun safeCast(value: Any): MiraiGroupTempMessagePostSendEvent? = doSafeCast(value)
     }
 }
