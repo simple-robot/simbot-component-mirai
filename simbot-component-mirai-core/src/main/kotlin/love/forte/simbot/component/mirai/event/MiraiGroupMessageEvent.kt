@@ -29,18 +29,18 @@ import net.mamoe.mirai.message.data.MessageSource.Key.recall
 /**
  * @see net.mamoe.mirai.event.events.FriendMessageEvent
  */
-public typealias NativeMiraiGroupMessageEvent = net.mamoe.mirai.event.events.GroupMessageEvent
+public typealias OriginalMiraiGroupMessageEvent = net.mamoe.mirai.event.events.GroupMessageEvent
 
 /**
  * 群消息事件。
  *
- * Mirai [NativeMiraiFriendMessageEvent] 事件对应的 [FriendMessageEvent] 事件类型。
+ * Mirai [OriginalMiraiFriendMessageEvent] 事件对应的 [FriendMessageEvent] 事件类型。
  *
- * @see NativeMiraiFriendMessageEvent
+ * @see OriginalMiraiFriendMessageEvent
  * @author ForteScarlet
  */
 public interface MiraiGroupMessageEvent :
-    MiraiSimbotGroupMessageEvent<NativeMiraiGroupMessageEvent>,
+    MiraiSimbotGroupMessageEvent<OriginalMiraiGroupMessageEvent>,
     GroupMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
@@ -66,25 +66,25 @@ public interface MiraiGroupMessageEvent :
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
     @JvmSynthetic
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
     @JvmSynthetic
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
     /**
      * 向次事件的群发送消息。
      */
     @JvmSynthetic
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
     /**
      * 向次事件的群发送消息。
      */
     @JvmSynthetic
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
 
     //// Impl
@@ -116,35 +116,35 @@ public interface MiraiGroupMessageEvent :
 
 
     @JvmSynthetic
-    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         reply(message.messages)
 
     @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         runInBlocking { reply(text) }
 
     @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         runInBlocking { reply(message) }
 
     @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         runInBlocking { reply(message) }
 
 
     @JvmSynthetic
-    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         send(message.messages)
 
     @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup> = runInBlocking { send(text) }
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> = runInBlocking { send(text) }
 
     @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         runInBlocking { send(message) }
 
     @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup> =
+    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         runInBlocking { send(message) }
 
     public companion object Key :

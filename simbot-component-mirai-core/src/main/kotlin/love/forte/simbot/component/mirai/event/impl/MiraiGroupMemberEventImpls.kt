@@ -31,33 +31,33 @@ import kotlin.time.*
 import kotlin.time.Duration.Companion.seconds
 
 
-internal abstract class BaseMiraiGroupMemberEvent<E : NativeMiraiGroupMemberEvent>(
+internal abstract class BaseMiraiGroupMemberEvent<E : OriginalMiraiGroupMemberEvent>(
     final override val bot: MiraiBotImpl,
-    final override val nativeEvent: E
+    final override val originalEvent: E
 ) : MiraiGroupMemberEvent<E> {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
-    final override val group = nativeEvent.group.asSimbot(bot)
-    override val member: MiraiMember = nativeEvent.member.asSimbot(bot, group)
+    final override val group = originalEvent.group.asSimbot(bot)
+    override val member: MiraiMember = originalEvent.member.asSimbot(bot, group)
 }
 
 
 internal class MiraiGroupTalkativeChangeEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiGroupTalkativeChangeEvent
+    override val originalEvent: OriginalMiraiGroupTalkativeChangeEvent
 ) : MiraiGroupTalkativeChangeEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val group = nativeEvent.group.asSimbot(bot)
-    override val before: MiraiMember = nativeEvent.previous.asSimbot(bot, group)
-    override val after: MiraiMember = nativeEvent.now.asSimbot(bot, group)
+    override val group = originalEvent.group.asSimbot(bot)
+    override val before: MiraiMember = originalEvent.previous.asSimbot(bot, group)
+    override val after: MiraiMember = originalEvent.now.asSimbot(bot, group)
 }
 
 @OptIn(MiraiExperimentalApi::class)
 internal class MiraiMemberHonorChangeEventImpl(
     bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiMemberHonorChangeEvent
-) : BaseMiraiGroupMemberEvent<NativeMiraiMemberHonorChangeEvent>(bot, nativeEvent), MiraiMemberHonorChangeEvent {
+    nativeEvent: OriginalMiraiMemberHonorChangeEvent
+) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberHonorChangeEvent>(bot, nativeEvent), MiraiMemberHonorChangeEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
     override val honorType: GroupHonorType = nativeEvent.honorType
@@ -70,16 +70,16 @@ internal class MiraiMemberHonorChangeEventImpl(
 
 internal class MiraiMemberUnmuteEventImpl(
     bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiMemberUnmuteEvent
-) : BaseMiraiGroupMemberEvent<NativeMiraiMemberUnmuteEvent>(bot, nativeEvent), MiraiMemberUnmuteEvent {
+    nativeEvent: OriginalMiraiMemberUnmuteEvent
+) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberUnmuteEvent>(bot, nativeEvent), MiraiMemberUnmuteEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
 }
 
 internal class MiraiMemberMuteEventImpl(
     bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiMemberMuteEvent
-) : BaseMiraiGroupMemberEvent<NativeMiraiMemberMuteEvent>(bot, nativeEvent), MiraiMemberMuteEvent {
+    nativeEvent: OriginalMiraiMemberMuteEvent
+) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberMuteEvent>(bot, nativeEvent), MiraiMemberMuteEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
     override val durationSeconds: Int = nativeEvent.durationSeconds
@@ -89,8 +89,8 @@ internal class MiraiMemberMuteEventImpl(
 
 internal class MiraiMemberRoleChangeEventImpl(
     bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiMemberPermissionChangeEvent
-) : BaseMiraiGroupMemberEvent<NativeMiraiMemberPermissionChangeEvent>(bot, nativeEvent),
+    nativeEvent: OriginalMiraiMemberPermissionChangeEvent
+) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberPermissionChangeEvent>(bot, nativeEvent),
     MiraiMemberRoleChangeEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
@@ -100,8 +100,8 @@ internal class MiraiMemberRoleChangeEventImpl(
 
 internal class MiraiMemberSpecialTitleChangeEventImpl(
     bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiMemberSpecialTitleChangeEvent
-) : BaseMiraiGroupMemberEvent<NativeMiraiMemberSpecialTitleChangeEvent>(bot, nativeEvent),
+    nativeEvent: OriginalMiraiMemberSpecialTitleChangeEvent
+) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberSpecialTitleChangeEvent>(bot, nativeEvent),
     MiraiMemberSpecialTitleChangeEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
@@ -120,8 +120,8 @@ internal class MiraiMemberSpecialTitleChangeEventImpl(
 
 internal class MiraiMemberCardChangeEventImpl(
     bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiMemberCardChangeEvent
-) : BaseMiraiGroupMemberEvent<NativeMiraiMemberCardChangeEvent>(bot, nativeEvent), MiraiMemberCardChangeEvent {
+    nativeEvent: OriginalMiraiMemberCardChangeEvent
+) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberCardChangeEvent>(bot, nativeEvent), MiraiMemberCardChangeEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
     override val before: String = nativeEvent.origin
@@ -130,27 +130,27 @@ internal class MiraiMemberCardChangeEventImpl(
 
 internal class MiraiMemberJoinRequestEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiMemberJoinRequestEvent
+    override val originalEvent: OriginalMiraiMemberJoinRequestEvent
 ) : MiraiMemberJoinRequestEvent {
-    override val id: ID = nativeEvent.eventId.ID
+    override val id: ID = originalEvent.eventId.ID
     override val timestamp: Timestamp = Timestamp.now()
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.INTERNAL
     override val type: RequestEvent.Type =
-        if (nativeEvent.invitorId == null) RequestEvent.Type.APPLICATION
+        if (originalEvent.invitorId == null) RequestEvent.Type.APPLICATION
         else RequestEvent.Type.INVITATION
 
-    override val group = nativeEvent.group?.asSimbot(bot)
-        ?: GroupInfoImpl(nativeEvent.groupId, nativeEvent.groupName)
+    override val group = originalEvent.group?.asSimbot(bot)
+        ?: GroupInfoImpl(originalEvent.groupId, originalEvent.groupName)
 
-    override val inviter: RequestMemberInviterInfo? = nativeEvent.invitorId?.let { id ->
-        RequestMemberInviterInfo(id.ID, nativeEvent.invitor?.let { m ->
+    override val inviter: RequestMemberInviterInfo? = originalEvent.invitorId?.let { id ->
+        RequestMemberInviterInfo(id.ID, originalEvent.invitor?.let { m ->
             if (group is MiraiGroupImpl) m.asSimbot(bot, group) else m.asSimbot(bot)
         })
     }
-    override val message: String = nativeEvent.message
+    override val message: String = originalEvent.message
     override val requester: RequestMemberInfo = RequestMemberInfo(
-        nativeEvent.fromId.ID, nativeEvent.groupId,
-        nativeEvent.groupName, nativeEvent.fromNick
+        originalEvent.fromId.ID, originalEvent.groupId,
+        originalEvent.groupName, originalEvent.fromNick
     )
 
     private data class GroupInfoImpl(
@@ -176,8 +176,8 @@ internal class MiraiMemberJoinRequestEventImpl(
 
 internal class MiraiMemberLeaveEventImpl(
     bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiMemberLeaveEvent
-) : BaseMiraiGroupMemberEvent<NativeMiraiMemberLeaveEvent>(bot, nativeEvent), MiraiMemberLeaveEvent {
+    nativeEvent: OriginalMiraiMemberLeaveEvent
+) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberLeaveEvent>(bot, nativeEvent), MiraiMemberLeaveEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.INTERNAL
@@ -190,8 +190,8 @@ internal class MiraiMemberLeaveEventImpl(
 
 internal class MiraiMemberJoinEventImpl(
     bot: MiraiBotImpl,
-    nativeEvent: NativeMiraiMemberJoinEvent
-) : BaseMiraiGroupMemberEvent<NativeMiraiMemberJoinEvent>(bot, nativeEvent), MiraiMemberJoinEvent {
+    nativeEvent: OriginalMiraiMemberJoinEvent
+) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberJoinEvent>(bot, nativeEvent), MiraiMemberJoinEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.INTERNAL

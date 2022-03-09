@@ -30,14 +30,14 @@ import kotlin.reflect.*
 /**
  * Mirai的原生图片类型 [net.mamoe.mirai.message.data.Audio]
  */
-public typealias NativeMiraiAudio = net.mamoe.mirai.message.data.Audio
+public typealias OriginalMiraiAudio = Audio
 
 
 @SerialName("mirai.sendOnlyAudio")
 @Serializable
 public class MiraiSendOnlyAudio(
     private val resource: Resource
-) : MiraiSendOnlyComputableSimbotMessage<MiraiSendOnlyAudio> {
+) : MiraiSendOnlyComputableMessage<MiraiSendOnlyAudio> {
 
     override val key: Message.Key<MiraiSendOnlyAudio>
         get() = Key
@@ -52,7 +52,7 @@ public class MiraiSendOnlyAudio(
     override fun hashCode(): Int = resource.hashCode()
 
     @JvmSynthetic
-    override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage {
+    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
         return resource.openStream().use {
             if (contact is AudioSupported) {
                 it.toExternalResource().use { external ->
@@ -75,37 +75,37 @@ public class MiraiSendOnlyAudio(
 
 
 /**
- * 将一个 [NativeMiraiAudio] 作为 simbot的 [love.forte.simbot.message.Message.Element] 进行使用。
+ * 将一个 [OriginalMiraiAudio] 作为 simbot的 [love.forte.simbot.message.Message.Element] 进行使用。
  *
  * @author ForteScarlet
  *
- * @see NativeMiraiAudio
+ * @see OriginalMiraiAudio
  * @see MiraiAudio.of
  */
-public interface MiraiAudio : MiraiNativeComputableSimbotMessage<MiraiAudio> {
+public interface MiraiAudio : OriginalMiraiComputableSimbotMessage<MiraiAudio> {
 
     /**
-     * Mirai的原生 [NativeMiraiAudio] 对象实例。
+     * Mirai的原生 [OriginalMiraiAudio] 对象实例。
      */
-    public val nativeAudio: NativeMiraiAudio
+    public val originalAudio: OriginalMiraiAudio
 
-    public val filename: String get() = nativeAudio.filename
-    public val fileMd5: ByteArray get() = nativeAudio.fileMd5
-    public val fileSize: Long get() = nativeAudio.fileSize
+    public val filename: String get() = originalAudio.filename
+    public val fileMd5: ByteArray get() = originalAudio.fileMd5
+    public val fileSize: Long get() = originalAudio.fileSize
 
-    public val codec: AudioCodec get() = nativeAudio.codec
-    public val extraData: ByteArray? get() = nativeAudio.extraData
+    public val codec: AudioCodec get() = originalAudio.codec
+    public val extraData: ByteArray? get() = originalAudio.extraData
 
     @JvmSynthetic
-    override suspend fun nativeMiraiMessage(contact: Contact): NativeMiraiMessage = nativeAudio
+    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage = originalAudio
 
     public companion object Key : Message.Key<MiraiAudio> {
 
         /**
-         * 将一个 [NativeMiraiAudio] 转化为 [MiraiAudio].
+         * 将一个 [OriginalMiraiAudio] 转化为 [MiraiAudio].
          */
         @JvmStatic
-        public fun of(nativeAudio: NativeMiraiAudio): MiraiAudio {
+        public fun of(nativeAudio: OriginalMiraiAudio): MiraiAudio {
             return MiraiAudioImpl(nativeAudio)
         }
 
@@ -121,7 +121,7 @@ public interface MiraiAudio : MiraiNativeComputableSimbotMessage<MiraiAudio> {
 @SerialName("mirai.audio")
 @Serializable
 internal class MiraiAudioImpl(
-    override val nativeAudio: NativeMiraiAudio
+    override val originalAudio: OriginalMiraiAudio
 ) : MiraiAudio {
     override val key: Message.Key<MiraiAudio>
         get() = MiraiAudio.Key
@@ -129,12 +129,12 @@ internal class MiraiAudioImpl(
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is MiraiAudio) return false
-        return nativeAudio == other.nativeAudio
+        return originalAudio == other.originalAudio
     }
 
-    override fun toString(): String = nativeAudio.toString()
-    override fun hashCode(): Int = nativeAudio.hashCode()
+    override fun toString(): String = originalAudio.toString()
+    override fun hashCode(): Int = originalAudio.hashCode()
 }
 
 
-public fun NativeMiraiAudio.asSimbot(): MiraiAudio = MiraiAudio.of(this)
+public fun OriginalMiraiAudio.asSimbot(): MiraiAudio = MiraiAudio.of(this)

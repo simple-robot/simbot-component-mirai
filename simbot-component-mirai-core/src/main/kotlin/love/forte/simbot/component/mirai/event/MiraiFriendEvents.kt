@@ -27,38 +27,38 @@ import love.forte.simbot.message.*
 /**
  * @see net.mamoe.mirai.event.events.FriendEvent
  */
-public typealias NativeMiraiFriendEvent = net.mamoe.mirai.event.events.FriendEvent
+public typealias OriginalMiraiFriendEvent = net.mamoe.mirai.event.events.FriendEvent
 /**
  * @see net.mamoe.mirai.event.events.FriendRemarkChangeEvent
  */
-public typealias NativeMiraiFriendRemarkChangeEvent = net.mamoe.mirai.event.events.FriendRemarkChangeEvent
+public typealias OriginalMiraiFriendRemarkChangeEvent = net.mamoe.mirai.event.events.FriendRemarkChangeEvent
 /**
  * @see net.mamoe.mirai.event.events.FriendAddEvent
  */
-public typealias NativeMiraiFriendAddEvent = net.mamoe.mirai.event.events.FriendAddEvent
-public typealias NativeMiraiFriendIncreaseEvent = NativeMiraiFriendAddEvent
+public typealias OriginalMiraiFriendAddEvent = net.mamoe.mirai.event.events.FriendAddEvent
+public typealias OriginalMiraiFriendIncreaseEvent = OriginalMiraiFriendAddEvent
 /**
  * @see net.mamoe.mirai.event.events.FriendDeleteEvent
  */
-public typealias NativeMiraiFriendDeleteEvent = net.mamoe.mirai.event.events.FriendDeleteEvent
-public typealias NativeMiraiFriendDecreaseEvent = NativeMiraiFriendDeleteEvent
+public typealias OriginalMiraiFriendDeleteEvent = net.mamoe.mirai.event.events.FriendDeleteEvent
+public typealias OriginalMiraiFriendDecreaseEvent = OriginalMiraiFriendDeleteEvent
 /**
  * @see net.mamoe.mirai.event.events.NewFriendRequestEvent
  */
-public typealias NativeMiraiNewFriendRequestEvent = net.mamoe.mirai.event.events.NewFriendRequestEvent
-public typealias NativeMiraiFriendRequestEvent = NativeMiraiNewFriendRequestEvent
+public typealias OriginalMiraiNewFriendRequestEvent = net.mamoe.mirai.event.events.NewFriendRequestEvent
+public typealias OriginalMiraiFriendRequestEvent = OriginalMiraiNewFriendRequestEvent
 /**
  * @see net.mamoe.mirai.event.events.FriendAvatarChangedEvent
  */
-public typealias NativeMiraiFriendAvatarChangedEvent = net.mamoe.mirai.event.events.FriendAvatarChangedEvent
+public typealias OriginalMiraiFriendAvatarChangedEvent = net.mamoe.mirai.event.events.FriendAvatarChangedEvent
 /**
  * @see net.mamoe.mirai.event.events.FriendNickChangedEvent
  */
-public typealias NativeMiraiFriendNickChangedEvent = net.mamoe.mirai.event.events.FriendNickChangedEvent
+public typealias OriginalMiraiFriendNickChangedEvent = net.mamoe.mirai.event.events.FriendNickChangedEvent
 /**
  * @see net.mamoe.mirai.event.events.FriendInputStatusChangedEvent
  */
-public typealias NativeMiraiFriendInputStatusChangedEvent = net.mamoe.mirai.event.events.FriendInputStatusChangedEvent
+public typealias OriginalMiraiFriendInputStatusChangedEvent = net.mamoe.mirai.event.events.FriendInputStatusChangedEvent
 
 
 /**
@@ -70,16 +70,16 @@ public typealias NativeMiraiFriendInputStatusChangedEvent = net.mamoe.mirai.even
  * @author ForteScarlet
  *
  * @see MiraiSimbotBotEvent
- * @see NativeMiraiFriendEvent
- * @see NativeMiraiFriendRemarkChangeEvent
- * @see NativeMiraiFriendAddEvent
- * @see NativeMiraiFriendDeleteEvent
- * @see NativeMiraiNewFriendRequestEvent
- * @see NativeMiraiFriendAvatarChangedEvent
- * @see NativeMiraiFriendNickChangedEvent
- * @see NativeMiraiFriendInputStatusChangedEvent
+ * @see OriginalMiraiFriendEvent
+ * @see OriginalMiraiFriendRemarkChangeEvent
+ * @see OriginalMiraiFriendAddEvent
+ * @see OriginalMiraiFriendDeleteEvent
+ * @see OriginalMiraiNewFriendRequestEvent
+ * @see OriginalMiraiFriendAvatarChangedEvent
+ * @see OriginalMiraiFriendNickChangedEvent
+ * @see OriginalMiraiFriendInputStatusChangedEvent
  */
-public interface MiraiFriendEvent<E : NativeMiraiFriendEvent> :
+public interface MiraiFriendEvent<E : OriginalMiraiFriendEvent> :
     MiraiSimbotBotEvent<E>, FriendEvent {
 
     override val bot: MiraiBot
@@ -118,10 +118,10 @@ public interface MiraiFriendEvent<E : NativeMiraiFriendEvent> :
  *
  * [MiraiFriendRemarkChangeEvent] 事件属于一个 [已变更事件][ChangedEvent], 变更前后的类型为 [String], 变更源为 [MiraiFriend].
  *
- * @see NativeMiraiFriendRemarkChangeEvent
+ * @see OriginalMiraiFriendRemarkChangeEvent
  */
 public interface MiraiFriendRemarkChangeEvent :
-    MiraiFriendEvent<NativeMiraiFriendRemarkChangeEvent>,
+    MiraiFriendEvent<OriginalMiraiFriendRemarkChangeEvent>,
     ChangedEvent<MiraiFriend, String, String> {
 
     /**
@@ -155,11 +155,11 @@ public interface MiraiFriendRemarkChangeEvent :
 /**
  * 好友 **已经** 增加事件。
  *
- * @see NativeMiraiFriendAddEvent
+ * @see OriginalMiraiFriendAddEvent
  * @see MiraiFriendRequestEvent
  */
 public interface MiraiFriendIncreaseEvent :
-    MiraiFriendEvent<NativeMiraiFriendAddEvent>, FriendIncreaseEvent {
+    MiraiFriendEvent<OriginalMiraiFriendAddEvent>, FriendIncreaseEvent {
     override val bot: MiraiBot
 
     @OptIn(Api4J::class)
@@ -200,10 +200,10 @@ public interface MiraiFriendIncreaseEvent :
 /**
  * 好友删除（减少）事件.
  *
- * @see NativeMiraiFriendDeleteEvent
+ * @see OriginalMiraiFriendDeleteEvent
  * @see FriendDecreaseEvent
  */
-public interface MiraiFriendDecreaseEvent : MiraiFriendEvent<NativeMiraiFriendDeleteEvent>, FriendDecreaseEvent {
+public interface MiraiFriendDecreaseEvent : MiraiFriendEvent<OriginalMiraiFriendDeleteEvent>, FriendDecreaseEvent {
     override val bot: MiraiBot
 
     @OptIn(Api4J::class)
@@ -253,11 +253,11 @@ public interface MiraiFriendDecreaseEvent : MiraiFriendEvent<NativeMiraiFriendDe
  *
  * 无法得到修改前的头像信息，因此 [before] 将为null。
  *
- * @see  NativeMiraiFriendAvatarChangedEvent
+ * @see  OriginalMiraiFriendAvatarChangedEvent
  * @see ChangedEvent
  */
 public interface MiraiFriendAvatarChangedEvent :
-    MiraiFriendEvent<NativeMiraiFriendAvatarChangedEvent>,
+    MiraiFriendEvent<OriginalMiraiFriendAvatarChangedEvent>,
     ChangedEvent<MiraiFriend, String?, String> {
 
 
@@ -295,11 +295,11 @@ public interface MiraiFriendAvatarChangedEvent :
 /**
  * 好友昵称变更事件。是已经更改完成的事件。
  *
- * @see NativeMiraiFriendNickChangedEvent
+ * @see OriginalMiraiFriendNickChangedEvent
  * @see ChangedEvent
  */
 public interface MiraiFriendNickChangedEvent :
-    MiraiFriendEvent<NativeMiraiFriendNickChangedEvent>,
+    MiraiFriendEvent<OriginalMiraiFriendNickChangedEvent>,
     ChangedEvent<MiraiFriend, String, String> {
 
     override val bot: MiraiBot
@@ -337,11 +337,11 @@ public interface MiraiFriendNickChangedEvent :
  *
  * 好友输入状态变更的事件。变更主体 [before] 和 [after] 代表了当前事件所代表的好友是否是"正在输入"状态。
  *
- * @see NativeMiraiFriendInputStatusChangedEvent
+ * @see OriginalMiraiFriendInputStatusChangedEvent
  * @see ChangedEvent
  */
 public interface MiraiFriendInputStatusChangedEvent :
-    MiraiFriendEvent<NativeMiraiFriendInputStatusChangedEvent>,
+    MiraiFriendEvent<OriginalMiraiFriendInputStatusChangedEvent>,
     ChangedEvent<MiraiFriend, Boolean, Boolean> {
 
     override val bot: MiraiBot
@@ -377,11 +377,11 @@ public interface MiraiFriendInputStatusChangedEvent :
 /**
  * 一个好友添加申请。
  *
- * @see NativeMiraiNewFriendRequestEvent
+ * @see OriginalMiraiNewFriendRequestEvent
  * @see FriendAddRequestEvent
  */
 public interface MiraiFriendRequestEvent :
-    MiraiSimbotBotEvent<NativeMiraiNewFriendRequestEvent>,
+    MiraiSimbotBotEvent<OriginalMiraiNewFriendRequestEvent>,
     FriendAddRequestEvent {
 
     override val bot: MiraiBot
@@ -396,7 +396,7 @@ public interface MiraiFriendRequestEvent :
     @OptIn(ExperimentalSimbotApi::class)
     @JvmSynthetic
     override suspend fun accept(): Boolean {
-        nativeEvent.accept()
+        originalEvent.accept()
         return true
     }
 
@@ -406,7 +406,7 @@ public interface MiraiFriendRequestEvent :
      */
     @JvmSynthetic
     public suspend fun reject(blockList: Boolean): Boolean {
-        nativeEvent.reject(blockList)
+        originalEvent.reject(blockList)
         return true
     }
 

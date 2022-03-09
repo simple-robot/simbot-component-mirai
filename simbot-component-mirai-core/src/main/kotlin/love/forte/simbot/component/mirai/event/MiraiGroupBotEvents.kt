@@ -30,33 +30,33 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * @see net.mamoe.mirai.event.events.BotLeaveEvent
  */
-public typealias NativeMiraiBotLeaveEvent = net.mamoe.mirai.event.events.BotLeaveEvent
+public typealias OriginalMiraiBotLeaveEvent = net.mamoe.mirai.event.events.BotLeaveEvent
 /**
  * @see net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent
  */
-public typealias NativeMiraiBotGroupPermissionChangeEvent = net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent
+public typealias OriginalMiraiBotGroupPermissionChangeEvent = net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent
 /**
  * @see net.mamoe.mirai.event.events.BotMuteEvent
  */
-public typealias NativeMiraiBotMuteEvent = net.mamoe.mirai.event.events.BotMuteEvent
+public typealias OriginalMiraiBotMuteEvent = net.mamoe.mirai.event.events.BotMuteEvent
 /**
  * @see net.mamoe.mirai.event.events.BotUnmuteEvent
  */
-public typealias NativeMiraiBotUnmuteEvent = net.mamoe.mirai.event.events.BotUnmuteEvent
+public typealias OriginalMiraiBotUnmuteEvent = net.mamoe.mirai.event.events.BotUnmuteEvent
 /**
  * @see net.mamoe.mirai.event.events.BotJoinGroupEvent
  */
-public typealias NativeMiraiBotJoinGroupEvent = net.mamoe.mirai.event.events.BotJoinGroupEvent
+public typealias OriginalMiraiBotJoinGroupEvent = net.mamoe.mirai.event.events.BotJoinGroupEvent
 
 /**
  * @see net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent
  */
-public typealias NativeMiraiBotInvitedJoinGroupRequestEvent = net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent
+public typealias OriginalMiraiBotInvitedJoinGroupRequestEvent = net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent
 //endregion
 
 
 /**
- * simbot中与 [NativeMiraiGroupEvent] 相关的事件中，与 bot 相关的事件。
+ * simbot中与 [OriginalMiraiGroupEvent] 相关的事件中，与 bot 相关的事件。
  *
  * 一般代表了在 `net.mamoe.mirai.event.events.group.kt` 中与 bot 有直接关系的事件，比较简单的判断标准为这个mirai事件是否为 `Bot` 开头的。
  *
@@ -69,7 +69,7 @@ public typealias NativeMiraiBotInvitedJoinGroupRequestEvent = net.mamoe.mirai.ev
  * @see MiraiBotJoinGroupEvent
  * @see MiraiBotInvitedJoinGroupRequestEvent
  */
-public interface MiraiGroupBotEvent<E : NativeMiraiGroupEvent> :
+public interface MiraiGroupBotEvent<E : OriginalMiraiGroupEvent> :
     MiraiSimbotBotEvent<E>, GroupEvent {
 
     override val key: Event.Key<out MiraiGroupBotEvent<*>>
@@ -104,11 +104,11 @@ public interface MiraiGroupBotEvent<E : NativeMiraiGroupEvent> :
  *
  * 此事件属于一个 [群成员减少事件][MemberDecreaseEvent], 减少的这个成员便是bot自己。
  *
- * @see NativeMiraiBotLeaveEvent
+ * @see OriginalMiraiBotLeaveEvent
  * @see MemberDecreaseEvent
  */
 public interface MiraiBotLeaveEvent :
-    MiraiGroupBotEvent<NativeMiraiBotLeaveEvent>,
+    MiraiGroupBotEvent<OriginalMiraiBotLeaveEvent>,
     MemberDecreaseEvent {
     override val bot: MiraiBot
     override val group: MiraiGroup
@@ -159,10 +159,10 @@ public interface MiraiBotLeaveEvent :
  * 此事件属于一个 [已变动事件][ChangedEvent], [变动源][source] 即当前bot，
  * 变动前后为bot在群里的权限。
  *
- * @see NativeMiraiBotGroupPermissionChangeEvent
+ * @see OriginalMiraiBotGroupPermissionChangeEvent
  */
 public interface MiraiBotGroupRoleChangeEvent :
-    MiraiGroupBotEvent<NativeMiraiBotGroupPermissionChangeEvent>,
+    MiraiGroupBotEvent<OriginalMiraiBotGroupPermissionChangeEvent>,
     ChangedEvent<MiraiBot, MemberRole, MemberRole> {
     override val bot: MiraiBot
     override val group: MiraiGroup
@@ -202,7 +202,7 @@ public interface MiraiBotGroupRoleChangeEvent :
  * @see MiraiBotMuteEvent
  * @see MiraiBotUnmuteEvent
  */
-public sealed interface MiraiBotMuteRelateEvent<E : NativeMiraiGroupEvent> :
+public sealed interface MiraiBotMuteRelateEvent<E : OriginalMiraiGroupEvent> :
     MiraiGroupBotEvent<E>,
     ChangedEvent<MiraiGroup, Boolean, Boolean> {
 
@@ -258,10 +258,10 @@ public sealed interface MiraiBotMuteRelateEvent<E : NativeMiraiGroupEvent> :
  *
  * 额外提供了 [duration] 属性来代表禁言的持续时间。
  *
- * @see NativeMiraiBotMuteEvent
+ * @see OriginalMiraiBotMuteEvent
  */
 public interface MiraiBotMuteEvent :
-    MiraiGroupBotEvent<NativeMiraiBotMuteEvent>, MiraiBotMuteRelateEvent<NativeMiraiBotMuteEvent> {
+    MiraiGroupBotEvent<OriginalMiraiBotMuteEvent>, MiraiBotMuteRelateEvent<OriginalMiraiBotMuteEvent> {
     override val duration: Duration
     override val durationSeconds: Int
     //// Impl
@@ -283,11 +283,11 @@ public interface MiraiBotMuteEvent :
  *
  * 属于一个变化事件 [ChangedEvent], 其类型代表事件前后的禁言状态。
  * [before] 永远为true，[after] 永远为false。
- * @see NativeMiraiBotUnmuteEvent
+ * @see OriginalMiraiBotUnmuteEvent
  */
 public interface MiraiBotUnmuteEvent :
-    MiraiGroupBotEvent<NativeMiraiBotUnmuteEvent>,
-    MiraiBotMuteRelateEvent<NativeMiraiBotUnmuteEvent> {
+    MiraiGroupBotEvent<OriginalMiraiBotUnmuteEvent>,
+    MiraiBotMuteRelateEvent<OriginalMiraiBotUnmuteEvent> {
     override val duration: Duration get() = 0.seconds
     override val durationSeconds: Int get() = 0
 
@@ -312,10 +312,10 @@ public interface MiraiBotUnmuteEvent :
  * Bot 成功加入了一个新群.
  *
  * 此事件属于 [MemberIncreaseEvent], 这个增加的成员即bot自身。
- * @see NativeMiraiBotJoinGroupEvent
+ * @see OriginalMiraiBotJoinGroupEvent
  */
 public interface MiraiBotJoinGroupEvent :
-    MiraiGroupBotEvent<NativeMiraiBotJoinGroupEvent>,
+    MiraiGroupBotEvent<OriginalMiraiBotJoinGroupEvent>,
     MemberIncreaseEvent {
     override val bot: MiraiBot
     override val group: MiraiGroup
@@ -376,13 +376,13 @@ public interface MiraiBotJoinGroupEvent :
  * Bot 被邀请加入一个群事件。
  *
  * [MiraiBotInvitedJoinGroupRequestEvent] 在含义上类似于 [MiraiGroupBotEvent],
- * 但是 [NativeMiraiBotInvitedJoinGroupRequestEvent] 不属于 [NativeMiraiGroupEvent], 因此当前事件类型不属于 [MiraiGroupBotEvent].
+ * 但是 [OriginalMiraiBotInvitedJoinGroupRequestEvent] 不属于 [OriginalMiraiGroupEvent], 因此当前事件类型不属于 [MiraiGroupBotEvent].
  *
  *
- * @see NativeMiraiBotInvitedJoinGroupRequestEvent
+ * @see OriginalMiraiBotInvitedJoinGroupRequestEvent
  */
 public interface MiraiBotInvitedJoinGroupRequestEvent :
-    MiraiSimbotBotEvent<NativeMiraiBotInvitedJoinGroupRequestEvent>,
+    MiraiSimbotBotEvent<OriginalMiraiBotInvitedJoinGroupRequestEvent>,
     GroupJoinRequestEvent {
     override val bot: MiraiBot
 
@@ -430,19 +430,19 @@ public interface MiraiBotInvitedJoinGroupRequestEvent :
     @ExperimentalSimbotApi
     @JvmSynthetic
     override suspend fun accept(): Boolean {
-        nativeEvent.accept()
+        originalEvent.accept()
         return true
     }
 
     /**
      * 拒绝即代表忽略。
      *
-     * @see NativeMiraiBotInvitedJoinGroupRequestEvent
+     * @see OriginalMiraiBotInvitedJoinGroupRequestEvent
      */
     @ExperimentalSimbotApi
     @JvmSynthetic
     override suspend fun reject(): Boolean {
-        nativeEvent.ignore()
+        originalEvent.ignore()
         return true
     }
 
@@ -459,12 +459,12 @@ public interface MiraiBotInvitedJoinGroupRequestEvent :
 /**
  * [MiraiBotInvitedJoinGroupRequestEvent] 事件中的邀请人信息。
  *
- * 由于 [NativeMiraiBotInvitedJoinGroupRequestEvent] 没有直接提供用户对象，
- * 因此不能保证一定能够获取到 [nativeInvitor] 实例。
+ * 由于 [OriginalMiraiBotInvitedJoinGroupRequestEvent] 没有直接提供用户对象，
+ * 因此不能保证一定能够获取到 [originalInvitor] 实例。
  *
  */
 public data class InvitorUserInfo(
-    public val nativeInvitor: NativeMiraiUser?,
+    public val originalInvitor: OriginalMiraiUser?,
     private val invitorId: Long,
     private val invitorNick: String,
 ) : UserInfo {

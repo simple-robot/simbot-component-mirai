@@ -28,11 +28,11 @@ import love.forte.simbot.component.mirai.internal.*
  */
 internal class MiraiGroupTempMessagePostSendEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiGroupTempMessagePostSendEvent
+    override val originalEvent: OriginalMiraiGroupTempMessagePostSendEvent
 ) : MiraiGroupTempMessagePostSendEvent {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
-    override val messageContent: MiraiReceivedMessageContent = nativeEvent.message.toSimbotMessageContent()
-    override val group = nativeEvent.group.asSimbot(bot)
-    override val member: MiraiMember = nativeEvent.target.asSimbot(bot)
+    override val messageContent: MiraiReceivedMessageContent = originalEvent.message.toSimbotMessageContent()
+    override val group = originalEvent.group.asSimbot(bot)
+    override val member: MiraiMember = originalEvent.target.asSimbot(bot)
 }

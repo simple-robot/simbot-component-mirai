@@ -25,7 +25,6 @@ import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.event.MiraiMessageMetadata.Companion.of
 import love.forte.simbot.component.mirai.message.*
 import love.forte.simbot.message.*
-import love.forte.simbot.message.Message
 import net.mamoe.mirai.message.data.*
 
 
@@ -35,26 +34,26 @@ import net.mamoe.mirai.message.data.*
 @Suppress("MemberVisibilityCanBePrivate")
 public open class MiraiReceivedMessageContent internal constructor(
     @Suppress("CanBeParameter")
-    public val nativeMessageChain: MessageChain,
+    public val originalMessageChain: MessageChain,
     public val messageSource: MessageSource
 ) : ReceivedMessageContent() {
 
     override val messages: Messages by lazy(
         LazyThreadSafetyMode.PUBLICATION,
         // 消息链中不追加source. 如果需要, 使用 [nativeMessageChain] 或者 [messageSource]
-        nativeMessageChain.filter { it !is MessageSource }.map(SingleMessage::asSimbotMessage)::toMessages
+        originalMessageChain.filter { it !is MessageSource }.map(SingleMessage::asSimbotMessage)::toMessages
     )
 
     override val messageId: ID by lazy(LazyThreadSafetyMode.PUBLICATION) { messageSource.ID }
     // public val metadata: MiraiMessageMetadata = miraiMessageMetadata(messageSource)
 
-    override fun toString(): String = "MiraiReceivedMessageContent(content=$nativeMessageChain)"
+    override fun toString(): String = "MiraiReceivedMessageContent(content=$originalMessageChain)"
 }
 
 internal fun MessageChain.toSimbotMessageContent(): MiraiReceivedMessageContent =
     MiraiReceivedMessageContent(this, this.source)
 
-internal fun NativeMiraiMessageEvent.toSimbotMessageContent(): MiraiReceivedMessageContent =
+internal fun OriginalMiraiMessageEvent.toSimbotMessageContent(): MiraiReceivedMessageContent =
     this.message.toSimbotMessageContent()
 
 /**

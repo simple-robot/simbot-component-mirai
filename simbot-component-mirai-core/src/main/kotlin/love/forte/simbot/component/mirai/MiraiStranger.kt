@@ -23,7 +23,7 @@ import love.forte.simbot.definition.*
 /**
  * @see net.mamoe.mirai.contact.Stranger
  */
-public typealias NativeMiraiStranger = net.mamoe.mirai.contact.Stranger
+public typealias OriginalMiraiStranger = net.mamoe.mirai.contact.Stranger
 
 /**
  *
@@ -33,16 +33,16 @@ public typealias NativeMiraiStranger = net.mamoe.mirai.contact.Stranger
 public interface MiraiStranger : Contact, MiraiContact {
 
     override val bot: MiraiBot
-    override val nativeContact: NativeMiraiStranger
+    override val originalContact: OriginalMiraiStranger
 
     override val avatar: String
-        get() = nativeContact.avatarUrl
+        get() = originalContact.avatarUrl
 
     override val status: UserStatus
         get() = strangerStatus
 
     override val username: String
-        get() = nativeContact.nick
+        get() = originalContact.nick
 
 }
 

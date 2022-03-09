@@ -31,26 +31,26 @@ import love.forte.simbot.message.*
  */
 internal class MiraiMemberMessageEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiGroupTempMessageEvent
+    override val originalEvent: OriginalMiraiGroupTempMessageEvent
 ) : MiraiMemberMessageEvent {
     override val id: ID = randomID()
-    override val timestamp: Timestamp = Timestamp.bySecond(nativeEvent.time.toLong())
-    override val user: MiraiMember = nativeEvent.sender.asSimbot(bot)
-    override val messageContent: MiraiReceivedMessageContent = nativeEvent.toSimbotMessageContent()
+    override val timestamp: Timestamp = Timestamp.bySecond(originalEvent.time.toLong())
+    override val user: MiraiMember = originalEvent.sender.asSimbot(bot)
+    override val messageContent: MiraiReceivedMessageContent = originalEvent.toSimbotMessageContent()
 
 
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember> {
-        val miraiMessage = message.toNativeMiraiMessage(nativeEvent.sender)
-        val receipt = nativeEvent.sender.sendMessage(miraiMessage)
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
+        val miraiMessage = message.toOriginalMiraiMessage(originalEvent.sender)
+        val receipt = originalEvent.sender.sendMessage(miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember> {
-        val receipt = nativeEvent.sender.sendMessage(text)
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
+        val receipt = originalEvent.sender.sendMessage(text)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
 
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiMember> = reply(message)
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiMember> = reply(text)
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> = reply(message)
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> = reply(text)
 
 }

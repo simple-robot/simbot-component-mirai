@@ -39,7 +39,7 @@ import net.mamoe.mirai.message.data.At as MiraiAtFunc
  * @see net.mamoe.mirai.message.data.Message
  *
  */
-public typealias NativeMiraiMessage = net.mamoe.mirai.message.data.Message
+public typealias OriginalMiraiMessage = net.mamoe.mirai.message.data.Message
 
 
 /**
@@ -48,11 +48,11 @@ public typealias NativeMiraiMessage = net.mamoe.mirai.message.data.Message
  * @see net.mamoe.mirai.message.data.SingleMessage
  *
  */
-public typealias NativeMiraiSingleMessage = SingleMessage
+public typealias OriginalMiraiSingleMessage = SingleMessage
 
 
 @InternalApi
-public object EmptySingleMessage : NativeMiraiSingleMessage {
+public object EmptySingleMessage : OriginalMiraiSingleMessage {
     override fun contentToString(): String = "EmptySingleMessage"
     override fun toString(): String = "EmptySingleMessage()"
 
@@ -60,35 +60,35 @@ public object EmptySingleMessage : NativeMiraiSingleMessage {
 
 
 /**
- * 将一个mirai原生的 [NativeMiraiMessage] 转化为Simbot（simbot-mirai组件下）的 [Message].
+ * 将一个mirai原生的 [OriginalMiraiMessage] 转化为Simbot（simbot-mirai组件下）的 [Message].
  */
-public fun NativeMiraiSingleMessage.asSimbotMessage(): Message.Element<*> =
+public fun OriginalMiraiSingleMessage.asSimbotMessage(): Message.Element<*> =
     StandardParser.toSimbot(this)
 
 /**
  *
- * 提供一个 [NativeMiraiMessage] 的计算函数并作为 [Message] 使用。
+ * 提供一个 [OriginalMiraiMessage] 的计算函数并作为 [Message] 使用。
  *
  * **注意：通过此方式得到的 [Message] 不可参与序列化。 **
  *
- * @see SimpleMiraiSendOnlyComputableSimbotMessage
+ * @see SimpleMiraiSendOnlyComputableMessage
  */
-public fun simbotMessage(factory: (Contact) -> NativeMiraiMessage): Message =
-    SimpleMiraiSendOnlyComputableSimbotMessage(factory)
+public fun simbotMessage(factory: (Contact) -> OriginalMiraiMessage): Message =
+    SimpleMiraiSendOnlyComputableMessage(factory)
 
 
 /**
- * 将一个 [Message] 转化为 [NativeMiraiMessage] 以发送。
+ * 将一个 [Message] 转化为 [OriginalMiraiMessage] 以发送。
  */
 @OptIn(InternalApi::class)
-public suspend fun Message.toNativeMiraiMessage(contact: Contact): NativeMiraiMessage {
+public suspend fun Message.toOriginalMiraiMessage(contact: Contact): OriginalMiraiMessage {
     return when (this) {
-        is MiraiNativeDirectlySimbotMessage<*> -> nativeMiraiMessage.takeIf { it !== EmptySingleMessage }
+        is OriginalMiraiDirectlySimbotMessage<*> -> originalMiraiMessage.takeIf { it !== EmptySingleMessage }
             ?: EmptyMessageChain
-        is MiraiNativeComputableSimbotMessage<*> -> nativeMiraiMessage(contact).takeIf { it !== EmptySingleMessage }
+        is OriginalMiraiComputableSimbotMessage<*> -> originalMiraiMessage(contact).takeIf { it !== EmptySingleMessage }
             ?: EmptyMessageChain
         else -> {
-            val list = mutableListOf<NativeMiraiMessage>()
+            val list = mutableListOf<OriginalMiraiMessage>()
 
             if (this is Message.Element<*>) {
                 StandardParser.toMirai(this, contact, list)
@@ -114,7 +114,7 @@ internal interface MiraiMessageParser {
     suspend fun toMirai(
         message: Message.Element<*>,
         contact: Contact,
-        messages: MutableCollection<NativeMiraiMessage>
+        messages: MutableCollection<OriginalMiraiMessage>
     )
 
     fun toSimbot(
@@ -133,7 +133,7 @@ private object StandardParser : MiraiMessageParser {
     override suspend fun toMirai(
         message: Message.Element<*>,
         contact: Contact,
-        messages: MutableCollection<NativeMiraiMessage>
+        messages: MutableCollection<OriginalMiraiMessage>
     ) {
         when (message) {
             is StandardMessage<*> -> when (message) {
@@ -153,7 +153,7 @@ private object StandardParser : MiraiMessageParser {
                     // not support?
                 }
             }
-            is MiraiNativeComputableSimbotMessage<*> -> message.nativeMiraiMessage(contact)
+            is OriginalMiraiComputableSimbotMessage<*> -> message.originalMiraiMessage(contact)
                 .takeIf { it !== EmptySingleMessage }?.also(messages::add)
         }
     }
@@ -166,29 +166,29 @@ private object StandardParser : MiraiMessageParser {
             is net.mamoe.mirai.message.data.At -> At(message.target.ID)
             is net.mamoe.mirai.message.data.AtAll -> AtAll
             is net.mamoe.mirai.message.data.PlainText -> Text { message.content }
-            is NativeMiraiImage -> message.asSimbot()
-            is NativeMiraiFlashImage -> message.asSimbot()
-            is NativeMiraiAudio -> message.asSimbot()
+            is OriginalMiraiImage -> message.asSimbot()
+            is OriginalMiraiFlashImage -> message.asSimbot()
+            is OriginalMiraiAudio -> message.asSimbot()
             is net.mamoe.mirai.message.data.Face -> Face(message.id.ID)
 
             // other messages.
-            else -> SimbotNativeMiraiMessage(message)
+            else -> SimbotOriginalMiraiMessage(message)
         }
     }
 }
 
 
-private suspend fun love.forte.simbot.message.Image<*>.toMirai(contact: Contact): NativeMiraiMessage {
+private suspend fun love.forte.simbot.message.Image<*>.toMirai(contact: Contact): OriginalMiraiMessage {
     val id = id.literal
     if (id.isNotEmpty()) {
         return Image(id)
     }
 
-    val image: NativeMiraiImage = when (this) {
-        is MiraiImage -> nativeImage
-        is MiraiSendOnlyImage -> when (val ntImg = nativeMiraiMessage(contact)) {
-            is NativeMiraiImage -> ntImg
-            is NativeMiraiFlashImage -> ntImg.image
+    val image: OriginalMiraiImage = when (this) {
+        is MiraiImage -> originalImage
+        is MiraiSendOnlyImage -> when (val ntImg = originalMiraiMessage(contact)) {
+            is OriginalMiraiImage -> ntImg
+            is OriginalMiraiFlashImage -> ntImg.image
             else -> throw IllegalStateException("Can not resolve type of img content in MiraiSendOnlyImage")
         }
         else -> resource().use { r -> r.openStream().use { i -> contact.uploadImage(i) } }

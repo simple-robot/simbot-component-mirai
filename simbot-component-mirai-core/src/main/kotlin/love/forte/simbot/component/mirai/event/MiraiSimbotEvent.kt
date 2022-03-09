@@ -28,27 +28,27 @@ import love.forte.simbot.message.*
  *
  * @see net.mamoe.mirai.event.Event
  */
-public typealias NativeMiraiEvent = net.mamoe.mirai.event.Event
+public typealias OriginalMiraiEvent = net.mamoe.mirai.event.Event
 
 /**
  * Mirai的原生事件类型。
  *
  * @see net.mamoe.mirai.event.events.BotEvent
  */
-public typealias NativeMiraiBotEvent = net.mamoe.mirai.event.events.BotEvent
+public typealias OriginalMiraiBotEvent = net.mamoe.mirai.event.events.BotEvent
 /**
  * Mirai的原生事件类型。
  *
  * @see net.mamoe.mirai.event.events.GroupEvent
  */
-public typealias NativeMiraiGroupEvent = net.mamoe.mirai.event.events.GroupEvent
+public typealias OriginalMiraiGroupEvent = net.mamoe.mirai.event.events.GroupEvent
 
 /**
  * Mirai的原生事件类型。
  *
  * @see net.mamoe.mirai.event.events.MessageEvent
  */
-public typealias NativeMiraiMessageEvent = net.mamoe.mirai.event.events.MessageEvent
+public typealias OriginalMiraiMessageEvent = net.mamoe.mirai.event.events.MessageEvent
 
 
 /**
@@ -56,7 +56,7 @@ public typealias NativeMiraiMessageEvent = net.mamoe.mirai.event.events.MessageE
  *
  * @see net.mamoe.mirai.event.events.UserMessageEvent
  */
-public typealias NativeMiraiUserMessageEvent = net.mamoe.mirai.event.events.UserMessageEvent
+public typealias OriginalMiraiUserMessageEvent = net.mamoe.mirai.event.events.UserMessageEvent
 //endregion
 
 
@@ -81,9 +81,9 @@ public sealed interface MiraiEvent : Event {
     override val id: ID
 
     /**
-     * 原生的mirai事件对象
+     * 原始的mirai事件对象
      */
-    public val nativeEvent: NativeMiraiEvent
+    public val originalEvent: OriginalMiraiEvent
 
 
     public companion object Key : BaseEventKey<MiraiEvent>("mirai.root") {
@@ -95,17 +95,17 @@ public sealed interface MiraiEvent : Event {
  * Mirai在simbot中进行流转的标记接口。
  *
  * @see Event
- * @see NativeMiraiEvent
+ * @see OriginalMiraiEvent
  * @author ForteScarlet
  */
-public interface MiraiSimbotEvent<E : NativeMiraiEvent> : MiraiEvent {
+public interface MiraiSimbotEvent<E : OriginalMiraiEvent> : MiraiEvent {
 
     override val id: ID
 
     /**
      * 原生的mirai事件对象
      */
-    override val nativeEvent: E
+    override val originalEvent: E
 
 
     public companion object Key : BaseEventKey<MiraiSimbotBotEvent<*>>("mirai.event", MiraiEvent) {
@@ -116,11 +116,11 @@ public interface MiraiSimbotEvent<E : NativeMiraiEvent> : MiraiEvent {
 
 
 /**
- * 一切与 [NativeMiraiBotEvent] 相关的事件类型，也是simbot中主要使用的事件类型。
+ * 一切与 [OriginalMiraiBotEvent] 相关的事件类型，也是simbot中主要使用的事件类型。
  *
- * @see NativeMiraiEvent
+ * @see OriginalMiraiEvent
  */
-public interface MiraiSimbotBotEvent<E : NativeMiraiBotEvent> : MiraiSimbotEvent<E> {
+public interface MiraiSimbotBotEvent<E : OriginalMiraiBotEvent> : MiraiSimbotEvent<E> {
 
     /**
      * 事件中的bot对象。
@@ -135,9 +135,9 @@ public interface MiraiSimbotBotEvent<E : NativeMiraiBotEvent> : MiraiSimbotEvent
 }
 
 /**
- * 与mirai的 [NativeMiraiContact] 相关的事件。
+ * 与mirai的 [OriginalMiraiContact] 相关的事件。
  */
-public interface MiraiSimbotContactMessageEvent<E : NativeMiraiMessageEvent> :
+public interface MiraiSimbotContactMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
     ContactMessageEvent {
 
@@ -162,9 +162,9 @@ public interface MiraiSimbotContactMessageEvent<E : NativeMiraiMessageEvent> :
 }
 
 /**
- * 在 mirai [NativeMiraiContact] 下与 [love.forte.simbot.definition.Contact] 相关的事件。
+ * 在 mirai [OriginalMiraiContact] 下与 [love.forte.simbot.definition.Contact] 相关的事件。
  */
-public interface MiraiSimbotUserMessageEvent<E : NativeMiraiMessageEvent> :
+public interface MiraiSimbotUserMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotContactMessageEvent<E> {
 
     /**
@@ -185,9 +185,9 @@ public interface MiraiSimbotUserMessageEvent<E : NativeMiraiMessageEvent> :
 }
 
 /**
- * 在 mirai [NativeMiraiContact] 下与 [love.forte.simbot.definition.Group] 相关的事件。
+ * 在 mirai [OriginalMiraiContact] 下与 [love.forte.simbot.definition.Group] 相关的事件。
  */
-public interface MiraiSimbotGroupMessageEvent<E : NativeMiraiMessageEvent> :
+public interface MiraiSimbotGroupMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
     ChatroomMessageEvent {
 

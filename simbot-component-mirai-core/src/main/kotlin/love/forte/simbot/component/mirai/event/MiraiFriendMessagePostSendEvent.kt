@@ -30,14 +30,14 @@ import love.forte.simbot.message.*
  * @author ForteScarlet
  */
 public interface MiraiFriendMessagePostSendEvent :
-    MiraiMessagePostSendEvent<NativeMiraiFriend, NativeMiraiFriendMessagePostSendEvent>,
+    MiraiMessagePostSendEvent<OriginalMiraiFriend, OriginalMiraiFriendMessagePostSendEvent>,
     FriendInfoContainer, MessageEvent, RemoteMessageContainer {
 
     override val bot: MiraiBot
     override val id: ID
     override val timestamp: Timestamp
     override val messageContent: MiraiReceivedMessageContent
-    override val nativeEvent: NativeMiraiFriendMessagePostSendEvent
+    override val originalEvent: OriginalMiraiFriendMessagePostSendEvent
 
     /**
      * 发送目标好友对象。

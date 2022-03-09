@@ -21,17 +21,17 @@ import love.forte.simbot.*
 import love.forte.simbot.definition.*
 
 /**
- * Mirai的原生类型
+ * Mirai的原始类型
  *
  * @see net.mamoe.mirai.contact.Contact
  */
-public typealias NativeMiraiContact = net.mamoe.mirai.contact.Contact
+public typealias OriginalMiraiContact = net.mamoe.mirai.contact.Contact
 /**
- * Mirai的原生类型
+ * Mirai的原始类型
  *
  * @see net.mamoe.mirai.contact.User
  */
-public typealias NativeMiraiUser = net.mamoe.mirai.contact.User
+public typealias OriginalMiraiUser = net.mamoe.mirai.contact.User
 
 
 /**
@@ -43,15 +43,15 @@ public interface MiraiBotContainer : BotContainer {
 
 
 /**
- * 包含了mirai原生联系人[NativeMiraiContact] 的容器类型.
+ * 包含了mirai原生联系人[OriginalMiraiContact] 的容器类型.
  */
 public interface MiraiContactContainer {
-    public val nativeContact: NativeMiraiContact
+    public val originalContact: OriginalMiraiContact
 }
 
 
 /**
- * [Contact] 对应Mirai的 [联系人][NativeMiraiContact] 类型。
+ * [Contact] 对应Mirai的 [联系人][OriginalMiraiContact] 类型。
  *
  * @author ForteScarlet
  *
@@ -60,19 +60,19 @@ public interface MiraiContactContainer {
  */
 public interface MiraiContact : Contact, MiraiBotContainer, MiraiContactContainer {
     override val bot: MiraiBot
-    override val nativeContact: NativeMiraiContact
+    override val originalContact: OriginalMiraiContact
     override val id: LongID
 
 }
 
 /**
- * [ChatRoom] 对应Mirai的 [联系人][NativeMiraiContact] 类型。
+ * [ChatRoom] 对应Mirai的 [联系人][OriginalMiraiContact] 类型。
  *
  * @see MiraiGroup
  */
 public interface MiraiChatroom : ChatRoom, MiraiBotContainer, MiraiContactContainer {
     override val bot: MiraiBot
-    override val nativeContact: NativeMiraiGroup
+    override val originalContact: OriginalMiraiGroup
     override val id: LongID
 
 

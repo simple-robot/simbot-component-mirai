@@ -30,14 +30,14 @@ import love.forte.simbot.message.*
  * @author ForteScarlet
  */
 public interface MiraiGroupTempMessagePostSendEvent :
-    MiraiMessagePostSendEvent<NativeMiraiMember, NativeMiraiGroupTempMessagePostSendEvent>,
+    MiraiMessagePostSendEvent<OriginalMiraiMember, OriginalMiraiGroupTempMessagePostSendEvent>,
     GroupInfoContainer, MemberInfoContainer, MessageEvent {
 
     override val bot: MiraiBot
     override val id: ID
     override val timestamp: Timestamp
     override val messageContent: MiraiReceivedMessageContent
-    override val nativeEvent: NativeMiraiGroupTempMessagePostSendEvent
+    override val originalEvent: OriginalMiraiGroupTempMessagePostSendEvent
 
     /**
      * 发送目标群成员所属群对象。

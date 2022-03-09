@@ -40,9 +40,9 @@ import kotlin.reflect.*
 @SerialName("mirai.musicShare")
 @Serializable
 public data class MiraiMusicShare(
-    override val nativeMiraiMessage: MusicShare
+    override val originalMiraiMessage: MusicShare
 ) : MiraiSendOnlySimbotMessage<MiraiMusicShare>,
-    MiraiNativeDirectlySimbotMessage<MiraiMusicShare> {
+    OriginalMiraiDirectlySimbotMessage<MiraiMusicShare> {
 
     override val key: Message.Key<MiraiMusicShare> get() = Key
 

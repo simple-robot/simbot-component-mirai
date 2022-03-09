@@ -25,8 +25,10 @@ import love.forte.simbot.utils.*
 import java.util.stream.*
 import kotlin.time.*
 
-
-public typealias NativeMiraiGroup = net.mamoe.mirai.contact.Group
+/**
+ * @see net.mamoe.mirai.contact.Group
+ */
+public typealias OriginalMiraiGroup = net.mamoe.mirai.contact.Group
 
 /**
  *
@@ -34,7 +36,7 @@ public typealias NativeMiraiGroup = net.mamoe.mirai.contact.Group
  * @author ForteScarlet
  */
 public interface MiraiGroup : Group, MiraiChatroom {
-    override val nativeContact: NativeMiraiGroup
+    override val originalContact: OriginalMiraiGroup
 
     override val bot: MiraiBot
     override val id: LongID
@@ -56,27 +58,27 @@ public interface MiraiGroup : Group, MiraiChatroom {
     override suspend fun member(id: ID): MiraiMember?
 
     @JvmSynthetic
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
     @JvmSynthetic
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
     // Impl
 
 
     @JvmSynthetic
-    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
             = send(message.messages)
 
     @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
             = runInBlocking { send(text) }
 
     @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
             = runInBlocking { send(message) }
 
     @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiGroup>
+    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
             = runInBlocking { send(message) }
 
 
@@ -96,10 +98,10 @@ public interface MiraiGroup : Group, MiraiChatroom {
     @JvmSynthetic
     override suspend fun roles(groupingId: ID?, limiter: Limiter): Flow<MemberRole> = MemberRole.values().asFlow()
 
-    override val icon: String get() = nativeContact.avatarUrl
-    override val name: String get() = nativeContact.name
+    override val icon: String get() = originalContact.avatarUrl
+    override val name: String get() = originalContact.name
     override val createTime: Timestamp get() = Timestamp.NotSupport
-    override val currentMember: Int get() = nativeContact.members.size
+    override val currentMember: Int get() = originalContact.members.size
     override val description: String get() = ""
     override val maximumMember: Int get() = -1
 
@@ -121,10 +123,10 @@ public interface MiraiGroup : Group, MiraiChatroom {
 
     @JvmSynthetic
     override suspend fun unmute(): Boolean {
-        val settings = nativeContact.settings
+        val settings = originalContact.settings
         val muteAll = settings.isMuteAll
         return if (muteAll) {
-            nativeContact.settings.isMuteAll = false
+            originalContact.settings.isMuteAll = false
             true
         } else false
     }

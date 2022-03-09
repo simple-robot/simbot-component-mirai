@@ -52,7 +52,7 @@ import love.forte.simbot.message.*
  */
 @SimbotDiscreetApi
 public class UnsupportedMiraiEvent
-internal constructor(override val bot: MiraiBot, override val nativeEvent: NativeMiraiEvent) : MiraiEvent {
+internal constructor(override val bot: MiraiBot, override val originalEvent: OriginalMiraiEvent) : MiraiEvent {
     override val id: ID = randomID()
 
     override val key: Event.Key<UnsupportedMiraiEvent> get() = Key
@@ -69,8 +69,8 @@ internal constructor(override val bot: MiraiBot, override val nativeEvent: Nativ
  * 当 metadata 中的 nativeEvent 类型符合 [E] 的时候，执行逻辑。
  */
 @OptIn(SimbotDiscreetApi::class)
-public inline fun <reified E : NativeMiraiEvent> UnsupportedMiraiEvent.ifIs(block: E.() -> Unit) {
-    val e = nativeEvent
+public inline fun <reified E : OriginalMiraiEvent> UnsupportedMiraiEvent.ifIs(block: E.() -> Unit) {
+    val e = originalEvent
     if (e is E) {
         e.block()
     }

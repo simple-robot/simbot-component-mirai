@@ -27,24 +27,24 @@ import love.forte.simbot.utils.*
 /**
  * @see net.mamoe.mirai.event.events.FriendMessageEvent
  */
-public typealias NativeMiraiFriendMessageEvent = net.mamoe.mirai.event.events.FriendMessageEvent
+public typealias OriginalMiraiFriendMessageEvent = net.mamoe.mirai.event.events.FriendMessageEvent
 
 /**
  * @see net.mamoe.mirai.event.events.StrangerMessageEvent
  */
-public typealias NativeMiraiStrangerMessageEvent = net.mamoe.mirai.event.events.StrangerMessageEvent
+public typealias OriginalMiraiStrangerMessageEvent = net.mamoe.mirai.event.events.StrangerMessageEvent
 
 /**
  * 好友消息事件。
  *
- * Mirai [NativeMiraiFriendMessageEvent] 事件对应的 [FriendMessageEvent] 事件类型。
+ * Mirai [OriginalMiraiFriendMessageEvent] 事件对应的 [FriendMessageEvent] 事件类型。
  *
- * @see NativeMiraiFriendMessageEvent
+ * @see OriginalMiraiFriendMessageEvent
  * @author ForteScarlet
  */
 public interface MiraiFriendMessageEvent :
-    MiraiSimbotContactMessageEvent<NativeMiraiFriendMessageEvent>,
-    MiraiFriendEvent<NativeMiraiFriendMessageEvent>,
+    MiraiSimbotContactMessageEvent<OriginalMiraiFriendMessageEvent>,
+    MiraiFriendEvent<OriginalMiraiFriendMessageEvent>,
     FriendMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
@@ -52,13 +52,13 @@ public interface MiraiFriendMessageEvent :
     @OptIn(Api4J::class)
     override val friend: MiraiFriend
     @JvmSynthetic
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend>
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     @JvmSynthetic
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend>
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     @JvmSynthetic
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend>
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     @JvmSynthetic
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend>
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
 
     //// impl
 
@@ -82,35 +82,35 @@ public interface MiraiFriendMessageEvent :
 
 
     @JvmSynthetic
-    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         send(message.messages)
 
     @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend> = runInBlocking { send(text) }
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> = runInBlocking { send(text) }
 
     @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         runInBlocking { send(message) }
 
     @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         runInBlocking { send(message) }
 
 
     @JvmSynthetic
-    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         runInBlocking { reply(message.messages) }
 
     @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         runInBlocking { reply(text) }
 
     @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         runInBlocking { reply(message) }
 
     @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiFriend> =
+    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         runInBlocking { reply(message) }
 
     public companion object Key :
@@ -127,7 +127,7 @@ public interface MiraiFriendMessageEvent :
  * Mirai陌生人消息事件。
  */
 public interface MiraiStrangerMessageEvent :
-    MiraiSimbotContactMessageEvent<NativeMiraiStrangerMessageEvent>,
+    MiraiSimbotContactMessageEvent<OriginalMiraiStrangerMessageEvent>,
     ContactMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
@@ -137,13 +137,13 @@ public interface MiraiStrangerMessageEvent :
     override val user: MiraiStranger
 
     @JvmSynthetic
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<NativeMiraiStranger>
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     @JvmSynthetic
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<NativeMiraiStranger>
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     @JvmSynthetic
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<NativeMiraiStranger>
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     @JvmSynthetic
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<NativeMiraiStranger>
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
 
     //// Impl
 
@@ -152,35 +152,35 @@ public interface MiraiStrangerMessageEvent :
 
 
     @JvmSynthetic
-    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiStranger> =
+    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         reply(message.messages)
 
     @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiStranger> =
+    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         runInBlocking { send(text) }
 
     @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiStranger> =
+    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         runInBlocking { send(message) }
 
     @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiStranger> =
+    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         runInBlocking { send(message) }
 
     @JvmSynthetic
-    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiStranger> =
+    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         send(message.messages)
 
     @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<NativeMiraiStranger> =
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         runInBlocking { send(text) }
 
     @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<NativeMiraiStranger> =
+    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         runInBlocking { send(message) }
 
     @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<NativeMiraiStranger> =
+    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         runInBlocking { send(message) }
 
 

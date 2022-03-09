@@ -23,7 +23,7 @@ import love.forte.simbot.definition.*
 /**
  * [MiraiFriendRequestEvent] 中的 [friend][MiraiFriendRequestEvent.friend] 属性返回值。
  *
- *  @see NativeMiraiNewFriendRequestEvent
+ *  @see OriginalMiraiNewFriendRequestEvent
  */
 public data class RequestFriendInfo(
     public val fromId: Long,

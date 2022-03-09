@@ -27,12 +27,12 @@ import love.forte.simbot.component.mirai.internal.*
  */
 internal class MiraiStrangerMessagePostSendEventImpl(
     override val bot: MiraiBotImpl,
-    override val nativeEvent: NativeMiraiStrangerMessagePostSendEvent
+    override val originalEvent: OriginalMiraiStrangerMessagePostSendEvent
 ) : MiraiStrangerMessagePostSendEvent {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
-    override val messageContent: MiraiReceivedMessageContent = nativeEvent.message.toSimbotMessageContent()
-    override val user = nativeEvent.target.asSimbot(bot)
+    override val messageContent: MiraiReceivedMessageContent = originalEvent.message.toSimbotMessageContent()
+    override val user = originalEvent.target.asSimbot(bot)
 
 
 
