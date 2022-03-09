@@ -17,11 +17,61 @@
 
 package love.forte.simbot.component.mirai.event
 
+import love.forte.simbot.component.mirai.*
+import love.forte.simbot.definition.*
+import love.forte.simbot.event.*
+import love.forte.simbot.message.*
+
 
 /**
  * @see net.mamoe.mirai.event.events.MessagePostSendEvent
  */
-public typealias MiraiMessagePostSendEvent<C> = net.mamoe.mirai.event.events.MessagePostSendEvent<C>
+public typealias NativeMiraiMessagePostSendEvent<C> = net.mamoe.mirai.event.events.MessagePostSendEvent<C>
+/**
+ * @see net.mamoe.mirai.event.events.FriendMessagePostSendEvent
+ */
+public typealias NativeMiraiFriendMessagePostSendEvent = net.mamoe.mirai.event.events.FriendMessagePostSendEvent
+/**
+ * @see net.mamoe.mirai.event.events.GroupMessagePostSendEvent
+ */
+public typealias NativeMiraiGroupMessagePostSendEvent = net.mamoe.mirai.event.events.GroupMessagePostSendEvent
+/**
+ * @see net.mamoe.mirai.event.events.GroupTempMessagePostSendEvent
+ */
+public typealias NativeMiraiGroupTempMessagePostSendEvent = net.mamoe.mirai.event.events.GroupTempMessagePostSendEvent
+/**
+ * @see net.mamoe.mirai.event.events.StrangerMessagePostSendEvent
+ */
+public typealias NativeMiraiStrangerMessagePostSendEvent = net.mamoe.mirai.event.events.StrangerMessagePostSendEvent
+
+
+/**
+ * simbot下针对于mirai的 [NativeMiraiMessagePostSendEvent] 相关事件的接口定义。
+ *
+ * 这些事件类似于消息事件 (例如 [MiraiSimbotContactMessageEvent])。
+ *
+ * 但是这些相关消息不会实现对应的消息事件类型，
+ * 例如 [MiraiFriendMessagePostSendEvent] 不会实现 [FriendMessageEvent],
+ * 而是会分别实现 [MessageEvent], [FriendInfoContainer], 这使得它们有别于普通的消息事件。
+ *
+ */
+public interface MiraiMessagePostSendEvent<C : NativeMiraiContact, E : NativeMiraiMessagePostSendEvent<C>> :
+    MiraiSimbotBotEvent<E> {
+    override val bot: MiraiBot
+
+    /**
+     * 这类事件理论上属于系统内事件，只能由bot自身可见。
+     */
+    override val visibleScope: Event.VisibleScope
+        get() = Event.VisibleScope.PRIVATE
+
+    public companion object Key : BaseEventKey<MiraiMessagePostSendEvent<*, *>>(
+        "mirai.message_post_send", MiraiSimbotBotEvent
+    ) {
+        override fun safeCast(value: Any): MiraiMessagePostSendEvent<*, *>? = doSafeCast(value)
+    }
+}
+
 
 
 

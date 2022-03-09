@@ -38,7 +38,7 @@ public typealias NativeMiraiGroupTempMessageEvent = GroupTempMessageEvent
  * @author ForteScarlet
  */
 public interface MiraiMemberMessageEvent
-    : MiraiSimbotContactMessageEvent<GroupTempMessageEvent>,
+    : MiraiSimbotContactMessageEvent<NativeMiraiGroupTempMessageEvent>,
     ContactMessageEvent, ReplySupport, SendSupport {
 
     override val bot: MiraiBot
