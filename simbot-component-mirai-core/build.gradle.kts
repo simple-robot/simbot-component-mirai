@@ -21,7 +21,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
-    kotlin("kapt")
+    //kotlin("kapt")
 }
 
 
@@ -39,8 +39,8 @@ dependencies {
     testImplementation(V.Log4j.Core.notation)
     testImplementation(V.Log4j.Slf4jImpl.notation)
 
-    compileOnly("com.google.auto.service:auto-service:1.0.1")
-    kapt("com.google.auto.service:auto-service:1.0.1")
+    //compileOnly("com.google.auto.service:auto-service:1.0.1")
+    //kapt("com.google.auto.service:auto-service:1.0.1")
 }
 
 

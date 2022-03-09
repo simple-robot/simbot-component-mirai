@@ -17,7 +17,6 @@
 
 package love.forte.simbot.component.mirai
 
-import com.google.auto.service.*
 import kotlinx.serialization.modules.*
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.message.*
@@ -78,7 +77,6 @@ public inline fun Sequence<BotManager<*>>.filterIsMiraiBotManagers(): Sequence<M
 /**
  * Mirai组件的 [Component] 注册器。
  */
-@AutoService(ComponentInformationRegistrar::class)
 public class MiraiComponentRegistrar : ComponentInformationRegistrar {
     override fun informations(): ComponentInformationRegistrar.Result {
         return ComponentInformationRegistrar.Result.ok(listOf(MiraiComponentInformation()))
