@@ -68,7 +68,7 @@ public interface MiraiStrangerMessagePostSendEvent :
     override val key: Event.Key<out MiraiStrangerMessagePostSendEvent> get() = Key
 
     public companion object Key : BaseEventKey<MiraiStrangerMessagePostSendEvent>(
-        "mirai.friend_message_post_send_event", MiraiMessagePostSendEvent, MessageEvent
+        "mirai.stranger_message_post_send_event", MiraiMessagePostSendEvent, MessageEvent
     ) {
         override fun safeCast(value: Any): MiraiStrangerMessagePostSendEvent? = doSafeCast(value)
     }
