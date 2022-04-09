@@ -14,18 +14,51 @@
  *
  *
  */
-pluginManagement {
-    plugins {
-        id("org.jetbrains.dokka") version "1.6.10"
+
+
+plugins {
+    `java-library`
+    kotlin("jvm")
+    kotlin("plugin.serialization")
+    id("org.jetbrains.dokka")
+    //kotlin("kapt")
+}
+
+
+dependencies {
+    api(project(":simbot-component-mirai-api"))
+    api("love.forte:catcode:1.0.0-BETA.1")
+
+    testImplementation(V.Kotlin.Test.Junit5.notation)
+}
+
+
+tasks.getByName<Test>("test") {
+    useJUnitPlatform()
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions {
+        javaParameters = true
+        jvmTarget = "1.8"
     }
 }
 
-rootProject.name = "simbot-component-mirai"
+tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
+    outputDirectory.set(File(rootProject.projectDir, "doc"))
+}
 
-include(":simbot-component-mirai-api")
-include(":simbot-component-mirai-core")
-include(":simbot-component-mirai-boot")
+kotlin {
+    // 严格模式
+    explicitApiWarning()
 
-// extra
-include(":simbot-component-mirai-extra-catcode")
+
+    sourceSets.all {
+        languageSettings {
+            optIn("kotlin.RequiresOptIn")
+        }
+    }
+}
+
+
 
