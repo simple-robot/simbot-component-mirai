@@ -17,19 +17,24 @@
 
 package love.forte.simbot.component.mirai.message
 
-import kotlinx.serialization.*
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.message.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import love.forte.simbot.ID
+import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.message.Image
 import love.forte.simbot.message.Message
-import love.forte.simbot.resources.*
-import net.mamoe.mirai.contact.*
+import love.forte.simbot.message.doSafeCast
+import love.forte.simbot.resources.Resource
+import love.forte.simbot.resources.toResource
+import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.FlashImage
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
-import java.net.*
-import java.util.concurrent.atomic.*
+import net.mamoe.mirai.message.data.ImageType
+import net.mamoe.mirai.message.data.flash
+import java.net.URL
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * Mirai的原生图片类型 [net.mamoe.mirai.message.data.Image]
@@ -78,6 +83,7 @@ public interface MiraiSendOnlyImage :
 
     public companion object Key : Message.Key<MiraiSendOnlyImage> {
         override fun safeCast(value: Any): MiraiSendOnlyImage? = doSafeCast(value)
+        public fun of(resource: Resource, isFlash: Boolean = false): MiraiSendOnlyImage = MiraiSendOnlyImageImpl(resource, isFlash)
     }
 }
 
