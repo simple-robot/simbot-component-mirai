@@ -1,4 +1,3 @@
-
 @file:JvmName("CatCodeMessageUtil")
 package love.forte.simbot.component.mirai.extra.catcode
 
@@ -24,6 +23,8 @@ private val parsers = mutableMapOf<String, CatCodeDecoder>()
  *
  * @param baseMessageChain 当前事件上下文中的消息链
  *
+ * @throws love.forte.simbot.SimbotIllegalArgumentException 参数缺失或无效时
+ * @throws RuntimeException 可能存在解析过程中的各种异常。
  * @return 解析得到的消息元素。
  */
 @JvmOverloads
@@ -42,7 +43,22 @@ public fun Neko.toMessage(baseMessageChain: MessageChain? = null): Message.Eleme
             "image", "img" -> ImageDecoder.decode(this, baseMessageChain)
             // 语音
             "voice", "audio", "record" -> VoiceDecoder.decode(this, baseMessageChain)
-
+            // 群文件上传
+            "file" -> FileDecoder.decode(this, baseMessageChain)
+            // 分享
+            "share" -> ShareDecoder.decode(this, baseMessageChain)
+            // 卡片相关
+            "rich" -> RichDecoder.decode(this, baseMessageChain)
+            "app", "json" -> AppJsonDecoder.decode(this, baseMessageChain)
+            // 骰子
+            "dice" -> DiceDecoder.decode(this, baseMessageChain)
+            "xml" -> XmlDecoder.decode(this, baseMessageChain)
+            // 音乐分享
+            "music", "musicShare" -> MusicShareDecoder.decode(this, baseMessageChain)
+            // 引用回复
+            "quote" -> QuoteDecoder.decode(this, baseMessageChain)
+            // 未知消息
+            "unsupported" -> UnsupportedDecoder.decode(this, baseMessageChain)
             else -> this.toString().toText()
         }
 }
