@@ -31,6 +31,7 @@ import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.MiraiReceivedNudge.SubjectType
 import love.forte.simbot.event.EventProcessingContext
+import love.forte.simbot.literal
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.doSafeCast
 import net.mamoe.mirai.contact.*
@@ -39,16 +40,16 @@ import net.mamoe.mirai.event.events.StrangerEvent
 import net.mamoe.mirai.message.action.Nudge.Companion.sendNudge
 
 
-private suspend fun sendNudge(contact: Contact, target: LongID?) {
+private suspend fun sendNudge(contact: Contact, target: Long?) {
     if (target != null) {
-        if (target.number == contact.bot.id) {
+        if (target == contact.bot.id) {
             contact.sendNudge(contact.bot.nudge())
             return
         }
 
         when (contact) {
             is OriginalMiraiGroup -> {
-                val nudge = contact.getMemberOrFail(target.number).nudge()
+                val nudge = contact.getMemberOrFail(target).nudge()
                 contact.sendNudge(nudge)
             }
             is OriginalMiraiFriend -> contact.sendNudge(contact.nudge())
@@ -95,14 +96,14 @@ private suspend fun sendNudge(contact: Contact, target: LongID?) {
 @SerialName("mirai.nudge")
 @Serializable
 public data class MiraiNudge @JvmOverloads constructor(
-    public val target: LongID? = null,
+    public val target: ID? = null,
 ) : MiraiSendOnlyComputableMessage<MiraiNudge> {
     override val key: Message.Key<MiraiNudge> get() = Key
 
     @OptIn(InternalApi::class)
     @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
-        sendNudge(contact, target)
+        sendNudge(contact, target?.literal?.toLong())
         return EmptySingleMessage
     }
 
@@ -166,7 +167,7 @@ public data class MiraiReceivedNudge @InternalSimbotApi constructor(
     @OptIn(InternalApi::class)
     @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
-        sendNudge(contact, target)
+        sendNudge(contact, target.number)
         return EmptySingleMessage
     }
 

@@ -17,22 +17,28 @@
 
 package love.forte.simbot.component.mirai.internal
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.sync.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import love.forte.simbot.*
-import love.forte.simbot.LoggerFactory
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.event.impl.*
-import love.forte.simbot.component.mirai.message.*
-import love.forte.simbot.component.mirai.util.*
-import love.forte.simbot.definition.*
-import love.forte.simbot.event.*
-import love.forte.simbot.resources.*
-import net.mamoe.mirai.utils.*
-import org.slf4j.*
-import java.util.stream.*
+import love.forte.simbot.component.mirai.message.MiraiImage
+import love.forte.simbot.component.mirai.message.MiraiImageImpl
+import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
+import love.forte.simbot.component.mirai.util.LRUCacheMap
+import love.forte.simbot.definition.UserStatus
+import love.forte.simbot.event.Event
+import love.forte.simbot.event.EventProcessor
+import love.forte.simbot.event.pushIfProcessable
+import love.forte.simbot.resources.Resource
+import net.mamoe.mirai.utils.MiraiExperimentalApi
+import org.slf4j.Logger
+import java.util.stream.Stream
 import net.mamoe.mirai.message.data.Image as miraiImageFunc
 
 
@@ -90,7 +96,7 @@ internal class MiraiBotImpl(
     override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
 
     override fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage {
-        return MiraiSendOnlyImageImpl(resource, flash)
+        return MiraiSendOnlyImage.of(resource, flash)
     }
 
     override fun idImage(

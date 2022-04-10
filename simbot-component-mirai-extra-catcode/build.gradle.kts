@@ -26,7 +26,7 @@ plugins {
 
 
 dependencies {
-    api(project(":simbot-component-mirai-api"))
+    api(project(":simbot-component-mirai-core"))
     api("love.forte:catcode:1.0.0-BETA.1")
 
     testImplementation(V.Kotlin.Test.Junit5.notation)
