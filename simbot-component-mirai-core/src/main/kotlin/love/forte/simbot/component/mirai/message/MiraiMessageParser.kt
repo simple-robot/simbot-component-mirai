@@ -19,15 +19,17 @@
 
 package love.forte.simbot.component.mirai.message
 
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.internal.*
+import love.forte.simbot.ID
+import love.forte.simbot.component.mirai.internal.InternalApi
+import love.forte.simbot.literal
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
 import love.forte.simbot.message.AtAll
 import love.forte.simbot.message.Face
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.PlainText
-import net.mamoe.mirai.contact.*
+import love.forte.simbot.tryToLongID
+import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.At as MiraiAtFunc
@@ -56,6 +58,7 @@ public object EmptySingleMessage : OriginalMiraiSingleMessage {
     override fun contentToString(): String = "EmptySingleMessage"
     override fun toString(): String = "EmptySingleMessage()"
 
+    public val simbotMessage: Message.Element<*> = this.asSimbotMessage()
 }
 
 
