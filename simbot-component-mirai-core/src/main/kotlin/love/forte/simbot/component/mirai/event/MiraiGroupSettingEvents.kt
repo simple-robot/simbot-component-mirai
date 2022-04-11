@@ -12,49 +12,24 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-
-/**
- * @see net.mamoe.mirai.event.events.GroupSettingChangeEvent
- */
-public typealias OriginalMiraiGroupSettingChangeEvent<T> = net.mamoe.mirai.event.events.GroupSettingChangeEvent<T>
-
-/**
- * @see net.mamoe.mirai.event.events.GroupNameChangeEvent
- */
-public typealias OriginalMiraiGroupNameChangeEvent = net.mamoe.mirai.event.events.GroupNameChangeEvent
-
-/**
- * @see net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent
- */
-public typealias OriginalMiraiGroupEntranceAnnouncementChangeEvent = net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent
-
-/**
- * @see net.mamoe.mirai.event.events.GroupMuteAllEvent
- */
-public typealias OriginalMiraiGroupMuteAllEvent = net.mamoe.mirai.event.events.GroupMuteAllEvent
-
-/**
- * @see net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent
- */
-public typealias OriginalMiraiGroupAllowAnonymousChatEvent = net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent
-
-/**
- * @see net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent
- */
-public typealias OriginalMiraiGroupAllowConfessTalkEvent = net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent
-
-/**
- * @see net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent
- */
-public typealias OriginalMiraiGroupAllowMemberInviteEvent = net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.event.BaseEventKey
+import love.forte.simbot.event.ChangedEvent
+import love.forte.simbot.event.Event
+import love.forte.simbot.message.doSafeCast
+import net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent as OriginalMiraiGroupAllowAnonymousChatEvent
+import net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent as OriginalMiraiGroupAllowConfessTalkEvent
+import net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent as OriginalMiraiGroupAllowMemberInviteEvent
+import net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent as OriginalMiraiGroupEntranceAnnouncementChangeEvent
+import net.mamoe.mirai.event.events.GroupMuteAllEvent as OriginalMiraiGroupMuteAllEvent
+import net.mamoe.mirai.event.events.GroupNameChangeEvent as OriginalMiraiGroupNameChangeEvent
+import net.mamoe.mirai.event.events.GroupSettingChangeEvent as OriginalMiraiGroupSettingChangeEvent
 
 
 /**

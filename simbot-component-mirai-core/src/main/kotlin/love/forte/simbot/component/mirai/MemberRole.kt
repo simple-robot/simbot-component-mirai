@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -21,11 +20,9 @@ import love.forte.simbot.*
 import love.forte.simbot.component.mirai.MemberRole.*
 import love.forte.simbot.definition.*
 import net.mamoe.mirai.contact.*
+import net.mamoe.mirai.contact.Member as OriginalMiraiMember
+import net.mamoe.mirai.contact.MemberPermission as MiraiMemberPermission
 
-/**
- * @see net.mamoe.mirai.contact.MemberPermission
- */
-public typealias OriginalMiraiMemberPermission = MemberPermission
 
 /**
  * 在Mirai中，也就是在QQ群中，只有三种角色：
@@ -36,16 +33,16 @@ public typealias OriginalMiraiMemberPermission = MemberPermission
  */
 @Suppress("MemberVisibilityCanBePrivate")
 public enum class MemberRole(
-    public val originalMiraiPermission: OriginalMiraiMemberPermission,
+    public val originalMiraiPermission: MiraiMemberPermission,
 ) : Role {
 
-    MEMBER(OriginalMiraiMemberPermission.MEMBER),
-    ADMINISTRATOR(OriginalMiraiMemberPermission.ADMINISTRATOR),
-    OWNER(OriginalMiraiMemberPermission.OWNER),
+    MEMBER(MiraiMemberPermission.MEMBER),
+    ADMINISTRATOR(MiraiMemberPermission.ADMINISTRATOR),
+    OWNER(MiraiMemberPermission.OWNER),
     ;
 
     /**
-     * ID, 等同于 [net.mamoe.mirai.contact.MemberPermission.level].
+     * ID, 等同于 [net.mamoe.mirai.contact.MemberPermission1.level].
      */
     override val id: IntID = originalMiraiPermission.level.ID
 
@@ -71,12 +68,12 @@ public enum class MemberRole(
 }
 
 
-public inline val OriginalMiraiMemberPermission.simbotRole: MemberRole
+public inline val MiraiMemberPermission.simbotRole: MemberRole
     get() =
         when (this) {
-            OriginalMiraiMemberPermission.MEMBER -> MEMBER
-            OriginalMiraiMemberPermission.ADMINISTRATOR -> ADMINISTRATOR
-            OriginalMiraiMemberPermission.OWNER -> OWNER
+            MiraiMemberPermission.MEMBER -> MEMBER
+            MiraiMemberPermission.ADMINISTRATOR -> ADMINISTRATOR
+            MiraiMemberPermission.OWNER -> OWNER
         }
 
 public inline val OriginalMiraiMember.simbotRole: MemberRole

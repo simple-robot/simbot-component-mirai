@@ -12,18 +12,14 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
-import love.forte.simbot.definition.*
+import love.forte.simbot.definition.Contact
+import love.forte.simbot.definition.UserStatus
+import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
 
-
-/**
- * @see net.mamoe.mirai.contact.Stranger
- */
-public typealias OriginalMiraiStranger = net.mamoe.mirai.contact.Stranger
 
 /**
  *

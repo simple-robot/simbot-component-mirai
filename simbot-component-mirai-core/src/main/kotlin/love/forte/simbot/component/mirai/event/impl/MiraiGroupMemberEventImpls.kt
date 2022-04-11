@@ -12,23 +12,40 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
-import love.forte.simbot.*
-import love.forte.simbot.action.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.ID
+import love.forte.simbot.Timestamp
+import love.forte.simbot.action.ActionType
+import love.forte.simbot.component.mirai.MemberRole
+import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.event.*
-import love.forte.simbot.component.mirai.internal.*
+import love.forte.simbot.component.mirai.internal.MiraiBotImpl
+import love.forte.simbot.component.mirai.internal.MiraiGroupImpl
+import love.forte.simbot.component.mirai.internal.asSimbot
+import love.forte.simbot.component.mirai.simbotRole
 import love.forte.simbot.definition.GroupInfo
-import love.forte.simbot.event.*
-import net.mamoe.mirai.data.*
-import net.mamoe.mirai.event.events.*
-import net.mamoe.mirai.utils.*
-import kotlin.time.*
+import love.forte.simbot.event.Event
+import love.forte.simbot.event.RequestEvent
+import love.forte.simbot.randomID
+import net.mamoe.mirai.data.GroupHonorType
+import net.mamoe.mirai.event.events.operatorOrBot
+import net.mamoe.mirai.utils.MiraiExperimentalApi
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import net.mamoe.mirai.event.events.GroupMemberEvent as OriginalMiraiGroupMemberEvent
+import net.mamoe.mirai.event.events.GroupTalkativeChangeEvent as OriginalMiraiGroupTalkativeChangeEvent
+import net.mamoe.mirai.event.events.MemberCardChangeEvent as OriginalMiraiMemberCardChangeEvent
+import net.mamoe.mirai.event.events.MemberHonorChangeEvent as OriginalMiraiMemberHonorChangeEvent
+import net.mamoe.mirai.event.events.MemberJoinEvent as OriginalMiraiMemberJoinEvent
+import net.mamoe.mirai.event.events.MemberJoinRequestEvent as OriginalMiraiMemberJoinRequestEvent
+import net.mamoe.mirai.event.events.MemberLeaveEvent as OriginalMiraiMemberLeaveEvent
+import net.mamoe.mirai.event.events.MemberMuteEvent as OriginalMiraiMemberMuteEvent
+import net.mamoe.mirai.event.events.MemberPermissionChangeEvent as OriginalMiraiMemberPermissionChangeEvent
+import net.mamoe.mirai.event.events.MemberSpecialTitleChangeEvent as OriginalMiraiMemberSpecialTitleChangeEvent
+import net.mamoe.mirai.event.events.MemberUnmuteEvent as OriginalMiraiMemberUnmuteEvent
 
 
 internal abstract class BaseMiraiGroupMemberEvent<E : OriginalMiraiGroupMemberEvent>(
@@ -62,9 +79,9 @@ internal class MiraiMemberHonorChangeEventImpl(
     override val timestamp: Timestamp get() = changedTime
     override val honorType: GroupHonorType = nativeEvent.honorType
     override val after: GroupHonorType? =
-        if (nativeEvent is MemberHonorChangeEvent.Achieve) honorType else null
+        if (nativeEvent is OriginalMiraiMemberHonorChangeEvent.Achieve) honorType else null
     override val before: GroupHonorType? =
-        if (nativeEvent is MemberHonorChangeEvent.Lose) honorType else null
+        if (nativeEvent is OriginalMiraiMemberHonorChangeEvent.Lose) honorType else null
 }
 
 
@@ -182,9 +199,9 @@ internal class MiraiMemberLeaveEventImpl(
     override val timestamp: Timestamp get() = changedTime
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.INTERNAL
     override val actionType: ActionType =
-        if (nativeEvent is MemberLeaveEvent.Kick) ActionType.PASSIVE else ActionType.PROACTIVE
+        if (nativeEvent is OriginalMiraiMemberLeaveEvent.Kick) ActionType.PASSIVE else ActionType.PROACTIVE
     override val operator: MiraiMember =
-        if (nativeEvent is MemberLeaveEvent.Kick) nativeEvent.operatorOrBot.asSimbot(bot, group)
+        if (nativeEvent is OriginalMiraiMemberLeaveEvent.Kick) nativeEvent.operatorOrBot.asSimbot(bot, group)
         else member
 }
 
@@ -196,8 +213,8 @@ internal class MiraiMemberJoinEventImpl(
     override val timestamp: Timestamp get() = changedTime
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.INTERNAL
     override val actionType: ActionType =
-        if (nativeEvent is MemberJoinEvent.Invite) ActionType.PASSIVE else ActionType.PROACTIVE
+        if (nativeEvent is OriginalMiraiMemberJoinEvent.Invite) ActionType.PASSIVE else ActionType.PROACTIVE
     override val inviter: MiraiMember? =
-        if (nativeEvent is MemberJoinEvent.Invite) nativeEvent.invitor.asSimbot(bot, group) else null
+        if (nativeEvent is OriginalMiraiMemberJoinEvent.Invite) nativeEvent.invitor.asSimbot(bot, group) else null
 
 }

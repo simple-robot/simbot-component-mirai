@@ -12,16 +12,26 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.definition.*
-import love.forte.simbot.event.*
-import love.forte.simbot.message.*
+import love.forte.simbot.Api4J
+import love.forte.simbot.ID
+import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.definition.GroupInfoContainer
+import love.forte.simbot.definition.MemberInfo
+import love.forte.simbot.definition.MemberInfoContainer
+import love.forte.simbot.event.BaseEventKey
+import love.forte.simbot.event.ContactMessageEvent
+import love.forte.simbot.event.Event
+import love.forte.simbot.event.MessageEvent
+import love.forte.simbot.message.doSafeCast
+import net.mamoe.mirai.contact.Member as OriginalMiraiMember
+import net.mamoe.mirai.event.events.GroupTempMessagePostSendEvent as OriginalMiraiGroupTempMessagePostSendEvent
 
 /**
  * 群临时会话消息发送后的消息事件。此事件不会实现 [ContactMessageEvent], 取而代之的是使用 [GroupInfoContainer], [MemberInfoContainer], [MessageEvent].

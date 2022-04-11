@@ -12,24 +12,31 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.*
-import love.forte.simbot.action.*
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-import love.forte.simbot.utils.*
-import net.mamoe.mirai.event.events.*
+import love.forte.simbot.Api4J
+import love.forte.simbot.action.ReplySupport
+import love.forte.simbot.action.SendSupport
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
+import love.forte.simbot.event.BaseEventKey
+import love.forte.simbot.event.ContactMessageEvent
+import love.forte.simbot.event.Event
+import love.forte.simbot.message.Message
+import love.forte.simbot.message.MessageContent
+import love.forte.simbot.message.doSafeCast
+import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.Member as OriginalMiraiMember
+import net.mamoe.mirai.event.events.GroupTempMessageEvent as OriginalMiraiGroupTempMessageEvent
 
 
 /**
- * @see GroupTempMessageEvent
+ * @see OriginalMiraiGroupTempMessageEvent
  */
-public typealias OriginalMiraiGroupTempMessageEvent = GroupTempMessageEvent
+public typealias OriginalMiraiGroupTempMessageEvent = OriginalMiraiGroupTempMessageEvent
 
 
 /**

@@ -12,37 +12,18 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.definition.*
-import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-
-
-/**
- * @see net.mamoe.mirai.event.events.MessagePostSendEvent
- */
-public typealias OriginalMiraiMessagePostSendEvent<C> = net.mamoe.mirai.event.events.MessagePostSendEvent<C>
-/**
- * @see net.mamoe.mirai.event.events.FriendMessagePostSendEvent
- */
-public typealias OriginalMiraiFriendMessagePostSendEvent = net.mamoe.mirai.event.events.FriendMessagePostSendEvent
-/**
- * @see net.mamoe.mirai.event.events.GroupMessagePostSendEvent
- */
-public typealias OriginalMiraiGroupMessagePostSendEvent = net.mamoe.mirai.event.events.GroupMessagePostSendEvent
-/**
- * @see net.mamoe.mirai.event.events.GroupTempMessagePostSendEvent
- */
-public typealias OriginalMiraiGroupTempMessagePostSendEvent = net.mamoe.mirai.event.events.GroupTempMessagePostSendEvent
-/**
- * @see net.mamoe.mirai.event.events.StrangerMessagePostSendEvent
- */
-public typealias OriginalMiraiStrangerMessagePostSendEvent = net.mamoe.mirai.event.events.StrangerMessagePostSendEvent
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.definition.FriendInfoContainer
+import love.forte.simbot.event.BaseEventKey
+import love.forte.simbot.event.Event
+import love.forte.simbot.event.FriendMessageEvent
+import love.forte.simbot.event.MessageEvent
+import love.forte.simbot.message.doSafeCast
+import net.mamoe.mirai.event.events.MessagePostSendEvent as OriginalMiraiMessagePostSendEvent
 
 
 /**
@@ -61,7 +42,7 @@ public typealias OriginalMiraiStrangerMessagePostSendEvent = net.mamoe.mirai.eve
  * @see MiraiGroupMessagePostSendEvent
  *
  */
-public interface MiraiMessagePostSendEvent<C : OriginalMiraiContact, E : OriginalMiraiMessagePostSendEvent<C>> :
+public interface MiraiMessagePostSendEvent<C : net.mamoe.mirai.contact.Contact, E : OriginalMiraiMessagePostSendEvent<C>> :
     MiraiSimbotBotEvent<E> {
     override val bot: MiraiBot
 

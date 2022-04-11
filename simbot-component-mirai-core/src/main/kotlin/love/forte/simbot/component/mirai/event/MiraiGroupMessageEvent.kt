@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -24,12 +23,9 @@ import love.forte.simbot.event.*
 import love.forte.simbot.message.*
 import love.forte.simbot.utils.*
 import net.mamoe.mirai.message.data.MessageSource.Key.recall
+import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
+import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessageEvent
 
-
-/**
- * @see net.mamoe.mirai.event.events.FriendMessageEvent
- */
-public typealias OriginalMiraiGroupMessageEvent = net.mamoe.mirai.event.events.GroupMessageEvent
 
 /**
  * 群消息事件。
@@ -99,10 +95,13 @@ public interface MiraiGroupMessageEvent :
 
     @JvmSynthetic
     override suspend fun author(): MiraiMember = author
+
     @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun source(): MiraiGroup = group
 
@@ -137,7 +136,8 @@ public interface MiraiGroupMessageEvent :
         send(message.messages)
 
     @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> = runInBlocking { send(text) }
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
+        runInBlocking { send(text) }
 
     @Api4J
     override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =

@@ -12,20 +12,26 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.component.mirai.message.*
-import love.forte.simbot.message.*
-import net.mamoe.mirai.contact.*
-import java.util.stream.*
-import kotlin.time.*
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
+import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
+import love.forte.simbot.message.Message
+import net.mamoe.mirai.contact.getMember
+import java.util.stream.Stream
+import kotlin.time.Duration
+import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
 
 /**

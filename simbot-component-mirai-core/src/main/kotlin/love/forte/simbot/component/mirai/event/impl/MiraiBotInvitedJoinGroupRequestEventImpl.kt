@@ -12,15 +12,17 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.event.*
-import love.forte.simbot.component.mirai.internal.*
-import love.forte.simbot.definition.*
+import love.forte.simbot.ID
+import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.event.InvitorUserInfo
+import love.forte.simbot.component.mirai.event.MiraiBotInvitedJoinGroupRequestEvent
+import love.forte.simbot.component.mirai.internal.MiraiBotImpl
+import love.forte.simbot.definition.GroupInfo
+import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent as OriginalMiraiBotInvitedJoinGroupRequestEvent
 
 /**
  *

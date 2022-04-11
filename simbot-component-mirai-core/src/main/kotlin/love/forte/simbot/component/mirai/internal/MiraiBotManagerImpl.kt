@@ -12,24 +12,29 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.CancellationException
-import love.forte.simbot.*
+import love.forte.simbot.BotAlreadyRegisteredException
+import love.forte.simbot.ID
 import love.forte.simbot.LoggerFactory
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.component.mirai.event.*
-import love.forte.simbot.component.mirai.event.impl.*
-import love.forte.simbot.event.*
-import net.mamoe.mirai.*
-import net.mamoe.mirai.utils.*
-import org.slf4j.*
-import java.util.concurrent.*
-import kotlin.coroutines.*
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiBotManager
+import love.forte.simbot.component.mirai.MiraiComponent
+import love.forte.simbot.component.mirai.event.MiraiBotRegisteredEvent
+import love.forte.simbot.component.mirai.event.impl.MiraiBotRegisteredEventImpl
+import love.forte.simbot.event.EventProcessingResult
+import love.forte.simbot.event.EventProcessor
+import love.forte.simbot.event.pushIfProcessable
+import love.forte.simbot.tryToLongID
+import net.mamoe.mirai.BotFactory
+import net.mamoe.mirai.utils.BotConfiguration
+import org.slf4j.Logger
+import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.CoroutineContext
+import net.mamoe.mirai.Bot as OriginalMiraiBot
 
 
 /**

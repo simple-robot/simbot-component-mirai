@@ -12,27 +12,27 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.*
-import love.forte.simbot.action.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.Api4J
+import love.forte.simbot.action.ReplySupport
+import love.forte.simbot.action.SendSupport
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiFriend
+import love.forte.simbot.component.mirai.MiraiStranger
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-import love.forte.simbot.utils.*
+import love.forte.simbot.message.Message
+import love.forte.simbot.message.MessageContent
+import love.forte.simbot.message.doSafeCast
+import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
+import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
+import net.mamoe.mirai.event.events.FriendMessageEvent as OriginalMiraiFriendMessageEvent
+import net.mamoe.mirai.event.events.StrangerMessageEvent as OriginalMiraiStrangerMessageEvent
 
-/**
- * @see net.mamoe.mirai.event.events.FriendMessageEvent
- */
-public typealias OriginalMiraiFriendMessageEvent = net.mamoe.mirai.event.events.FriendMessageEvent
-
-/**
- * @see net.mamoe.mirai.event.events.StrangerMessageEvent
- */
-public typealias OriginalMiraiStrangerMessageEvent = net.mamoe.mirai.event.events.StrangerMessageEvent
 
 /**
  * 好友消息事件。
@@ -49,14 +49,19 @@ public interface MiraiFriendMessageEvent :
 
     override val bot: MiraiBot
 
+    @Suppress("UnnecessaryOptInAnnotation")
     @OptIn(Api4J::class)
     override val friend: MiraiFriend
+
     @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
+
     @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
+
     @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
+
     @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
 
@@ -64,10 +69,13 @@ public interface MiraiFriendMessageEvent :
 
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
     override val key: Event.Key<MiraiFriendMessageEvent> get() = Key
+
     @JvmSynthetic
     override suspend fun user(): MiraiFriend = friend
+
     @JvmSynthetic
     override suspend fun source(): MiraiFriend = friend
+
     @JvmSynthetic
     override suspend fun friend(): MiraiFriend = friend
 
@@ -86,7 +94,8 @@ public interface MiraiFriendMessageEvent :
         send(message.messages)
 
     @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> = runInBlocking { send(text) }
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
+        runInBlocking { send(text) }
 
     @Api4J
     override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
@@ -138,10 +147,13 @@ public interface MiraiStrangerMessageEvent :
 
     @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
+
     @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
+
     @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
+
     @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
 

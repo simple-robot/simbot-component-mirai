@@ -12,47 +12,34 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.*
-import love.forte.simbot.action.*
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.definition.*
+import love.forte.simbot.Api4J
+import love.forte.simbot.ExperimentalSimbotApi
+import love.forte.simbot.ID
+import love.forte.simbot.action.ActionType
+import love.forte.simbot.component.mirai.MemberRole
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.definition.GroupInfo
+import love.forte.simbot.definition.Organization
+import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-import kotlin.time.*
+import love.forte.simbot.message.doSafeCast
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import net.mamoe.mirai.contact.User as OriginalMiraiUser
+import net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent as OriginalMiraiBotGroupPermissionChangeEvent
+import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent as OriginalMiraiBotInvitedJoinGroupRequestEvent
+import net.mamoe.mirai.event.events.BotJoinGroupEvent as OriginalMiraiBotJoinGroupEvent
+import net.mamoe.mirai.event.events.BotLeaveEvent as OriginalMiraiBotLeaveEvent
+import net.mamoe.mirai.event.events.BotMuteEvent as OriginalMiraiBotMuteEvent
+import net.mamoe.mirai.event.events.BotUnmuteEvent as OriginalMiraiBotUnmuteEvent
+import net.mamoe.mirai.event.events.GroupEvent as OriginalMiraiGroupEvent
 
-//region typealias
-/**
- * @see net.mamoe.mirai.event.events.BotLeaveEvent
- */
-public typealias OriginalMiraiBotLeaveEvent = net.mamoe.mirai.event.events.BotLeaveEvent
-/**
- * @see net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent
- */
-public typealias OriginalMiraiBotGroupPermissionChangeEvent = net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent
-/**
- * @see net.mamoe.mirai.event.events.BotMuteEvent
- */
-public typealias OriginalMiraiBotMuteEvent = net.mamoe.mirai.event.events.BotMuteEvent
-/**
- * @see net.mamoe.mirai.event.events.BotUnmuteEvent
- */
-public typealias OriginalMiraiBotUnmuteEvent = net.mamoe.mirai.event.events.BotUnmuteEvent
-/**
- * @see net.mamoe.mirai.event.events.BotJoinGroupEvent
- */
-public typealias OriginalMiraiBotJoinGroupEvent = net.mamoe.mirai.event.events.BotJoinGroupEvent
-
-/**
- * @see net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent
- */
-public typealias OriginalMiraiBotInvitedJoinGroupRequestEvent = net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent
-//endregion
 
 
 /**
@@ -62,7 +49,7 @@ public typealias OriginalMiraiBotInvitedJoinGroupRequestEvent = net.mamoe.mirai.
  *
  *
  *
- * @see MiraiBotLeaveEvent
+ * @see OriginalMiraiBotLeaveEvent
  * @see MiraiBotGroupRoleChangeEvent
  * @see MiraiBotMuteEvent
  * @see MiraiBotUnmuteEvent
@@ -85,6 +72,7 @@ public interface MiraiGroupBotEvent<E : OriginalMiraiGroupEvent> :
 
     @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun organization(): Organization = group
 
@@ -124,22 +112,29 @@ public interface MiraiBotLeaveEvent :
     override val before: MiraiMember get() = target
     override val after: MiraiMember? get() = null
 
+    @Suppress("UnnecessaryOptInAnnotation")
     @OptIn(Api4J::class)
     override val organization: MiraiGroup
         get() = group
 
     @JvmSynthetic
     override suspend fun target(): MiraiMember = target
+
     @JvmSynthetic
     override suspend fun operator(): MiraiMember? = operator
+
     @JvmSynthetic
     override suspend fun source(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun before(): MiraiMember = target
+
     @JvmSynthetic
     override suspend fun after(): MiraiMember? = null
+
     @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
 
@@ -173,14 +168,19 @@ public interface MiraiBotGroupRoleChangeEvent :
 
     override val source: MiraiBot get() = bot
     override val organization: MiraiGroup get() = group
+
     @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun after(): MemberRole = after
+
     @JvmSynthetic
     override suspend fun before(): MemberRole = before
+
     @JvmSynthetic
     override suspend fun source(): MiraiBot = bot
 
@@ -227,15 +227,20 @@ public sealed interface MiraiBotMuteRelateEvent<E : OriginalMiraiGroupEvent> :
     //// Impl
 
     override val source: MiraiGroup get() = group
+
     @JvmSynthetic
     override suspend fun after(): Boolean = after
+
     @JvmSynthetic
     override suspend fun before(): Boolean = before
+
     @JvmSynthetic
     override suspend fun source(): MiraiGroup = source
     override val organization: MiraiGroup get() = group
+
     @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
 
@@ -335,25 +340,34 @@ public interface MiraiBotJoinGroupEvent :
     //// Impl
 
     override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
+
     @JvmSynthetic
     override suspend fun operator(): MiraiMember? = operator
     override val source: MiraiGroup get() = group
+
     @JvmSynthetic
     override suspend fun source(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun target(): MiraiMember = target
 
+    @Suppress("UnnecessaryOptInAnnotation")
     @OptIn(Api4J::class)
     override val organization: MiraiGroup
         get() = group
+
     override val after: MiraiMember get() = target
     override val before: MiraiMember? get() = null
+
     @JvmSynthetic
     override suspend fun before(): MiraiMember? = null
+
     @JvmSynthetic
     override suspend fun after(): MiraiMember = after
+
     @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
+
     @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
 
@@ -408,6 +422,7 @@ public interface MiraiBotInvitedJoinGroupRequestEvent :
 
     @JvmSynthetic
     override suspend fun requester(): MiraiBot = bot
+
     @JvmSynthetic
     override suspend fun inviter(): InvitorUserInfo = inviter
 
@@ -420,6 +435,7 @@ public interface MiraiBotInvitedJoinGroupRequestEvent :
 
     @JvmSynthetic
     override suspend fun user(): InvitorUserInfo = inviter
+
     @JvmSynthetic
     override suspend fun group(): GroupInfo = group
 
