@@ -17,7 +17,8 @@
 
 package love.forte.simbot.component.mirai.event
 
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.future.asCompletableFuture
 import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.action.MessageReplyReceipt
@@ -29,7 +30,10 @@ import love.forte.simbot.event.*
 import love.forte.simbot.message.*
 import love.forte.simbot.randomID
 import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.User
 import net.mamoe.mirai.event.events.NudgeEvent
+import net.mamoe.mirai.message.action.Nudge.Companion.sendNudge
+import java.util.concurrent.Future
 
 /**
  * mirai中与戳一戳相关的事件。
@@ -68,24 +72,28 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
      * 回复此目标一个戳一戳。相当于针对当前的 target 发送一个戳一戳。
      */
     @JvmSynthetic
-    public suspend fun replyNudge() {
-        // TODO
+    public suspend fun replyNudge(): Boolean {
+        if (this is User) {
+            return sendNudge(originalEvent.from.nudge())
+        }
+
+        return false
     }
 
     /**
      * 回复此目标一个戳一戳。相当于针对当前的 target 发送一个戳一戳。
      */
     @Api4J
-    public fun replyNudgeBlocking() {
-        runInBlocking { replyNudge() }
+    public fun replyNudgeBlocking(): Boolean {
+        return runInBlocking { replyNudge() }
     }
 
     /**
      * 回复此目标一个戳一戳。相当于针对当前的 target 发送一个戳一戳。
      */
     @Api4J
-    public fun replyNudgeAsync() {
-        bot.launch { replyNudge() }
+    public fun replyNudgeAsync(): Future<Boolean> {
+        return bot.async { replyNudge() }.asCompletableFuture()
     }
 
 
