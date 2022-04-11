@@ -1,4 +1,23 @@
+/*
+ *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *
+ *  本文件是 simbot-component-mirai 的一部分。
+ *
+ *  simbot-component-mirai 是自由软件：你可以再分发之和/或依照由自由软件基金会发布的 GNU 通用公共许可证修改之，无论是版本 3 许可证，还是（按你的决定）任何以后版都可以。
+ *
+ *  发布 simbot-component-mirai 是希望它能有用，但是并无保障;甚至连可销售和符合某个特定的目的都不保证。请参看 GNU 通用公共许可证，了解详情。
+ *
+ *  你应该随程序获得一份 GNU 通用公共许可证的复本。如果没有，请看:
+ *  https://www.gnu.org/licenses
+ *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
+ *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
+ *
+ *
+ */
+
 @file:JvmName("CatCodeMessageUtil")
+@file:JvmMultifileClass
+
 package love.forte.simbot.component.mirai.extra.catcode
 
 import catcode.CAT_HEAD
@@ -12,7 +31,42 @@ import love.forte.simbot.message.*
 import net.mamoe.mirai.message.data.MessageChain
 
 
-private val parsers = mutableMapOf<String, CatCodeDecoder>()
+private val decoders = mutableMapOf<String, CatCodeDecoder>()
+
+
+/**
+ * 添加一个自定义的解析器。
+ * 解析器是全局的，设置后将会立即生效。
+ *
+ * **Kotlin**
+ * ```kotlin
+ * addDecoders("target_type") { neko, chain ->
+ *      // do decoding
+ *      return ...
+ *  }
+ * ```
+ *
+ * **Java**
+ * ```java
+ * CatCodeMessageUtil.addDecoders("image", (neko, chain) -> {
+ *    // do decoding
+ *     return ...;
+ * });
+ * ```
+ *
+ * ### 优先级
+ * 额外添加的自定义解析器优先级高于默认解析器，会优先使用。
+ *
+ * @param type 想要解析的猫猫码类型。
+ * @param decoder 解析器实例。
+ *
+ * @return 如果type对应解析器已经存在，返回旧的解析器。
+ *
+ */
+@Synchronized
+public fun addDecoders(type: String, decoder: CatCodeDecoder): CatCodeDecoder? {
+    return decoders.put(type, decoder)
+}
 
 
 /**
@@ -29,7 +83,7 @@ private val parsers = mutableMapOf<String, CatCodeDecoder>()
  */
 @JvmOverloads
 public fun Neko.toMessage(baseMessageChain: MessageChain? = null): Message.Element<*> {
-    return parsers[type]?.decode(this)
+    return decoders[type]?.decode(this, baseMessageChain)
         ?: when (type) {
             "text", "message" -> TextDecoder.decode(this, baseMessageChain)
             "at" -> AtDecoder.decode(this, baseMessageChain)

@@ -1,6 +1,22 @@
+/*
+ *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *
+ *  本文件是 simbot-component-mirai 的一部分。
+ *
+ *  simbot-component-mirai 是自由软件：你可以再分发之和/或依照由自由软件基金会发布的 GNU 通用公共许可证修改之，无论是版本 3 许可证，还是（按你的决定）任何以后版都可以。
+ *
+ *  发布 simbot-component-mirai 是希望它能有用，但是并无保障;甚至连可销售和符合某个特定的目的都不保证。请参看 GNU 通用公共许可证，了解详情。
+ *
+ *  你应该随程序获得一份 GNU 通用公共许可证的复本。如果没有，请看:
+ *  https://www.gnu.org/licenses
+ *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
+ *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
+ *
+ *
+ */
+
 package love.forte.simbot.component.mirai.extra.catcode
 
-import catcode.CatCodeUtil
 import catcode.Neko
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -42,12 +58,12 @@ private val logger = LoggerFactory.getLogger("love.forte.simbot.component.mirai.
  *
  * @author ForteScarlet
  */
-public interface CatCodeDecoder {
+public fun interface CatCodeDecoder {
 
     /**
      * 将一个 [Neko] 转化为 [Messages].
      */
-    public fun decode(neko: Neko, baseMessageChain: MessageChain? = null): Message.Element<*>
+    public fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*>
 }
 
 
@@ -267,18 +283,6 @@ internal object FileDecoder : CatCodeDecoder {
 
             val classPathUrl: URL? = javaClass.classLoader.getResource(filePath0)
             if (classPathUrl != null) {
-                val fileNeko = CatCodeUtil.getNekoBuilder("file", true)
-                    .key("file").value(filePath0)
-                    .key("path").value(path)
-                    .apply {
-                        if (formatName != null) {
-                            key("formatName").value(formatName)
-                        }
-                        if (fileName != null) {
-                            key("fileName").value(fileName)
-                        }
-                    }
-                    .build()
 
                 // return Mirai
                 return SimpleMiraiSendOnlyComputableMessage { c ->
@@ -401,7 +405,6 @@ internal object DiceDecoder : CatCodeDecoder {
 internal object XmlDecoder : CatCodeDecoder {
     @OptIn(MiraiExperimentalApi::class)
     override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
-        val xmlCode = neko
         // 解析的参数
         val serviceId = neko["serviceId"]?.toInt() ?: 60
 
@@ -410,37 +413,37 @@ internal object XmlDecoder : CatCodeDecoder {
             SimpleServiceMessage(serviceId, content)
         } ?: buildXmlMessage(serviceId) {
             // action
-            xmlCode["action"]?.also { this.action = it }
+            neko["action"]?.also { this.action = it }
             // 一般为点击这条消息后跳转的链接
-            xmlCode["actionData"]?.also { this.actionData = it }
+            neko["actionData"]?.also { this.actionData = it }
             /*
                摘要, 在官方客户端内消息列表中显示
              */
-            xmlCode["brief"]?.also { this.brief = it }
-            xmlCode["flag"]?.also { this.flag = it.toInt() }
-            xmlCode["url"]?.also { this.url = it }
+            neko["brief"]?.also { this.brief = it }
+            neko["flag"]?.also { this.flag = it.toInt() }
+            neko["url"]?.also { this.url = it }
             // sourceName 好像是名称
-            xmlCode["sourceName"]?.also { this.sourceName = it }
+            neko["sourceName"]?.also { this.sourceName = it }
             // sourceIconURL 好像是图标
-            xmlCode["sourceIconURL"]?.also { this.sourceIconURL = it }
+            neko["sourceIconURL"]?.also { this.sourceIconURL = it }
 
             // builder
 //                val keys = xmlCode.params.keys
 
             item {
-                xmlCode["bg"]?.also { this.bg = it.toInt() }
-                xmlCode["layout"]?.also { this.layout = it.toInt() }
+                neko["bg"]?.also { this.bg = it.toInt() }
+                neko["layout"]?.also { this.layout = it.toInt() }
                 // picture(coverUrl: String)
-                xmlCode["picture_coverUrl"]?.also { this.picture(it) }
+                neko["picture_coverUrl"]?.also { this.picture(it) }
                 // summary(text: String, color: String = "#000000")
-                xmlCode["summary_text"]?.also {
-                    val color: String = xmlCode["summary_color"] ?: "#000000"
+                neko["summary_text"]?.also {
+                    val color: String = neko["summary_color"] ?: "#000000"
                     this.summary(it, color)
                 }
                 // title(text: String, size: Int = 25, color: String = "#000000")
-                xmlCode["title_text"]?.also {
-                    val size: Int = xmlCode["title_size"]?.toInt() ?: 25
-                    val color: String = xmlCode["title_color"] ?: "#000000"
+                neko["title_text"]?.also {
+                    val size: Int = neko["title_size"]?.toInt() ?: 25
+                    val color: String = neko["title_color"] ?: "#000000"
                     this.title(it, size, color)
                 }
 
@@ -486,14 +489,14 @@ internal object MusicShareDecoder : CatCodeDecoder {
             "kugou", "Kugou", MusicKind.KugouMusic.name -> MusicKind.KugouMusic.also {
                 musicKindDisplay = "酷狗音乐"
                 musicPictureUrl =
-                    "https://staticssl.kugou.com/public/root/images/logo.png"
+                    "https://www.kugou.com/common/images/logo.png"
                 musicJumpUrl = "https://www.kugou.com/"
             }
             "kuwo", "Kuwo", MusicKind.KuwoMusic.name -> MusicKind.KuwoMusic.also {
                 musicKindDisplay = "酷我音乐"
                 musicPictureUrl =
                     "https://h5static.kuwo.cn/www/kw-www/img/logo.dac7499.png"
-                musicJumpUrl = "http://www.kuwo.cn/"
+                musicJumpUrl = "https://www.kuwo.cn/"
             }
             else -> throw NoSuchElementException("Music kind: $kindString")
         }
