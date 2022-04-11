@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 @file:JvmName("MiraiMessageParserUtil")
@@ -24,33 +23,20 @@ import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.literal
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
-import love.forte.simbot.message.AtAll
-import love.forte.simbot.message.Face
 import love.forte.simbot.message.Message
-import love.forte.simbot.message.PlainText
 import love.forte.simbot.tryToLongID
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.EmptyMessageChain
+import net.mamoe.mirai.message.data.MessageChain
+import net.mamoe.mirai.message.data.toMessageChain
+import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.message.data.At as MiraiAtFunc
-
-
-/**
- * Mirai中的原生消息类型 [net.mamoe.mirai.message.data.Message].
- *
- * @see net.mamoe.mirai.message.data.Message
- *
- */
-public typealias OriginalMiraiMessage = net.mamoe.mirai.message.data.Message
-
-
-/**
- * Mirai中的原生消息类型 [net.mamoe.mirai.message.data.SingleMessage].
- *
- * @see net.mamoe.mirai.message.data.SingleMessage
- *
- */
-public typealias OriginalMiraiSingleMessage = SingleMessage
+import net.mamoe.mirai.message.data.Audio as OriginalMiraiAudio
+import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
+import net.mamoe.mirai.message.data.Image as OriginalMiraiImage
+import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
+import net.mamoe.mirai.message.data.SingleMessage as OriginalMiraiSingleMessage
 
 
 @InternalApi
@@ -121,7 +107,7 @@ internal interface MiraiMessageParser {
     )
 
     fun toSimbot(
-        message: SingleMessage,
+        message: OriginalMiraiSingleMessage,
     ): Message.Element<*>
 }
 
@@ -164,7 +150,7 @@ private object StandardParser : MiraiMessageParser {
     /**
      * mirai message 转化为 simbot message
      */
-    override fun toSimbot(message: SingleMessage): Message.Element<*> {
+    override fun toSimbot(message: OriginalMiraiSingleMessage): Message.Element<*> {
         return when (message) {
             is net.mamoe.mirai.message.data.At -> At(message.target.ID)
             is net.mamoe.mirai.message.data.AtAll -> AtAll
@@ -184,7 +170,7 @@ private object StandardParser : MiraiMessageParser {
 private suspend fun love.forte.simbot.message.Image<*>.toMirai(contact: Contact): OriginalMiraiMessage {
     val id = id.literal
     if (id.isNotEmpty()) {
-        return Image(id)
+        return OriginalMiraiImage(id)
     }
 
     val image: OriginalMiraiImage = when (this) {

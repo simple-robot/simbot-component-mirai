@@ -12,53 +12,29 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import kotlinx.coroutines.*
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.definition.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import love.forte.simbot.Api4J
+import love.forte.simbot.Bot
+import love.forte.simbot.ExperimentalSimbotApi
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiFriend
+import love.forte.simbot.definition.Friend
+import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-
-/**
- * @see net.mamoe.mirai.event.events.FriendEvent
- */
-public typealias OriginalMiraiFriendEvent = net.mamoe.mirai.event.events.FriendEvent
-/**
- * @see net.mamoe.mirai.event.events.FriendRemarkChangeEvent
- */
-public typealias OriginalMiraiFriendRemarkChangeEvent = net.mamoe.mirai.event.events.FriendRemarkChangeEvent
-/**
- * @see net.mamoe.mirai.event.events.FriendAddEvent
- */
-public typealias OriginalMiraiFriendAddEvent = net.mamoe.mirai.event.events.FriendAddEvent
-public typealias OriginalMiraiFriendIncreaseEvent = OriginalMiraiFriendAddEvent
-/**
- * @see net.mamoe.mirai.event.events.FriendDeleteEvent
- */
-public typealias OriginalMiraiFriendDeleteEvent = net.mamoe.mirai.event.events.FriendDeleteEvent
-public typealias OriginalMiraiFriendDecreaseEvent = OriginalMiraiFriendDeleteEvent
-/**
- * @see net.mamoe.mirai.event.events.NewFriendRequestEvent
- */
-public typealias OriginalMiraiNewFriendRequestEvent = net.mamoe.mirai.event.events.NewFriendRequestEvent
-public typealias OriginalMiraiFriendRequestEvent = OriginalMiraiNewFriendRequestEvent
-/**
- * @see net.mamoe.mirai.event.events.FriendAvatarChangedEvent
- */
-public typealias OriginalMiraiFriendAvatarChangedEvent = net.mamoe.mirai.event.events.FriendAvatarChangedEvent
-/**
- * @see net.mamoe.mirai.event.events.FriendNickChangedEvent
- */
-public typealias OriginalMiraiFriendNickChangedEvent = net.mamoe.mirai.event.events.FriendNickChangedEvent
-/**
- * @see net.mamoe.mirai.event.events.FriendInputStatusChangedEvent
- */
-public typealias OriginalMiraiFriendInputStatusChangedEvent = net.mamoe.mirai.event.events.FriendInputStatusChangedEvent
+import love.forte.simbot.message.doSafeCast
+import net.mamoe.mirai.event.events.FriendAddEvent as OriginalMiraiFriendAddEvent
+import net.mamoe.mirai.event.events.FriendAvatarChangedEvent as OriginalMiraiFriendAvatarChangedEvent
+import net.mamoe.mirai.event.events.FriendDeleteEvent as OriginalMiraiFriendDeleteEvent
+import net.mamoe.mirai.event.events.FriendEvent as OriginalMiraiFriendEvent
+import net.mamoe.mirai.event.events.FriendInputStatusChangedEvent as OriginalMiraiFriendInputStatusChangedEvent
+import net.mamoe.mirai.event.events.FriendNickChangedEvent as OriginalMiraiFriendNickChangedEvent
+import net.mamoe.mirai.event.events.FriendRemarkChangeEvent as OriginalMiraiFriendRemarkChangeEvent
+import net.mamoe.mirai.event.events.NewFriendRequestEvent as OriginalMiraiNewFriendRequestEvent
 
 
 /**

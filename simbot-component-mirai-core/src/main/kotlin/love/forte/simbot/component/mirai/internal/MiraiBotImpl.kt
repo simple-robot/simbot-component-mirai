@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -24,7 +23,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiFriend
+import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.event.impl.*
 import love.forte.simbot.component.mirai.message.MiraiImage
@@ -39,6 +40,49 @@ import love.forte.simbot.resources.Resource
 import net.mamoe.mirai.utils.MiraiExperimentalApi
 import org.slf4j.Logger
 import java.util.stream.Stream
+import net.mamoe.mirai.Bot as OriginalMiraiBot
+import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
+import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
+import net.mamoe.mirai.contact.Member as OriginalMiraiMember
+import net.mamoe.mirai.event.Event as OriginalMiraiEvent
+import net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent as OriginalMiraiBotGroupPermissionChangeEvent
+import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent as OriginalMiraiBotInvitedJoinGroupRequestEvent
+import net.mamoe.mirai.event.events.BotJoinGroupEvent as OriginalMiraiBotJoinGroupEvent
+import net.mamoe.mirai.event.events.BotLeaveEvent as OriginalMiraiBotLeaveEvent
+import net.mamoe.mirai.event.events.BotMuteEvent as OriginalMiraiBotMuteEvent
+import net.mamoe.mirai.event.events.BotUnmuteEvent as OriginalMiraiBotUnmuteEvent
+import net.mamoe.mirai.event.events.FriendAddEvent as OriginalMiraiFriendAddEvent
+import net.mamoe.mirai.event.events.FriendAvatarChangedEvent as OriginalMiraiFriendAvatarChangedEvent
+import net.mamoe.mirai.event.events.FriendDeleteEvent as OriginalMiraiFriendDecreaseEvent
+import net.mamoe.mirai.event.events.FriendInputStatusChangedEvent as OriginalMiraiFriendInputStatusChangedEvent
+import net.mamoe.mirai.event.events.FriendMessageEvent as OriginalMiraiFriendMessageEvent
+import net.mamoe.mirai.event.events.FriendMessagePostSendEvent as OriginalMiraiFriendMessagePostSendEvent
+import net.mamoe.mirai.event.events.FriendNickChangedEvent as OriginalMiraiFriendNickChangedEvent
+import net.mamoe.mirai.event.events.FriendRemarkChangeEvent as OriginalMiraiFriendRemarkChangeEvent
+import net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent as OriginalMiraiGroupAllowAnonymousChatEvent
+import net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent as OriginalMiraiGroupAllowConfessTalkEvent
+import net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent as OriginalMiraiGroupAllowMemberInviteEvent
+import net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent as OriginalMiraiGroupEntranceAnnouncementChangeEvent
+import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessageEvent
+import net.mamoe.mirai.event.events.GroupMessagePostSendEvent as OriginalMiraiGroupMessagePostSendEvent
+import net.mamoe.mirai.event.events.GroupMuteAllEvent as OriginalMiraiGroupMuteAllEvent
+import net.mamoe.mirai.event.events.GroupNameChangeEvent as OriginalMiraiGroupNameChangeEvent
+import net.mamoe.mirai.event.events.GroupTalkativeChangeEvent as OriginalMiraiGroupTalkativeChangeEvent
+import net.mamoe.mirai.event.events.GroupTempMessageEvent as OriginalMiraiGroupTempMessageEvent
+import net.mamoe.mirai.event.events.GroupTempMessagePostSendEvent as OriginalMiraiGroupTempMessagePostSendEvent
+import net.mamoe.mirai.event.events.MemberCardChangeEvent as OriginalMiraiMemberCardChangeEvent
+import net.mamoe.mirai.event.events.MemberHonorChangeEvent as OriginalMiraiMemberHonorChangeEvent
+import net.mamoe.mirai.event.events.MemberJoinEvent as OriginalMiraiMemberJoinEvent
+import net.mamoe.mirai.event.events.MemberJoinRequestEvent as OriginalMiraiMemberJoinRequestEvent
+import net.mamoe.mirai.event.events.MemberLeaveEvent as OriginalMiraiMemberLeaveEvent
+import net.mamoe.mirai.event.events.MemberMuteEvent as OriginalMiraiMemberMuteEvent
+import net.mamoe.mirai.event.events.MemberPermissionChangeEvent as OriginalMiraiMemberPermissionChangeEvent
+import net.mamoe.mirai.event.events.MemberSpecialTitleChangeEvent as OriginalMiraiMemberSpecialTitleChangeEvent
+import net.mamoe.mirai.event.events.MemberUnmuteEvent as OriginalMiraiMemberUnmuteEvent
+import net.mamoe.mirai.event.events.MessagePostSendEvent as OriginalMiraiMessagePostSendEvent
+import net.mamoe.mirai.event.events.NewFriendRequestEvent as OriginalMiraiFriendRequestEvent
+import net.mamoe.mirai.event.events.StrangerMessageEvent as OriginalMiraiStrangerMessageEvent
+import net.mamoe.mirai.event.events.StrangerMessagePostSendEvent as OriginalMiraiStrangerMessagePostSendEvent
 import net.mamoe.mirai.message.data.Image as miraiImageFunc
 
 
@@ -235,7 +279,7 @@ private fun MiraiBotImpl.registerEvents() {
                 }
             is OriginalMiraiFriendDecreaseEvent ->
                 doHandler(this, MiraiFriendDecreaseEvent) { MiraiFriendDecreaseEventImpl(this@registerEvents, this) }
-            is OriginalMiraiFriendIncreaseEvent ->
+            is OriginalMiraiFriendAddEvent ->
                 doHandler(this, MiraiFriendIncreaseEvent) { MiraiFriendIncreaseEventImpl(this@registerEvents, this) }
             is OriginalMiraiFriendRemarkChangeEvent ->
                 doHandler(this, MiraiFriendRemarkChangeEvent) {

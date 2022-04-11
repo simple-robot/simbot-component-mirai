@@ -12,29 +12,27 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import love.forte.simbot.*
 import love.forte.simbot.Bot
-import love.forte.simbot.component.mirai.message.*
-import love.forte.simbot.definition.*
-import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-import love.forte.simbot.resources.*
-import net.mamoe.mirai.*
-import org.slf4j.*
-import java.util.stream.*
-import kotlin.coroutines.*
+import love.forte.simbot.component.mirai.message.MiraiImage
+import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
+import love.forte.simbot.definition.Guild
+import love.forte.simbot.definition.UserInfo
+import love.forte.simbot.event.EventProcessor
+import love.forte.simbot.message.Image
+import love.forte.simbot.resources.Resource
+import net.mamoe.mirai.supervisorJob
+import org.slf4j.Logger
+import java.util.stream.Stream
+import kotlin.coroutines.CoroutineContext
+import net.mamoe.mirai.Bot as OriginalMiraiBot
 
-
-/**
- * 原生的MiraiBot [net.mamoe.mirai.Bot] 类型。
- */
-public typealias OriginalMiraiBot = net.mamoe.mirai.Bot
 
 /**
  *
@@ -232,7 +230,7 @@ public interface MiraiBot : Bot, UserInfo {
      * 通过 [resource] 上传并得到一个可以且仅可用于在mirai组件中进行 **发送** 的图片消息对象。
      *
      * 如果通过 [love.forte.simbot.resources.Resource] 来构建 [Image],
-     * 那么得到的 [Image] 对象只是一个尚未初始化的伪[Image], 他会在发送消息的时候根据对应的 [OriginalMiraiContact] 来进行上传并发送。
+     * 那么得到的 [Image] 对象只是一个尚未初始化的伪[Image], 他会在发送消息的时候根据对应的 [net.mamoe.mirai.contact.Contact] 来进行上传并发送。
      */
     public fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage
 

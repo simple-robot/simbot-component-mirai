@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.extra.catcode
@@ -48,6 +47,7 @@ import java.net.URL
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.math.absoluteValue
+import net.mamoe.mirai.message.data.Image as OriginalMiraiImage
 
 
 private val logger = LoggerFactory.getLogger("love.forte.simbot.component.mirai.extra.catcode.CatCodeDecoders")
@@ -136,7 +136,7 @@ internal object ImageDecoder : CatCodeDecoder {
 
             // not found
             try {
-                return MiraiImage.of(Image(id), isFlash)
+                return MiraiImage.of(OriginalMiraiImage(id), isFlash)
             } catch (anyException: Exception) {
                 if (logger.isDebugEnabled) {
                     logger.debug("Cannot create [Image] by id $id", anyException)
@@ -557,7 +557,8 @@ internal object UnsupportedDecoder : CatCodeDecoder {
     }
 }
 
-private fun String.hexStringToByteArray(): ByteArray {
+
+internal fun String.hexStringToByteArray(): ByteArray {
     if (length % 2 != 0) {
         throw IllegalArgumentException("Hex str need % 2 == 0, but length $length in $this")
     }
@@ -576,3 +577,4 @@ private fun String.hexStringToByteArray(): ByteArray {
 
     return byteArray
 }
+

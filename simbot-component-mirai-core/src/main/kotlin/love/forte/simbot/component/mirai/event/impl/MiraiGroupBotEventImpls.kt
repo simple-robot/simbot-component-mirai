@@ -12,20 +12,29 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
-import love.forte.simbot.*
-import love.forte.simbot.action.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.ID
+import love.forte.simbot.Timestamp
+import love.forte.simbot.action.ActionType
+import love.forte.simbot.component.mirai.MemberRole
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.event.*
-import love.forte.simbot.component.mirai.internal.*
-import net.mamoe.mirai.event.events.*
-import net.mamoe.mirai.utils.*
-import kotlin.time.*
+import love.forte.simbot.component.mirai.internal.MiraiBotImpl
+import love.forte.simbot.component.mirai.internal.asSimbot
+import love.forte.simbot.component.mirai.simbotRole
+import love.forte.simbot.randomID
+import net.mamoe.mirai.utils.MiraiExperimentalApi
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent as OriginalMiraiBotGroupPermissionChangeEvent
+import net.mamoe.mirai.event.events.BotJoinGroupEvent as OriginalMiraiBotJoinGroupEvent
+import net.mamoe.mirai.event.events.BotLeaveEvent as OriginalMiraiBotLeaveEvent
+import net.mamoe.mirai.event.events.BotMuteEvent as OriginalMiraiBotMuteEvent
+import net.mamoe.mirai.event.events.BotUnmuteEvent as OriginalMiraiBotUnmuteEvent
 
 
 /***/
@@ -50,7 +59,7 @@ internal class MiraiBotJoinGroupEventImpl(
     override val group = originalEvent.group.asSimbot(bot)
 
     @OptIn(MiraiExperimentalApi::class)
-    override val operator = if (originalEvent is BotJoinGroupEvent.Invite) {
+    override val operator = if (originalEvent is OriginalMiraiBotJoinGroupEvent.Invite) {
         originalEvent.invitor.asSimbot(bot, group)
     } else {
         null
@@ -94,15 +103,15 @@ internal class MiraiBotLeaveEventImpl(
 
     @OptIn(MiraiExperimentalApi::class)
     override val operator: MiraiMember = when (originalEvent) {
-        is BotLeaveEvent.Kick -> originalEvent.operator.asSimbot(bot, group)
-        is BotLeaveEvent.Disband -> originalEvent.operator.asSimbot(bot, group)
+        is OriginalMiraiBotLeaveEvent.Kick -> originalEvent.operator.asSimbot(bot, group)
+        is OriginalMiraiBotLeaveEvent.Disband -> originalEvent.operator.asSimbot(bot, group)
         else -> target
     }
 
     @OptIn(MiraiExperimentalApi::class)
     override val actionType: ActionType = when (originalEvent) {
-        is BotLeaveEvent.Kick -> ActionType.PASSIVE
-        is BotLeaveEvent.Disband -> ActionType.PASSIVE
+        is OriginalMiraiBotLeaveEvent.Kick -> ActionType.PASSIVE
+        is OriginalMiraiBotLeaveEvent.Disband -> ActionType.PASSIVE
         else -> ActionType.PROACTIVE
     }
 }

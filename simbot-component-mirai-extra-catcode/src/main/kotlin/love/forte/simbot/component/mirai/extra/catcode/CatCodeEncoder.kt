@@ -14,32 +14,28 @@
  *
  */
 
-package love.forte.simbot.component.mirai
+package love.forte.simbot.component.mirai.extra.catcode
 
-import love.forte.simbot.definition.Contact
-import love.forte.simbot.definition.UserStatus
-import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
+import catcode.Neko
+import net.mamoe.mirai.message.data.SingleMessage
 
 
 /**
+ * 猫猫码解析器，用于将一个原始的Mirai消息对象解析为 [Neko] 实例。
  *
- * Mirai的陌生人对象实例。
+ *
  * @author ForteScarlet
  */
-public interface MiraiStranger : Contact, MiraiContact {
+public interface CatCodeEncoder {
 
-    override val bot: MiraiBot
-    override val originalContact: OriginalMiraiStranger
+    /**
+     * 将一个 [SingleMessage] 转化为 [Neko] 实例。
+     */
+    public fun encode(singleMessage: SingleMessage): Neko
 
-    override val avatar: String
-        get() = originalContact.avatarUrl
-
-    override val status: UserStatus
-        get() = strangerStatus
-
-    override val username: String
-        get() = originalContact.nick
 
 }
 
-private val strangerStatus = UserStatus.builder().normal().build()
+
+
+

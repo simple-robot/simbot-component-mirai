@@ -12,15 +12,24 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
-import love.forte.simbot.*
+import love.forte.simbot.ID
+import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.event.*
-import love.forte.simbot.component.mirai.internal.*
-import net.mamoe.mirai.event.events.*
+import love.forte.simbot.component.mirai.internal.MiraiBotImpl
+import love.forte.simbot.component.mirai.internal.asSimbot
+import love.forte.simbot.randomID
+import net.mamoe.mirai.event.events.operatorOrBot
+import net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent as OriginalMiraiGroupAllowAnonymousChatEvent
+import net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent as OriginalMiraiGroupAllowConfessTalkEvent
+import net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent as OriginalMiraiGroupAllowMemberInviteEvent
+import net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent as OriginalMiraiGroupEntranceAnnouncementChangeEvent
+import net.mamoe.mirai.event.events.GroupMuteAllEvent as OriginalMiraiGroupMuteAllEvent
+import net.mamoe.mirai.event.events.GroupNameChangeEvent as OriginalMiraiGroupNameChangeEvent
+import net.mamoe.mirai.event.events.GroupSettingChangeEvent as OriginalMiraiGroupSettingChangeEvent
 
 
 internal abstract class BaseMiraiGroupSettingEvent<T, E : OriginalMiraiGroupSettingChangeEvent<T>>(

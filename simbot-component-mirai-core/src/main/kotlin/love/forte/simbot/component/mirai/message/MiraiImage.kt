@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -29,22 +28,15 @@ import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.toResource
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
-import net.mamoe.mirai.message.data.FlashImage
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import net.mamoe.mirai.message.data.ImageType
 import net.mamoe.mirai.message.data.flash
 import java.net.URL
 import java.util.concurrent.atomic.AtomicReference
+import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
+import net.mamoe.mirai.message.data.Image as OriginalMiraiImage
+import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
 
-/**
- * Mirai的原生图片类型 [net.mamoe.mirai.message.data.Image]
- */
-public typealias OriginalMiraiImage = net.mamoe.mirai.message.data.Image
-
-/**
- * Mirai的原生图片类型 [net.mamoe.mirai.message.data.FlashImage]
- */
-public typealias OriginalMiraiFlashImage = FlashImage
 
 /**
  * 一个仅用于发送的临时 [OriginalMiraiImage] 类型，通过 [MiraiBot.uploadImage] 有可能会得到。

@@ -12,26 +12,24 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
-import love.forte.simbot.*
-import love.forte.simbot.action.*
-import love.forte.simbot.component.mirai.message.*
+import love.forte.simbot.Api4J
+import love.forte.simbot.CharSequenceID
+import love.forte.simbot.ID
+import love.forte.simbot.action.DeleteSupport
+import love.forte.simbot.action.MessageReplyReceipt
+import love.forte.simbot.action.ReplySupport
+import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
-import love.forte.simbot.utils.*
-import net.mamoe.mirai.contact.*
+import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.*
-
-
-/**
- * @see net.mamoe.mirai.message.MessageReceipt
- */
-public typealias OriginalMiraiMessageReceipt<C> = net.mamoe.mirai.message.MessageReceipt<C>
+import net.mamoe.mirai.message.MessageReceipt as OriginalMiraiMessageReceipt
 
 
 /**

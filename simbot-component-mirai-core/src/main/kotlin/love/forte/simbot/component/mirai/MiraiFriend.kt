@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -22,13 +21,8 @@ import love.forte.simbot.action.*
 import love.forte.simbot.definition.*
 import love.forte.simbot.message.*
 import love.forte.simbot.utils.*
+import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
 
-/**
- * Mirai原生类型。
- *
- * @see net.mamoe.mirai.contact.Friend
- */
-public typealias OriginalMiraiFriend = net.mamoe.mirai.contact.Friend
 
 
 /**
@@ -37,7 +31,7 @@ public typealias OriginalMiraiFriend = net.mamoe.mirai.contact.Friend
  *
  * ### [DeleteSupport]
  *
- * mirai好友支持 [删除操作][DeleteSupport]. [delete] 相当于删除好友，等同于 [net.mamoe.mirai.contact.Friend.delete].
+ * mirai好友支持 [删除操作][DeleteSupport]. [delete] 相当于删除好友，等同于 [net.mamoe.mirai.contact.Friend1.delete].
  *
  * @author ForteScarlet
  */
@@ -74,9 +68,9 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
     //endregion
 
     /**
-     * 行为同 [net.mamoe.mirai.contact.Friend.delete], 删除当前好友。
+     * 行为同 [net.mamoe.mirai.contact.Friend1.delete], 删除当前好友。
      *
-     * @see net.mamoe.mirai.contact.Friend.delete
+     * @see net.mamoe.mirai.contact.Friend1.delete
      * @return true.
      */
     override suspend fun delete(): Boolean {
@@ -85,9 +79,9 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
     }
 
     /**
-     * 行为同 [net.mamoe.mirai.contact.Friend.delete], 删除当前好友。
+     * 行为同 [net.mamoe.mirai.contact.Friend1.delete], 删除当前好友。
      *
-     * @see net.mamoe.mirai.contact.Friend.delete
+     * @see net.mamoe.mirai.contact.Friend1.delete
      * @see delete
      * @return true.
      */

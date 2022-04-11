@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -26,23 +25,16 @@ import love.forte.simbot.utils.*
 import net.mamoe.mirai.contact.*
 import java.util.stream.*
 import kotlin.time.*
+import net.mamoe.mirai.contact.Member as OriginalMiraiMember
+import net.mamoe.mirai.contact.NormalMember as OriginalMiraiNormalMember
 
 
-/**
- * @see net.mamoe.mirai.contact.Member
- */
-public typealias OriginalMiraiMember = net.mamoe.mirai.contact.Member
-
-/**
- * @see net.mamoe.mirai.contact.NormalMember
- */
-public typealias OriginalMiraiNormalMember = NormalMember
 
 /**
  * 一个由simbot包装为 [GroupMember] 的 [OriginalMiraiMember] 对象。
  *
  * ### [DeleteSupport]
- * 一个 mirai 的群成员是 [支持删除][DeleteSupport] 操作的. [delete] 行为相当于 [踢出][net.mamoe.mirai.contact.NormalMember.kick] 操作。
+ * 一个 mirai 的群成员是 [支持删除][DeleteSupport] 操作的. [delete] 行为相当于 [踢出][net.mamoe.mirai.contact.NormalMember1.kick] 操作。
  *
  * 当 [originalContact] 的类型不是 [OriginalMiraiNormalMember] 的时候，[delete] 行为将会无效。
  *
@@ -116,7 +108,7 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport, DeleteSu
      * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
      *
      * @param message 踢出时提供的消息。可能无实际意义。
-     * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
+     * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember1.kick].
      * @return 是否为普通成员且踢出执行成功。
      */
     public suspend fun kick(message: String, block: Boolean): Boolean {
@@ -132,7 +124,7 @@ public interface MiraiMember : GroupMember, MiraiContact, ReplySupport, DeleteSu
      * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
      *
      * @param message 踢出时提供的消息。可能无实际意义。
-     * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
+     * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember1.kick].
      * @return 是否为普通成员且踢出执行成功。
      */
     public suspend fun kick(message: String): Boolean = kick("", false)
