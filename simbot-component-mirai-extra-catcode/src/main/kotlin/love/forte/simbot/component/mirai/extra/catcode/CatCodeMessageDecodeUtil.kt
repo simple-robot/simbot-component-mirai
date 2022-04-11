@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 @file:JvmName("CatCodeMessageUtil")
@@ -85,34 +84,36 @@ public fun addDecoders(type: String, decoder: CatCodeDecoder): CatCodeDecoder? {
 public fun Neko.toMessage(baseMessageChain: MessageChain? = null): Message.Element<*> {
     return decoders[type]?.decode(this, baseMessageChain)
         ?: when (type) {
-            "text", "message" -> TextDecoder.decode(this, baseMessageChain)
-            "at" -> AtDecoder.decode(this, baseMessageChain)
-            "atall", "atAll" -> AtAll
-            "face" -> FaceDecoder.decode(this, baseMessageChain)
+            "text", "message" -> TextCatCodeSerializer.decode(this, baseMessageChain)
+            "at" -> AtCatCodeSerializer.decode(this, baseMessageChain)
+            "atall", "atAll" -> AtAllCatCodeSerializer.decode(this, baseMessageChain)
+            "face" -> FaceCatCodeSerializer.decode(this, baseMessageChain)
+            "marketFace" -> MarketFaceCatCodeSerializer.decode(this, baseMessageChain)
+            "vipFace" -> VipFaceCatCodeSerializer.decode(this, baseMessageChain)
             // 戳一戳，窗口抖动
-            "poke", "shake" -> PokeDecoder.decode(this, baseMessageChain)
+            "poke", "shake" -> PokeCatCodeSerializer.decode(this, baseMessageChain)
             // 头像抖动
-            "nudge" -> NudgeDecoder.decode(this, baseMessageChain)
+            "nudge" -> NudgeCatCodeSerializer.decode(this, baseMessageChain)
             // 图片
-            "image", "img" -> ImageDecoder.decode(this, baseMessageChain)
+            "image", "img" -> ImageCatCodeSerializer.decode(this, baseMessageChain)
             // 语音
-            "voice", "audio", "record" -> VoiceDecoder.decode(this, baseMessageChain)
+            "audio", "voice", "record" -> AudioCatCodeSerializer.decode(this, baseMessageChain)
             // 群文件上传
-            "file" -> FileDecoder.decode(this, baseMessageChain)
+            "file" -> FileCatCodeSerializer.decode(this, baseMessageChain)
             // 分享
-            "share" -> ShareDecoder.decode(this, baseMessageChain)
+            "share" -> ShareCatCodeSerializer.decode(this, baseMessageChain)
             // 卡片相关
-            "rich" -> RichDecoder.decode(this, baseMessageChain)
-            "app", "json" -> AppJsonDecoder.decode(this, baseMessageChain)
+            "rich" -> RichCatCodeSerializer.decode(this, baseMessageChain)
+            "app", "json" -> AppJsonCatCodeSerializer.decode(this, baseMessageChain)
             // 骰子
-            "dice" -> DiceDecoder.decode(this, baseMessageChain)
-            "xml" -> XmlDecoder.decode(this, baseMessageChain)
+            "dice" -> DiceCatCodeSerializer.decode(this, baseMessageChain)
+            "xml" -> XmlCatCodeSerializer.decode(this, baseMessageChain)
             // 音乐分享
-            "music", "musicShare" -> MusicShareDecoder.decode(this, baseMessageChain)
+            "music", "musicShare" -> MusicShareCatCodeSerializer.decode(this, baseMessageChain)
             // 引用回复
-            "quote" -> QuoteDecoder.decode(this, baseMessageChain)
+            "quote" -> QuoteCatCodeSerializer.decode(this, baseMessageChain)
             // 未知消息
-            "unsupported" -> UnsupportedDecoder.decode(this, baseMessageChain)
+            "unsupported" -> UnsupportedCatCodeSerializer.decode(this, baseMessageChain)
             else -> this.toString().toText()
         }
 }

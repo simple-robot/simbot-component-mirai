@@ -16,16 +16,18 @@
 
 package love.forte.simbot.component.mirai.extra.catcode
 
+import catcode.CatCodeUtil
+import catcode.CatEncoder
 import catcode.Neko
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import love.forte.simbot.ID
-import love.forte.simbot.LoggerFactory
-import love.forte.simbot.SimbotIllegalArgumentException
+import love.forte.simbot.*
 import love.forte.simbot.component.mirai.ID
+import love.forte.simbot.component.mirai.extra.catcode.AppJsonCatCodeSerializer.encoder
+import love.forte.simbot.component.mirai.extra.catcode.XmlCatCodeSerializer.encoder
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.*
-import love.forte.simbot.literal
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
 import love.forte.simbot.message.AtAll
@@ -36,7 +38,10 @@ import love.forte.simbot.utils.runWithInterruptible
 import love.forte.simbot.utils.toHex
 import net.mamoe.mirai.contact.FileSupported
 import net.mamoe.mirai.contact.file.AbsoluteFolder
+import net.mamoe.mirai.message.action.Nudge
 import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.Image
+import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
 import net.mamoe.mirai.utils.ExternalResource
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
@@ -47,10 +52,12 @@ import java.net.URL
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.math.absoluteValue
-import net.mamoe.mirai.message.data.Image as OriginalMiraiImage
+import net.mamoe.mirai.message.data.At as MiraiAt
+import net.mamoe.mirai.message.data.AtAll as MiraiAtAll
+import net.mamoe.mirai.message.data.Face as MiraiFace
 
 
-private val logger = LoggerFactory.getLogger("love.forte.simbot.component.mirai.extra.catcode.CatCodeDecoders")
+private val logger = LoggerFactory.getLogger("love.forte.simbot.component.mirai.extra.catcode.CatCodeSerializer")
 
 /**
  * 猫猫码解析器，用于将一个 [Neko] 解析为 [Messages] 消息实例。
@@ -67,76 +74,193 @@ public fun interface CatCodeDecoder {
 }
 
 
+/**
+ * 猫猫码解析器，用于将一个原始的Mirai消息对象解析为 [Neko] 实例。
+ *
+ *
+ * @author ForteScarlet
+ */
+public fun interface CatCodeEncoder {
 
-internal const val CLASSPATH_HEAD = "classpath:"
-internal const val FILE_HEAD = "file:"
+    /**
+     * 将一个 [SingleMessage] 转化为 [Neko] 实例。
+     */
+    public fun encode(singleMessage: SingleMessage): Neko
 
-internal object TextDecoder : CatCodeDecoder {
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
-        return neko["text"]?.toText() ?: Text()
-    }
 }
 
-internal object AtDecoder : CatCodeDecoder {
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
+private const val CLASSPATH_HEAD = "classpath:"
+private const val FILE_HEAD = "file:"
+
+
+/**
+ * Cat Code序列化器。
+ * @author ForteScarlet
+ */
+public abstract class CatCodeSerializer : CatCodeDecoder, CatCodeEncoder {
+    /**
+     * 猫猫码解码器。
+     */
+    public abstract val decoder: CatCodeDecoder
+
+    /**
+     * 猫猫码编码器。
+     */
+    public abstract val encoder: CatCodeEncoder
+
+
+    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> =
+        decoder.decode(neko, baseMessageChain)
+
+    override fun encode(singleMessage: SingleMessage): Neko = encoder.encode(singleMessage)
+
+}
+
+
+/**
+ * 针对 [Text] 类型消息的猫猫码序列化器。
+ */
+public object TextCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ -> neko["text"]?.toText() ?: Text() }
+    override val encoder: CatCodeEncoder =
+        catCodeEncoder { CatCodeUtil.toNeko("text", false, "text=${CatEncoder.encodeParams(content)}") }
+
+}
+
+/**
+ * 针对 [MiraiAt] 类型消息的猫猫码序列化器。
+ */
+public object AtCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
         if (neko["all"].toBoolean()) {
-            return AtAll
+            AtAll
         }
 
-        return neko["code"]?.let { At(it.ID) } ?: throw SimbotIllegalArgumentException("no valid argument 'code'")
+        neko["code"]?.let { At(it.ID) } ?: throw SimbotIllegalArgumentException("no valid argument 'code'")
+    }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<MiraiAt> { CatCodeUtil.nekoTemplate.at(target) }
+}
 
+/**
+ * 针对 [MiraiAtAll] 类型消息的猫猫码序列化器。
+ */
+public object AtAllCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { _, _ -> AtAll }
+    override val encoder: CatCodeEncoder = catCodeEncoder { CatCodeUtil.nekoTemplate.atAll() }
+}
+
+/**
+ * 针对 [Face] 类型消息的猫猫码序列化器。
+ */
+public object FaceCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
+        neko["id"]?.let { Face(it.ID) } ?: throw SimbotIllegalArgumentException("no valid argument 'id'")
+    }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<MiraiFace> { CatCodeUtil.nekoTemplate.face(id.toString()) }
+}
+
+/**
+ * 针对 [MarketFace] 类型消息的猫猫码序列化器。
+ */
+public object MarketFaceCatCodeSerializer : CatCodeSerializer() {
+    @OptIn(InternalApi::class, MiraiExperimentalApi::class)
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, baseMessageChain ->
+        val id = neko["id"] ?: return@CatCodeDecoder EmptySingleMessage.simbotMessage.also {
+            logger.warn("Market Face does not support sending. cat code: {}", neko)
+        }
+
+        baseMessageChain?.find { it is MarketFace && it.id.toString() == id }?.asSimbotMessage()
+            ?: EmptySingleMessage.simbotMessage.also {
+                logger.warn("Market Face does not support sending. cat code: {}", neko)
+            }
+    }
+
+    @OptIn(MiraiExperimentalApi::class)
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<MarketFace> {
+        CatCodeUtil.getNekoBuilder("marketFace", true)
+            .key("id").value(id)
+            .key("name").value(name)
+            .build()
     }
 }
 
-internal object FaceDecoder : CatCodeDecoder {
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
-        return neko["id"]?.let { Face(it.ID) } ?: throw SimbotIllegalArgumentException("no valid argument 'id'")
+/**
+ * 针对 [VipFace] 类型消息的猫猫码序列化器。
+ */
+public object VipFaceCatCodeSerializer : CatCodeSerializer() {
+    @OptIn(InternalApi::class, MiraiExperimentalApi::class)
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
+        logger.warn("Vip Face does not support sending. cat code: {}", neko)
+        EmptySingleMessage.simbotMessage
+    }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<VipFace> {
+        CatCodeUtil.getNekoBuilder("vipFace", true)
+            .key("kindId").value(this.kind.id)
+            .key("kindName").value(this.kind.name)
+            .key("count").value(this.count)
+            .build()
     }
 }
 
-internal object PokeDecoder : CatCodeDecoder {
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
-        val type = neko["type"]?.toInt() ?: return PokeMessage.ChuoYiChuo.asSimbotMessage()
+/**
+ * 针对 [Poke] 类型消息的猫猫码序列化器。
+ */
+public object PokeCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
+        val type = neko["type"]?.toInt() ?: return@CatCodeDecoder PokeMessage.ChuoYiChuo.asSimbotMessage()
         val id = neko["id"]?.toInt() ?: -1
 
         val poke = PokeMessage.values
             .find { p -> p.pokeType == type && p.id == id }
             ?: PokeMessage.ChuoYiChuo
 
-        return poke.asSimbotMessage()
+        poke.asSimbotMessage()
+    }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<PokeMessage> {
+        CatCodeUtil.getNekoBuilder("poke", false)
+            .key("type").value(pokeType)
+            .key("id").value(id)
+            .build()
     }
 }
 
-internal object NudgeDecoder : CatCodeDecoder {
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
-        return MiraiNudge(neko["target"]?.ID)
-    }
+/**
+ * 针对 [Nudge] 类型消息的猫猫码序列化器。
+ */
+public object NudgeCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ -> MiraiNudge(neko["target"]?.ID) }
+
+    @Deprecated("Normally should not be used")
+    override val encoder: CatCodeEncoder = catCodeEncoder { CatCodeUtil.toNeko("nudge") } // 不可能触发
 }
 
-internal object ImageDecoder : CatCodeDecoder {
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
+/**
+ * 针对 [Image] 类型消息的猫猫码序列化器。
+ */
+public object ImageCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, baseMessageChain ->
         val id = neko["id"]
         val isFlash = neko["flash"].toBoolean()
 
         if (id != null) {
             // find from base chain
             val foundImg = baseMessageChain?.find {
-                (it is OriginalMiraiImage && it.imageId == id) ||
+                (it is Image && it.imageId == id) ||
                         (it is FlashImage && it.image.imageId == id)
             }
 
             if (foundImg != null) {
-                if (foundImg is OriginalMiraiImage) {
-                    return MiraiImage.of(foundImg, isFlash)
+                if (foundImg is Image) {
+                    return@CatCodeDecoder MiraiImage.of(foundImg, isFlash)
                 }
                 if (foundImg is FlashImage) {
-                    return MiraiImage.of(foundImg, isFlash)
+                    return@CatCodeDecoder MiraiImage.of(foundImg, isFlash)
                 }
             }
 
             // not found
             try {
-                return MiraiImage.of(OriginalMiraiImage(id), isFlash)
+                return@CatCodeDecoder MiraiImage.of(Image(id), isFlash)
             } catch (anyException: Exception) {
                 if (logger.isDebugEnabled) {
                     logger.debug("Cannot create [Image] by id $id", anyException)
@@ -155,7 +279,11 @@ internal object ImageDecoder : CatCodeDecoder {
                 filePath = filePath.substring(CLASSPATH_HEAD.length)
                 val classPathUrl: URL? = javaClass.classLoader.getResource(filePath)
                 if (classPathUrl != null) {
-                    return MiraiSendOnlyImage.of(classPathUrl.toResource(name ?: id ?: classPathUrl.toString()))
+                    return@CatCodeDecoder MiraiSendOnlyImage.of(
+                        classPathUrl.toResource(
+                            name ?: id ?: classPathUrl.toString()
+                        )
+                    )
                 }
             }
 
@@ -166,7 +294,7 @@ internal object ImageDecoder : CatCodeDecoder {
             // not 'classpath'
             val path = Path(filePath).takeIf { it.exists() }
             if (path != null) {
-                return MiraiSendOnlyImage.of(path.toResource(name ?: id ?: path.toString()))
+                return@CatCodeDecoder MiraiSendOnlyImage.of(path.toResource(name ?: id ?: path.toString()))
             }
         }
 
@@ -175,18 +303,46 @@ internal object ImageDecoder : CatCodeDecoder {
             ?: neko["url"]
             ?: throw SimbotIllegalArgumentException("No valid property 'file' or 'url'.")
 
-        return MiraiSendOnlyImage.of(URL(urlString).toResource(name ?: id ?: urlString))
+
+        MiraiSendOnlyImage.of(URL(urlString).toResource(name ?: id ?: urlString))
+    }
+    override val encoder: CatCodeEncoder = catCodeEncoder {
+        val image: Image
+        val isFlash: Boolean
+        if (this is Image) {
+            image = this
+            isFlash = false
+        } else if (this is FlashImage) {
+            image = this.image
+            isFlash = true
+        } else {
+            throw SimbotIllegalArgumentException("Must be type of Image or FlashImage.")
+        }
+
+        CatCodeUtil.getLazyNekoBuilder("image", true)
+            .key("id").value(image.imageId)
+            .key("height").value(image.height)
+            .key("width").value(image.width)
+            .key("size").value(image.size)
+            .key("imageType").value(image.imageType)
+            .key("isEmoji").value(image.isEmoji)
+            .key("url").value { runBlocking { image.queryUrl() } }
+            .key("flash").value(isFlash)
+            .build()
     }
 }
 
-internal object VoiceDecoder : CatCodeDecoder {
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
+/**
+ * 针对 [Audio] 类型消息的猫猫码序列化器。
+ */
+public object AudioCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, baseMessageChain ->
         val id = neko["id"]
 
         if (baseMessageChain != null && id != null) {
             val found = baseMessageChain.find { it is Audio && it.id == id }
             if (found != null) {
-                return MiraiAudio.of(found as Audio)
+                return@CatCodeDecoder MiraiAudio.of(found as Audio)
             }
         }
 
@@ -199,7 +355,7 @@ internal object VoiceDecoder : CatCodeDecoder {
                 filePath = filePath.substring(CLASSPATH_HEAD.length)
                 val classPathUrl: URL? = javaClass.classLoader.getResource(filePath)
                 if (classPathUrl != null) {
-                    return MiraiSendOnlyAudio(classPathUrl.toResource(name ?: id ?: filePath))
+                    return@CatCodeDecoder MiraiSendOnlyAudio(classPathUrl.toResource(name ?: id ?: filePath))
                 }
             }
 
@@ -209,7 +365,7 @@ internal object VoiceDecoder : CatCodeDecoder {
 
             val file = Path(filePath).takeIf { it.exists() }
             if (file != null) {
-                return MiraiSendOnlyAudio(file.toResource(name ?: id ?: filePath))
+                return@CatCodeDecoder MiraiSendOnlyAudio(file.toResource(name ?: id ?: filePath))
             }
         }
 
@@ -218,16 +374,33 @@ internal object VoiceDecoder : CatCodeDecoder {
             ?: neko["url"]
             ?: throw SimbotIllegalArgumentException("No valid property 'file' or 'url'")
 
-        return MiraiSendOnlyAudio(URL(urlString).toResource(name ?: id ?: urlString))
+
+        MiraiSendOnlyAudio(URL(urlString).toResource(name ?: id ?: urlString))
+    }
+
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<Audio> {
+        CatCodeUtil.getLazyNekoBuilder("voice", true)
+            .key("id").value { id }
+            .key("name").value(filename)
+            .key("size").value(fileSize).apply {
+                if (this is OnlineAudio) {
+                    key("url").value { this.urlForDownload }
+                }
+            }
+            .key("md5").value { this.fileMd5.toHex() }
+            .build()
     }
 
     private val Audio.id: String
         get() = fileMd5.toHex()
 }
 
-internal object FileDecoder : CatCodeDecoder {
+/**
+ * 针对 [FileMessage] 类型消息的猫猫码序列化器。
+ */
+public object FileCatCodeSerializer : CatCodeSerializer() {
     @OptIn(InternalApi::class)
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
         // 上传文件路径
         val filePath = neko["file"] ?: neko["url"]
         val formatName = neko["formatName"]
@@ -247,7 +420,7 @@ internal object FileDecoder : CatCodeDecoder {
                 throw IllegalArgumentException("No valid property 'file' or 'path'")
             } else {
                 // mkdir
-                return SimpleMiraiSendOnlyComputableMessage { c ->
+                return@CatCodeDecoder SimpleMiraiSendOnlyComputableMessage { c ->
                     if (c is FileSupported) {
                         val root = c.files.root
                         root.createFolder(path)
@@ -285,7 +458,7 @@ internal object FileDecoder : CatCodeDecoder {
             if (classPathUrl != null) {
 
                 // return Mirai
-                return SimpleMiraiSendOnlyComputableMessage { c ->
+                return@CatCodeDecoder SimpleMiraiSendOnlyComputableMessage { c ->
                     if (c is FileSupported) {
                         val folder = c.files.root.folder()
                         classPathUrl.externalResource(formatName).use { res ->
@@ -309,7 +482,7 @@ internal object FileDecoder : CatCodeDecoder {
         }
 
         // if file
-        return if (file != null) {
+        return@CatCodeDecoder if (file != null) {
             // 存在文件
             val fileName0 = fileName ?: file.name
 
@@ -337,6 +510,14 @@ internal object FileDecoder : CatCodeDecoder {
         }
 
     }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<FileMessage> {
+        CatCodeUtil.getNekoBuilder("file", true)
+            .key("id").value(id)
+            .key("internalId").value(internalId)
+            .key("name").value(name)
+            .key("size").value(size)
+            .build()
+    }
 
     /**
      * 获取 [URL] 的 [ExternalResource]。
@@ -355,9 +536,12 @@ internal object FileDecoder : CatCodeDecoder {
 
 }
 
-internal object ShareDecoder : CatCodeDecoder {
+/**
+ * 针对 [Share] 类型消息的猫猫码序列化器。
+ */
+public object ShareCatCodeSerializer : CatCodeSerializer() {
     @OptIn(MiraiExperimentalApi::class)
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
         // 至少需要一个url
         val url: String =
             neko["url"] ?: throw SimbotIllegalArgumentException("The 'url' could not be found in $this.")
@@ -365,30 +549,54 @@ internal object ShareDecoder : CatCodeDecoder {
         val content: String = neko["content"] ?: "链接分享"
         val coverUrl: String? = neko["coverUrl"] ?: neko["image"]
 
-        return MiraiShare(url, title, content, coverUrl)
+        MiraiShare(url, title, content, coverUrl)
     }
+
+    @Deprecated("Normally should not be used")
+    override val encoder: CatCodeEncoder = catCodeEncoder { CatCodeUtil.toNeko("share") } // 不会使用
+
 }
 
-internal object RichDecoder : CatCodeDecoder {
+/**
+ * 针对 [RichMessage] 类型消息的猫猫码序列化器。
+ */
+public object RichCatCodeSerializer : CatCodeSerializer() {
     @OptIn(MiraiExperimentalApi::class)
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
         val content: String = neko["content"] ?: "{}"
         // 如果没有serviceId，认为其为lightApp
-        val serviceId: Int = neko["serviceId"]?.toInt() ?: return LightApp(content).asSimbotMessage()
+        val serviceId: Int = neko["serviceId"]?.toInt() ?: return@CatCodeDecoder LightApp(content).asSimbotMessage()
 
-        return SimpleServiceMessage(serviceId, content).asSimbotMessage()
+        SimpleServiceMessage(serviceId, content).asSimbotMessage()
     }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<RichMessage> {
+        CatCodeUtil.getNekoBuilder("rich", true)
+            .key("content").value(content).let {
+                if (this is ServiceMessage) {
+                    it.key("serviceId").value(this.serviceId)
+                } else it
+            }.build()
+    }
+
 }
 
-internal object AppJsonDecoder : CatCodeDecoder {
-    @OptIn(MiraiExperimentalApi::class)
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
-        return LightApp(neko["content"] ?: "{}").asSimbotMessage()
-    }
+/**
+ * 针对 `app` 、 `json` 类型消息的猫猫码序列化器。
+ *
+ * [encoder] 等同于 [RichCatCodeSerializer.encoder].
+ */
+public object AppJsonCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder =
+        CatCodeDecoder { neko, _ -> LightApp(neko["content"] ?: "{}").asSimbotMessage() }
+    override val encoder: CatCodeEncoder get() = RichCatCodeSerializer.encoder
 }
 
-internal object DiceDecoder : CatCodeDecoder {
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
+/**
+ * 针对 [Dice] 类型消息的猫猫码序列化器。
+ * 是 [MarketFace] 的子类型，应该在其之前判断。
+ */
+public object DiceCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
         val dice: Dice = if (neko["random"] == "true") Dice.random()
         else neko["value"]?.let { v ->
             v.toInt().absoluteValue.let { vInt ->
@@ -398,13 +606,24 @@ internal object DiceDecoder : CatCodeDecoder {
         } ?: Dice.random()
 
 
-        return dice.asSimbotMessage()
+        dice.asSimbotMessage()
+    }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<Dice> {
+        CatCodeUtil.getNekoBuilder("dice", false)
+            .key("value").value(value)
+            .key("random").value(true)
+            .build()
     }
 }
 
-internal object XmlDecoder : CatCodeDecoder {
+/**
+ * 针对 [Xml] 类型消息的猫猫码序列化器。
+ *
+ * [encoder] 等同于 [RichCatCodeSerializer.encoder]。
+ */
+public object XmlCatCodeSerializer : CatCodeSerializer() {
     @OptIn(MiraiExperimentalApi::class)
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, baseMessageChain ->
         // 解析的参数
         val serviceId = neko["serviceId"]?.toInt() ?: 60
 
@@ -450,12 +669,17 @@ internal object XmlDecoder : CatCodeDecoder {
             }
         }
 
-        return xml.asSimbotMessage()
+        xml.asSimbotMessage()
     }
+    override val encoder: CatCodeEncoder get() = RichCatCodeSerializer.encoder
 }
 
-internal object MusicShareDecoder : CatCodeDecoder {
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
+/**
+ * 针对 [MusicShare] 类型消息的猫猫码序列化器。
+ */
+public object MusicShareCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
+
         val kindString =
             neko["type"] ?: neko["kind"] ?: throw IllegalArgumentException("No valid property 'type' or 'kind'")
         val musicUrl =
@@ -515,7 +739,8 @@ internal object MusicShareDecoder : CatCodeDecoder {
         // 消息卡片内容
         val summary = neko["summary"] ?: neko["content"] ?: brief
 
-        return MiraiMusicShare(
+
+        MiraiMusicShare(
             kind = musicKind,
             title = title,
             summary = summary,
@@ -526,12 +751,26 @@ internal object MusicShareDecoder : CatCodeDecoder {
         )
 
     }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<MusicShare> {
+        // 音乐分享
+        CatCodeUtil.getNekoBuilder("music", true)
+            .key("kind").value(kind.name)
+            .key("musicUrl").value(musicUrl)
+            .key("title").value(title)
+            .key("jumpUrl").value(jumpUrl)
+            .key("pictureUrl").value(pictureUrl)
+            .key("summary").value(summary)
+            .key("brief").value(brief)
+            .build()
+    }
 }
 
-internal object QuoteDecoder : CatCodeDecoder {
-    @OptIn(InternalApi::class)
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
-        return neko["id"]?.let { id ->
+/**
+ * 针对 [QuoteReply] 类型消息的猫猫码序列化器。
+ */
+public object QuoteCatCodeSerializer : CatCodeSerializer() {
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, baseMessageChain ->
+        neko["id"]?.let { id ->
             val cacheMsg = baseMessageChain?.findIsInstance<MessageSource>()?.takeIf { it.ID.literal == id }
 
             if (cacheMsg == null) {
@@ -542,18 +781,49 @@ internal object QuoteDecoder : CatCodeDecoder {
         } ?: run {
             // 不存在ID，尝试通过messageChain
             baseMessageChain?.quote()?.asSimbotMessage()
-                // ?: EmptySingleMessage.simbotMessage // 严格or宽松？
+            // ?: EmptySingleMessage.simbotMessage // 严格or宽松？
                 ?: throw SimbotIllegalArgumentException("No valid property 'id' or quotable baseMessageChain.")
         }
     }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<QuoteReply> {
+        val id = source.id
+        CatCodeUtil.getLazyNekoBuilder("quote", true)
+            .key("id").value(id)
+            .build()
+    }
+
+    private val MessageSource.id: String
+        get() {
+            val fromIdStr = fromId.str
+            val targetIdStr = targetId.str
+            val kindStr = kind.ordinal.str
+            val idsStr = ids.str
+            val internalIdsStr = internalIds.str
+            val timeStr = time.str
+
+            return arrayOf(fromIdStr, targetIdStr, kindStr, idsStr, internalIdsStr, timeStr).joinToString("-")
+        }
+
+    private inline val Int.str get() = java.lang.Integer.toHexString(this)
+    private inline val Long.str get() = java.lang.Long.toHexString(this)
+    private inline val IntArray.str: String get() = joinToString(":") { i -> i.str }
+
 }
 
-internal object UnsupportedDecoder : CatCodeDecoder {
+/**
+ * 针对 [UnsupportedMessage] 类型消息的猫猫码序列化器。
+ */
+public object UnsupportedCatCodeSerializer : CatCodeSerializer() {
     @OptIn(InternalApi::class)
-    override fun decode(neko: Neko, baseMessageChain: MessageChain?): Message.Element<*> {
-        val struct: String = neko["struct"] ?: return EmptySingleMessage.simbotMessage
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
+        val struct: String = neko["struct"] ?: return@CatCodeDecoder EmptySingleMessage.simbotMessage
         val structByteArray = struct.hexStringToByteArray()
-        return UnsupportedMessage(structByteArray).asSimbotMessage()
+        UnsupportedMessage(structByteArray).asSimbotMessage()
+    }
+    override val encoder: CatCodeEncoder = catCodeEncoderFor<UnsupportedMessage> {
+        CatCodeUtil.getNekoBuilder("unsupported", true)
+            .key("struct").value(struct.toHex())
+            .build()
     }
 }
 
@@ -578,3 +848,15 @@ internal fun String.hexStringToByteArray(): ByteArray {
     return byteArray
 }
 
+
+private inline fun <reified M : SingleMessage> catCodeEncoderFor(crossinline encoder: M.() -> Neko): CatCodeEncoder =
+    CatCodeEncoder {
+        if (it is M) {
+            encoder(it)
+        } else {
+            throw SimbotIllegalArgumentException("The encoding target must be of type ${M::class}.")
+        }
+    }
+
+private inline fun catCodeEncoder(crossinline encoder: SingleMessage.() -> Neko): CatCodeEncoder =
+    CatCodeEncoder { encoder(it) }

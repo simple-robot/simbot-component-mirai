@@ -12,9 +12,15 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
+import catcode.CatCodeUtil;
+import catcode.Neko;
+import love.forte.simbot.Identifies;
+import love.forte.simbot.component.mirai.extra.catcode.CatCodeMessageUtil;
+import love.forte.simbot.message.At;
+import love.forte.simbot.message.Message;
+import love.forte.simbot.message.MessageList;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -23,8 +29,21 @@ import org.junit.jupiter.api.Test;
 public class CatDecoder4Test {
 
     @Test
-    public void decodeTest() {
+    public void decodeCatCodeTest() {
+        final String cat =  "[CAT:at,code=123]";
+        final Message message = CatCodeMessageUtil.catCodeToMessage(cat);
+        assert message instanceof MessageList;
 
+        final Message.Element<?> first = ((MessageList) message).get(0);
+        assert first.equals(new At(Identifies.ID(123)));
+
+    }
+    @Test
+    public void decodeNekoTest() {
+        final Neko cat = CatCodeUtil.INSTANCE.getNekoTemplate().at(123);
+        final Message.Element<?> message = CatCodeMessageUtil.toMessage(cat);
+        assert message instanceof At;
+        assert message.equals(new At(Identifies.ID(123)));
     }
 
 

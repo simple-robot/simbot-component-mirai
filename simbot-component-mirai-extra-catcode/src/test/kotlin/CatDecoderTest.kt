@@ -12,11 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
+import catcode.CatCodeUtil
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.extra.catcode.catCodeToMessage
+import love.forte.simbot.component.mirai.extra.catcode.toMessage
 import love.forte.simbot.message.At
 import love.forte.simbot.message.MessageList
 import org.junit.jupiter.api.Test
@@ -45,7 +46,7 @@ import org.junit.jupiter.api.Test
 class CatDecoderTest {
 
     @Test
-    fun decode() {
+    fun decodeByCatStr() {
         val at = "[CAT:at,code=123]"
         val message = catCodeToMessage(at)
         assert(message is MessageList) { "Decoded message !is MessageList" }
@@ -53,5 +54,13 @@ class CatDecoderTest {
         message as MessageList
 
         assert(message.first() == At(123.ID))
+    }
+
+    @Test
+    fun decodeByNeko() {
+        val at = CatCodeUtil.nekoTemplate.at(123)
+        val message = at.toMessage()
+        assert(message is At) { "Decoded message !is At" }
+        assert(message == At(123.ID))
     }
 }
