@@ -12,15 +12,27 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
-import love.forte.simbot.*
+import love.forte.simbot.ID
+import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.event.*
-import love.forte.simbot.component.mirai.internal.*
-import love.forte.simbot.event.*
+import love.forte.simbot.component.mirai.internal.MiraiBotImpl
+import love.forte.simbot.component.mirai.internal.MiraiFriendImpl
+import love.forte.simbot.component.mirai.internal.asSimbot
+import love.forte.simbot.event.Event
+import love.forte.simbot.event.RequestEvent
+import love.forte.simbot.randomID
+import net.mamoe.mirai.event.events.FriendAddEvent as OriginalMiraiFriendAddEvent
+import net.mamoe.mirai.event.events.FriendAvatarChangedEvent as OriginalMiraiFriendAvatarChangedEvent
+import net.mamoe.mirai.event.events.FriendDeleteEvent as OriginalMiraiFriendDeleteEvent
+import net.mamoe.mirai.event.events.FriendEvent as OriginalMiraiFriendEvent
+import net.mamoe.mirai.event.events.FriendInputStatusChangedEvent as OriginalMiraiFriendInputStatusChangedEvent
+import net.mamoe.mirai.event.events.FriendNickChangedEvent as OriginalMiraiFriendNickChangedEvent
+import net.mamoe.mirai.event.events.FriendRemarkChangeEvent as OriginalMiraiFriendRemarkChangeEvent
+import net.mamoe.mirai.event.events.NewFriendRequestEvent as OriginalMiraiNewFriendRequestEvent
 
 /**
  * @see MiraiFriendEvent

@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 @file:Suppress("NOTHING_TO_INLINE")
@@ -26,6 +25,7 @@ import love.forte.simbot.component.mirai.event.MiraiMessageMetadata.Companion.of
 import love.forte.simbot.component.mirai.message.*
 import love.forte.simbot.message.*
 import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.event.events.MessageEvent as OriginalMiraiMessageEvent
 
 
 /**

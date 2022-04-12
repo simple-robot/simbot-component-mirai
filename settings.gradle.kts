@@ -23,13 +23,9 @@ pluginManagement {
 rootProject.name = "simbot-component-mirai"
 
 include(":simbot-component-mirai-api")
-// project(":simbot-component-mirai-api").name = "simbot-component-mirai-api"
-
 include(":simbot-component-mirai-core")
-// project(":core").name = "simbot-component-mirai-core"
-
 include(":simbot-component-mirai-boot")
-// project(":boot").name = "simbot-component-mirai-boot"
 
-// include(":boot-annotation")
-// project(":boot-annotation").name = "simbot-component-mirai-boot-annotation"
+// extra
+include(":simbot-component-mirai-extra-catcode")
+

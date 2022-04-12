@@ -12,15 +12,18 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.DiscreetSimbotApi
+import love.forte.simbot.ID
+import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.event.*
-import love.forte.simbot.message.*
+import love.forte.simbot.message.doSafeCast
+import love.forte.simbot.randomID
+import net.mamoe.mirai.event.Event as OriginalMiraiEvent
 
 /**
  * 所有未提供针对性实现的其他mirai事件的包装体。

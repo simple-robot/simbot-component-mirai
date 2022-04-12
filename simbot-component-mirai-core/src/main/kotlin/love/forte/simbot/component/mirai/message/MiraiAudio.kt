@@ -12,23 +12,21 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
 
-import kotlinx.serialization.*
-import love.forte.simbot.message.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import love.forte.simbot.message.Message
-import love.forte.simbot.resources.*
-import net.mamoe.mirai.contact.*
-import net.mamoe.mirai.message.data.*
+import love.forte.simbot.message.doSafeCast
+import love.forte.simbot.resources.Resource
+import net.mamoe.mirai.contact.AudioSupported
+import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.message.data.AudioCodec
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
-
-/**
- * Mirai的原生图片类型 [net.mamoe.mirai.message.data.Audio]
- */
-public typealias OriginalMiraiAudio = Audio
+import net.mamoe.mirai.message.data.Audio as OriginalMiraiAudio
+import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
 
 
 @SerialName("mirai.sendOnlyAudio")

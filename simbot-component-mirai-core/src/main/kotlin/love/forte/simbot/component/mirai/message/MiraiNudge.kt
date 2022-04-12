@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -23,32 +22,39 @@ import kotlinx.serialization.Serializable
 import love.forte.simbot.ID
 import love.forte.simbot.InternalSimbotApi
 import love.forte.simbot.LongID
-import love.forte.simbot.component.mirai.OriginalMiraiFriend
-import love.forte.simbot.component.mirai.OriginalMiraiGroup
-import love.forte.simbot.component.mirai.OriginalMiraiMember
-import love.forte.simbot.component.mirai.OriginalMiraiStranger
-import love.forte.simbot.component.mirai.event.*
+import love.forte.simbot.component.mirai.event.MiraiSimbotEvent
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.MiraiReceivedNudge.SubjectType
 import love.forte.simbot.event.EventProcessingContext
+import love.forte.simbot.literal
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.doSafeCast
-import net.mamoe.mirai.contact.*
+import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.contact.getMemberOrFail
 import net.mamoe.mirai.event.events.NudgeEvent
-import net.mamoe.mirai.event.events.StrangerEvent
 import net.mamoe.mirai.message.action.Nudge.Companion.sendNudge
+import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
+import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
+import net.mamoe.mirai.contact.Member as OriginalMiraiMember
+import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
+import net.mamoe.mirai.event.events.FriendEvent as OriginalMiraiFriendEvent
+import net.mamoe.mirai.event.events.GroupEvent as OriginalMiraiGroupEvent
+import net.mamoe.mirai.event.events.GroupMemberEvent as OriginalMiraiGroupMemberEvent
+import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessageEvent
+import net.mamoe.mirai.event.events.StrangerEvent as OriginalMiraiStrangerEvent
+import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
 
 
-private suspend fun sendNudge(contact: Contact, target: LongID?) {
+private suspend fun sendNudge(contact: Contact, target: Long?) {
     if (target != null) {
-        if (target.number == contact.bot.id) {
+        if (target == contact.bot.id) {
             contact.sendNudge(contact.bot.nudge())
             return
         }
 
         when (contact) {
             is OriginalMiraiGroup -> {
-                val nudge = contact.getMemberOrFail(target.number).nudge()
+                val nudge = contact.getMemberOrFail(target).nudge()
                 contact.sendNudge(nudge)
             }
             is OriginalMiraiFriend -> contact.sendNudge(contact.nudge())
@@ -64,14 +70,14 @@ private suspend fun sendNudge(contact: Contact, target: LongID?) {
                 is OriginalMiraiGroupMessageEvent -> nativeEvent.group.sendNudge(nativeEvent.sender.nudge())
                 is OriginalMiraiGroupEvent -> nativeEvent.group.sendNudge(nativeEvent.group.bot.nudge())
                 is OriginalMiraiFriendEvent -> nativeEvent.friend.sendNudge(nativeEvent.friend.nudge())
-                is StrangerEvent -> nativeEvent.stranger.sendNudge(nativeEvent.stranger.nudge())
+                is OriginalMiraiStrangerEvent -> nativeEvent.stranger.sendNudge(nativeEvent.stranger.nudge())
             }
         } else {
             // 如果 contact不是群聊，戳此目标，否则戳bot自己。
             when (contact) {
-                is Friend -> contact.sendNudge(contact.nudge())
-                is Member -> contact.sendNudge(contact.nudge())
-                is Stranger -> contact.sendNudge(contact.nudge())
+                is OriginalMiraiFriend -> contact.sendNudge(contact.nudge())
+                is OriginalMiraiMember -> contact.sendNudge(contact.nudge())
+                is OriginalMiraiStranger -> contact.sendNudge(contact.nudge())
                 // 发送nudge自己
                 else -> contact.sendNudge(contact.bot.nudge())
             }
@@ -95,14 +101,14 @@ private suspend fun sendNudge(contact: Contact, target: LongID?) {
 @SerialName("mirai.nudge")
 @Serializable
 public data class MiraiNudge @JvmOverloads constructor(
-    public val target: LongID? = null,
+    public val target: ID? = null,
 ) : MiraiSendOnlyComputableMessage<MiraiNudge> {
     override val key: Message.Key<MiraiNudge> get() = Key
 
     @OptIn(InternalApi::class)
     @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
-        sendNudge(contact, target)
+        sendNudge(contact, target?.literal?.toLong())
         return EmptySingleMessage
     }
 
@@ -166,7 +172,7 @@ public data class MiraiReceivedNudge @InternalSimbotApi constructor(
     @OptIn(InternalApi::class)
     @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
-        sendNudge(contact, target)
+        sendNudge(contact, target.number)
         return EmptySingleMessage
     }
 

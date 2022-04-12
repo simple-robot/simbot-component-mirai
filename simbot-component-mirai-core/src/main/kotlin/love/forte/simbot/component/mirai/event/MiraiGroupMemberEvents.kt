@@ -17,65 +17,32 @@
 
 package love.forte.simbot.component.mirai.event
 
-import kotlinx.coroutines.*
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import love.forte.simbot.Api4J
+import love.forte.simbot.ExperimentalSimbotApi
+import love.forte.simbot.component.mirai.MemberRole
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.definition.GroupInfo
 import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-import net.mamoe.mirai.data.*
-import net.mamoe.mirai.utils.*
-import kotlin.time.*
+import love.forte.simbot.message.doSafeCast
+import net.mamoe.mirai.data.GroupHonorType
+import net.mamoe.mirai.utils.MiraiExperimentalApi
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-
-//region typealias
-/**
- * @see net.mamoe.mirai.event.events.GroupMemberEvent
- */
-public typealias OriginalMiraiGroupMemberEvent = net.mamoe.mirai.event.events.GroupMemberEvent
-
-/**
- * @see net.mamoe.mirai.event.events.GroupTalkativeChangeEvent
- */
-public typealias OriginalMiraiGroupTalkativeChangeEvent = net.mamoe.mirai.event.events.GroupTalkativeChangeEvent
-/**
- * @see net.mamoe.mirai.event.events.MemberHonorChangeEvent
- */
-@MiraiExperimentalApi
-public typealias OriginalMiraiMemberHonorChangeEvent = net.mamoe.mirai.event.events.MemberHonorChangeEvent
-/**
- * @see net.mamoe.mirai.event.events.MemberUnmuteEvent
- */
-public typealias OriginalMiraiMemberUnmuteEvent = net.mamoe.mirai.event.events.MemberUnmuteEvent
-/**
- * @see net.mamoe.mirai.event.events.MemberMuteEvent
- */
-public typealias OriginalMiraiMemberMuteEvent = net.mamoe.mirai.event.events.MemberMuteEvent
-/**
- * @see net.mamoe.mirai.event.events.MemberPermissionChangeEvent
- */
-public typealias OriginalMiraiMemberPermissionChangeEvent = net.mamoe.mirai.event.events.MemberPermissionChangeEvent
-/**
- * @see net.mamoe.mirai.event.events.MemberSpecialTitleChangeEvent
- */
-public typealias OriginalMiraiMemberSpecialTitleChangeEvent = net.mamoe.mirai.event.events.MemberSpecialTitleChangeEvent
-/**
- * @see net.mamoe.mirai.event.events.MemberCardChangeEvent
- */
-public typealias OriginalMiraiMemberCardChangeEvent = net.mamoe.mirai.event.events.MemberCardChangeEvent
-/**
- * @see net.mamoe.mirai.event.events.MemberJoinRequestEvent
- */
-public typealias OriginalMiraiMemberJoinRequestEvent = net.mamoe.mirai.event.events.MemberJoinRequestEvent
-/**
- * @see net.mamoe.mirai.event.events.MemberLeaveEvent
- */
-public typealias OriginalMiraiMemberLeaveEvent = net.mamoe.mirai.event.events.MemberLeaveEvent
-/**
- * @see net.mamoe.mirai.event.events.MemberJoinEvent
- */
-public typealias OriginalMiraiMemberJoinEvent = net.mamoe.mirai.event.events.MemberJoinEvent
-//endregion
+import net.mamoe.mirai.event.events.GroupMemberEvent as OriginalMiraiGroupMemberEvent
+import net.mamoe.mirai.event.events.GroupTalkativeChangeEvent as OriginalMiraiGroupTalkativeChangeEvent
+import net.mamoe.mirai.event.events.MemberCardChangeEvent as OriginalMiraiMemberCardChangeEvent
+import net.mamoe.mirai.event.events.MemberHonorChangeEvent as OriginalMiraiMemberHonorChangeEvent
+import net.mamoe.mirai.event.events.MemberJoinEvent as OriginalMiraiMemberJoinEvent
+import net.mamoe.mirai.event.events.MemberJoinRequestEvent as OriginalMiraiMemberJoinRequestEvent
+import net.mamoe.mirai.event.events.MemberLeaveEvent as OriginalMiraiMemberLeaveEvent
+import net.mamoe.mirai.event.events.MemberMuteEvent as OriginalMiraiMemberMuteEvent
+import net.mamoe.mirai.event.events.MemberPermissionChangeEvent as OriginalMiraiMemberPermissionChangeEvent
+import net.mamoe.mirai.event.events.MemberSpecialTitleChangeEvent as OriginalMiraiMemberSpecialTitleChangeEvent
+import net.mamoe.mirai.event.events.MemberUnmuteEvent as OriginalMiraiMemberUnmuteEvent
 
 
 /**
@@ -132,7 +99,7 @@ public interface MiraiGroupMemberEvent<E : OriginalMiraiGroupMemberEvent> : Mira
  * @see MemberChangedEvent
  */
 public interface MiraiGroupTalkativeChangeEvent : MiraiSimbotBotEvent<OriginalMiraiGroupTalkativeChangeEvent>,
-    MemberChangedEvent<MiraiMember, MiraiMember>, GroupEvent {
+    MemberChangedEvent<MiraiGroup, MiraiMember, MiraiMember>, GroupEvent {
 
     override val bot: MiraiBot
 
@@ -580,7 +547,7 @@ public interface MiraiMemberJoinRequestEvent :
  */
 public interface MiraiMemberLeaveEvent :
     MiraiGroupMemberEvent<OriginalMiraiMemberLeaveEvent>,
-    MemberDecreaseEvent {
+    MemberDecreaseEvent<MiraiGroup, MiraiMember> {
     override val bot: MiraiBot
     override val member: MiraiMember
     override val group: MiraiGroup
@@ -646,7 +613,7 @@ public interface MiraiMemberLeaveEvent :
  */
 public interface MiraiMemberJoinEvent :
     MiraiGroupMemberEvent<OriginalMiraiMemberJoinEvent>,
-    MemberIncreaseEvent {
+    MemberIncreaseEvent<MiraiGroup, MiraiMember> {
     override val bot: MiraiBot
     override val member: MiraiMember
     override val group: MiraiGroup

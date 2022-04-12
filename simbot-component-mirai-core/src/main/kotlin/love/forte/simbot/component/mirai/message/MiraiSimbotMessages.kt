@@ -12,16 +12,18 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
 
-import kotlinx.serialization.*
-import love.forte.simbot.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import love.forte.simbot.Api4J
 import love.forte.simbot.message.*
-import love.forte.simbot.utils.*
-import net.mamoe.mirai.contact.*
+import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
+import net.mamoe.mirai.message.data.SingleMessage as OriginalMiraiSingleMessage
 
 
 /**

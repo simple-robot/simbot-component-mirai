@@ -12,52 +12,21 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.Api4J
+import love.forte.simbot.ID
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiContact
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-
-//region typealias
-/**
- * Mirai的原生事件类型。
- *
- * @see net.mamoe.mirai.event.Event
- */
-public typealias OriginalMiraiEvent = net.mamoe.mirai.event.Event
-
-/**
- * Mirai的原生事件类型。
- *
- * @see net.mamoe.mirai.event.events.BotEvent
- */
-public typealias OriginalMiraiBotEvent = net.mamoe.mirai.event.events.BotEvent
-/**
- * Mirai的原生事件类型。
- *
- * @see net.mamoe.mirai.event.events.GroupEvent
- */
-public typealias OriginalMiraiGroupEvent = net.mamoe.mirai.event.events.GroupEvent
-
-/**
- * Mirai的原生事件类型。
- *
- * @see net.mamoe.mirai.event.events.MessageEvent
- */
-public typealias OriginalMiraiMessageEvent = net.mamoe.mirai.event.events.MessageEvent
-
-
-/**
- * Mirai的原生事件类型。
- *
- * @see net.mamoe.mirai.event.events.UserMessageEvent
- */
-public typealias OriginalMiraiUserMessageEvent = net.mamoe.mirai.event.events.UserMessageEvent
-//endregion
+import love.forte.simbot.message.doSafeCast
+import net.mamoe.mirai.event.Event as OriginalMiraiEvent
+import net.mamoe.mirai.event.events.BotEvent as OriginalMiraiBotEvent
+import net.mamoe.mirai.event.events.MessageEvent as OriginalMiraiMessageEvent
 
 
 /**
@@ -135,7 +104,7 @@ public interface MiraiSimbotBotEvent<E : OriginalMiraiBotEvent> : MiraiSimbotEve
 }
 
 /**
- * 与mirai的 [OriginalMiraiContact] 相关的事件。
+ * 与mirai的 [net.mamoe.mirai.contact.Contact] 相关的事件。
  */
 public interface MiraiSimbotContactMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
@@ -162,7 +131,7 @@ public interface MiraiSimbotContactMessageEvent<E : OriginalMiraiMessageEvent> :
 }
 
 /**
- * 在 mirai [OriginalMiraiContact] 下与 [love.forte.simbot.definition.Contact] 相关的事件。
+ * 在 mirai [net.mamoe.mirai.contact.Contact] 下与 [love.forte.simbot.definition.Contact] 相关的事件。
  */
 public interface MiraiSimbotUserMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotContactMessageEvent<E> {
@@ -185,7 +154,7 @@ public interface MiraiSimbotUserMessageEvent<E : OriginalMiraiMessageEvent> :
 }
 
 /**
- * 在 mirai [OriginalMiraiContact] 下与 [love.forte.simbot.definition.Group] 相关的事件。
+ * 在 mirai [net.mamoe.mirai.contact.Contact] 下与 [love.forte.simbot.definition.Group] 相关的事件。
  */
 public interface MiraiSimbotGroupMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
