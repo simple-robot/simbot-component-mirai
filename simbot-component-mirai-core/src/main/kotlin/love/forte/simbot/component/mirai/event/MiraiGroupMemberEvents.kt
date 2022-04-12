@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -98,7 +99,7 @@ public interface MiraiGroupMemberEvent<E : OriginalMiraiGroupMemberEvent> : Mira
  * @see MemberChangedEvent
  */
 public interface MiraiGroupTalkativeChangeEvent : MiraiSimbotBotEvent<OriginalMiraiGroupTalkativeChangeEvent>,
-    MemberChangedEvent<MiraiMember, MiraiMember>, GroupEvent {
+    MemberChangedEvent<MiraiGroup, MiraiMember, MiraiMember>, GroupEvent {
 
     override val bot: MiraiBot
 
@@ -546,7 +547,7 @@ public interface MiraiMemberJoinRequestEvent :
  */
 public interface MiraiMemberLeaveEvent :
     MiraiGroupMemberEvent<OriginalMiraiMemberLeaveEvent>,
-    MemberDecreaseEvent {
+    MemberDecreaseEvent<MiraiGroup, MiraiMember> {
     override val bot: MiraiBot
     override val member: MiraiMember
     override val group: MiraiGroup
@@ -612,7 +613,7 @@ public interface MiraiMemberLeaveEvent :
  */
 public interface MiraiMemberJoinEvent :
     MiraiGroupMemberEvent<OriginalMiraiMemberJoinEvent>,
-    MemberIncreaseEvent {
+    MemberIncreaseEvent<MiraiGroup, MiraiMember> {
     override val bot: MiraiBot
     override val member: MiraiMember
     override val group: MiraiGroup
