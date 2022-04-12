@@ -17,24 +17,30 @@
 
 package love.forte.simbot.component.mirai
 
+import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.*
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.descriptors.*
-import kotlinx.serialization.encoding.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import love.forte.simbot.*
-import love.forte.simbot.LoggerFactory
-import love.forte.simbot.component.mirai.internal.*
-import love.forte.simbot.event.*
-import net.mamoe.mirai.*
+import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
+import love.forte.simbot.event.EventProcessor
 import net.mamoe.mirai.Bot
-import net.mamoe.mirai.utils.*
+import net.mamoe.mirai.BotFactory
+import net.mamoe.mirai.utils.BotConfiguration
+import net.mamoe.mirai.utils.DeviceInfo
 import net.mamoe.mirai.utils.LoggerAdapters.asMiraiLogger
-import org.slf4j.*
-import java.io.*
-import java.nio.file.*
-import kotlin.io.path.*
-import kotlin.time.*
+import net.mamoe.mirai.utils.MiraiLogger
+import org.slf4j.Logger
+import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.Path
+import kotlin.io.path.exists
+import kotlin.io.path.readText
+import kotlin.time.ExperimentalTime
 
 
 private fun hex(hex: String): ByteArray {
@@ -178,13 +184,15 @@ private val CJson
         ignoreUnknownKeys = true
     }
 
+private val CYaml
+    get() = Yaml()
 
 /**
  *
  * @see BotConfiguration
  */
 @Serializable
-internal data class MiraiViaBotFileConfiguration(
+internal data class MiraiViaBotFileConfiguration @OptIn(FragileSimbotApi::class) constructor(
     val code: Long,
     val password: String? = null,
     val passwordMD5: String? = null,
@@ -212,11 +220,26 @@ internal data class MiraiViaBotFileConfiguration(
 
     private val highwayUploadCoroutineCount: Int = BotConfiguration.Default.highwayUploadCoroutineCount,
 
-    // 如果是字符串，尝试解析为json
-    // 否则视为文件路径。
-    // 如果bot本身为json格式，则允许此处直接为json对象。
-    private val deviceInfoJson: JsonElement? = null,
+    /**
+     * 如果是字符串，尝试解析为json
+     * 否则视为文件路径。
+     * 如果bot本身为json格式，则允许此处直接为json对象。
+     *
+     * 优先使用此属性。
+     */
+    private val deviceInfoJson: DeviceInfo? = null,
 
+    /**
+     * 优先使用 [deviceInfo].
+     */
+    private val simpleDeviceInfoJson: SimpleDeviceInfo? = null,
+
+    /**
+     * 加载的设备信息json文件的路径。
+     * 如果是 `classpath:` 开头，则会优先尝试加载resource，
+     * 否则优先视为文件路径加载。
+     */
+    private val deviceInfoFile: String? = null,
 
     private val noNetworkLog: Boolean = false,
     private val noBotLog: Boolean = false,
@@ -249,43 +272,37 @@ internal data class MiraiViaBotFileConfiguration(
     ) {
 
 
+    @OptIn(FragileSimbotApi::class)
     @Transient
     private val deviceInfo: (Bot) -> DeviceInfo = d@{ bot ->
-        if (deviceInfoJson == null) {
-            simbotMiraiDeviceInfo(bot.id, deviceInfoSeed)
-        } else {
-            val json = CJson
-            if (deviceInfoJson is JsonPrimitive && deviceInfoJson.isString) {
-                // file path
-                val filePath = deviceInfoJson.content
+        val json = CJson
+        deviceInfoJson
+            ?: simpleDeviceInfoJson?.toDeviceInfo()
+            ?: if (deviceInfoFile?.isBlank() == true) {
+                simbotMiraiDeviceInfo(bot.id, deviceInfoSeed)
+            } else {
+                deviceInfoFile as String
+
                 when {
-                    filePath.startsWith("classpath:") -> {
-                        val path = filePath.substring(9)
+                    deviceInfoFile.startsWith("classpath:") -> {
+                        val path = deviceInfoFile.substring(9)
                         json.readResourceDeviceInfo(path)
                     }
-                    filePath.startsWith("file:") -> {
-                        val path = filePath.substring(5)
+                    deviceInfoFile.startsWith("file:") -> {
+                        val path = deviceInfoFile.substring(5)
                         json.readFileDeviceInfo(Path(path))
                     }
                     else -> {
                         // 先看看文件存不存在
-                        val file = Path(filePath)
+                        val file = Path(deviceInfoFile)
                         if (file.exists()) {
                             json.readFileDeviceInfo(file)
                         } else {
-                            json.readResourceDeviceInfo(filePath)
+                            json.readResourceDeviceInfo(deviceInfoFile)
                         }
                     }
                 }
-
-            } else if (deviceInfoJson is JsonObject) {
-                json.decodeFromJsonElement(DeviceInfo.serializer(), deviceInfoJson)
-            } else {
-                // 'deviceInfoJson' 的类型必须是jsonObject或json
-                throw SimbotIllegalArgumentException("The type of 'deviceInfoJson' must be json object or string")
             }
-
-        }
     }
 
     private fun Json.readFileDeviceInfo(path: Path): DeviceInfo {
@@ -306,6 +323,7 @@ internal data class MiraiViaBotFileConfiguration(
         val name = "love.forte.simbot.mirai.bot.${it.id}"
         LoggerFactory.getLogger(name).asMiraiLogger()
     }
+
     @Transient
     private val networkLoggerSupplier: ((Bot) -> MiraiLogger) = {
         val name = "love.forte.simbot.mirai.net.${it.id}"
@@ -399,3 +417,101 @@ internal class HeartbeatStrategySerializer : EnumStringSerializer<BotConfigurati
 internal class MiraiProtocolSerializer :
     EnumStringSerializer<BotConfiguration.MiraiProtocol>("MiraiProtocol", BotConfiguration.MiraiProtocol::valueOf)
 
+@FragileSimbotApi
+@Serializable
+public data class SimpleDeviceInfo(
+    public val display: String,
+    public val product: String,
+    public val device: String,
+    public val board: String,
+    public val brand: String,
+    public val model: String,
+    public val bootloader: String,
+    public val fingerprint: String,
+    public val bootId: String,
+    public val procVersion: String,
+    public val baseBand: String,
+    public val version: Version,
+    public val simInfo: String,
+    public val osType: String,
+    public val macAddress: String,
+    public val wifiBSSID: String,
+    public val wifiSSID: String,
+    public val imsiMd5: String,
+    public val imei: String,
+    public val apn: String
+) {
+    @Serializable
+    @FragileSimbotApi
+    public data class Version(
+        public val incremental: String = "5891938",
+        public val release: String = "10",
+        public val codename: String = "REL",
+        public val sdk: Int = 29
+    )
+}
+
+@FragileSimbotApi
+public fun SimpleDeviceInfo.Version.toVersion(): DeviceInfo.Version = DeviceInfo.Version(
+    incremental = incremental.toByteArray(),
+    release = release.toByteArray(),
+    codename = codename.toByteArray(),
+    sdk = 0
+)
+
+@FragileSimbotApi
+public fun SimpleDeviceInfo.toDeviceInfo(): DeviceInfo = DeviceInfo(
+    display = display.toByteArray(),
+    product = product.toByteArray(),
+    device = device.toByteArray(),
+    board = board.toByteArray(),
+    brand = brand.toByteArray(),
+    model = model.toByteArray(),
+    bootloader = bootloader.toByteArray(),
+    fingerprint = fingerprint.toByteArray(),
+    bootId = bootId.toByteArray(),
+    procVersion = procVersion.toByteArray(),
+    baseBand = baseBand.toByteArray(),
+    version = version.toVersion(),
+    simInfo = simInfo.toByteArray(),
+    osType = osType.toByteArray(),
+    macAddress = macAddress.toByteArray(),
+    wifiBSSID = wifiBSSID.toByteArray(),
+    wifiSSID = wifiSSID.toByteArray(),
+    imsiMd5 = imsiMd5.toByteArray(),
+    imei = imei,
+    apn = apn.toByteArray()
+)
+
+
+@FragileSimbotApi
+public fun DeviceInfo.Version.toSimple(): SimpleDeviceInfo.Version = SimpleDeviceInfo.Version(
+    incremental = incremental.decodeToString(),
+    release = release.decodeToString(),
+    codename = codename.decodeToString(),
+    sdk = 0
+)
+
+@FragileSimbotApi
+public fun DeviceInfo.toSimple(): SimpleDeviceInfo = SimpleDeviceInfo(
+    display = display.decodeToString(),
+    product = product.decodeToString(),
+    device = device.decodeToString(),
+    board = board.decodeToString(),
+    brand = brand.decodeToString(),
+    model = model.decodeToString(),
+    bootloader = bootloader.decodeToString(),
+    fingerprint = fingerprint.decodeToString(),
+    bootId = bootId.decodeToString(),
+    procVersion = procVersion.decodeToString(),
+    baseBand = baseBand.decodeToString(),
+    version = version.toSimple(),
+    simInfo = simInfo.decodeToString(),
+    osType = osType.decodeToString(),
+    macAddress = macAddress.decodeToString(),
+    wifiBSSID = wifiBSSID.decodeToString(),
+    wifiSSID = wifiSSID.decodeToString(),
+    imsiMd5 = imsiMd5.decodeToString(),
+    imei = imei,
+    apn = apn.decodeToString()
+)
