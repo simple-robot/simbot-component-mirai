@@ -192,7 +192,7 @@ private val CYaml
  * @see BotConfiguration
  */
 @Serializable
-internal data class MiraiViaBotFileConfiguration @OptIn(FragileSimbotApi::class) constructor(
+public data class MiraiViaBotFileConfiguration @OptIn(FragileSimbotApi::class) constructor(
     val code: Long,
     val password: String? = null,
     val passwordMD5: String? = null,

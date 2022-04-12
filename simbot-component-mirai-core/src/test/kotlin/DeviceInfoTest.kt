@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -15,7 +15,11 @@
  *
  */
 
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.json.Json
+import love.forte.simbot.FragileSimbotApi
+import love.forte.simbot.component.mirai.MiraiViaBotFileConfiguration
 import love.forte.simbot.component.mirai.SimpleDeviceInfo
 import love.forte.simbot.component.mirai.toSimple
 import net.mamoe.mirai.utils.DeviceInfo
@@ -40,8 +44,9 @@ import org.junit.jupiter.api.Test
 
 class DeviceInfoTest {
 
+    @OptIn(FragileSimbotApi::class)
     @Test
-    fun simpleTest() {
+    fun jsonTest() {
         val json = Json {
             ignoreUnknownKeys = true
             isLenient = true
@@ -53,6 +58,7 @@ class DeviceInfoTest {
 
         println(str)
     }
+
     /*
     {
         "display": "MIRAI.886953.001",
@@ -80,4 +86,25 @@ class DeviceInfoTest {
     }
 
      */
+
+
+    @Test
+    fun yamlTest() {
+        val conf = MiraiViaBotFileConfiguration(
+            code = 123,
+            password = "123222xxx",
+            deviceInfoJson = DeviceInfo.random()
+        )
+
+        val yaml = Yaml(
+            configuration = YamlConfiguration(
+                strictMode = false
+            )
+        )
+
+        val str = yaml.encodeToString(MiraiViaBotFileConfiguration.serializer(), conf)
+        println(str)
+
+    }
+
 }

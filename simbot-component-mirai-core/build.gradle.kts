@@ -32,6 +32,7 @@ dependencies {
     api(V.Kotlinx.Serialization.Json.notation)
     api(V.Kotlinx.Serialization.Properties.notation)
     compileOnly(V.Kotlinx.Serialization.Yaml.notation)
+    testImplementation(V.Kotlinx.Serialization.Yaml.notation)
 
 
     testImplementation(V.Kotlin.Test.Junit5.notation)
