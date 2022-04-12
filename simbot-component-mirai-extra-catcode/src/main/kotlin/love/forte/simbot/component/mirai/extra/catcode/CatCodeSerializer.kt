@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.extra.catcode
@@ -22,17 +23,22 @@ import catcode.Neko
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import love.forte.simbot.*
+import love.forte.simbot.ID
+import love.forte.simbot.LoggerFactory
+import love.forte.simbot.SimbotIllegalArgumentException
 import love.forte.simbot.component.mirai.ID
 import love.forte.simbot.component.mirai.extra.catcode.AppJsonCatCodeSerializer.encoder
 import love.forte.simbot.component.mirai.extra.catcode.XmlCatCodeSerializer.encoder
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.*
-import love.forte.simbot.message.*
+import love.forte.simbot.literal
 import love.forte.simbot.message.At
 import love.forte.simbot.message.AtAll
 import love.forte.simbot.message.Face
 import love.forte.simbot.message.Message
+import love.forte.simbot.message.Messages
+import love.forte.simbot.message.Text
+import love.forte.simbot.message.toText
 import love.forte.simbot.resources.toResource
 import love.forte.simbot.utils.runWithInterruptible
 import love.forte.simbot.utils.toHex
@@ -40,7 +46,6 @@ import net.mamoe.mirai.contact.FileSupported
 import net.mamoe.mirai.contact.file.AbsoluteFolder
 import net.mamoe.mirai.message.action.Nudge
 import net.mamoe.mirai.message.data.*
-import net.mamoe.mirai.message.data.Image
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import net.mamoe.mirai.message.data.MessageSource.Key.quote
 import net.mamoe.mirai.utils.ExternalResource
@@ -203,7 +208,7 @@ public object VipFaceCatCodeSerializer : CatCodeSerializer() {
 }
 
 /**
- * 针对 [Poke] 类型消息的猫猫码序列化器。
+ * 针对 [PokeMessage] 类型消息的猫猫码序列化器。
  */
 public object PokeCatCodeSerializer : CatCodeSerializer() {
     override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
@@ -309,14 +314,18 @@ public object ImageCatCodeSerializer : CatCodeSerializer() {
     override val encoder: CatCodeEncoder = catCodeEncoder {
         val image: Image
         val isFlash: Boolean
-        if (this is Image) {
-            image = this
-            isFlash = false
-        } else if (this is FlashImage) {
-            image = this.image
-            isFlash = true
-        } else {
-            throw SimbotIllegalArgumentException("Must be type of Image or FlashImage.")
+        when (this) {
+            is Image -> {
+                image = this
+                isFlash = false
+            }
+            is FlashImage -> {
+                image = this.image
+                isFlash = true
+            }
+            else -> {
+                throw SimbotIllegalArgumentException("Must be type of Image or FlashImage.")
+            }
         }
 
         CatCodeUtil.getLazyNekoBuilder("image", true)
@@ -537,7 +546,7 @@ public object FileCatCodeSerializer : CatCodeSerializer() {
 }
 
 /**
- * 针对 [Share] 类型消息的猫猫码序列化器。
+ * 针对 `Share` 类型消息的猫猫码序列化器。
  */
 public object ShareCatCodeSerializer : CatCodeSerializer() {
     @OptIn(MiraiExperimentalApi::class)
@@ -617,13 +626,13 @@ public object DiceCatCodeSerializer : CatCodeSerializer() {
 }
 
 /**
- * 针对 [Xml] 类型消息的猫猫码序列化器。
+ * 针对 `Xml` 类型消息的猫猫码序列化器。
  *
  * [encoder] 等同于 [RichCatCodeSerializer.encoder]。
  */
 public object XmlCatCodeSerializer : CatCodeSerializer() {
     @OptIn(MiraiExperimentalApi::class)
-    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, baseMessageChain ->
+    override val decoder: CatCodeDecoder = CatCodeDecoder { neko, _ ->
         // 解析的参数
         val serviceId = neko["serviceId"]?.toInt() ?: 60
 
@@ -804,7 +813,7 @@ public object QuoteCatCodeSerializer : CatCodeSerializer() {
             return arrayOf(fromIdStr, targetIdStr, kindStr, idsStr, internalIdsStr, timeStr).joinToString("-")
         }
 
-    private inline val Int.str get() = java.lang.Integer.toHexString(this)
+    private inline val Int.str get() = Integer.toHexString(this)
     private inline val Long.str get() = java.lang.Long.toHexString(this)
     private inline val IntArray.str: String get() = joinToString(":") { i -> i.str }
 

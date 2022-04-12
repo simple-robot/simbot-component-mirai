@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 @file:JvmName("CatCodeMessageUtil")
@@ -27,7 +28,7 @@ import net.mamoe.mirai.message.data.*
  * 将一个 [SingleMessage] 转化为携带cat字符串。
  * 普通文本会被转化为 [CAT:text,text=xxx]
  */
-public fun SingleMessage.fromMessage(): Neko {
+public fun SingleMessage.toNeko(): Neko {
     return when (this) {
         // at all
         AtAll -> AtAllCatCodeSerializer.encode(this)
