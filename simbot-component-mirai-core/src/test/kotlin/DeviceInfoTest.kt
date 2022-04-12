@@ -88,12 +88,13 @@ class DeviceInfoTest {
      */
 
 
+    @OptIn(FragileSimbotApi::class)
     @Test
     fun yamlTest() {
         val conf = MiraiViaBotFileConfiguration(
             code = 123,
             password = "123222xxx",
-            deviceInfoJson = DeviceInfo.random()
+            simpleDeviceInfoJson = DeviceInfo.random().toSimple()
         )
 
         val yaml = Yaml(
