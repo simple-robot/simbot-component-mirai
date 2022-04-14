@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -42,20 +42,9 @@ sealed class P : SimbotProject() {
 
         val isSnapshot get() = version.isSnapshot
 
-        val VERSION = version.fullVersion(true) // = if (SNAPSHOT) "$REAL_VERSION-SNAPSHOT" else REAL_VERSION
+        val VERSION = version.fullVersion(true)
 
     }
-
-    // object Simbot {
-    //
-    //
-    //     val SNAPSHOT = System.getProperty("isSnapshot")?.equals("true", true) ?: false
-    //     const val GROUP = "love.forte.simbot"
-    //     const val REAL_VERSION = "3.0.0.preview.6.0"
-    //
-    //     val VERSION = if (SNAPSHOT) "$REAL_VERSION-SNAPSHOT" else REAL_VERSION
-    //
-    // }
 
     object Simboot {
         const val GROUP = "love.forte.simbot.boot"
@@ -75,9 +64,6 @@ sealed class P : SimbotProject() {
         val VERSION: String = version.fullVersion(true)
 
 
-        const val API = ":simbot-component-mirai-api"
-        const val CORE = ":simbot-component-mirai-core"
-        const val BOOT = ":simbot-component-mirai-boot"
     }
 
 }

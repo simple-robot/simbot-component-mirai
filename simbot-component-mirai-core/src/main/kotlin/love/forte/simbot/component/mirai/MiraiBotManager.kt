@@ -40,7 +40,6 @@ import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
-import kotlin.time.ExperimentalTime
 
 
 private fun hex(hex: String): ByteArray {
@@ -278,10 +277,13 @@ public data class MiraiViaBotFileConfiguration @OptIn(FragileSimbotApi::class) c
         val json = CJson
         deviceInfoJson
             ?: simpleDeviceInfoJson?.toDeviceInfo()
-            ?: if (deviceInfoFile?.isBlank() == true) {
+            ?: if (deviceInfoFile?.isNotBlank() == true) {
                 simbotMiraiDeviceInfo(bot.id, deviceInfoSeed)
             } else {
-                deviceInfoFile as String
+                if (deviceInfoFile == null) {
+                    return@d simbotMiraiDeviceInfo(bot.id, deviceInfoSeed)
+                }
+
 
                 when {
                     deviceInfoFile.startsWith("classpath:") -> {
@@ -358,12 +360,12 @@ public data class MiraiViaBotFileConfiguration @OptIn(FragileSimbotApi::class) c
 
 
     @Serializable
-    class ContactListCacheConfiguration @OptIn(ExperimentalTime::class) constructor(
+    public class ContactListCacheConfiguration constructor(
         private val saveIntervalMillis: Long = BotConfiguration.Default.contactListCache.saveIntervalMillis,
         private val friendListCacheEnabled: Boolean = BotConfiguration.Default.contactListCache.friendListCacheEnabled,
         private val groupMemberListCacheEnabled: Boolean = BotConfiguration.Default.contactListCache.groupMemberListCacheEnabled,
     ) {
-        val contactListCache: BotConfiguration.ContactListCache
+        public val contactListCache: BotConfiguration.ContactListCache
             get() {
                 return BotConfiguration.ContactListCache().also {
                     it.saveIntervalMillis = saveIntervalMillis

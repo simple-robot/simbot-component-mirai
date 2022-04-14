@@ -21,14 +21,13 @@ plugins {
 }
 
 dependencies {
-    api(project(P.ComponentMirai.CORE))
+    api(project(":simbot-component-mirai-core"))
     api("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
 
     testImplementation(V.Kotlin.Test.Junit.notation)
-    testImplementation(V.Log4j.Api.notation)
-    testImplementation(V.Log4j.Core.notation)
-    testImplementation(V.Log4j.Slf4jImpl.notation)
     testImplementation(V.Kotlinx.Serialization.Yaml.notation)
+
+    testImplementation("love.forte.simbot.boot:simboot-core:${P.Simbot.VERSION}")
 
     // implementation("love.forte.simple-robot:api:3.0.0-PREVIEW")
 }
