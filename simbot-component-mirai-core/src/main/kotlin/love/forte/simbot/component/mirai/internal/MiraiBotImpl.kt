@@ -37,6 +37,7 @@ import love.forte.simbot.event.Event
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
 import love.forte.simbot.resources.Resource
+import net.mamoe.mirai.event.events.NudgeEvent
 import net.mamoe.mirai.utils.MiraiExperimentalApi
 import org.slf4j.Logger
 import java.util.stream.Stream
@@ -44,6 +45,7 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
 import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
+import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
 import net.mamoe.mirai.event.Event as OriginalMiraiEvent
 import net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent as OriginalMiraiBotGroupPermissionChangeEvent
 import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent as OriginalMiraiBotInvitedJoinGroupRequestEvent
@@ -94,7 +96,7 @@ internal class MiraiBotImpl(
     override val originalBot: OriginalMiraiBot,
     override val manager: MiraiBotManagerImpl,
     override val eventProcessor: EventProcessor,
-    override val component: Component
+    override val component: Component,
 ) : MiraiBot {
     override val logger: Logger = LoggerFactory.getLogger("love.forte.simbot.mirai.bot.${originalBot.id}")
     override val id: LongID = originalBot.id.ID
@@ -144,7 +146,7 @@ internal class MiraiBotImpl(
     override fun idImage(
         id: ID,
         flash: Boolean,
-        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit
+        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit,
     ): MiraiImage {
         val img = miraiImageFunc(id.literal, builderAction)
         return MiraiImageImpl(img, flash)
@@ -420,6 +422,47 @@ private fun MiraiBotImpl.registerEvents() {
             }
             //endregion
 
+            // 戳一戳事件
+            is NudgeEvent -> {
+                if (from !is OriginalMiraiBot) {
+                    when (val subject = subject) {
+                        is OriginalMiraiGroup -> {
+                            eventProcessor.pushIfProcessable(MiraiGroupNudgeEvent) {
+                                MiraiGroupNudgeEventImpl(this@registerEvents,
+                                    this,
+                                    subject,
+                                    from as OriginalMiraiMember
+                                )
+                            }
+                        }
+                        is OriginalMiraiStranger -> {
+                            eventProcessor.pushIfProcessable(MiraiStrangerNudgeEvent) {
+                                MiraiStrangerNudgeEventImpl(this@registerEvents,
+                                    this,
+                                    subject
+                                )
+                            }
+                        }
+                        is OriginalMiraiFriend -> {
+                            eventProcessor.pushIfProcessable(MiraiFriendNudgeEvent) {
+                                MiraiFriendNudgeEventImpl(this@registerEvents,
+                                    this,
+                                    subject
+                                )
+                            }
+                        }
+                        is OriginalMiraiMember -> {
+                            eventProcessor.pushIfProcessable(MiraiMemberNudgeEvent) {
+                                MiraiMemberNudgeEventImpl(this@registerEvents,
+                                    this,
+                                    subject
+                                )
+                            }
+                        }
+                    }
+                }
+
+            }
 
             else -> {
                 @OptIn(DiscreetSimbotApi::class)
@@ -440,7 +483,7 @@ private suspend inline fun <reified E : OriginalMiraiEvent, reified SE : MiraiSi
         MiraiBotImpl.doHandler(
     event: E,
     key: Event.Key<SE>,
-    crossinline handler: E.(bot: MiraiBotImpl) -> SE
+    crossinline handler: E.(bot: MiraiBotImpl) -> SE,
 ) {
     launch {
         val b = this@doHandler
