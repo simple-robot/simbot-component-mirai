@@ -26,7 +26,6 @@ plugins {
 
 
 dependencies {
-    api(project(":simbot-component-mirai-api"))
     api(V.Simbot.Core.notation)
     api(V.Mirai.CoreJvm.notation)
     api(V.Kotlinx.Serialization.Json.notation)

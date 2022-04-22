@@ -22,7 +22,6 @@ pluginManagement {
 
 rootProject.name = "simbot-component-mirai"
 
-include(":simbot-component-mirai-api")
 include(":simbot-component-mirai-core")
 include(":simbot-component-mirai-boot")
 
