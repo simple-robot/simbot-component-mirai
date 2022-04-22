@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -168,12 +169,15 @@ public interface MiraiSimbotGroupMessageEvent<E : OriginalMiraiMessageEvent> :
     @JvmSynthetic
     override suspend fun author(): MiraiMember
 
+    @OptIn(Api4J::class)
+    override val author: MiraiMember
+
     @JvmSynthetic
     override suspend fun source(): MiraiGroup
 
+    @OptIn(Api4J::class)
+    override val source: MiraiGroup
 
-    override val visibleScope: Event.VisibleScope
-        get() = Event.VisibleScope.PUBLIC
 
     override val messageContent: MiraiReceivedMessageContent
 

@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -53,24 +54,21 @@ public interface MiraiFriendMessagePostSendEvent :
     @OptIn(Api4J::class)
     override val friend: MiraiFriend
 
-
-
-
-    // Impl
     /**
      * 发送目标好友对象。
      */
-    override suspend fun friend(): MiraiFriend = friend
+    override suspend fun friend(): MiraiFriend
 
     /**
      * 所有 `post send` 相关事件的源头均来自于bot自身。
      */
     @OptIn(Api4J::class)
-    override val source: MiraiBot get() = bot
+    override val source: MiraiBot
+
     /**
      * 所有 `post send` 相关事件的源头均来自于bot自身。
      */
-    override suspend fun source(): MiraiBot = bot
+    override suspend fun source(): MiraiBot
 
 
 

@@ -164,10 +164,13 @@ tasks.create("createChangelog") {
         val file = File(changelogDir, "$version.md")
         if (!file.exists()) {
             file.createNewFile()
+            val simbotVersion = P.Simbot.VERSION
             val autoGenerateText = """
+                > 对应核心版本: [v$simbotVersion](https://github.com/ForteScarlet/simpler-robot/releases/tag/v$simbotVersion)
+                
                 
 
-                ## 其他日志
+                ## 变更日志
                 
             """.trimIndent()
 

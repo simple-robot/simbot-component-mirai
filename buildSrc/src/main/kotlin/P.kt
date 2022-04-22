@@ -36,7 +36,7 @@ sealed class P : SimbotProject() {
 
         val version = Version(
             "3", 0, 0,
-            status = preview(6, 0),
+            status = preview(8, 0),
             isSnapshot = System.getProperty("isSnapshot")?.equals("true", true) ?: false
         )
 

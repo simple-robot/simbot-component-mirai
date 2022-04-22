@@ -12,12 +12,15 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiFriend
 import love.forte.simbot.component.mirai.event.MiraiFriendMessagePostSendEvent
 import love.forte.simbot.component.mirai.event.MiraiReceivedMessageContent
 import love.forte.simbot.component.mirai.event.toSimbotMessageContent
@@ -38,8 +41,8 @@ internal class MiraiFriendMessagePostSendEventImpl(
     override val timestamp: Timestamp = Timestamp.now()
     override val messageContent: MiraiReceivedMessageContent = originalEvent.message.toSimbotMessageContent()
     override val friend = originalEvent.target.asSimbot(bot)
+    override val source: MiraiBot get() = bot
 
-
-
-
+    override suspend fun friend(): MiraiFriend = friend
+    override suspend fun source(): MiraiBot = source
 }

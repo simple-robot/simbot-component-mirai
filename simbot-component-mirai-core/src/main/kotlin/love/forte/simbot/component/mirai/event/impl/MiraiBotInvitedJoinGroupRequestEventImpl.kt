@@ -12,12 +12,14 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.event.InvitorUserInfo
 import love.forte.simbot.component.mirai.event.MiraiBotInvitedJoinGroupRequestEvent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
@@ -30,18 +32,41 @@ import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent as OriginalM
  */
 internal class MiraiBotInvitedJoinGroupRequestEventImpl(
     override val bot: MiraiBotImpl,
-    override val originalEvent: OriginalMiraiBotInvitedJoinGroupRequestEvent
+    override val originalEvent: OriginalMiraiBotInvitedJoinGroupRequestEvent,
 ) : MiraiBotInvitedJoinGroupRequestEvent {
     override val id: ID = originalEvent.eventId.ID
-
     override val timestamp: Timestamp = Timestamp.now()
     override val group: GroupInfo = InvitedJoinGroupInfo(originalEvent.groupId, originalEvent.groupName)
-
     override val inviter: InvitorUserInfo = InvitorUserInfo(
         originalEvent.invitor,
         originalEvent.invitorId,
         originalEvent.invitorNick
     )
+
+    override val requester: MiraiBot get() = bot
+    override val user: InvitorUserInfo get() = inviter
+    override suspend fun group(): GroupInfo = group
+    override suspend fun inviter(): InvitorUserInfo = inviter
+    override suspend fun requester(): MiraiBot = requester
+    override suspend fun user(): InvitorUserInfo = user
+
+    //// api
+
+
+    override suspend fun accept(): Boolean {
+        originalEvent.accept()
+        return true
+    }
+
+    /**
+     * 拒绝即代表忽略。
+     *
+     * @see OriginalMiraiBotInvitedJoinGroupRequestEvent
+     */
+    override suspend fun reject(): Boolean {
+        originalEvent.ignore()
+        return true
+    }
 
 
 }

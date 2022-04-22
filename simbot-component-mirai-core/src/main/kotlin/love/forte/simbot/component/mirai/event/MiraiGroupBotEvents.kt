@@ -26,12 +26,10 @@ import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.definition.GroupInfo
-import love.forte.simbot.definition.Organization
 import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.*
 import love.forte.simbot.message.doSafeCast
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 import net.mamoe.mirai.contact.User as OriginalMiraiUser
 import net.mamoe.mirai.event.events.BotGroupPermissionChangeEvent as OriginalMiraiBotGroupPermissionChangeEvent
 import net.mamoe.mirai.event.events.BotInvitedJoinGroupRequestEvent as OriginalMiraiBotInvitedJoinGroupRequestEvent
@@ -40,7 +38,6 @@ import net.mamoe.mirai.event.events.BotLeaveEvent as OriginalMiraiBotLeaveEvent
 import net.mamoe.mirai.event.events.BotMuteEvent as OriginalMiraiBotMuteEvent
 import net.mamoe.mirai.event.events.BotUnmuteEvent as OriginalMiraiBotUnmuteEvent
 import net.mamoe.mirai.event.events.GroupEvent as OriginalMiraiGroupEvent
-
 
 
 /**
@@ -57,8 +54,7 @@ import net.mamoe.mirai.event.events.GroupEvent as OriginalMiraiGroupEvent
  * @see MiraiBotJoinGroupEvent
  * @see MiraiBotInvitedJoinGroupRequestEvent
  */
-public interface MiraiGroupBotEvent<E : OriginalMiraiGroupEvent> :
-    MiraiSimbotBotEvent<E>, GroupEvent {
+public interface MiraiGroupBotEvent<E : OriginalMiraiGroupEvent> : MiraiSimbotBotEvent<E>, GroupEvent {
 
     override val key: Event.Key<out MiraiGroupBotEvent<*>>
     override val bot: MiraiBot
@@ -67,21 +63,18 @@ public interface MiraiGroupBotEvent<E : OriginalMiraiGroupEvent> :
     override val group: MiraiGroup
 
 
+    @JvmSynthetic
+    override suspend fun group(): MiraiGroup
+
     @OptIn(Api4J::class)
     override val organization: MiraiGroup
-        get() = group
 
     @JvmSynthetic
-    override suspend fun group(): MiraiGroup = group
+    override suspend fun organization(): MiraiGroup
 
-    @JvmSynthetic
-    override suspend fun organization(): Organization = group
 
-    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
-
-    public companion object Key : BaseEventKey<MiraiGroupBotEvent<*>>(
-        "mirai.group_bot", MiraiSimbotBotEvent, GroupEvent
-    ) {
+    public companion object Key :
+        BaseEventKey<MiraiGroupBotEvent<*>>("mirai.group_bot", MiraiSimbotBotEvent, GroupEvent) {
         override fun safeCast(value: Any): MiraiGroupBotEvent<*>? = doSafeCast(value)
     }
 }
@@ -96,54 +89,50 @@ public interface MiraiGroupBotEvent<E : OriginalMiraiGroupEvent> :
  * @see OriginalMiraiBotLeaveEvent
  * @see MemberDecreaseEvent
  */
-public interface MiraiBotLeaveEvent :
-    MiraiGroupBotEvent<OriginalMiraiBotLeaveEvent>,
-    MemberDecreaseEvent<MiraiGroup, MiraiMember> {
-    override val bot: MiraiBot
-    override val group: MiraiGroup
-    override val target: MiraiMember
+public interface MiraiBotLeaveEvent : MiraiGroupBotEvent<OriginalMiraiBotLeaveEvent>, MemberDecreaseEvent {
+
+    override val actionType: ActionType
+
+
+    @OptIn(Api4J::class)
+    override val member: MiraiMember
+
+    @JvmSynthetic
+    override suspend fun member(): MiraiMember
+
+
+    @OptIn(Api4J::class)
+    override val user: MiraiMember
+
+    @JvmSynthetic
+    override suspend fun user(): MiraiMember
+
 
     @OptIn(Api4J::class)
     override val operator: MiraiMember?
-    override val actionType: ActionType
 
-    // Impl
+    @JvmSynthetic
+    override suspend fun operator(): MiraiMember?
 
-    override val source: MiraiGroup get() = group
-    override val before: MiraiMember get() = target
-    override val after: MiraiMember? get() = null
 
-    @Suppress("UnnecessaryOptInAnnotation")
     @OptIn(Api4J::class)
-    override val organization: MiraiGroup
-        get() = group
+    override val source: MiraiGroup
 
     @JvmSynthetic
-    override suspend fun target(): MiraiMember = target
+    override suspend fun source(): MiraiGroup
+
+
+    @OptIn(Api4J::class)
+    override val before: MiraiMember
 
     @JvmSynthetic
-    override suspend fun operator(): MiraiMember? = operator
+    override suspend fun before(): MiraiMember
 
-    @JvmSynthetic
-    override suspend fun source(): MiraiGroup = group
-
-    @JvmSynthetic
-    override suspend fun before(): MiraiMember = target
-
-    @JvmSynthetic
-    override suspend fun after(): MiraiMember? = null
-
-    @JvmSynthetic
-    override suspend fun group(): MiraiGroup = group
-
-    @JvmSynthetic
-    override suspend fun organization(): MiraiGroup = group
 
     override val key: Event.Key<MiraiBotLeaveEvent> get() = Key
 
-    public companion object Key : BaseEventKey<MiraiBotLeaveEvent>(
-        "mirai.bot_leave", MiraiGroupBotEvent, MemberDecreaseEvent
-    ) {
+    public companion object Key :
+        BaseEventKey<MiraiBotLeaveEvent>("mirai.bot_leave", MiraiGroupBotEvent, MemberDecreaseEvent) {
         override fun safeCast(value: Any): MiraiBotLeaveEvent? = doSafeCast(value)
     }
 }
@@ -157,39 +146,33 @@ public interface MiraiBotLeaveEvent :
  *
  * @see OriginalMiraiBotGroupPermissionChangeEvent
  */
-public interface MiraiBotGroupRoleChangeEvent :
-    MiraiGroupBotEvent<OriginalMiraiBotGroupPermissionChangeEvent>,
-    ChangedEvent<MiraiBot, MemberRole, MemberRole> {
-    override val bot: MiraiBot
-    override val group: MiraiGroup
+public interface MiraiBotGroupRoleChangeEvent : MiraiGroupBotEvent<OriginalMiraiBotGroupPermissionChangeEvent>,
+    ChangedEvent {
+
+    @OptIn(Api4J::class)
     override val before: MemberRole
+
+    @JvmSynthetic
+    override suspend fun before(): MemberRole
+
+    @OptIn(Api4J::class)
     override val after: MemberRole
 
-    // Impl
+    @JvmSynthetic
+    override suspend fun after(): MemberRole
 
-    override val source: MiraiBot get() = bot
-    override val organization: MiraiGroup get() = group
+
+    @OptIn(Api4J::class)
+    override val source: MiraiBot
+
 
     @JvmSynthetic
-    override suspend fun group(): MiraiGroup = group
-
-    @JvmSynthetic
-    override suspend fun organization(): MiraiGroup = group
-
-    @JvmSynthetic
-    override suspend fun after(): MemberRole = after
-
-    @JvmSynthetic
-    override suspend fun before(): MemberRole = before
-
-    @JvmSynthetic
-    override suspend fun source(): MiraiBot = bot
+    override suspend fun source(): MiraiBot
 
     override val key: Event.Key<MiraiBotGroupRoleChangeEvent> get() = Key
 
-    public companion object Key : BaseEventKey<MiraiBotGroupRoleChangeEvent>(
-        "mirai.bot_group_role_change", MiraiGroupBotEvent, ChangedEvent
-    ) {
+    public companion object Key :
+        BaseEventKey<MiraiBotGroupRoleChangeEvent>("mirai.bot_group_role_change", MiraiGroupBotEvent, ChangedEvent) {
         override fun safeCast(value: Any): MiraiBotGroupRoleChangeEvent? = doSafeCast(value)
     }
 }
@@ -203,20 +186,16 @@ public interface MiraiBotGroupRoleChangeEvent :
  * @see MiraiBotMuteEvent
  * @see MiraiBotUnmuteEvent
  */
-public sealed interface MiraiBotMuteRelateEvent<E : OriginalMiraiGroupEvent> :
-    MiraiGroupBotEvent<E>,
-    ChangedEvent<MiraiGroup, Boolean, Boolean> {
-
-    override val bot: MiraiBot
-    override val group: MiraiGroup
+public sealed interface MiraiBotMuteRelateEvent<E : OriginalMiraiGroupEvent> : MiraiGroupBotEvent<E>, ChangedEvent {
 
     /**
      * 剩余禁言时间的时长。
      */
+    @get:JvmSynthetic
     public val duration: Duration
 
     /**
-     * @see duration
+     * 剩余禁言时间的时长的秒值。
      */
     public val durationSeconds: Int
 
@@ -225,33 +204,28 @@ public sealed interface MiraiBotMuteRelateEvent<E : OriginalMiraiGroupEvent> :
      */
     public val operator: MiraiMember
 
-    //// Impl
 
-    override val source: MiraiGroup get() = group
-
-    @JvmSynthetic
-    override suspend fun after(): Boolean = after
+    @OptIn(Api4J::class)
+    override val after: Boolean
 
     @JvmSynthetic
-    override suspend fun before(): Boolean = before
+    override suspend fun after(): Boolean
+
+    @OptIn(Api4J::class)
+    override val before: Boolean
 
     @JvmSynthetic
-    override suspend fun source(): MiraiGroup = source
-    override val organization: MiraiGroup get() = group
+    override suspend fun before(): Boolean
+
+    @OptIn(Api4J::class)
+    override val source: MiraiGroup
 
     @JvmSynthetic
-    override suspend fun group(): MiraiGroup = group
-
-    @JvmSynthetic
-    override suspend fun organization(): MiraiGroup = group
-
-    override val visibleScope: Event.VisibleScope
-        get() = Event.VisibleScope.PRIVATE
+    override suspend fun source(): MiraiGroup
 
 
-    public companion object Key : BaseEventKey<MiraiBotMuteRelateEvent<*>>(
-        "mirai.bot_mute_relate", MiraiGroupBotEvent, ChangedEvent
-    ) {
+    public companion object Key :
+        BaseEventKey<MiraiBotMuteRelateEvent<*>>("mirai.bot_mute_relate", MiraiGroupBotEvent, ChangedEvent) {
         override fun safeCast(value: Any): MiraiBotMuteRelateEvent<*>? = doSafeCast(value)
     }
 }
@@ -266,20 +240,15 @@ public sealed interface MiraiBotMuteRelateEvent<E : OriginalMiraiGroupEvent> :
  *
  * @see OriginalMiraiBotMuteEvent
  */
-public interface MiraiBotMuteEvent :
-    MiraiGroupBotEvent<OriginalMiraiBotMuteEvent>, MiraiBotMuteRelateEvent<OriginalMiraiBotMuteEvent> {
-    override val duration: Duration
-    override val durationSeconds: Int
-    //// Impl
-
+public interface MiraiBotMuteEvent : MiraiGroupBotEvent<OriginalMiraiBotMuteEvent>,
+    MiraiBotMuteRelateEvent<OriginalMiraiBotMuteEvent> {
     override val before: Boolean get() = false
     override val after: Boolean get() = true
 
     override val key: Event.Key<MiraiBotMuteEvent> get() = Key
 
-    public companion object Key : BaseEventKey<MiraiBotMuteEvent>(
-        "mirai.bot_mute", MiraiGroupBotEvent, MiraiBotMuteRelateEvent
-    ) {
+    public companion object Key :
+        BaseEventKey<MiraiBotMuteEvent>("mirai.bot_mute", MiraiGroupBotEvent, MiraiBotMuteRelateEvent) {
         override fun safeCast(value: Any): MiraiBotMuteEvent? = doSafeCast(value)
     }
 }
@@ -291,25 +260,15 @@ public interface MiraiBotMuteEvent :
  * [before] 永远为true，[after] 永远为false。
  * @see OriginalMiraiBotUnmuteEvent
  */
-public interface MiraiBotUnmuteEvent :
-    MiraiGroupBotEvent<OriginalMiraiBotUnmuteEvent>,
+public interface MiraiBotUnmuteEvent : MiraiGroupBotEvent<OriginalMiraiBotUnmuteEvent>,
     MiraiBotMuteRelateEvent<OriginalMiraiBotUnmuteEvent> {
-    override val duration: Duration get() = 0.seconds
-    override val durationSeconds: Int get() = 0
-
-    override val bot: MiraiBot
-    override val group: MiraiGroup
-
-    //// Impl
-
     override val before: Boolean get() = true
     override val after: Boolean get() = false
 
     override val key: Event.Key<MiraiBotUnmuteEvent> get() = Key
 
-    public companion object Key : BaseEventKey<MiraiBotUnmuteEvent>(
-        "mirai.bot_unmute", MiraiGroupBotEvent, MiraiBotMuteRelateEvent
-    ) {
+    public companion object Key :
+        BaseEventKey<MiraiBotUnmuteEvent>("mirai.bot_unmute", MiraiGroupBotEvent, MiraiBotMuteRelateEvent) {
         override fun safeCast(value: Any): MiraiBotUnmuteEvent? = doSafeCast(value)
     }
 }
@@ -320,11 +279,25 @@ public interface MiraiBotUnmuteEvent :
  * 此事件属于 [MemberIncreaseEvent], 这个增加的成员即bot自身。
  * @see OriginalMiraiBotJoinGroupEvent
  */
-public interface MiraiBotJoinGroupEvent :
-    MiraiGroupBotEvent<OriginalMiraiBotJoinGroupEvent>,
-    MemberIncreaseEvent<MiraiGroup, MiraiMember> {
-    override val bot: MiraiBot
-    override val group: MiraiGroup
+public interface MiraiBotJoinGroupEvent : MiraiGroupBotEvent<OriginalMiraiBotJoinGroupEvent>,
+    MemberIncreaseEvent {
+
+
+    @OptIn(Api4J::class)
+    override val user: MiraiMember
+
+    @JvmSynthetic
+    override suspend fun user(): MiraiMember
+
+
+
+    @OptIn(Api4J::class)
+    override val member: MiraiMember
+
+    @JvmSynthetic
+    override suspend fun member(): MiraiMember
+
+
 
     /**
      * 操作人，Mirai中唯一能获取到的操作人即当事件为**被邀请**时候的邀请人。
@@ -334,43 +307,24 @@ public interface MiraiBotJoinGroupEvent :
     override val operator: MiraiMember?
 
     /**
-     * 即bot自己。
+     * 操作人，Mirai中唯一能获取到的操作人即当事件为**被邀请**时候的邀请人。
+     * 其他情况无法得知操作者。
      */
-    override val target: MiraiMember
-
-    //// Impl
-
-    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
-
     @JvmSynthetic
     override suspend fun operator(): MiraiMember? = operator
-    override val source: MiraiGroup get() = group
 
-    @JvmSynthetic
-    override suspend fun source(): MiraiGroup = group
-
-    @JvmSynthetic
-    override suspend fun target(): MiraiMember = target
-
-    @Suppress("UnnecessaryOptInAnnotation")
     @OptIn(Api4J::class)
-    override val organization: MiraiGroup
-        get() = group
-
-    override val after: MiraiMember get() = target
-    override val before: MiraiMember? get() = null
+    override val source: MiraiGroup
 
     @JvmSynthetic
-    override suspend fun before(): MiraiMember? = null
+    override suspend fun source(): MiraiGroup
+
+
+    @OptIn(Api4J::class)
+    override val after: MiraiMember
 
     @JvmSynthetic
-    override suspend fun after(): MiraiMember = after
-
-    @JvmSynthetic
-    override suspend fun group(): MiraiGroup = group
-
-    @JvmSynthetic
-    override suspend fun organization(): MiraiGroup = group
+    override suspend fun after(): MiraiMember
 
     /**
      * 暂时仅定为 "被动的"。
@@ -380,9 +334,8 @@ public interface MiraiBotJoinGroupEvent :
 
     override val key: Event.Key<MiraiBotJoinGroupEvent> get() = Key
 
-    public companion object Key : BaseEventKey<MiraiBotJoinGroupEvent>(
-        "mirai.bot_join_group", MiraiGroupBotEvent, MemberIncreaseEvent
-    ) {
+    public companion object Key :
+        BaseEventKey<MiraiBotJoinGroupEvent>("mirai.bot_join_group", MiraiGroupBotEvent, MemberIncreaseEvent) {
         override fun safeCast(value: Any): MiraiBotJoinGroupEvent? = doSafeCast(value)
     }
 }
@@ -397,12 +350,20 @@ public interface MiraiBotJoinGroupEvent :
  * @see OriginalMiraiBotInvitedJoinGroupRequestEvent
  */
 public interface MiraiBotInvitedJoinGroupRequestEvent :
-    MiraiSimbotBotEvent<OriginalMiraiBotInvitedJoinGroupRequestEvent>,
-    GroupJoinRequestEvent {
-    override val bot: MiraiBot
+    MiraiSimbotBotEvent<OriginalMiraiBotInvitedJoinGroupRequestEvent>, GroupJoinRequestEvent {
+
+
+    /**
+     * bot被邀请的时候没有附加信息, 始终得到null。
+     */
+    override val message: String? get() = null
+
 
     @OptIn(Api4J::class)
     override val group: GroupInfo
+
+    @JvmSynthetic
+    override suspend fun group(): GroupInfo
 
     /**
      * 邀请人信息.
@@ -410,64 +371,58 @@ public interface MiraiBotInvitedJoinGroupRequestEvent :
      */
     override val inviter: InvitorUserInfo
 
-    //// Impl
 
     /**
-     * bot被邀请的时候没有附加信息。
+     * 邀请人信息.
+     * @see InvitorUserInfo
      */
-    override val message: String? get() = null
+    @JvmSynthetic
+    override suspend fun inviter(): InvitorUserInfo
+
 
     @OptIn(Api4J::class)
     override val requester: MiraiBot
-        get() = bot
 
     @JvmSynthetic
-    override suspend fun requester(): MiraiBot = bot
-
-    @JvmSynthetic
-    override suspend fun inviter(): InvitorUserInfo = inviter
+    override suspend fun requester(): MiraiBot
 
     /**
      * 邀请人.
      */
     @OptIn(Api4J::class)
     override val user: InvitorUserInfo
-        get() = inviter
 
     @JvmSynthetic
-    override suspend fun user(): InvitorUserInfo = inviter
+    override suspend fun user(): InvitorUserInfo
 
+    //// api
+
+
+    /**
+     * 同意请求。
+     */
+    @OptIn(ExperimentalSimbotApi::class)
     @JvmSynthetic
-    override suspend fun group(): GroupInfo = group
-
-    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
-
-    override val type: RequestEvent.Type get() = RequestEvent.Type.INVITATION
-
-    @ExperimentalSimbotApi
-    @JvmSynthetic
-    override suspend fun accept(): Boolean {
-        originalEvent.accept()
-        return true
-    }
+    override suspend fun accept(): Boolean
 
     /**
      * 拒绝即代表忽略。
      *
      * @see OriginalMiraiBotInvitedJoinGroupRequestEvent
      */
-    @ExperimentalSimbotApi
+    @OptIn(ExperimentalSimbotApi::class)
     @JvmSynthetic
-    override suspend fun reject(): Boolean {
-        originalEvent.ignore()
-        return true
-    }
+    override suspend fun reject(): Boolean
+
+
+    override val type: RequestEvent.Type get() = RequestEvent.Type.INVITATION
+
 
     override val key: Event.Key<MiraiBotInvitedJoinGroupRequestEvent> get() = Key
 
-    public companion object Key : BaseEventKey<MiraiBotInvitedJoinGroupRequestEvent>(
-        "mirai.bot_invited_join_group", MiraiSimbotBotEvent, GroupJoinRequestEvent
-    ) {
+    public companion object Key : BaseEventKey<MiraiBotInvitedJoinGroupRequestEvent>("mirai.bot_invited_join_group",
+        MiraiSimbotBotEvent,
+        GroupJoinRequestEvent) {
         override fun safeCast(value: Any): MiraiBotInvitedJoinGroupRequestEvent? = doSafeCast(value)
     }
 }
