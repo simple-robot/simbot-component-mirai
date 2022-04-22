@@ -127,11 +127,9 @@ internal class MiraiBotImpl(
     }
 
 
-    @OptIn(Api4J::class)
     override fun getFriend(id: ID): MiraiFriend? =
         originalBot.getFriend(id.tryToLongID().number)?.asSimbot(this)
 
-    @OptIn(Api4J::class)
     override fun getGroup(id: ID): MiraiGroup? =
         originalBot.getGroup(id.tryToLongID().number)?.asSimbot(this)
 
