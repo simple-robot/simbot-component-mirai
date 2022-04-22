@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -60,7 +61,6 @@ internal constructor(override val bot: MiraiBot, override val originalEvent: Ori
 
     override val key: Event.Key<UnsupportedMiraiEvent> get() = Key
     override val timestamp: Timestamp = Timestamp.now()
-    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PRIVATE
 
 
     public companion object Key : BaseEventKey<UnsupportedMiraiEvent>("mirai.unsupported", MiraiEvent) {
