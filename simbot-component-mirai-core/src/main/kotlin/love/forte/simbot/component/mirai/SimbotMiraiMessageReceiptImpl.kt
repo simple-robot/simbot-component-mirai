@@ -37,7 +37,7 @@ import net.mamoe.mirai.message.MessageReceipt as OriginalMiraiMessageReceipt
  *
  *
  */
-public interface SimbotMiraiMessageReceipt<C : Contact> : MessageReceipt, MessageReplyReceipt, DeleteSupport,
+public interface SimbotMiraiMessageReceipt<out C : Contact> : MessageReceipt, MessageReplyReceipt, DeleteSupport,
     ReplySupport {
     public val receipt: OriginalMiraiMessageReceipt<C>
 
@@ -75,7 +75,7 @@ public interface SimbotMiraiMessageReceipt<C : Contact> : MessageReceipt, Messag
  * @see ReplySupport
  * @author ForteScarlet
  */
-internal class SimbotMiraiMessageReceiptImpl<C : Contact>(
+internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
     override val receipt: OriginalMiraiMessageReceipt<C>
 ) : SimbotMiraiMessageReceipt<C> {
     override val id: ID = receipt.source.ID

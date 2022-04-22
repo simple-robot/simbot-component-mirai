@@ -54,6 +54,7 @@ import net.mamoe.mirai.event.events.NewFriendRequestEvent as OriginalMiraiNewFri
  * @see OriginalMiraiFriendNickChangedEvent
  * @see OriginalMiraiFriendInputStatusChangedEvent
  */
+@BaseEvent
 public interface MiraiFriendEvent<E : OriginalMiraiFriendEvent> :
     MiraiSimbotBotEvent<E>, FriendEvent {
     override val key: Event.Key<out MiraiFriendEvent<*>>

@@ -40,6 +40,7 @@ import net.mamoe.mirai.event.events.MessageEvent as OriginalMiraiMessageEvent
  * @see MiraiSimbotEvent
  * @see UnsupportedMiraiEvent
  */
+@BaseEvent
 public sealed interface MiraiEvent : Event {
 
     override val bot: MiraiBot
@@ -68,12 +69,13 @@ public sealed interface MiraiEvent : Event {
  * @see OriginalMiraiEvent
  * @author ForteScarlet
  */
+@BaseEvent
 public interface MiraiSimbotEvent<E : OriginalMiraiEvent> : MiraiEvent {
 
     override val id: ID
 
     /**
-     * 原生的mirai事件对象
+     * 原始的mirai事件对象
      */
     override val originalEvent: E
 
@@ -90,6 +92,7 @@ public interface MiraiSimbotEvent<E : OriginalMiraiEvent> : MiraiEvent {
  *
  * @see OriginalMiraiEvent
  */
+@BaseEvent
 public interface MiraiSimbotBotEvent<E : OriginalMiraiBotEvent> : MiraiSimbotEvent<E> {
 
     /**
@@ -107,6 +110,7 @@ public interface MiraiSimbotBotEvent<E : OriginalMiraiBotEvent> : MiraiSimbotEve
 /**
  * 与mirai的 [net.mamoe.mirai.contact.Contact] 相关的事件。
  */
+@BaseEvent
 public interface MiraiSimbotContactMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
     ContactMessageEvent {
@@ -134,6 +138,7 @@ public interface MiraiSimbotContactMessageEvent<E : OriginalMiraiMessageEvent> :
 /**
  * 在 mirai [net.mamoe.mirai.contact.Contact] 下与 [love.forte.simbot.definition.Contact] 相关的事件。
  */
+@BaseEvent
 public interface MiraiSimbotUserMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotContactMessageEvent<E> {
 
@@ -157,6 +162,7 @@ public interface MiraiSimbotUserMessageEvent<E : OriginalMiraiMessageEvent> :
 /**
  * 在 mirai [net.mamoe.mirai.contact.Contact] 下与 [love.forte.simbot.definition.Group] 相关的事件。
  */
+@BaseEvent
 public interface MiraiSimbotGroupMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
     ChatroomMessageEvent {

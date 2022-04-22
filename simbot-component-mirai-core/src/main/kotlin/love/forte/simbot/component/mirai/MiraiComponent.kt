@@ -17,12 +17,15 @@
 
 package love.forte.simbot.component.mirai
 
-import kotlinx.serialization.modules.*
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.plus
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.message.*
-import love.forte.simbot.message.*
-import net.mamoe.mirai.message.*
-import net.mamoe.mirai.utils.*
+import love.forte.simbot.message.Message
+import net.mamoe.mirai.message.MessageSerializers
+import net.mamoe.mirai.utils.MiraiExperimentalApi
 
 
 /**
@@ -97,7 +100,7 @@ public class MiraiComponent : Component {
  * [MiraiComponent] 注册的时候所使用的配置类。
  */
 public class MiraiComponentConfiguration {
-
+    // nothing yet.
 }
 
 

@@ -257,7 +257,6 @@ public interface MiraiBot : Bot, UserInfo {
     /**
      * @see sendOnlyImage
      */
-    @OptIn(Api4J::class)
     public fun uploadImageBlocking(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         sendOnlyImage(resource, flash)
 
@@ -286,8 +285,7 @@ public interface MiraiBot : Bot, UserInfo {
     /**
      * @see idImage
      */
-    @JvmSynthetic
-    public suspend fun resolveImage(
+    public fun resolveImage(
         id: ID,
         flash: Boolean,
         builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {}
@@ -299,14 +297,11 @@ public interface MiraiBot : Bot, UserInfo {
     @OptIn(Api4J::class)
     override fun resolveImageBlocking(id: ID): MiraiImage = idImage(id, false)
 
-    /**
-     * @see idImage
-     */
-    public fun resolveImageBlocking(id: ID, flash: Boolean): MiraiImage = idImage(id, flash)
 
     /**
      * @see idImage
      */
+    @Api4J
     public fun resolveImageBlocking(
         id: ID,
         flash: Boolean,

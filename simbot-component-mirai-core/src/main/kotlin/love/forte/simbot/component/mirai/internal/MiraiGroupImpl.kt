@@ -81,6 +81,7 @@ internal class MiraiGroupImpl(
         originalContact.settings.isMuteAll = true
         if (seconds > 0) {
             bot.launch {
+                // TODO cancel if unmute
                 kotlin.runCatching {
                     delay(duration.inWholeMilliseconds)
                     originalContact.settings.isMuteAll = false
