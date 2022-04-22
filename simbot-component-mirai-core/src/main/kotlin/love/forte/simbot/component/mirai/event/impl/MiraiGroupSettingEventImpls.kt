@@ -18,6 +18,7 @@ package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
@@ -33,51 +34,55 @@ import net.mamoe.mirai.event.events.GroupSettingChangeEvent as OriginalMiraiGrou
 
 
 internal abstract class BaseMiraiGroupSettingEvent<T, E : OriginalMiraiGroupSettingChangeEvent<T>>(
-    final override val bot: MiraiBotImpl, final override val originalEvent: E
+    final override val bot: MiraiBotImpl, final override val originalEvent: E,
 ) : MiraiGroupSettingEvent<T, E> {
     override val id: ID = randomID()
     override val source = originalEvent.group.asSimbot(bot)
     override val changedTime: Timestamp = Timestamp.now()
     override val before = originalEvent.origin
     override val after = originalEvent.new
+
+    override suspend fun source(): MiraiGroup = source
+    override suspend fun before(): T = before
+    override suspend fun after(): T = after
 }
 
 
 internal class MiraiGroupNameChangeEventImpl(
     bot: MiraiBotImpl,
-    nativeEvent: OriginalMiraiGroupNameChangeEvent
+    nativeEvent: OriginalMiraiGroupNameChangeEvent,
 ) : BaseMiraiGroupSettingEvent<String, OriginalMiraiGroupNameChangeEvent>(bot, nativeEvent), MiraiGroupNameChangeEvent {
     override val operator = nativeEvent.operatorOrBot.asSimbot(bot, source)
+
 }
 
 internal class MiraiGroupEntranceAnnouncementChangeEventImpl(
-    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupEntranceAnnouncementChangeEvent
+    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupEntranceAnnouncementChangeEvent,
 ) : BaseMiraiGroupSettingEvent<String, OriginalMiraiGroupEntranceAnnouncementChangeEvent>(bot, nativeEvent),
     MiraiGroupEntranceAnnouncementChangeEvent {
     override val operator = nativeEvent.operatorOrBot.asSimbot(bot, source)
 }
 
 internal class MiraiGroupMuteAllEventImpl(
-    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupMuteAllEvent
+    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupMuteAllEvent,
 ) : BaseMiraiGroupSettingEvent<Boolean, OriginalMiraiGroupMuteAllEvent>(bot, nativeEvent), MiraiGroupMuteAllEvent {
     override val operator = nativeEvent.operatorOrBot.asSimbot(bot, source)
 }
 
 internal class MiraiGroupAllowAnonymousChatEventImpl(
-    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupAllowAnonymousChatEvent
+    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupAllowAnonymousChatEvent,
 ) : BaseMiraiGroupSettingEvent<Boolean, OriginalMiraiGroupAllowAnonymousChatEvent>(bot, nativeEvent),
     MiraiGroupAllowAnonymousChatEvent {
     override val operator = nativeEvent.operatorOrBot.asSimbot(bot, source)
 }
 
 internal class MiraiGroupAllowConfessTalkEventImpl(
-    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupAllowConfessTalkEvent
+    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupAllowConfessTalkEvent,
 ) : BaseMiraiGroupSettingEvent<Boolean, OriginalMiraiGroupAllowConfessTalkEvent>(bot, nativeEvent),
-    MiraiGroupAllowConfessTalkEvent {
-}
+    MiraiGroupAllowConfessTalkEvent
 
 internal class MiraiGroupAllowMemberInviteEventImpl(
-    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupAllowMemberInviteEvent
+    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupAllowMemberInviteEvent,
 ) : BaseMiraiGroupSettingEvent<Boolean, OriginalMiraiGroupAllowMemberInviteEvent>(bot, nativeEvent),
     MiraiGroupAllowMemberInviteEvent {
     override val operator = nativeEvent.operatorOrBot.asSimbot(bot, source)

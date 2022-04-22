@@ -16,12 +16,15 @@
 
 package love.forte.simbot.component.mirai.internal
 
+import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.component.mirai.MiraiStranger
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
+import love.forte.simbot.message.MessageContent
+import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
 
 
@@ -31,7 +34,7 @@ import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
  */
 internal class MiraiStrangerImpl(
     override val bot: MiraiBotImpl,
-    override val originalContact: OriginalMiraiStranger
+    override val originalContact: OriginalMiraiStranger,
 ) : MiraiStranger {
     override val id: LongID = originalContact.id.ID
 
@@ -40,6 +43,32 @@ internal class MiraiStrangerImpl(
         val nativeMessage = message.toOriginalMiraiMessage(originalContact)
         val receipt = originalContact.sendMessage(nativeMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
+    }
+
+    override suspend fun send(text: String): SimbotMiraiMessageReceiptImpl<OriginalMiraiStranger> {
+        val receipt = originalContact.sendMessage(text)
+        return SimbotMiraiMessageReceiptImpl(receipt)
+    }
+
+    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceiptImpl<OriginalMiraiStranger> {
+        val nativeMessage = message.messages.toOriginalMiraiMessage(originalContact)
+        val receipt = originalContact.sendMessage(nativeMessage)
+        return SimbotMiraiMessageReceiptImpl(receipt)
+    }
+
+    @Api4J
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceiptImpl<OriginalMiraiStranger> {
+        return runInBlocking { send(text) }
+    }
+
+    @Api4J
+    override fun sendBlocking(message: Message): SimbotMiraiMessageReceiptImpl<OriginalMiraiStranger> {
+        return runInBlocking { send(message) }
+    }
+
+    @Api4J
+    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceiptImpl<OriginalMiraiStranger> {
+        return runInBlocking { send(message) }
     }
 }
 

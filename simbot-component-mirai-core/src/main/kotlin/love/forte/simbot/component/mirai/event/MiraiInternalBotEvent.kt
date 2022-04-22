@@ -17,11 +17,13 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.component.mirai.event.MiraiInternalBotEvent.*
-import love.forte.simbot.event.*
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiBotManager
+import love.forte.simbot.component.mirai.event.MiraiInternalBotEvent.Key
+import love.forte.simbot.event.BaseEventKey
+import love.forte.simbot.event.Event
 import love.forte.simbot.event.internal.*
-import love.forte.simbot.message.*
+import love.forte.simbot.message.doSafeCast
 
 /**
  *
@@ -59,7 +61,6 @@ public abstract class MiraiBotRegisteredEvent : BotRegisteredEvent(), MiraiInter
      */
     abstract override val bot: MiraiBot
 
-    ////
 
     override val key: InternalEvent.Key<out InternalEvent> get() = Key
 
@@ -89,7 +90,6 @@ public abstract class MiraiBotStartedEvent : BotStartedEvent(), MiraiInternalBot
      */
     abstract override val bot: MiraiBot
 
-    ////
 
     override val key: InternalEvent.Key<MiraiBotStartedEvent> get() = Key
 

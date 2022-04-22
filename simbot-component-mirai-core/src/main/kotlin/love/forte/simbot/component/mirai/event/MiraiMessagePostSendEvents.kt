@@ -18,8 +18,8 @@ package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.definition.FriendInfoContainer
+import love.forte.simbot.event.BaseEvent
 import love.forte.simbot.event.BaseEventKey
-import love.forte.simbot.event.Event
 import love.forte.simbot.event.FriendMessageEvent
 import love.forte.simbot.event.MessageEvent
 import love.forte.simbot.message.doSafeCast
@@ -42,15 +42,11 @@ import net.mamoe.mirai.event.events.MessagePostSendEvent as OriginalMiraiMessage
  * @see MiraiGroupMessagePostSendEvent
  *
  */
+@BaseEvent
 public interface MiraiMessagePostSendEvent<C : net.mamoe.mirai.contact.Contact, E : OriginalMiraiMessagePostSendEvent<C>> :
     MiraiSimbotBotEvent<E> {
     override val bot: MiraiBot
 
-    /**
-     * 这类事件理论上属于系统内事件，只能由bot自身可见。
-     */
-    override val visibleScope: Event.VisibleScope
-        get() = Event.VisibleScope.PRIVATE
 
     public companion object Key : BaseEventKey<MiraiMessagePostSendEvent<*, *>>(
         "mirai.message_post_send", MiraiSimbotBotEvent

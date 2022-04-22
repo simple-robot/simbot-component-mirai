@@ -16,12 +16,17 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.*
-import love.forte.simbot.action.*
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.Api4J
+import love.forte.simbot.action.ReplySupport
+import love.forte.simbot.action.SendSupport
+import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.event.*
-import love.forte.simbot.message.*
-import love.forte.simbot.utils.*
+import love.forte.simbot.message.Message
+import love.forte.simbot.message.MessageContent
+import love.forte.simbot.message.doSafeCast
 import net.mamoe.mirai.message.data.MessageSource.Key.recall
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessageEvent
@@ -30,23 +35,73 @@ import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessa
 /**
  * 群消息事件。
  *
- * Mirai [OriginalMiraiFriendMessageEvent] 事件对应的 [FriendMessageEvent] 事件类型。
+ * Mirai [OriginalMiraiGroupMessageEvent] 事件对应的 [FriendMessageEvent] 事件类型。
  *
- * @see OriginalMiraiFriendMessageEvent
+ * @see OriginalMiraiGroupMessageEvent
  * @author ForteScarlet
  */
 public interface MiraiGroupMessageEvent :
     MiraiSimbotGroupMessageEvent<OriginalMiraiGroupMessageEvent>,
     GroupMessageEvent, ReplySupport, SendSupport {
-
     override val bot: MiraiBot
 
+    /**
+     * 收到的消息本体。
+     */
+    override val messageContent: MiraiReceivedMessageContent
+
+
+    /**
+     * 此消息的发送者。
+     */
+    @Suppress("UnnecessaryOptInAnnotation")
     @OptIn(Api4J::class)
     override val author: MiraiMember
 
+
+    /**
+     * 此消息的发送者。
+     */
+    @JvmSynthetic
+    override suspend fun author(): MiraiMember
+
+    /**
+     * 收到消息的群。
+     */
     @OptIn(Api4J::class)
     override val group: MiraiGroup
-    override val messageContent: MiraiReceivedMessageContent
+
+    /**
+     * 收到消息的群。
+     */
+    @JvmSynthetic
+    override suspend fun group(): MiraiGroup
+
+    /**
+     * 收到消息的群。同 [group].
+     */
+    @OptIn(Api4J::class)
+    override val organization: MiraiGroup
+
+    /**
+     * 收到消息的群。同 [group].
+     */
+    @JvmSynthetic
+    override suspend fun organization(): MiraiGroup
+
+    /**
+     * 收到消息的群。同 [group].
+     */
+    @OptIn(Api4J::class)
+    override val source: MiraiGroup
+
+    /**
+     * 收到消息的群。同 [group].
+     */
+    @JvmSynthetic
+    override suspend fun source(): MiraiGroup
+
+    //// api
 
     /**
      * 删除，或者说撤回这个消息。
@@ -58,6 +113,8 @@ public interface MiraiGroupMessageEvent :
     @JvmSynthetic
     override suspend fun delete(): Boolean
 
+
+    //region reply api
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
@@ -70,82 +127,74 @@ public interface MiraiGroupMessageEvent :
     @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
+
     /**
-     * 向次事件的群发送消息。
+     * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
+     */
+    @JvmSynthetic
+    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
+
+    /**
+     * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
+     */
+    @Api4J
+    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
+
+    /**
+     * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
+     */
+    @Api4J
+    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
+
+    /**
+     * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
+     */
+    @Api4J
+    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
+    //endregion
+
+
+    //region send api
+    /**
+     * 向此事件的群发送消息。
      */
     @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
     /**
-     * 向次事件的群发送消息。
+     * 向此事件的群发送消息。
      */
     @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
 
-    //// Impl
+    /**
+     * 向此事件的群发送消息。
+     */
+    @JvmSynthetic
+    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
+
+    /**
+     * 向此事件的群发送消息。
+     */
+    @Api4J
+    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
+
+    /**
+     * 向此事件的群发送消息。
+     */
+    @Api4J
+    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
+
+    /**
+     * 向此事件的群发送消息。
+     */
+    @Api4J
+    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
+    //endregion
 
     override val key: Event.Key<MiraiGroupMessageEvent> get() = Key
 
-    /**
-     * 对于群消息，其可见性是 [公开的][Event.VisibleScope.PUBLIC].
-     * */
-    override val visibleScope: Event.VisibleScope get() = Event.VisibleScope.PUBLIC
-
-
-    @JvmSynthetic
-    override suspend fun author(): MiraiMember = author
-
-    @JvmSynthetic
-    override suspend fun group(): MiraiGroup = group
-
-    @JvmSynthetic
-    override suspend fun organization(): MiraiGroup = group
-
-    @JvmSynthetic
-    override suspend fun source(): MiraiGroup = group
-
-    @OptIn(Api4J::class)
-    override val source: MiraiGroup
-        get() = group
-
-    @OptIn(Api4J::class)
-    override val organization: MiraiGroup
-        get() = group
-
-
-    @JvmSynthetic
-    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        reply(message.messages)
-
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { reply(text) }
-
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { reply(message) }
-
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { reply(message) }
-
-
-    @JvmSynthetic
-    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        send(message.messages)
-
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { send(text) }
-
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { send(message) }
-
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { send(message) }
 
     public companion object Key :
         BaseEventKey<MiraiGroupMessageEvent>(

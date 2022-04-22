@@ -17,8 +17,6 @@
 package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.Api4J
-import love.forte.simbot.ID
-import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.definition.GroupInfoContainer
@@ -41,10 +39,7 @@ public interface MiraiGroupMessagePostSendEvent :
     GroupInfoContainer, MessageEvent {
 
     override val bot: MiraiBot
-    override val id: ID
-    override val timestamp: Timestamp
     override val messageContent: MiraiReceivedMessageContent
-    override val originalEvent: OriginalMiraiGroupMessagePostSendEvent
 
     /**
      * 发送目标群对象。
@@ -52,24 +47,23 @@ public interface MiraiGroupMessagePostSendEvent :
     @OptIn(Api4J::class)
     override val group: MiraiGroup
 
-
-    // Impl
     /**
      * 发送目标群对象。
      */
     override suspend fun group(): MiraiGroup = group
 
+
     /**
-     * 所有 `post send` 相关事件的源头均来自于bot自身。
+     * 所有 `post send` 相关事件的源头均来自于[bot]自身。
      */
     @OptIn(Api4J::class)
     override val source: MiraiBot
-        get() = bot
+
 
     /**
-     * 所有 `post send` 相关事件的源头均来自于bot自身。
+     * 所有 `post send` 相关事件的源头均来自于[bot]自身。
      */
-    override suspend fun source(): MiraiBot = bot
+    override suspend fun source(): MiraiBot
 
 
     override val key: Event.Key<out MiraiGroupMessagePostSendEvent> get() = Key

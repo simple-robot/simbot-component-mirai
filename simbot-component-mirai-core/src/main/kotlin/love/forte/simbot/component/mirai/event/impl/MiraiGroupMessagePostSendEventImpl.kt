@@ -18,6 +18,7 @@ package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.event.MiraiGroupMessagePostSendEvent
 import love.forte.simbot.component.mirai.event.MiraiReceivedMessageContent
 import love.forte.simbot.component.mirai.event.toSimbotMessageContent
@@ -32,12 +33,13 @@ import net.mamoe.mirai.event.events.GroupMessagePostSendEvent as OriginalMiraiGr
  */
 internal class MiraiGroupMessagePostSendEventImpl(
     override val bot: MiraiBotImpl,
-    override val originalEvent: OriginalMiraiGroupMessagePostSendEvent
+    override val originalEvent: OriginalMiraiGroupMessagePostSendEvent,
 ) : MiraiGroupMessagePostSendEvent {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
     override val messageContent: MiraiReceivedMessageContent = originalEvent.message.toSimbotMessageContent()
     override val group = originalEvent.target.asSimbot(bot)
 
-
+    override val source: MiraiBot get() = bot
+    override suspend fun source(): MiraiBot = source
 }

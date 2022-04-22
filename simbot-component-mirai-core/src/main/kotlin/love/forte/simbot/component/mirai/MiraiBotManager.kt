@@ -17,7 +17,6 @@
 
 package love.forte.simbot.component.mirai
 
-import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -182,9 +181,6 @@ private val CJson
         isLenient = true
         ignoreUnknownKeys = true
     }
-
-private val CYaml
-    get() = Yaml()
 
 /**
  *

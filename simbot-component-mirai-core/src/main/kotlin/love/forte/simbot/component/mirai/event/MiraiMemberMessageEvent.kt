@@ -28,7 +28,6 @@ import love.forte.simbot.event.Event
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.message.doSafeCast
-import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 import net.mamoe.mirai.event.events.GroupTempMessageEvent as OriginalMiraiGroupTempMessageEvent
 
@@ -50,56 +49,112 @@ public interface MiraiMemberMessageEvent
 
     override val bot: MiraiBot
 
+    /**
+     * 发送消息的群成员。
+     */
+    @Suppress("UnnecessaryOptInAnnotation")
     @OptIn(Api4J::class)
     override val user: MiraiMember
 
-    override val key: Event.Key<MiraiMemberMessageEvent> get() = Key
-
-
+    /**
+     * 发送消息的群成员。
+     */
     @JvmSynthetic
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-    @JvmSynthetic
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
+    override suspend fun user(): MiraiMember
 
+    /**
+     * 发送消息的群成员。
+     */
+    @OptIn(Api4J::class)
+    override val source: MiraiMember
+
+    /**
+     * 发送消息的群成员。
+     */
+    @JvmSynthetic
+    override suspend fun source(): MiraiMember
+
+
+
+    //region reply api
+
+    /**
+     * 回复此群成员的消息。效果等同于 [send].
+     */
     @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
+
+    /**
+     * 回复此群成员的消息。效果等同于 [send].
+     */
     @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
 
-
-    //// Impl
+    /**
+     * 回复此群成员的消息。效果等同于 [send].
+     */
     @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-        = reply(message.messages)
 
+    /**
+     * 回复此群成员的消息。效果等同于 [send].
+     */
     @Api4J
     override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-        = runInBlocking { reply(text) }
 
+    /**
+     * 回复此群成员的消息。效果等同于 [send].
+     */
     @Api4J
     override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-        = runInBlocking { reply(message) }
 
+    /**
+     * 回复此群成员的消息。效果等同于 [send].
+     */
     @Api4J
     override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-        = runInBlocking { reply(message) }
+    //endregion
+
+    //region send api
+    /**
+     * 向此群成员发送消息。效果等同于 [reply].
+     */
+    @JvmSynthetic
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
+
+    /**
+     * 向此群成员发送消息。效果等同于 [reply].
+     */
+    @JvmSynthetic
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
 
 
+    /**
+     * 向此群成员发送消息。效果等同于 [reply].
+     */
     @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-        = send(message.messages)
 
+    /**
+     * 向此群成员发送消息。效果等同于 [reply].
+     */
     @Api4J
     override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-        = runInBlocking { send(text) }
 
+    /**
+     * 向此群成员发送消息。效果等同于 [reply].
+     */
     @Api4J
     override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-        = runInBlocking { send(message) }
 
+    /**
+     * 向此群成员发送消息。效果等同于 [reply].
+     */
     @Api4J
     override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-        = runInBlocking { send(message) }
+    //endregion
+
+    override val key: Event.Key<MiraiMemberMessageEvent> get() = Key
 
     public companion object Key : BaseEventKey<MiraiMemberMessageEvent>(
         "mirai.group_temp_message",

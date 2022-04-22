@@ -18,9 +18,8 @@ package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
-import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.event.MiraiGroupTempMessagePostSendEvent
-import love.forte.simbot.component.mirai.event.MiraiReceivedMessageContent
 import love.forte.simbot.component.mirai.event.toSimbotMessageContent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
@@ -33,11 +32,18 @@ import net.mamoe.mirai.event.events.GroupTempMessagePostSendEvent as OriginalMir
  */
 internal class MiraiGroupTempMessagePostSendEventImpl(
     override val bot: MiraiBotImpl,
-    override val originalEvent: OriginalMiraiGroupTempMessagePostSendEvent
+    override val originalEvent: OriginalMiraiGroupTempMessagePostSendEvent,
 ) : MiraiGroupTempMessagePostSendEvent {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
-    override val messageContent: MiraiReceivedMessageContent = originalEvent.message.toSimbotMessageContent()
+    override val messageContent = originalEvent.message.toSimbotMessageContent()
     override val group = originalEvent.group.asSimbot(bot)
-    override val member: MiraiMember = originalEvent.target.asSimbot(bot)
+    override val member = originalEvent.target.asSimbot(bot)
+
+    override val source: MiraiBot
+        get() = bot
+
+    override suspend fun group() = group
+    override suspend fun member() = member
+    override suspend fun source() = source
 }

@@ -26,6 +26,7 @@ import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.contact.AnonymousMember
+import net.mamoe.mirai.contact.NormalMember
 import java.util.stream.Stream
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 
@@ -41,18 +42,6 @@ internal class MiraiMemberImpl(
 ) : MiraiMember, SendSupport {
     override val id: LongID = originalContact.id.ID
 
-    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
-        val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
-        return SimbotMiraiMessageReceiptImpl(receipt)
-    }
-
-    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
-        return SimbotMiraiMessageReceiptImpl(originalContact.sendMessage(text))
-    }
-
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> = send(text)
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> = send(message)
-
     override val group: MiraiGroupImpl get() = initGroup ?: originalContact.group.asSimbot(bot)
     override val roles: Stream<MemberRole> = Stream.of(originalContact.simbotRole)
     override suspend fun roles(): Flow<MemberRole> = flowOf(originalContact.simbotRole)
@@ -62,6 +51,27 @@ internal class MiraiMemberImpl(
             is AnonymousMember -> AnonymousStatus
             else -> NormalStatus
         }
+
+
+    override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
+        val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
+        return SimbotMiraiMessageReceiptImpl(receipt)
+    }
+
+    override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
+        return SimbotMiraiMessageReceiptImpl(originalContact.sendMessage(text))
+    }
+
+
+    override suspend fun kick(message: String, block: Boolean): Boolean {
+        val contact = originalContact
+        if (contact is NormalMember) {
+            contact.kick(message, block)
+            return true
+        }
+        return false
+    }
+
 }
 
 internal val NormalStatus = UserStatus.builder().normal().build()

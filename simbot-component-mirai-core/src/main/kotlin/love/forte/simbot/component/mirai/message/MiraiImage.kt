@@ -19,6 +19,7 @@ package love.forte.simbot.component.mirai.message
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.message.Image
@@ -26,6 +27,7 @@ import love.forte.simbot.message.Message
 import love.forte.simbot.message.doSafeCast
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.toResource
+import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
@@ -56,7 +58,13 @@ public interface MiraiSendOnlyImage :
     /**
      * 图片发送所使用的资源对象。
      */
-    public val resource: Resource
+    override suspend fun resource(): Resource
+
+    /**
+     * 图片发送所使用的资源对象。
+     */
+    @OptIn(Api4J::class)
+    public override val resource: Resource
 
     /**
      * 是否作为一个闪照。
@@ -183,6 +191,13 @@ public interface MiraiImage :
     override suspend fun resource(): Resource {
         return URL(originalImage.queryUrl()).toResource()
     }
+
+
+    /**
+     * 通过 [queryUrl] 查询并得到 [Resource] 对象。
+     */
+    @Api4J
+    override val resource: Resource get() = runInBlocking { resource() }
 
 
     public companion object Key : Message.Key<MiraiImage> {
