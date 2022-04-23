@@ -17,14 +17,18 @@
 
 package love.forte.simbot.component.mirai
 
-import kotlinx.serialization.*
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
 import love.forte.simbot.*
+import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
 import love.forte.simbot.event.EventProcessor
 import net.mamoe.mirai.Bot
@@ -69,23 +73,16 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     @JvmSynthetic
     override suspend fun start(): Boolean = false
 
-    @OptIn(ExperimentalSerializationApi::class)
+    @OptIn(InternalApi::class)
     override fun register(verifyInfo: BotVerifyInfo): MiraiBot {
-        val serializer = MiraiViaBotFileConfiguration.serializer()
+        val serializer = MiraiBotFileConfiguration.serializer()
 
-        val json = CJson
-        val jsonElement = verifyInfo.inputStream().use { inp -> json.decodeFromStream(JsonElement.serializer(), inp) }
-        val component = jsonElement.jsonObject["component"]?.jsonPrimitive?.content
-            ?: throw NoSuchComponentException("Component is not found in [${verifyInfo.infoName}]")
-
-        logger.debug("[{}] json element load: {}", verifyInfo.infoName, jsonElement)
-
-        if (component != this.component.id.toString()) {
-            logger.debug("[{}] mismatch: [{}] != [{}]", verifyInfo.infoName, component, this.component.id)
+        if (verifyInfo.componentId != this.component.id.literal) {
+            logger.debug("[{}] mismatch by mirai: [{}] != [{}]", verifyInfo.infoName, component, this.component.id)
             throw ComponentMismatchException("[$component] != [${this.component.id}]")
         }
 
-        val configuration = json.decodeFromJsonElement(serializer, jsonElement)
+        val configuration = verifyInfo.decode(serializer)
 
         val password = configuration.password
         if (password != null) {
@@ -111,8 +108,9 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param code 账号
      * @param password 密码
      */
+    @OptIn(InternalApi::class)
     public fun register(code: Long, password: String): MiraiBot =
-        register(code, password, MiraiViaBotFileConfiguration(code, password = password).miraiBotConfiguration)
+        register(code, password, MiraiBotFileConfiguration(code, password = password).miraiBotConfiguration)
 
 
     /**
@@ -143,7 +141,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     public abstract fun register(
         code: Long,
         password: String,
-        configuration: BotFactory.BotConfigurationLambda
+        configuration: BotFactory.BotConfigurationLambda,
     ): MiraiBot
 
 
@@ -157,7 +155,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     public abstract fun register(
         code: Long,
         passwordMD5: ByteArray,
-        configuration: BotFactory.BotConfigurationLambda
+        configuration: BotFactory.BotConfigurationLambda,
     ): MiraiBot
 
 
@@ -175,19 +173,15 @@ public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
     MiraiBotManager.newInstance(eventProcessor)
 
 
-// 只有在注册时候会使用到, 不保留为属性。
-private val CJson
-    get() = Json {
-        isLenient = true
-        ignoreUnknownKeys = true
-    }
-
 /**
+ *
+ * 通过 [BotVerifyInfo]
  *
  * @see BotConfiguration
  */
 @Serializable
-public data class MiraiViaBotFileConfiguration @OptIn(FragileSimbotApi::class) constructor(
+@InternalApi
+public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) constructor(
     val code: Long,
     val password: String? = null,
     val passwordMD5: String? = null,
@@ -270,7 +264,11 @@ public data class MiraiViaBotFileConfiguration @OptIn(FragileSimbotApi::class) c
     @OptIn(FragileSimbotApi::class)
     @Transient
     private val deviceInfo: (Bot) -> DeviceInfo = d@{ bot ->
-        val json = CJson
+        // temp json
+        val json = Json {
+            isLenient = true
+            ignoreUnknownKeys = true
+        }
         deviceInfoJson
             ?: simpleDeviceInfoJson?.toDeviceInfo()
             ?: if (deviceInfoFile?.isNotBlank() == true) {
@@ -437,7 +435,7 @@ public data class SimpleDeviceInfo(
     public val wifiSSID: String,
     public val imsiMd5: String,
     public val imei: String,
-    public val apn: String
+    public val apn: String,
 ) {
     @Serializable
     @FragileSimbotApi
@@ -445,7 +443,7 @@ public data class SimpleDeviceInfo(
         public val incremental: String = "5891938",
         public val release: String = "10",
         public val codename: String = "REL",
-        public val sdk: Int = 29
+        public val sdk: Int = 29,
     )
 }
 

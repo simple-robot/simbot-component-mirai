@@ -49,7 +49,9 @@ public class MiraiComponent : Component {
          */
         @Suppress("MemberVisibilityCanBePrivate")
         public const val ID: String = "simbot.mirai"
-        internal val ComponentID: ID = ID.ID
+
+        @JvmField
+        public val ComponentID: ID = ID.ID
 
         override val key: Attribute<MiraiComponent> = attribute(ID)
 
@@ -159,4 +161,10 @@ public inline fun Iterable<BotManager<*>>.filterIsMiraiBotManagers(): List<Mirai
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Sequence<BotManager<*>>.filterIsMiraiBotManagers(): Sequence<MiraiBotManager> =
     filterIsInstance<MiraiBotManager>()
+
+
+/**
+ * 得到 [OriginBotManager] 中的所有 mirai 组件。
+ */
+public inline val OriginBotManager.miraiBotManagers: List<MiraiBotManager> get() = filterIsMiraiBotManagers()
 //endregion
