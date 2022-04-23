@@ -42,7 +42,7 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
  * @author ForteScarlet
  */
 internal class MiraiBotManagerImpl(
-    private val eventProcessor: EventProcessor
+    private val eventProcessor: EventProcessor,
 ) : MiraiBotManager() {
     companion object {
         private val LOGGER = LoggerFactory.getLogger(MiraiBotManagerImpl::class)
@@ -80,7 +80,7 @@ internal class MiraiBotManagerImpl(
     override fun register(
         code: Long,
         password: String,
-        configuration: BotFactory.BotConfigurationLambda
+        configuration: BotFactory.BotConfigurationLambda,
     ): MiraiBotImpl {
         logger.debug("Register bot {} with password: <length {}>", code, password.length)
         return processMiraiBot(code) {
@@ -93,7 +93,7 @@ internal class MiraiBotManagerImpl(
     override fun register(
         code: Long,
         passwordMD5: ByteArray,
-        configuration: BotFactory.BotConfigurationLambda
+        configuration: BotFactory.BotConfigurationLambda,
     ): MiraiBotImpl {
         logger.debug("Register bot {} with password(MD5): <size {}>", code, passwordMD5.size)
         return processMiraiBot(code) {
@@ -154,8 +154,8 @@ internal class MiraiBotManagerImpl(
 
     override fun get(id: ID): MiraiBot? = botCache[id.tryToLongID().number]
 
-    override fun all(): Sequence<MiraiBot> {
-        return botCache.values.asSequence()
+    override fun all(): List<MiraiBot> {
+        return botCache.values.toList()
     }
 
     override fun invokeOnCompletion(handler: CompletionHandler) {
@@ -167,7 +167,9 @@ internal class MiraiBotManagerImpl(
     }
 
     override fun toString(): String {
-        return "MiraiBotManager@${hashCode()}(bots=${botCache.keys().asSequence().joinToString(", ", prefix = "[", postfix = "]")}, isActive=$isActive, eventProcessor$eventProcessor)"
+        return "MiraiBotManager@${hashCode()}(bots=${
+            botCache.keys().asSequence().joinToString(", ", prefix = "[", postfix = "]")
+        }, isActive=$isActive, eventProcessor$eventProcessor)"
     }
 
 }
