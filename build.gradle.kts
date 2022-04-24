@@ -155,7 +155,7 @@ tasks.dokkaGfmMultiModule.configure {
 tasks.create("createChangelog") {
     group = "build"
     doFirst {
-        val version = "v${rootProject.version}"
+        val version = "v${P.ComponentMirai.version.fullVersion(false)}"
         println("Generate change log for $version ...")
         // configurations.runtimeClasspath
         val changelogDir = rootProject.file(".changelog").also {
@@ -164,7 +164,7 @@ tasks.create("createChangelog") {
         val file = File(changelogDir, "$version.md")
         if (!file.exists()) {
             file.createNewFile()
-            val simbotVersion = P.Simbot.VERSION
+            val simbotVersion = P.Simbot.version.fullVersion(false)
             val autoGenerateText = """
                 > 对应核心版本: [v$simbotVersion](https://github.com/ForteScarlet/simpler-robot/releases/tag/v$simbotVersion)
                 
