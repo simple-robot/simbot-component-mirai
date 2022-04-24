@@ -78,7 +78,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         val serializer = MiraiBotFileConfiguration.serializer()
 
         if (verifyInfo.componentId != this.component.id.literal) {
-            logger.debug("[{}] mismatch by mirai: [{}] != [{}]", verifyInfo.infoName, component, this.component.id)
+            logger.debug("[{}] mismatch by mirai: [{}] != [{}]", verifyInfo.name, component, this.component.id)
             throw ComponentMismatchException("[$component] != [${this.component.id}]")
         }
 

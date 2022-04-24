@@ -39,7 +39,7 @@ import love.forte.simbot.message.Message
 import love.forte.simbot.message.Messages
 import love.forte.simbot.message.Text
 import love.forte.simbot.message.toText
-import love.forte.simbot.resources.toResource
+import love.forte.simbot.resources.Resource.Companion.toResource
 import love.forte.simbot.utils.runWithInterruptible
 import love.forte.simbot.utils.toHex
 import net.mamoe.mirai.contact.FileSupported
