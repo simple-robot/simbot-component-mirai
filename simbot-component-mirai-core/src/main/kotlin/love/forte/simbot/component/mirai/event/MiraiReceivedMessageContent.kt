@@ -18,13 +18,19 @@
 
 package love.forte.simbot.component.mirai.event
 
-import kotlinx.serialization.*
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.component.mirai.event.MiraiMessageMetadata.Companion.of
-import love.forte.simbot.component.mirai.message.*
-import love.forte.simbot.message.*
-import net.mamoe.mirai.message.data.*
+import love.forte.simbot.ID
+import love.forte.simbot.SimbotIllegalStateException
+import love.forte.simbot.component.mirai.ID
+import love.forte.simbot.component.mirai.message.asSimbotMessage
+import love.forte.simbot.message.Messages
+import love.forte.simbot.message.ReceivedMessageContent
+import love.forte.simbot.message.toMessages
+import love.forte.simbot.randomID
+import net.mamoe.mirai.event.events.MessagePostSendEvent
+import net.mamoe.mirai.message.data.MessageChain
+import net.mamoe.mirai.message.data.MessageSource
+import net.mamoe.mirai.message.data.SingleMessage
+import net.mamoe.mirai.message.data.sourceOrNull
 import net.mamoe.mirai.event.events.MessageEvent as OriginalMiraiMessageEvent
 
 
@@ -35,77 +41,60 @@ import net.mamoe.mirai.event.events.MessageEvent as OriginalMiraiMessageEvent
 public open class MiraiReceivedMessageContent internal constructor(
     @Suppress("CanBeParameter")
     public val originalMessageChain: MessageChain,
-    public val messageSource: MessageSource
+
+    /**
+     * 消息源，即此消息的Mirai原生对象。
+     *
+     * 当此消息对象为通过 [MessagePostSendEvent] 事件而得到的时候，此属性有概率不存在。
+     */
+    public val messageSourceOrNull: MessageSource?
 ) : ReceivedMessageContent() {
 
+    /**
+     * 此消息中的 [MessageSource]. 不一定100%能够获取：当此消息对象为通过 [MessagePostSendEvent] 事件而得到的时候，
+     * [messageSource] 有概率不存在。当 [messageSource] 不存在的时候获取此属性将会抛出 [SimbotIllegalStateException].
+     *
+     * 如果你想在正确处理 `null` 的情况下使用，请使用 [messageSourceOrNull].
+     *
+     * @throws SimbotIllegalStateException 当消息内的 [messageSource] 实际不存在的时候。
+     *
+     */
+    public val messageSource: MessageSource
+        get() = messageSourceOrNull
+            ?: throw SimbotIllegalStateException("No 'MessageSource' in current message content.")
+
+    /**
+     * 消息链。
+     *
+     * 消息链中不追加source. 如果需要, 使用 [originalMessageChain] 或者 [messageSource]。
+     */
     override val messages: Messages by lazy(
         LazyThreadSafetyMode.PUBLICATION,
-        // 消息链中不追加source. 如果需要, 使用 [nativeMessageChain] 或者 [messageSource]
         originalMessageChain.filter { it !is MessageSource }.map(SingleMessage::asSimbotMessage)::toMessages
     )
 
-    override val messageId: ID by lazy(LazyThreadSafetyMode.PUBLICATION) { messageSource.ID }
-    // public val metadata: MiraiMessageMetadata = miraiMessageMetadata(messageSource)
+    /**
+     * mirai接收到的消息的ID。
+     *
+     * 当 [messageSourceOrNull] 为null的时候会使用 [randomID] 作为消息ID.
+     *
+     *
+     */
+    override val messageId: ID by lazy(LazyThreadSafetyMode.PUBLICATION) { messageSourceOrNull?.ID ?: randomID() }
 
-    override fun toString(): String = "MiraiReceivedMessageContent(content=$originalMessageChain)"
+
+    override fun toString(): String =
+        "MiraiReceivedMessageContent(content=$originalMessageChain,messageSource=$messageSourceOrNull)"
 }
 
-internal fun MessageChain.toSimbotMessageContent(): MiraiReceivedMessageContent =
-    MiraiReceivedMessageContent(this, this.source)
+internal fun MessageChain.toSimbotMessageContent(messageSource: MessageSource? = this.sourceOrNull): MiraiReceivedMessageContent =
+    MiraiReceivedMessageContent(this, messageSource)
 
 internal fun OriginalMiraiMessageEvent.toSimbotMessageContent(): MiraiReceivedMessageContent =
     this.message.toSimbotMessageContent()
 
-/**
- * 基于mirai的 [MessageSource] 的 [Message.Metadata] 实现。
- *
- * @see of
- */
-@SerialName("mirai.message.metadata")
-@Serializable
-public abstract class MiraiMessageMetadata {
-
-    /**
-     * mirai的原生对象 [MessageSource].
-     */
-    public abstract val source: MessageSource
-
-    // /**
-    //  * 三个定位属性 [ids][MessageSource.ids], [internalIds][MessageSource.internalIds], [time][MessageSource.time],
-    //  * 还有两个构建用属性 [botId][MessageSource.botId], [kind][net.mamoe.mirai.message.data.MessageSourceKind],
-    //  * 通过 `:` 拼接为字符ID。
-    //  */
-    // public val id: CharSequenceID by lazy(LazyThreadSafetyMode.PUBLICATION) {
-    //     source.ID
-    // }
-
-    public companion object {
-
-        /**
-         * 根据ID解析为 [MiraiMessageMetadata].
-         */
-        @JvmStatic
-        public fun of(id: ID): MiraiMessageMetadata {
-            return miraiMessageMetadata(id.buildMessageSource())
-        }
 
 
-        /**
-         * 直接根据一个 [MessageSource] 构建 [MiraiMessageMetadata].
-         */
-        @JvmStatic
-        public fun of(source: MessageSource): MiraiMessageMetadata = MiraiMessageMetadataImpl(source)
-    }
-}
 
-
-public inline fun miraiMessageMetadata(source: MessageSource): MiraiMessageMetadata = of(source)
-public inline fun miraiMessageMetadata(id: ID): MiraiMessageMetadata = of(id)
-
-
-@Suppress("MemberVisibilityCanBePrivate")
-@SerialName("mirai.message.metadata")
-@Serializable
-private class MiraiMessageMetadataImpl(override val source: MessageSource) : MiraiMessageMetadata()
 
 
