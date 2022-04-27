@@ -41,7 +41,7 @@ import net.mamoe.mirai.event.events.StrangerMessageEvent as OriginalMiraiStrange
  *
  * @author ForteScarlet
  */
-internal class MiraiStrangerMessageEventImpl(
+internal data class MiraiStrangerMessageEventImpl(
     override val bot: MiraiBotImpl,
     override val originalEvent: OriginalMiraiStrangerMessageEvent,
 ) : MiraiStrangerMessageEvent {

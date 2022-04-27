@@ -27,19 +27,20 @@ import love.forte.simbot.component.mirai.event.toSimbotMessageContent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
 import love.forte.simbot.randomID
+import net.mamoe.mirai.event.events.source
 import net.mamoe.mirai.event.events.FriendMessagePostSendEvent as OriginalMiraiFriendMessagePostSendEvent
 
 /**
  *
  * @author ForteScarlet
  */
-internal class MiraiFriendMessagePostSendEventImpl(
+internal data class MiraiFriendMessagePostSendEventImpl(
     override val bot: MiraiBotImpl,
     override val originalEvent: OriginalMiraiFriendMessagePostSendEvent
 ) : MiraiFriendMessagePostSendEvent {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
-    override val messageContent: MiraiReceivedMessageContent = originalEvent.message.toSimbotMessageContent()
+    override val messageContent: MiraiReceivedMessageContent = originalEvent.message.toSimbotMessageContent(originalEvent.source)
     override val friend = originalEvent.target.asSimbot(bot)
     override val source: MiraiBot get() = bot
 

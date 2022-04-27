@@ -43,7 +43,7 @@ import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessa
 
 /**
  */
-internal class MiraiGroupMessageEventImpl(
+internal data class MiraiGroupMessageEventImpl(
     override val bot: MiraiBotImpl,
     override val originalEvent: OriginalMiraiGroupMessageEvent
 ) : MiraiGroupMessageEvent {
@@ -66,7 +66,7 @@ internal class MiraiGroupMessageEventImpl(
 
     override suspend fun delete(): Boolean {
         return try {
-            messageContent.messageSource.recall()
+            messageContent.messageSourceOrNull?.recall() ?: return false
             true
         } catch (illegalState: IllegalStateException) {
             false
