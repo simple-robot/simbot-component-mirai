@@ -38,6 +38,9 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
  *
  * Mirai的Bot [OriginalMiraiBot] 在 simbot中的整合类型。
  *
+ * 当 [MiraiBot] 被关闭的时候（或者说 [originalBot] 被关闭的时候）会将自身移出所属的 [BotManager][manager].
+ * 这一行为是由 [MiraiBotManager] 所决定的。
+ *
  * @see OriginalMiraiBot
  * @see Bot
  * @author ForteScarlet
