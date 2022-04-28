@@ -1,7 +1,27 @@
 # mirai组件扩展：Cat Code兼容
 
 ## 使用
+### Maven
+```xml
+<dependency>
+    <groupId>love.forte.simbot.component</groupId>
+    <artifactId>simbot-component-mirai-extra-catcode</artifactId>
+    <version>${version}</version>
+</dependency>
+```
 
+### Gradle Kotlin DSL
+```kotlin
+implementation("love.forte.simbot.component:simbot-component-mirai-extra-catcode:$version")
+```
+
+### Gradle Groovy DSL
+```groovy
+implementation 'love.forte.simbot.component:simbot-component-mirai-extra-catcode:$version'
+```
+
+
+## 示例
 ### 1.Kotlin
 
 Kotlin中，使用 `catCodeToMessage(...)` 或者 `Neko.toMessage(...)`
