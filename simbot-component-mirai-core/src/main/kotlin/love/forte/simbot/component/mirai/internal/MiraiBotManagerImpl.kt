@@ -30,6 +30,7 @@ import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
 import love.forte.simbot.tryToLongID
 import net.mamoe.mirai.BotFactory
+import net.mamoe.mirai.supervisorJob
 import net.mamoe.mirai.utils.BotConfiguration
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
@@ -130,8 +131,11 @@ internal class MiraiBotManagerImpl(
             }
             MiraiBotImpl(factory(), this@MiraiBotManagerImpl, eventProcessor, component)
         }!!.also {
-            invokeOnCompletion {
-                botCache.remove(code)
+            val originalBot = it.originalBot
+            originalBot.supervisorJob.invokeOnCompletion {
+                botCache.compute(code) { _, old ->
+                    if (old?.originalBot === originalBot) null else old
+                }
             }
         }
     }
