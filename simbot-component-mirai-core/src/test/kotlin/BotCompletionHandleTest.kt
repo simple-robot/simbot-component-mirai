@@ -1,3 +1,4 @@
+import kotlinx.coroutines.runBlocking
 import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.MiraiComponent
@@ -31,6 +32,7 @@ class BotCompletionHandleTest {
     @OptIn(Api4J::class)
     @Test
     fun completionHandleTest() {
+        System.setProperty("mirai.no-desktop", "")
         val manager = miraiBotManager(coreListenerManager { install(MiraiComponent) })
         val bot = manager.register(123, "666")
         assert(bot.id == 123L.ID)
@@ -41,6 +43,7 @@ class BotCompletionHandleTest {
         }
         assert(!bot.isActive)
         assert(bot.isCancelled)
+        runBlocking { bot.join() }
         assert(manager[123.ID] == null)
     }
 
