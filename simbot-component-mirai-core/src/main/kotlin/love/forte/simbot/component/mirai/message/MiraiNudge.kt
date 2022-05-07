@@ -94,7 +94,7 @@ private suspend fun sendNudge(contact: Contact, target: Long?) {
  * 那么假如[target]不存在，则会尝试获取当前是否存在环境事件。如果处于事件当中, 则会戳对应的当前事件中的人，
  * 否则将会戳bot自己。
  *
- * Nudge 会瞬间发送，不会计入消息列表中。
+ * Nudge 会瞬间发送，不会计入等待发送的消息列表中。
  *
  * @property target 发送目标
  */
@@ -123,7 +123,7 @@ public data class MiraiNudge @JvmOverloads constructor(
 /**
  * Mirai事件中所接收到的戳一戳事件的信息。
  *
- * 与 [MiraiNudge] 类似，此消息会立即发送，不会计入消息列表中。
+ * 与 [MiraiNudge] 类似，此消息会立即发送，不会计入等待发送的消息列表中。
  *
  * @see net.mamoe.mirai.event.events.NudgeEvent
  */
@@ -139,12 +139,13 @@ public data class MiraiReceivedNudge @InternalSimbotApi constructor(
 
     /**
      * 戳一戳目标, 可能与 [from] 相同.
+     *
      * 原类型为 [net.mamoe.mirai.contact.UserOrBot].
      */
     public val target: LongID, // UserOrBot
 
     /**
-     * > 可能为 \[Group], \[Stranger], \[Friend], \[Member].
+     * 主体类型。
      * @see SubjectType
      */
     public val subjectType: SubjectType,
