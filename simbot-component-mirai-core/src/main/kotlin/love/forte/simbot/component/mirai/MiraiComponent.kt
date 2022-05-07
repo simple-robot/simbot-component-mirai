@@ -92,6 +92,7 @@ public class MiraiComponent : Component {
                             subclass(MiraiQuoteReply.serializer())
                             subclass(MiraiMusicShare.serializer())
                             subclass(MiraiNudge.serializer())
+                            subclass(MiraiReceivedNudge.serializer())
                         }
                     }
     }
