@@ -163,7 +163,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     
     public companion object Factory : EventProviderFactory<MiraiBotManager, MiraiBotManagerConfiguration> {
         override val key: Attribute<MiraiBotManager> = attribute("SIMBOT.MIRAI")
-    
+        
         @JvmStatic
         @Suppress("DeprecatedCallableAddReplaceWith")
         @Deprecated("install mirai in simbotApplication.")
@@ -193,10 +193,31 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
  * [MiraiBotManager] 的配置类。
  *
  */
-public open class MiraiBotManagerConfiguration
+public open class MiraiBotManagerConfiguration {
+    private val preRegistrars = mutableListOf<(MiraiBotManager) -> Unit>()
+    
+    /**
+     * 注册一个bot，
+     * TODO 
+     * 
+     * 
+     */
+    public fun register(
+        code: Long,
+        password: String,
+        configuration: BotConfiguration = BotConfiguration.Default,
+        onBot: (bot: MiraiBot) -> Unit = {},
+    ) {
+        preRegistrars.add { manager ->
+            onBot(manager.register(code, password, configuration))
+        }
+    }
+    
+    
+}
 
 
-@Suppress("DeprecatedCallableAddReplaceWith")
+@Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION")
 @Deprecated("Use simbotApplication and install MiraiBotManager.")
 public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
     MiraiBotManager.newInstance(eventProcessor)
@@ -214,7 +235,7 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
     val code: Long,
     val password: String? = null,
     val passwordMD5: String? = null,
-
+    
     @Suppress("ArrayInDataClass")
     val passwordMD5Bytes: ByteArray? = null,
     
