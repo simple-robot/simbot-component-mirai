@@ -42,21 +42,21 @@ import net.mamoe.mirai.event.events.MessageEvent as OriginalMiraiMessageEvent
  */
 @BaseEvent
 public sealed interface MiraiEvent : Event {
-
+    
     override val bot: MiraiBot
-
+    
     /**
      * 事件的唯一标识。
      * Mirai事件中并不一定存在id，当原始事件中没有ID的情况下，将会生成一个随机ID。
      */
     override val id: ID
-
+    
     /**
      * 原始的mirai事件对象
      */
     public val originalEvent: OriginalMiraiEvent
-
-
+    
+    
     public companion object Key : BaseEventKey<MiraiEvent>("mirai.root") {
         override fun safeCast(value: Any): MiraiEvent? = doSafeCast(value)
     }
@@ -71,19 +71,19 @@ public sealed interface MiraiEvent : Event {
  */
 @BaseEvent
 public interface MiraiSimbotEvent<E : OriginalMiraiEvent> : MiraiEvent {
-
+    
     override val id: ID
-
+    
     /**
      * 原始的mirai事件对象
      */
     override val originalEvent: E
-
-
+    
+    
     public companion object Key : BaseEventKey<MiraiSimbotBotEvent<*>>("mirai.event", MiraiEvent) {
         override fun safeCast(value: Any): MiraiSimbotBotEvent<*>? = doSafeCast(value)
     }
-
+    
 }
 
 
@@ -94,17 +94,17 @@ public interface MiraiSimbotEvent<E : OriginalMiraiEvent> : MiraiEvent {
  */
 @BaseEvent
 public interface MiraiSimbotBotEvent<E : OriginalMiraiBotEvent> : MiraiSimbotEvent<E> {
-
+    
     /**
      * 事件中的bot对象。
      */
     override val bot: MiraiBot
-
-
+    
+    
     public companion object Key : BaseEventKey<MiraiSimbotBotEvent<*>>("mirai.bot_event", setOf(MiraiSimbotEvent)) {
         override fun safeCast(value: Any): MiraiSimbotBotEvent<*>? = doSafeCast(value)
     }
-
+    
 }
 
 /**
@@ -114,21 +114,21 @@ public interface MiraiSimbotBotEvent<E : OriginalMiraiBotEvent> : MiraiSimbotEve
 public interface MiraiSimbotContactMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
     ContactMessageEvent {
-
+    
     /**
      * 事件中的bot对象。
      */
     override val bot: MiraiBot
-
+    
     @OptIn(Api4J::class)
     override val user: MiraiContact
-
+    
     @JvmSynthetic
     override suspend fun user(): MiraiContact = user
-
+    
     override val messageContent: MiraiReceivedMessageContent
-
-
+    
+    
     public companion object Key :
         BaseEventKey<MiraiSimbotContactMessageEvent<*>>("mirai.message_event", setOf(MiraiSimbotBotEvent)) {
         override fun safeCast(value: Any): MiraiSimbotContactMessageEvent<*>? = doSafeCast(value)
@@ -141,18 +141,18 @@ public interface MiraiSimbotContactMessageEvent<E : OriginalMiraiMessageEvent> :
 @BaseEvent
 public interface MiraiSimbotUserMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotContactMessageEvent<E> {
-
+    
     /**
      * 事件中的bot对象。
      */
     override val bot: MiraiBot
-
+    
     @JvmSynthetic
     override suspend fun user(): MiraiContact
-
+    
     override val messageContent: MiraiReceivedMessageContent
-
-
+    
+    
     public companion object Key :
         BaseEventKey<MiraiSimbotContactMessageEvent<*>>("mirai.message_event", setOf(MiraiSimbotBotEvent)) {
         override fun safeCast(value: Any): MiraiSimbotContactMessageEvent<*>? = doSafeCast(value)
@@ -165,29 +165,29 @@ public interface MiraiSimbotUserMessageEvent<E : OriginalMiraiMessageEvent> :
 @BaseEvent
 public interface MiraiSimbotGroupMessageEvent<E : OriginalMiraiMessageEvent> :
     MiraiSimbotBotEvent<E>,
-    ChatroomMessageEvent {
-
+    ChatRoomMessageEvent {
+    
     /**
      * 事件中的bot对象。
      */
     override val bot: MiraiBot
-
+    
     @JvmSynthetic
     override suspend fun author(): MiraiMember
-
+    
     @OptIn(Api4J::class)
     override val author: MiraiMember
-
+    
     @JvmSynthetic
     override suspend fun source(): MiraiGroup
-
+    
     @OptIn(Api4J::class)
     override val source: MiraiGroup
-
-
+    
+    
     override val messageContent: MiraiReceivedMessageContent
-
-
+    
+    
     public companion object Key :
         BaseEventKey<MiraiSimbotContactMessageEvent<*>>("mirai.message_event", setOf(MiraiSimbotBotEvent)) {
         override fun safeCast(value: Any): MiraiSimbotContactMessageEvent<*>? = doSafeCast(value)

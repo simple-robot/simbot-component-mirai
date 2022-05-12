@@ -28,6 +28,8 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import love.forte.simbot.*
+import love.forte.simbot.application.ApplicationConfiguration
+import love.forte.simbot.application.EventProviderFactory
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
 import love.forte.simbot.event.EventProcessor
@@ -53,7 +55,7 @@ private fun hex(hex: String): ByteArray {
         val low = hex[srcIdx + 1].toString().toInt(16)
         result[idx] = (high or low).toByte()
     }
-
+    
     return result
 }
 
@@ -66,34 +68,34 @@ private fun hex(hex: String): ByteArray {
  */
 public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     protected abstract val logger: Logger
-
+    
     /**
      * manager中的 [start] 没有效果。
      */
     @JvmSynthetic
     override suspend fun start(): Boolean = false
-
+    
     @OptIn(InternalApi::class)
     override fun register(verifyInfo: BotVerifyInfo): MiraiBot {
         val serializer = MiraiBotFileConfiguration.serializer()
-
+        
         if (verifyInfo.componentId != this.component.id.literal) {
             logger.debug("[{}] mismatch by mirai: [{}] != [{}]", verifyInfo.name, component, this.component.id)
             throw ComponentMismatchException("[$component] != [${this.component.id}]")
         }
-
+        
         val configuration = verifyInfo.decode(serializer)
-
+        
         val password = configuration.password
         if (password != null) {
             return register(configuration.code, password = password, configuration.miraiBotConfiguration)
         }
         val passwordMD5 = configuration.passwordMD5
             ?: throw VerifyFailureException("One of the [password] or [passwordMD5] must exist")
-
+        
         return register(configuration.code, passwordMD5 = hex(passwordMD5), configuration.miraiBotConfiguration)
     }
-
+    
     /**
      * 注册一个Bot。
      *
@@ -102,7 +104,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param configuration mirai bot 配置
      */
     public abstract fun register(code: Long, password: String, configuration: BotConfiguration): MiraiBot
-
+    
     /**
      * 注册一个Bot。
      * @param code 账号
@@ -111,8 +113,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     @OptIn(InternalApi::class)
     public fun register(code: Long, password: String): MiraiBot =
         register(code, password, MiraiBotFileConfiguration(code, password = password).miraiBotConfiguration)
-
-
+    
+    
     /**
      * 注册一个Bot。
      *
@@ -121,7 +123,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param configuration mirai bot 配置
      */
     public abstract fun register(code: Long, passwordMD5: ByteArray, configuration: BotConfiguration): MiraiBot
-
+    
     /**
      * 注册一个Bot。
      * @param code 账号
@@ -129,8 +131,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      */
     public fun register(code: Long, passwordMD5: ByteArray): MiraiBot =
         register(code, passwordMD5, BotConfiguration.Default)
-
-
+    
+    
     /**
      * 注册一个Bot。
      *
@@ -143,8 +145,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         password: String,
         configuration: BotFactory.BotConfigurationLambda,
     ): MiraiBot
-
-
+    
+    
     /**
      * 注册一个Bot。
      *
@@ -157,18 +159,45 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         passwordMD5: ByteArray,
         configuration: BotFactory.BotConfigurationLambda,
     ): MiraiBot
-
-
-    public companion object {
+    
+    
+    public companion object Factory : EventProviderFactory<MiraiBotManager, MiraiBotManagerConfiguration> {
+        override val key: Attribute<MiraiBotManager> = attribute("SIMBOT.MIRAI")
+    
         @JvmStatic
+        @Suppress("DeprecatedCallableAddReplaceWith")
+        @Deprecated("install mirai in simbotApplication.")
         public fun newInstance(eventProcessor: EventProcessor): MiraiBotManager {
-            return MiraiBotManagerImpl(eventProcessor)
+            return MiraiBotManagerImpl(eventProcessor, MiraiComponent())
+        }
+        
+        
+        override fun create(
+            eventProcessor: EventProcessor,
+            components: List<Component>,
+            applicationConfiguration: ApplicationConfiguration,
+            configurator: MiraiBotManagerConfiguration.() -> Unit,
+        ): MiraiBotManager {
+            // configurator ignore
+            // find self
+            val component = components.find { it.id == MiraiComponent.ComponentID } as? MiraiComponent
+                ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID}) registered in the current application.")
+            
+            return MiraiBotManagerImpl(eventProcessor, component)
         }
     }
-
+    
 }
 
+/**
+ * [MiraiBotManager] 的配置类。
+ *
+ */
+public open class MiraiBotManagerConfiguration
 
+
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated("Use simbotApplication and install MiraiBotManager.")
 public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
     MiraiBotManager.newInstance(eventProcessor)
 
@@ -186,29 +215,32 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
     val password: String? = null,
     val passwordMD5: String? = null,
 
+    @Suppress("ArrayInDataClass")
+    val passwordMD5Bytes: ByteArray? = null,
+    
     /** mirai配置自定义deviceInfoSeed的时候使用的随机种子。默认为1. */
     private val deviceInfoSeed: Long = 1,
-
+    
     @Serializable(FileSerializer::class)
     private val workingDir: File = BotConfiguration.Default.workingDir,
-
+    
     private val heartbeatPeriodMillis: Long = BotConfiguration.Default.heartbeatPeriodMillis,
-
+    
     private val statHeartbeatPeriodMillis: Long = BotConfiguration.Default.statHeartbeatPeriodMillis,
-
+    
     private val heartbeatTimeoutMillis: Long = BotConfiguration.Default.heartbeatTimeoutMillis,
-
+    
     @Serializable(HeartbeatStrategySerializer::class)
     private val heartbeatStrategy: BotConfiguration.HeartbeatStrategy = BotConfiguration.Default.heartbeatStrategy,
-
+    
     private val reconnectionRetryTimes: Int = BotConfiguration.Default.reconnectionRetryTimes,
     private val autoReconnectOnForceOffline: Boolean = BotConfiguration.Default.autoReconnectOnForceOffline,
-
+    
     @Serializable(MiraiProtocolSerializer::class)
     private val protocol: BotConfiguration.MiraiProtocol = BotConfiguration.Default.protocol,
-
+    
     private val highwayUploadCoroutineCount: Int = BotConfiguration.Default.highwayUploadCoroutineCount,
-
+    
     /**
      * 如果是字符串，尝试解析为json
      * 否则视为文件路径。
@@ -217,26 +249,26 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
      * 优先使用此属性。
      */
     private val deviceInfoJson: DeviceInfo? = null,
-
+    
     /**
      * 优先使用 [deviceInfo].
      */
     private val simpleDeviceInfoJson: SimpleDeviceInfo? = null,
-
+    
     /**
      * 加载的设备信息json文件的路径。
      * 如果是 `classpath:` 开头，则会优先尝试加载resource，
      * 否则优先视为文件路径加载。
      */
     private val deviceInfoFile: String? = null,
-
+    
     private val noNetworkLog: Boolean = false,
     private val noBotLog: Boolean = false,
     private val isShowingVerboseEventLog: Boolean = BotConfiguration.Default.isShowingVerboseEventLog,
-
+    
     @Serializable(FileSerializer::class)
     private val cacheDir: File = BotConfiguration.Default.cacheDir,
-
+    
     /**
      *
      * json:
@@ -252,15 +284,15 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
      */
     @SerialName("contactListCache")
     private val contactListCacheConfiguration: ContactListCacheConfiguration = ContactListCacheConfiguration(),
-
-
+    
+    
     private val loginCacheEnabled: Boolean = BotConfiguration.Default.loginCacheEnabled,
-
+    
     private val convertLineSeparator: Boolean = BotConfiguration.Default.convertLineSeparator,
-
+    
     ) {
-
-
+    
+    
     @OptIn(FragileSimbotApi::class)
     @Transient
     private val deviceInfo: (Bot) -> DeviceInfo = d@{ bot ->
@@ -277,8 +309,8 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
                 if (deviceInfoFile == null) {
                     return@d simbotMiraiDeviceInfo(bot.id, deviceInfoSeed)
                 }
-
-
+                
+                
                 when {
                     deviceInfoFile.startsWith("classpath:") -> {
                         val path = deviceInfoFile.substring(9)
@@ -300,11 +332,11 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
                 }
             }
     }
-
+    
     private fun Json.readFileDeviceInfo(path: Path): DeviceInfo {
         return decodeFromString(DeviceInfo.serializer(), path.readText())
     }
-
+    
     private fun Json.readResourceDeviceInfo(path: String): DeviceInfo {
         val text = javaClass.classLoader.getResourceAsStream(path)
             ?.bufferedReader()
@@ -312,21 +344,21 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
             ?: throw NoSuchElementException("Bot device info resource: $path")
         return decodeFromString(DeviceInfo.serializer(), text)
     }
-
-
+    
+    
     @Transient
     private val botLoggerSupplier: ((Bot) -> MiraiLogger) = {
         val name = "love.forte.simbot.mirai.bot.${it.id}"
         LoggerFactory.getLogger(name).asMiraiLogger()
     }
-
+    
     @Transient
     private val networkLoggerSupplier: ((Bot) -> MiraiLogger) = {
         val name = "love.forte.simbot.mirai.net.${it.id}"
         LoggerFactory.getLogger(name).asMiraiLogger()
     }
-
-
+    
+    
     val miraiBotConfiguration: BotConfiguration
         get() = BotConfiguration().also {
             it.workingDir = workingDir
@@ -338,21 +370,21 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
             it.autoReconnectOnForceOffline = autoReconnectOnForceOffline
             it.protocol = protocol
             it.highwayUploadCoroutineCount = highwayUploadCoroutineCount
-
+            
             it.deviceInfo = deviceInfo
-
+            
             if (noNetworkLog) it.noNetworkLog() else it.networkLoggerSupplier = networkLoggerSupplier
             if (noBotLog) it.noBotLog() else it.botLoggerSupplier = botLoggerSupplier
-
+            
             it.isShowingVerboseEventLog = isShowingVerboseEventLog
-
+            
             it.cacheDir = cacheDir
             it.contactListCache = contactListCacheConfiguration.contactListCache
             it.loginCacheEnabled = loginCacheEnabled
             it.convertLineSeparator = convertLineSeparator
         }
-
-
+    
+    
     @Serializable
     public class ContactListCacheConfiguration constructor(
         private val saveIntervalMillis: Long = BotConfiguration.Default.contactListCache.saveIntervalMillis,
@@ -368,8 +400,8 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
                 }
             }
     }
-
-
+    
+    
 }
 
 internal class FileSerializer : KSerializer<File> {
@@ -377,9 +409,9 @@ internal class FileSerializer : KSerializer<File> {
         val dir = decoder.decodeString()
         return File(dir)
     }
-
+    
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("File", PrimitiveKind.STRING)
-
+    
     override fun serialize(encoder: Encoder, value: File) {
         encoder.encodeString(value.toString())
     }
@@ -394,9 +426,9 @@ internal abstract class EnumStringSerializer<E : Enum<E>>(name: String, private 
         val name = decoder.decodeString().replace('-', '_').uppercase()
         return valueOf(name)
     }
-
+    
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(name, PrimitiveKind.STRING)
-
+    
     override fun serialize(encoder: Encoder, value: E) {
         encoder.encodeString(value.name)
     }
