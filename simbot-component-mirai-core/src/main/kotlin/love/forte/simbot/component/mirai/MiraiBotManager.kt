@@ -171,6 +171,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     ): MiraiBot
     
     
+    // TODO auto register
     public companion object Factory : EventProviderFactory<MiraiBotManager, MiraiBotManagerConfiguration> {
         override val key: Attribute<MiraiBotManager> = attribute("SIMBOT.MIRAI")
         
