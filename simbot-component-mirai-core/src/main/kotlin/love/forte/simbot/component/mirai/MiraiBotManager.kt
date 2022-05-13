@@ -43,7 +43,6 @@ import net.mamoe.mirai.utils.MiraiLogger
 import org.slf4j.Logger
 import java.io.File
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
@@ -101,6 +100,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     /**
      * 注册一个Bot。
      *
+     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration], 包括其中的设备信息配置、logger配置等。
+     *
      * @param code 账号
      * @param password 密码
      * @param configuration mirai bot 配置
@@ -119,6 +120,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     
     /**
      * 注册一个Bot。
+     *
+     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration], 包括其中的设备信息配置、logger配置等。
      *
      * @param code 账号
      * @param passwordMD5 密码的MD5字节数组
@@ -139,6 +142,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     /**
      * 注册一个Bot。
      *
+     * 此函数构建 [MiraiBot] 时所使用的初始化配置类 [configuration] 会提前准备好simbot组件中的特殊配置, 包括其中的设备信息配置、logger配置等。
+     *
      * @param code 账号
      * @param password 密码
      * @param configuration mirai bot 配置
@@ -152,6 +157,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     
     /**
      * 注册一个Bot。
+     *
+     * 此函数构建 [MiraiBot] 时所使用的初始化配置类 [configuration] 会提前准备好simbot组件中的特殊配置, 包括其中的设备信息配置、logger配置等。
      *
      * @param code 账号
      * @param passwordMD5 密码的MD5字节数组
@@ -196,7 +203,6 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     
 }
 
-
 /**
  * [MiraiBotManager] 的配置类。
  *
@@ -216,7 +222,7 @@ public interface MiraiBotManagerConfiguration {
     public fun register(
         code: Long,
         password: String,
-        configuration: BotConfiguration = BotConfiguration.Default,
+        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda{},
         onBot: suspend (bot: MiraiBot) -> Unit = {},
     )
     
@@ -231,7 +237,7 @@ public interface MiraiBotManagerConfiguration {
     public fun register(
         code: Long,
         passwordMd5: ByteArray,
-        configuration: BotConfiguration = BotConfiguration.Default,
+        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda{},
         onBot: suspend (bot: MiraiBot) -> Unit = {},
     )
 }
@@ -242,35 +248,41 @@ public interface MiraiBotManagerConfiguration {
  *
  */
 private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
-    private val botManagerProcessors = ConcurrentLinkedQueue<suspend (MiraiBotManager) -> Unit>()
+    private var botManagerProcessor: (suspend (MiraiBotManager) -> Unit)? = null
+    
+    private fun newProcessor(p: suspend (MiraiBotManager) -> Unit) {
+        botManagerProcessor.also { old ->
+            botManagerProcessor = { manager ->
+                old?.invoke(manager)
+                p(manager)
+            }
+        }
+    }
     
     override fun register(
         code: Long,
         password: String,
-        configuration: BotConfiguration,
+        configuration: BotFactory.BotConfigurationLambda,
         onBot: suspend (bot: MiraiBot) -> Unit,
     ) {
-        botManagerProcessors.add { manager ->
-            onBot(manager.register(code, password, configuration))
-        }
+        newProcessor { manager -> onBot(manager.register(code, password, configuration)) }
     }
     
     
     override fun register(
         code: Long,
         passwordMd5: ByteArray,
-        configuration: BotConfiguration,
+        configuration: BotFactory.BotConfigurationLambda,
         onBot: suspend (bot: MiraiBot) -> Unit,
     ) {
-        botManagerProcessors.add { manager ->
-            onBot(manager.register(code, passwordMd5, configuration))
-        }
+        newProcessor { manager -> onBot(manager.register(code, passwordMd5, configuration)) }
+        // botManagerProcessors.add { manager ->
+        //     onBot(manager.register(code, passwordMd5, configuration))
+        // }
     }
     
     suspend fun useBotManager(botManager: MiraiBotManager) {
-        botManagerProcessors.forEach { processor ->
-            processor(botManager)
-        }
+        botManagerProcessor?.invoke(botManager)
     }
     
     
@@ -281,6 +293,9 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
 @Deprecated("Use simbotApplication and install MiraiBotManager.")
 public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
     MiraiBotManager.newInstance(eventProcessor)
+
+
+// TODO 调整结构
 
 
 /**
@@ -300,7 +315,7 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
     val passwordMD5Bytes: ByteArray? = null,
     
     /** mirai配置自定义deviceInfoSeed的时候使用的随机种子。默认为1. */
-    private val deviceInfoSeed: Long = 1,
+    private val deviceInfoSeed: Long = DEFAULT_SIMBOT_MIRAI_DEVICE_INFO_SEED,
     
     @Serializable(FileSerializer::class)
     private val workingDir: File = BotConfiguration.Default.workingDir,
@@ -485,6 +500,9 @@ public data class MiraiBotFileConfiguration @OptIn(FragileSimbotApi::class) cons
     
 }
 
+/**
+ * 文件路径序列化器。
+ */
 internal class FileSerializer : KSerializer<File> {
     override fun deserialize(decoder: Decoder): File {
         val dir = decoder.decodeString()
@@ -499,7 +517,7 @@ internal class FileSerializer : KSerializer<File> {
 }
 
 /**
- * 永远转为大写并允许段横杠-。
+ * 枚举名称序列化器。永远转为大写并允许段横杠-。
  */
 internal abstract class EnumStringSerializer<E : Enum<E>>(name: String, private val valueOf: (String) -> E) :
     KSerializer<E> {

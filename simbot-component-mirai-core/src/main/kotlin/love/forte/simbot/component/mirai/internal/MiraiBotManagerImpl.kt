@@ -26,6 +26,7 @@ import love.forte.simbot.component.mirai.MiraiBotManager
 import love.forte.simbot.component.mirai.MiraiComponent
 import love.forte.simbot.component.mirai.event.MiraiBotRegisteredEvent
 import love.forte.simbot.component.mirai.event.impl.MiraiBotRegisteredEventImpl
+import love.forte.simbot.component.mirai.simbotMiraiDeviceInfo
 import love.forte.simbot.event.EventProcessingResult
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
@@ -33,6 +34,7 @@ import love.forte.simbot.tryToLongID
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.supervisorJob
 import net.mamoe.mirai.utils.BotConfiguration
+import net.mamoe.mirai.utils.LoggerAdapters.asMiraiLogger
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -118,6 +120,10 @@ internal class MiraiBotManagerImpl(
     
     private fun BotFactory.BotConfigurationLambda.configurationProcess(): BotFactory.BotConfigurationLambda {
         return BotFactory.BotConfigurationLambda {
+            botLoggerSupplier = { LoggerFactory.getLogger("love.forte.simbot.mirai.bot.${it.id}").asMiraiLogger() }
+            networkLoggerSupplier = { LoggerFactory.getLogger("love.forte.simbot.mirai.net.${it.id}").asMiraiLogger() }
+            deviceInfo = { simbotMiraiDeviceInfo(it.id) }
+            
             run { apply { invoke() } }
             parentCoroutineContext += completableJob
         }
