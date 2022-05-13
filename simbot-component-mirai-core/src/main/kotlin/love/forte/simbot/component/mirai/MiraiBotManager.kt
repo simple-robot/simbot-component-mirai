@@ -28,6 +28,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
 import love.forte.simbot.*
+import love.forte.simbot.application.ApplicationBuilder
 import love.forte.simbot.application.ApplicationConfiguration
 import love.forte.simbot.application.EventProviderFactory
 import love.forte.simbot.component.mirai.internal.InternalApi
@@ -42,6 +43,7 @@ import net.mamoe.mirai.utils.MiraiLogger
 import org.slf4j.Logger
 import java.io.File
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentLinkedQueue
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
@@ -126,6 +128,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     
     /**
      * 注册一个Bot。
+     *
      * @param code 账号
      * @param passwordMD5 密码的MD5字节数组
      */
@@ -172,7 +175,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         }
         
         
-        override fun create(
+        override suspend fun create(
             eventProcessor: EventProcessor,
             components: List<Component>,
             applicationConfiguration: ApplicationConfiguration,
@@ -183,33 +186,90 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
             val component = components.find { it.id == MiraiComponent.ComponentID } as? MiraiComponent
                 ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID}) registered in the current application.")
             
-            return MiraiBotManagerImpl(eventProcessor, component)
+            val configuration = MiraiBotManagerConfigurationImpl().also(configurator)
+            
+            return MiraiBotManagerImpl(eventProcessor, component).also {
+                configuration.useBotManager(it)
+            }
         }
     }
     
 }
 
+
 /**
  * [MiraiBotManager] 的配置类。
  *
  */
-public open class MiraiBotManagerConfiguration {
-    private val preRegistrars = mutableListOf<(MiraiBotManager) -> Unit>()
+public interface MiraiBotManagerConfiguration {
     
     /**
-     * 注册一个bot，
-     * TODO 
-     * 
-     * 
+     * 注册一个mirai bot.
+     *
+     * 从此处注册bot将会早于通过 [ApplicationBuilder.bots] 中进行全局注册的bot被执行。
+     *
+     * @param code 账号
+     * @param password 密码
+     * @param configuration mirai的 bot 注册所需要的配置类。
+     * @param onBot 当bot被注册后执行函数。
      */
     public fun register(
         code: Long,
         password: String,
         configuration: BotConfiguration = BotConfiguration.Default,
-        onBot: (bot: MiraiBot) -> Unit = {},
+        onBot: suspend (bot: MiraiBot) -> Unit = {},
+    )
+    
+    /**
+     * 注册一个mirai bot.
+     *
+     * @param code 账号
+     * @param passwordMd5 密码的md5数据
+     * @param configuration mirai的 bot 注册所需要的配置类。
+     * @param onBot 当bot被注册后执行函数。
+     */
+    public fun register(
+        code: Long,
+        passwordMd5: ByteArray,
+        configuration: BotConfiguration = BotConfiguration.Default,
+        onBot: suspend (bot: MiraiBot) -> Unit = {},
+    )
+}
+
+
+/**
+ * [MiraiBotManager] 的配置类。
+ *
+ */
+private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
+    private val botManagerProcessors = ConcurrentLinkedQueue<suspend (MiraiBotManager) -> Unit>()
+    
+    override fun register(
+        code: Long,
+        password: String,
+        configuration: BotConfiguration,
+        onBot: suspend (bot: MiraiBot) -> Unit,
     ) {
-        preRegistrars.add { manager ->
+        botManagerProcessors.add { manager ->
             onBot(manager.register(code, password, configuration))
+        }
+    }
+    
+    
+    override fun register(
+        code: Long,
+        passwordMd5: ByteArray,
+        configuration: BotConfiguration,
+        onBot: suspend (bot: MiraiBot) -> Unit,
+    ) {
+        botManagerProcessors.add { manager ->
+            onBot(manager.register(code, passwordMd5, configuration))
+        }
+    }
+    
+    suspend fun useBotManager(botManager: MiraiBotManager) {
+        botManagerProcessors.forEach { processor ->
+            processor(botManager)
         }
     }
     
@@ -225,7 +285,7 @@ public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
 
 /**
  *
- * 通过 [BotVerifyInfo]
+ * 通过 [BotVerifyInfo] 进行注册的bot信息配置类。
  *
  * @see BotConfiguration
  */

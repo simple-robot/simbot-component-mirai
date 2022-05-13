@@ -28,6 +28,7 @@ import love.forte.simbot.ability.CompletionPerceivable
 import love.forte.simbot.application.Application
 import love.forte.simbot.application.ApplicationBuilder
 import love.forte.simbot.application.ApplicationBuilderDsl
+import love.forte.simbot.component.mirai.MiraiComponent.Factory
 import love.forte.simbot.component.mirai.message.*
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.message.MessageSerializers
@@ -36,8 +37,11 @@ import net.mamoe.mirai.utils.MiraiExperimentalApi
 
 /**
  * simbot对应的mirai组件。
+ *
+ * @see Factory
  */
 public class MiraiComponent : Component {
+    
     /**
      * 代表组件的唯一标识。
      */
@@ -49,6 +53,16 @@ public class MiraiComponent : Component {
     override val componentSerializersModule: SerializersModule
         get() = messageSerializersModule
     
+    /**
+     * 用于构建 [MiraiComponent] 的 [ComponentFactory] 实现。
+     *
+     * 当处于 [ApplicationBuilder] 中时，你可以通过扩展函数 [useMiraiComponent] 来注册当前组件,
+     * 可以通过 [useMiraiBotManager] 来注册 [MiraiBotManager], 或者通过 [useMirai] 来注册二者。
+     *
+     * @see useMirai
+     * @see useMiraiComponent
+     * @see useMiraiBotManager
+     */
     public companion object Factory : ComponentFactory<MiraiComponent, MiraiComponentConfiguration> {
         /**
          * [MiraiComponent] 的组件标识ID。
@@ -56,65 +70,98 @@ public class MiraiComponent : Component {
         @Suppress("MemberVisibilityCanBePrivate")
         public const val ID: String = "simbot.mirai"
         
+        /**
+         * [Factory.ID] 的ID实例。
+         */
         @JvmField
         public val ComponentID: ID = ID.ID
         
+        /**
+         * 当前组件工厂的注册标识。
+         */
         override val key: Attribute<MiraiComponent> = attribute(ID)
         
-        override fun create(configurator: MiraiComponentConfiguration.() -> Unit): MiraiComponent {
-            // nothing now
-            // val config = MiraiComponentConfiguration().also(block)
-            
+        /**
+         * 根据配置函数构建 [MiraiComponent].
+         *
+         */
+        override suspend fun create(configurator: MiraiComponentConfiguration.() -> Unit): MiraiComponent {
+            MiraiComponentConfiguration.configurator()
             return MiraiComponent()
         }
         
         /**
+         * 当前组件中所提供的所有额外消息类型的序列化模块。
+         *
+         * [componentSpecialMessageSerializersModule] **只**包含组件内的消息序列化模块，而不包含mirai提供的消息序列化模块。
+         * 如果想要保证序列化不会出现问题，你可能需要使用 [messageSerializersModule].
+         *
+         * @see messageSerializersModule
+         */
+        @Suppress("MemberVisibilityCanBePrivate")
+        @JvmStatic
+        public val componentSpecialMessageSerializersModule: SerializersModule = SerializersModule {
+            polymorphic(Message.Element::class) {
+                subclass(SimbotOriginalMiraiMessage.serializer())
+                
+                ////
+                
+                polymorphic(MiraiImage::class) {
+                    subclass(MiraiImageImpl.serializer())
+                }
+                subclass(MiraiImageImpl.serializer())
+                
+                ////
+                
+                polymorphic(MiraiAudio::class) {
+                    subclass(MiraiAudioImpl.serializer())
+                }
+                subclass(MiraiAudioImpl.serializer())
+                
+                ////
+                @OptIn(MiraiExperimentalApi::class) subclass(MiraiShare.serializer())
+                subclass(MiraiQuoteReply.serializer())
+                subclass(MiraiMusicShare.serializer())
+                subclass(MiraiNudge.serializer())
+                subclass(MiraiReceivedNudge.serializer())
+            }
+        }
+        
+        /**
          * 得到 [MiraiComponent] 所使用的消息序列化信息。
+         *
+         * [messageSerializersModule] 会集成mirai中所提供的消息序列化模块 [MessageSerializers.serializersModule]
+         * 与当前组件中所提供的额外的消息序列化模块 [componentSpecialMessageSerializersModule].
+         *
+         * 如果你需要使用能支持组件消息实例的进行序列化的序列化模块，[messageSerializersModule] 是更好的选择。
+         *
+         * [messageSerializersModule] 同时也是在 [MiraiComponent] 中对外提供的序列化模块。
+         *
          */
         @JvmStatic
         public val messageSerializersModule: SerializersModule =
-            MessageSerializers.serializersModule + SerializersModule {
-                polymorphic(Message.Element::class) {
-                    subclass(SimbotOriginalMiraiMessage.serializer())
-                    
-                    ////
-                    
-                    polymorphic(MiraiImage::class) {
-                        subclass(MiraiImageImpl.serializer())
-                    }
-                    subclass(MiraiImageImpl.serializer())
-                    
-                    ////
-                    
-                    polymorphic(MiraiAudio::class) {
-                        subclass(MiraiAudioImpl.serializer())
-                    }
-                    subclass(MiraiAudioImpl.serializer())
-                    
-                    ////
-                    @OptIn(MiraiExperimentalApi::class) subclass(MiraiShare.serializer())
-                    subclass(MiraiQuoteReply.serializer())
-                    subclass(MiraiMusicShare.serializer())
-                    subclass(MiraiNudge.serializer())
-                    subclass(MiraiReceivedNudge.serializer())
-                }
-            }
+            MessageSerializers.serializersModule + componentSpecialMessageSerializersModule
     }
 }
 
 
 /**
  * [MiraiComponent] 注册的时候所使用的配置类。
+ *
+ * 目前的 [MiraiComponent] 暂无可配置内容，因此 [MiraiComponentConfiguration] 没有任何可配置属性。
+ *
  */
-public open class MiraiComponentConfiguration
+public object MiraiComponentConfiguration
 
 
 /**
  * 支持进行自动加载的组件配置工厂。
+ *
+ * @see ComponentAutoRegistrarFactory
  */
 public class MiraiComponentAutoRegistrarFactory :
     ComponentAutoRegistrarFactory<MiraiComponent, MiraiComponentConfiguration> {
-    override val registrar: MiraiComponent.Factory
+    override val registrar: Factory
         get() = MiraiComponent
 }
 
