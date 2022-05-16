@@ -197,8 +197,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         ): MiraiBotManager {
             // configurator ignore
             // find self
-            val component = components.find { it.id == MiraiComponent.ComponentID } as? MiraiComponent
-                ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID}) registered in the current application.")
+            val component = components.find { it.id == MiraiComponent.componentID } as? MiraiComponent
+                ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID_VALUE}) registered in the current application.")
             
             val configuration = MiraiBotManagerConfigurationImpl().also {
                 it.parentCoroutineContext = applicationConfiguration.coroutineContext
