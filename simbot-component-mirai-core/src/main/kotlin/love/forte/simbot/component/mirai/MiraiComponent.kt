@@ -42,13 +42,27 @@ public class MiraiComponent : Component {
     /**
      * 代表组件的唯一标识。
      */
-    override val id: ID get() = ComponentID
+    override val id: ID get() = componentID
     
     /**
      * 得到 [MiraiComponent] 所使用的消息序列化信息。
      */
     override val componentSerializersModule: SerializersModule
         get() = messageSerializersModule
+    
+    override fun toString(): String = TO_STRING_VALUE
+    
+    override fun equals(other: Any?): Boolean {
+        return when {
+            other === this -> true
+            other !is MiraiComponent -> false
+            else -> id == other.id
+        }
+    }
+    
+    override fun hashCode(): Int {
+        return id.hashCode()
+    }
     
     /**
      * 用于构建 [MiraiComponent] 的 [ComponentFactory] 实现。
@@ -65,18 +79,20 @@ public class MiraiComponent : Component {
          * [MiraiComponent] 的组件标识ID。
          */
         @Suppress("MemberVisibilityCanBePrivate")
-        public const val ID: String = "simbot.mirai"
+        public const val ID_VALUE: String = "simbot.mirai"
+        
+        internal const val TO_STRING_VALUE: String = "MiraiComponent(id=$ID_VALUE)"
         
         /**
-         * [Factory.ID] 的ID实例。
+         * [Factory.ID_VALUE] 的ID实例。
          */
         @JvmField
-        public val ComponentID: ID = ID.ID
+        public val componentID: ID = ID_VALUE.ID
         
         /**
          * 当前组件工厂的注册标识。
          */
-        override val key: Attribute<MiraiComponent> = attribute(ID)
+        override val key: Attribute<MiraiComponent> = attribute(ID_VALUE)
         
         /**
          * 根据配置函数构建 [MiraiComponent].
