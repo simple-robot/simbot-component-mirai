@@ -26,8 +26,7 @@ plugins {
 
 
 dependencies {
-    // 不传递
-    implementation(V.Simbot.Core.notation)
+    api(V.Simbot.Core.notation)
     api(V.Mirai.CoreJvm.notation)
     api(V.Kotlinx.Serialization.Json.notation)
     
