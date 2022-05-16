@@ -15,7 +15,6 @@
  *
  */
 
-import love.forte.simbot.Api4J
 import kotlin.test.Test
 
 /*
@@ -41,7 +40,6 @@ import kotlin.test.Test
  */
 class BotCompletionHandleTest {
 
-    @OptIn(Api4J::class)
     @Test
     fun completionHandleTest() {
         // TODO
