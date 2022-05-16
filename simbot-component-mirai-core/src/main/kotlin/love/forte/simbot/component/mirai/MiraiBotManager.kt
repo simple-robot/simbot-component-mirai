@@ -491,30 +491,30 @@ public data class MiraiBotVerifyInfoConfiguration(
         /**
          * 将当前配置的信息转化为 [MiraiBotConfiguration][BotConfiguration] 实例。
          */
-        @Transient
-        val miraiBotConfiguration: BotConfiguration = BotConfiguration().also {
-            it.workingDir = workingDir
-            it.heartbeatPeriodMillis = heartbeatPeriodMillis
-            it.statHeartbeatPeriodMillis = statHeartbeatPeriodMillis
-            it.heartbeatTimeoutMillis = heartbeatTimeoutMillis
-            it.heartbeatStrategy = heartbeatStrategy
-            it.reconnectionRetryTimes = reconnectionRetryTimes
-            it.autoReconnectOnForceOffline = autoReconnectOnForceOffline
-            it.protocol = protocol
-            it.highwayUploadCoroutineCount = highwayUploadCoroutineCount
-            
-            it.deviceInfo = deviceInfo
-            
-            if (noNetworkLog) it.noNetworkLog() else it.networkLoggerSupplier = networkLoggerSupplier
-            if (noBotLog) it.noBotLog() else it.botLoggerSupplier = botLoggerSupplier
-            
-            it.isShowingVerboseEventLog = isShowingVerboseEventLog
-            
-            it.cacheDir = cacheDir
-            it.contactListCache = contactListCacheConfiguration.contactListCache
-            it.loginCacheEnabled = loginCacheEnabled
-            it.convertLineSeparator = convertLineSeparator
-        }
+        val miraiBotConfiguration: BotConfiguration
+            get() = BotConfiguration().also {
+                it.workingDir = workingDir
+                it.heartbeatPeriodMillis = heartbeatPeriodMillis
+                it.statHeartbeatPeriodMillis = statHeartbeatPeriodMillis
+                it.heartbeatTimeoutMillis = heartbeatTimeoutMillis
+                it.heartbeatStrategy = heartbeatStrategy
+                it.reconnectionRetryTimes = reconnectionRetryTimes
+                it.autoReconnectOnForceOffline = autoReconnectOnForceOffline
+                it.protocol = protocol
+                it.highwayUploadCoroutineCount = highwayUploadCoroutineCount
+                
+                it.deviceInfo = deviceInfo
+                
+                if (noNetworkLog) it.noNetworkLog() else it.networkLoggerSupplier = networkLoggerSupplier
+                if (noBotLog) it.noBotLog() else it.botLoggerSupplier = botLoggerSupplier
+                
+                it.isShowingVerboseEventLog = isShowingVerboseEventLog
+                
+                it.cacheDir = cacheDir
+                it.contactListCache = contactListCacheConfiguration.contactListCache
+                it.loginCacheEnabled = loginCacheEnabled
+                it.convertLineSeparator = convertLineSeparator
+            }
         
         
         private fun Json.readFileDeviceInfo(path: Path): DeviceInfo {
