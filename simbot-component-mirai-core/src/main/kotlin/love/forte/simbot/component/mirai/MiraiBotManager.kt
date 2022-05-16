@@ -264,7 +264,7 @@ public interface MiraiBotManagerConfiguration {
 /**
  * [MiraiBotManager] 的自动注册工厂。
  */
-public object MiraiBotManagerAutoRegistrarFactory :
+public class MiraiBotManagerAutoRegistrarFactory :
     EventProviderAutoRegistrarFactory<MiraiBotManager, MiraiBotManagerConfiguration> {
     override val registrar: MiraiBotManager.Factory get() = MiraiBotManager
 }
