@@ -30,6 +30,7 @@ import kotlinx.serialization.json.Json
 import love.forte.simbot.*
 import love.forte.simbot.application.ApplicationBuilder
 import love.forte.simbot.application.ApplicationConfiguration
+import love.forte.simbot.application.EventProviderAutoRegistrarFactory
 import love.forte.simbot.application.EventProviderFactory
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
@@ -173,7 +174,10 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     ): MiraiBot
     
     
-    // TODO auto register
+    /**
+     * [MiraiBotManager] 的构造工厂。
+     *
+     */
     public companion object Factory : EventProviderFactory<MiraiBotManager, MiraiBotManagerConfiguration> {
         override val key: Attribute<MiraiBotManager> = attribute("SIMBOT.MIRAI")
         
@@ -254,6 +258,15 @@ public interface MiraiBotManagerConfiguration {
         configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda {},
         onBot: suspend (bot: MiraiBot) -> Unit = {},
     )
+}
+
+
+/**
+ * [MiraiBotManager] 的自动注册工厂。
+ */
+public object MiraiBotManagerAutoRegistrarFactory :
+    EventProviderAutoRegistrarFactory<MiraiBotManager, MiraiBotManagerConfiguration> {
+    override val registrar: MiraiBotManager.Factory get() = MiraiBotManager
 }
 
 
