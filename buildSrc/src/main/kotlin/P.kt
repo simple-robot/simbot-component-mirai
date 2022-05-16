@@ -156,3 +156,4 @@ data class PVS(
 internal fun preview(minor: Int, patch: Int) = PVS(PVS.PREVIEW_STATUS, minor, patch)
 
 
+private fun isSnapshot() {}
