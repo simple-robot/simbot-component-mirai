@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -20,9 +21,7 @@ import kotlinx.coroutines.*
 import love.forte.simbot.BotAlreadyRegisteredException
 import love.forte.simbot.ID
 import love.forte.simbot.LoggerFactory
-import love.forte.simbot.component.mirai.MiraiBot
-import love.forte.simbot.component.mirai.MiraiBotManager
-import love.forte.simbot.component.mirai.MiraiComponent
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.event.MiraiBotRegisteredEvent
 import love.forte.simbot.component.mirai.event.impl.MiraiBotRegisteredEventImpl
 import love.forte.simbot.event.EventProcessingResult
@@ -32,6 +31,7 @@ import love.forte.simbot.tryToLongID
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.supervisorJob
 import net.mamoe.mirai.utils.BotConfiguration
+import net.mamoe.mirai.utils.LoggerAdapters.asMiraiLogger
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -44,21 +44,25 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
  */
 internal class MiraiBotManagerImpl(
     private val eventProcessor: EventProcessor,
+    override val component: MiraiComponent,
+    configuration: MiraiBotManagerConfiguration,
 ) : MiraiBotManager() {
     companion object {
         private val LOGGER = LoggerFactory.getLogger(MiraiBotManagerImpl::class)
     }
-
-    // init component from processor
-    override val component = eventProcessor.getComponent(MiraiComponent.ID)
-
+    
     override val logger: Logger get() = LOGGER
-
-    private val completableJob = SupervisorJob()
-    override val coroutineContext: CoroutineContext = completableJob + CoroutineName("MiraiBotManagerImpl")
+    
+    private val completableJob: CompletableJob
+    override val coroutineContext: CoroutineContext
     private val botCache = ConcurrentHashMap<Long, MiraiBotImpl>()
-
-
+    
+    init {
+        val configCoroutineContext = configuration.parentCoroutineContext + CoroutineName("MiraiBotManagerImpl")
+        completableJob = SupervisorJob(configCoroutineContext[Job])
+        coroutineContext = configCoroutineContext + completableJob
+    }
+    
     override fun register(code: Long, password: String, configuration: BotConfiguration): MiraiBotImpl {
         logger.debug("Register bot {} with password: <length {}>", code, password.length)
         return processMiraiBot(code) {
@@ -67,7 +71,7 @@ internal class MiraiBotManagerImpl(
             launch { pushRegisteredEvent(bot) }
         }
     }
-
+    
     override fun register(code: Long, passwordMD5: ByteArray, configuration: BotConfiguration): MiraiBotImpl {
         logger.debug("Register bot {} with password(MD5): <size {}>", code, passwordMD5.size)
         return processMiraiBot(code) {
@@ -76,8 +80,8 @@ internal class MiraiBotManagerImpl(
             launch { pushRegisteredEvent(bot) }
         }
     }
-
-
+    
+    
     override fun register(
         code: Long,
         password: String,
@@ -90,7 +94,7 @@ internal class MiraiBotManagerImpl(
             launch { pushRegisteredEvent(bot) }
         }
     }
-
+    
     override fun register(
         code: Long,
         passwordMD5: ByteArray,
@@ -103,27 +107,31 @@ internal class MiraiBotManagerImpl(
             launch { pushRegisteredEvent(bot) }
         }
     }
-
-
+    
+    
     private suspend fun pushRegisteredEvent(bot: MiraiBotImpl): EventProcessingResult? {
         return eventProcessor.pushIfProcessable(MiraiBotRegisteredEvent) {
             MiraiBotRegisteredEventImpl(bot)
         }
     }
-
-
+    
+    
     private fun BotConfiguration.configurationProcess(): BotConfiguration {
-        parentCoroutineContext += completableJob
+        parentCoroutineContext += coroutineContext
         return this
     }
-
+    
     private fun BotFactory.BotConfigurationLambda.configurationProcess(): BotFactory.BotConfigurationLambda {
         return BotFactory.BotConfigurationLambda {
+            botLoggerSupplier = { LoggerFactory.getLogger("love.forte.simbot.mirai.bot.${it.id}").asMiraiLogger() }
+            networkLoggerSupplier = { LoggerFactory.getLogger("love.forte.simbot.mirai.net.${it.id}").asMiraiLogger() }
+            deviceInfo = { simbotMiraiDeviceInfo(it.id) }
+            
             run { apply { invoke() } }
-            parentCoroutineContext += completableJob
+            parentCoroutineContext += coroutineContext
         }
     }
-
+    
     private inline fun processMiraiBot(code: Long, crossinline factory: () -> OriginalMiraiBot): MiraiBotImpl {
         return botCache.compute(code) { key, old ->
             if (old != null) {
@@ -139,12 +147,12 @@ internal class MiraiBotManagerImpl(
             }
         }
     }
-
-
+    
+    
     override val isActive: Boolean get() = completableJob.isActive
     override val isCancelled: Boolean get() = completableJob.isCancelled
     override val isStarted: Boolean get() = isActive || isCancelled
-
+    
     override suspend fun doCancel(reason: Throwable?): Boolean {
         if (isCancelled) return false
         val cancelledException: CancellationException? = when (reason) {
@@ -155,27 +163,27 @@ internal class MiraiBotManagerImpl(
         completableJob.cancel(cancelledException)
         return true
     }
-
+    
     override fun get(id: ID): MiraiBot? = botCache[id.tryToLongID().number]
-
+    
     override fun all(): List<MiraiBot> {
         return botCache.values.toList()
     }
-
+    
     override fun invokeOnCompletion(handler: CompletionHandler) {
         completableJob.invokeOnCompletion(handler)
     }
-
+    
     override suspend fun join() {
         completableJob.join()
     }
-
+    
     override fun toString(): String {
         return "MiraiBotManager@${hashCode()}(bots=${
             botCache.keys().asSequence().joinToString(", ", prefix = "[", postfix = "]")
         }, isActive=$isActive, eventProcessor$eventProcessor)"
     }
-
+    
 }
 
 

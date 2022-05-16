@@ -19,7 +19,7 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.json.Json
 import love.forte.simbot.FragileSimbotApi
-import love.forte.simbot.component.mirai.MiraiBotFileConfiguration
+import love.forte.simbot.component.mirai.MiraiBotVerifyInfoConfiguration
 import love.forte.simbot.component.mirai.SimpleDeviceInfo
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.toSimple
@@ -92,10 +92,12 @@ class DeviceInfoTest {
     @OptIn(FragileSimbotApi::class, InternalApi::class)
     @Test
     fun yamlTest() {
-        val conf = MiraiBotFileConfiguration(
+        val conf = MiraiBotVerifyInfoConfiguration(
             code = 123,
             password = "123222xxx",
-            simpleDeviceInfoJson = DeviceInfo.random().toSimple()
+            config = MiraiBotVerifyInfoConfiguration.Config(
+                simpleDeviceInfoJson = DeviceInfo.random().toSimple()
+            )
         )
 
         val yaml = Yaml(
@@ -104,7 +106,7 @@ class DeviceInfoTest {
             )
         )
 
-        val str = yaml.encodeToString(MiraiBotFileConfiguration.serializer(), conf)
+        val str = yaml.encodeToString(MiraiBotVerifyInfoConfiguration.serializer(), conf)
         println(str)
 
     }

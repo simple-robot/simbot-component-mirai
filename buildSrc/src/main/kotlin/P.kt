@@ -36,7 +36,7 @@ sealed class P : SimbotProject() {
 
         val version = Version(
             "3", 0, 0,
-            status = preview(8, 1),
+            status = preview(9, 0),
             isSnapshot = System.getProperty("isSnapshot")?.equals("true", true) ?: false
         )
 
@@ -57,7 +57,7 @@ sealed class P : SimbotProject() {
             // e.g. 3.0.0.0.preview.1.0
             major = "${Simbot.version.major}.${Simbot.version.minor}",
             minor = 0, patch = 0,
-            status = preview(minor = 2, patch = 3),
+            status = preview(minor = 3, patch = 0),
             isSnapshot = isSnapshot
         )
         const val GROUP = "${Simbot.GROUP}.component"
