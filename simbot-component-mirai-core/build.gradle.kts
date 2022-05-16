@@ -26,10 +26,12 @@ plugins {
 
 
 dependencies {
-    api(V.Simbot.Core.notation)
+    // 不传递
+    implementation(V.Simbot.Core.notation)
     api(V.Mirai.CoreJvm.notation)
     api(V.Kotlinx.Serialization.Json.notation)
-    api(V.Kotlinx.Serialization.Properties.notation)
+    
+    compileOnly(V.Kotlinx.Serialization.Properties.notation)
     compileOnly(V.Kotlinx.Serialization.Yaml.notation)
     testImplementation(V.Kotlinx.Serialization.Yaml.notation)
 
