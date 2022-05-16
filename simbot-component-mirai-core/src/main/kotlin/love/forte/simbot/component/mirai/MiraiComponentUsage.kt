@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -11,6 +11,7 @@
  *  https://www.gnu.org/licenses
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
+ *
  *
  */
 
@@ -51,7 +52,6 @@ import love.forte.simbot.application.ApplicationBuilderDsl
  * }
  * ```
  */
-@JvmOverloads
 @ApplicationBuilderDsl
 public fun <A : Application> ApplicationBuilder<A>.useMiraiBotManager(configurator: MiraiBotManagerConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit = {}) {
     install(MiraiBotManager, configurator)
@@ -82,7 +82,6 @@ public fun <A : Application> ApplicationBuilder<A>.useMiraiBotManager(configurat
  * }
  * ```
  */
-@JvmOverloads
 @ApplicationBuilderDsl
 public fun <A : Application> ApplicationBuilder<A>.useMiraiComponent(configurator: MiraiComponentConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit = {}) {
     install(MiraiComponent, configurator)
@@ -165,6 +164,7 @@ public interface MiraiComponentUsageBuilder<A : Application> {
  * @see useMiraiBotManager
  *
  */
+@ApplicationBuilderDsl
 public fun <A : Application> ApplicationBuilder<A>.useMirai(builder: MiraiComponentUsageBuilder<A>.() -> Unit = {}) {
     MiraiComponentUsageBuilderImpl<A>().also(builder).build(this)
 }
