@@ -29,17 +29,12 @@ dependencies {
     api(V.Simbot.Core.notation)
     api(V.Mirai.CoreJvm.notation)
     api(V.Kotlinx.Serialization.Json.notation)
-    api(V.Kotlinx.Serialization.Properties.notation)
+    compileOnly(V.Kotlinx.Serialization.Properties.notation)
     compileOnly(V.Kotlinx.Serialization.Yaml.notation)
     testImplementation(V.Kotlinx.Serialization.Yaml.notation)
 
 
     testImplementation(V.Kotlin.Test.Junit5.notation)
-    // testImplementation(V.Log4j.Api.notation)
-    // testImplementation(V.Log4j.Core.notation)
-    // testImplementation(V.Log4j.Slf4jImpl.notation)
-    //compileOnly("com.google.auto.service:auto-service:1.0.1")
-    //kapt("com.google.auto.service:auto-service:1.0.1")
 }
 
 
