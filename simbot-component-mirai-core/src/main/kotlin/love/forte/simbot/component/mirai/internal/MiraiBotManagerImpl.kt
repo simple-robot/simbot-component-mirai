@@ -21,12 +21,9 @@ import kotlinx.coroutines.*
 import love.forte.simbot.BotAlreadyRegisteredException
 import love.forte.simbot.ID
 import love.forte.simbot.LoggerFactory
-import love.forte.simbot.component.mirai.MiraiBot
-import love.forte.simbot.component.mirai.MiraiBotManager
-import love.forte.simbot.component.mirai.MiraiComponent
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.event.MiraiBotRegisteredEvent
 import love.forte.simbot.component.mirai.event.impl.MiraiBotRegisteredEventImpl
-import love.forte.simbot.component.mirai.simbotMiraiDeviceInfo
 import love.forte.simbot.event.EventProcessingResult
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
@@ -48,6 +45,7 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
 internal class MiraiBotManagerImpl(
     private val eventProcessor: EventProcessor,
     override val component: MiraiComponent,
+    configuration: MiraiBotManagerConfiguration,
 ) : MiraiBotManager() {
     companion object {
         private val LOGGER = LoggerFactory.getLogger(MiraiBotManagerImpl::class)
@@ -55,10 +53,15 @@ internal class MiraiBotManagerImpl(
     
     override val logger: Logger get() = LOGGER
     
-    private val completableJob = SupervisorJob()
-    override val coroutineContext: CoroutineContext = completableJob + CoroutineName("MiraiBotManagerImpl")
+    private val completableJob: CompletableJob
+    override val coroutineContext: CoroutineContext
     private val botCache = ConcurrentHashMap<Long, MiraiBotImpl>()
     
+    init {
+        val configCoroutineContext = configuration.parentCoroutineContext + CoroutineName("MiraiBotManagerImpl")
+        completableJob = SupervisorJob(configCoroutineContext[Job])
+        coroutineContext = configCoroutineContext + completableJob
+    }
     
     override fun register(code: Long, password: String, configuration: BotConfiguration): MiraiBotImpl {
         logger.debug("Register bot {} with password: <length {}>", code, password.length)
@@ -114,7 +117,7 @@ internal class MiraiBotManagerImpl(
     
     
     private fun BotConfiguration.configurationProcess(): BotConfiguration {
-        parentCoroutineContext += completableJob
+        parentCoroutineContext += coroutineContext
         return this
     }
     
@@ -125,7 +128,7 @@ internal class MiraiBotManagerImpl(
             deviceInfo = { simbotMiraiDeviceInfo(it.id) }
             
             run { apply { invoke() } }
-            parentCoroutineContext += completableJob
+            parentCoroutineContext += coroutineContext
         }
     }
     

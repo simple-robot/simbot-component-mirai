@@ -43,6 +43,8 @@ import net.mamoe.mirai.utils.MiraiLogger
 import org.slf4j.Logger
 import java.io.File
 import java.nio.file.Path
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
@@ -179,7 +181,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         @Suppress("DeprecatedCallableAddReplaceWith")
         @Deprecated("install mirai in simbotApplication.")
         public fun newInstance(eventProcessor: EventProcessor): MiraiBotManager {
-            return MiraiBotManagerImpl(eventProcessor, MiraiComponent())
+            return MiraiBotManagerImpl(eventProcessor, MiraiComponent(), MiraiBotManagerConfigurationImpl())
         }
         
         
@@ -194,9 +196,12 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
             val component = components.find { it.id == MiraiComponent.ComponentID } as? MiraiComponent
                 ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID}) registered in the current application.")
             
-            val configuration = MiraiBotManagerConfigurationImpl().also(configurator)
+            val configuration = MiraiBotManagerConfigurationImpl().also {
+                it.parentCoroutineContext = applicationConfiguration.coroutineContext
+                configurator(it)
+            }
             
-            return MiraiBotManagerImpl(eventProcessor, component).also {
+            return MiraiBotManagerImpl(eventProcessor, component, configuration).also {
                 configuration.useBotManager(it)
             }
         }
@@ -209,6 +214,14 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
  *
  */
 public interface MiraiBotManagerConfiguration {
+    
+    /**
+     * 用于使用在 [MiraiBotManager] 中以及作为所有Bot的父类协程上下文。
+     *
+     * 会使用 [ApplicationConfiguration] 中的配置作为初始值。
+     *
+     */
+    public var parentCoroutineContext: CoroutineContext
     
     /**
      * 注册一个mirai bot.
@@ -249,6 +262,8 @@ public interface MiraiBotManagerConfiguration {
  *
  */
 private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
+    override var parentCoroutineContext: CoroutineContext = EmptyCoroutineContext
+    
     private var botManagerProcessor: (suspend (MiraiBotManager) -> Unit)? = null
     
     private fun newProcessor(p: suspend (MiraiBotManager) -> Unit) {
