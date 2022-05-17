@@ -31,6 +31,12 @@ dependencies {
     testImplementation(V.Kotlinx.Serialization.Yaml.notation)
 
     testImplementation("love.forte.simbot.boot:simboot-core:${P.Simbot.VERSION}")
+    testImplementation("love.forte.simbot.boot:simboot-core-spring-boot-starter:${P.Simbot.VERSION}") {
+        exclude("org.springframework.boot", "spring-boot-starter-logging")
+    }
+    testImplementation("org.springframework.boot:spring-boot-starter-web:2.6.7") {
+        exclude("org.springframework.boot", "spring-boot-starter-logging")
+    }
 
     // implementation("love.forte.simple-robot:api:3.0.0-PREVIEW")
 }
