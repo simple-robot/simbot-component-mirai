@@ -46,50 +46,50 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
  * @author ForteScarlet
  */
 public interface MiraiBot : Bot, UserInfo {
-
+    
     /**
      * 得到这个Bot所代表的原生mirai bot。
      *
      * @see OriginalMiraiBot
      */
     public val originalBot: OriginalMiraiBot
-
+    
     /**
      * bot的id。
      *
      * 在mirai中，bot的账号都是 [Long] 类型的。
      */
     override val id: LongID
-
+    
     /**
      * @see Bot.eventProcessor
      */
     override val eventProcessor: EventProcessor
-
-
+    
+    
     /**
      * @see Bot.logger
      */
     override val logger: Logger
-
-
+    
+    
     /**
      *  @see Bot.avatar
      */
     override val avatar: String get() = originalBot.avatarUrl
-
+    
     /** 直接使用 [originalBot] 的协程作用域。 */
     override val coroutineContext: CoroutineContext get() = originalBot.coroutineContext
-
+    
     override val isActive: Boolean get() = originalBot.supervisorJob.isActive
     override val isCancelled: Boolean get() = originalBot.supervisorJob.isCancelled
     override val isStarted: Boolean get() = isCancelled || isActive
-
+    
     override val manager: MiraiBotManager
-
+    
     override val username: String get() = originalBot.nick
-
-    //region friend apis
+    
+    // region friend apis
     /**
      * 获取当前bot的好友信息，并可以通过 [limiter] 进行限流。
      *
@@ -98,14 +98,14 @@ public interface MiraiBot : Bot, UserInfo {
      */
     @JvmSynthetic
     public suspend fun friends(limiter: Limiter = Limiter): Flow<MiraiFriend>
-
-
+    
+    
     /**
      * 获取指定的好友。在mirai中，好友的获取不是挂起的，因此可以安全的使用 [getFriend]
      */
     @OptIn(Api4J::class)
     override fun getFriend(id: ID): MiraiFriend?
-
+    
     /**
      * 获取当前bot所有的好友信息。
      *
@@ -113,15 +113,15 @@ public interface MiraiBot : Bot, UserInfo {
      */
     @OptIn(Api4J::class)
     override fun getFriends(): Stream<out MiraiFriend>
-
-
+    
+    
     /**
      * 获取指定的好友。在mirai中，好友的获取不是挂起的，因此可以安全的使用 [getFriend]
      */
     @JvmSynthetic
     override suspend fun friend(id: ID): MiraiFriend? = getFriend(id)
-
-
+    
+    
     /**
      * 获取当前bot的好友信息，并可以通过 [limiter] 进行限流。
      *
@@ -130,22 +130,22 @@ public interface MiraiBot : Bot, UserInfo {
      */
     @OptIn(Api4J::class)
     override fun getFriends(limiter: Limiter): Stream<out MiraiFriend> = getFriends().withLimiter(limiter)
-
-
+    
+    
     @Deprecated("Mirai好友没有分组信息", ReplaceWith("friends(limiter)"))
     @JvmSynthetic
     override suspend fun friends(grouping: Grouping, limiter: Limiter): Flow<MiraiFriend> = friends(limiter)
-
+    
     @OptIn(Api4J::class)
     @Deprecated("Mirai好友没有分组信息", ReplaceWith("getFriends(limiter)"))
     override fun getFriends(grouping: Grouping, limiter: Limiter): Stream<out MiraiFriend> = getFriends(limiter)
-
-
-    //endregion
-
-
-    //region group apis
-
+    
+    
+    // endregion
+    
+    
+    // region group apis
+    
     /**
      * 获取当前Bot中的群组列表，并可以通过 [limiter] 进行限流。
      *
@@ -153,8 +153,8 @@ public interface MiraiBot : Bot, UserInfo {
      */
     @JvmSynthetic
     public suspend fun groups(limiter: Limiter = Limiter): Flow<MiraiGroup>
-
-
+    
+    
     /**
      * 获取当前bot所有的群组。
      *
@@ -162,15 +162,15 @@ public interface MiraiBot : Bot, UserInfo {
      */
     @OptIn(Api4J::class)
     override fun getGroups(): Stream<out MiraiGroup>
-
-
+    
+    
     /**
      * 获取指定的群.
      * mirai的群组获取没有真正的挂起，因此可以安全的使用 [getGroup].
      */
     @OptIn(Api4J::class)
     override fun getGroup(id: ID): MiraiGroup?
-
+    
     /**
      * 获取指定的群.
      * mirai的群组获取没有真正的挂起，因此可以安全的使用 [getGroup].
@@ -178,7 +178,7 @@ public interface MiraiBot : Bot, UserInfo {
      */
     @JvmSynthetic
     override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
-
+    
     /**
      * 获取当前Bot中的群组列表，并可以通过 [limiter] 进行限流。
      *
@@ -187,85 +187,86 @@ public interface MiraiBot : Bot, UserInfo {
      */
     @OptIn(Api4J::class)
     override fun getGroups(limiter: Limiter): Stream<out MiraiGroup> = getGroups().withLimiter(limiter)
-
-
+    
+    
     @Deprecated("Mirai群组没有分组信息", ReplaceWith("getFriends(limiter)"))
     @JvmSynthetic
     override suspend fun groups(grouping: Grouping, limiter: Limiter): Flow<MiraiGroup> = groups(limiter)
-
+    
     @OptIn(Api4J::class)
     @Deprecated("Mirai群组没有分组信息", ReplaceWith("getFriends(limiter)"))
     override fun getGroups(grouping: Grouping, limiter: Limiter): Stream<out MiraiGroup> = getGroups(limiter)
-
-
-    //endregion
-
-
-    //region guild apis
-
+    
+    
+    // endregion
+    
+    
+    // region guild apis
+    
     @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("emptyFlow()", "kotlinx.coroutines.flow.emptyFlow"))
     @JvmSynthetic
     override suspend fun guilds(grouping: Grouping, limiter: Limiter): Flow<Guild> = emptyFlow()
-
+    
     @OptIn(Api4J::class)
     @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("Stream.empty()", "java.util.stream.Stream"))
     override fun getGuilds(grouping: Grouping, limiter: Limiter): Stream<out Guild> = Stream.empty()
-
+    
     @OptIn(Api4J::class)
     @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("Stream.empty()", "java.util.stream.Stream"))
     override fun getGuilds(): Stream<out Guild> = Stream.empty()
-
+    
     @OptIn(Api4J::class)
     @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("Stream.empty()", "java.util.stream.Stream"))
     override fun getGuilds(limiter: Limiter): Stream<out Guild> = Stream.empty()
-
+    
     @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("Stream.empty()", "java.util.stream.Stream"))
     @JvmSynthetic
     override suspend fun guild(id: ID): Guild? = null
-
+    
     @OptIn(Api4J::class)
     @Deprecated("Mirai组件不支持频道相关API", ReplaceWith("Stream.empty()", "java.util.stream.Stream"))
     override fun getGuild(id: ID): Guild? = null
-
-    //endregion
-
+    
+    // endregion
+    
+    // region image api
     /**
-     * 通过 [resource] 上传并得到一个可以且仅可用于在mirai组件中进行 **发送** 的图片消息对象。
+     * 通过 [resource] 构建得到一个可以且仅可用于在mirai组件中进行 **发送** 的图片消息对象。
      *
      * 如果通过 [love.forte.simbot.resources.Resource] 来构建 [Image],
      * 那么得到的 [Image] 对象只是一个尚未初始化的伪[Image], 他会在发送消息的时候根据对应的 [net.mamoe.mirai.contact.Contact] 来进行上传并发送。
      */
     public fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage
-
-
+    
+    
     /**
      * @see sendOnlyImage
      */
     @JvmSynthetic
     override suspend fun uploadImage(resource: Resource): MiraiSendOnlyImage = sendOnlyImage(resource, false)
-
+    
     /**
      * @see sendOnlyImage
      */
     @JvmSynthetic
     public suspend fun uploadImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         sendOnlyImage(resource, flash)
-
+    
     /**
      * @see sendOnlyImage
      */
     @OptIn(Api4J::class)
     override fun uploadImageBlocking(resource: Resource): MiraiSendOnlyImage = sendOnlyImage(resource, false)
-
+    
     /**
      * @see sendOnlyImage
      */
     public fun uploadImageBlocking(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         sendOnlyImage(resource, flash)
-
-
+    
+    
     //// id image
-
+    
     /**
      * 尝试通过一个 [ID] 解析得到一个图片对象。
      * 当使用 [ID]的时候， 会直接通过mirai的函数
@@ -275,32 +276,32 @@ public interface MiraiBot : Bot, UserInfo {
     public fun idImage(
         id: ID,
         flash: Boolean,
-        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {}
+        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {},
     ): MiraiImage
-
-
+    
+    
     /**
      * @see idImage
      */
     @JvmSynthetic
     override suspend fun resolveImage(id: ID): MiraiImage = idImage(id, false)
-
+    
     /**
      * @see idImage
      */
     public fun resolveImage(
         id: ID,
         flash: Boolean,
-        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {}
+        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {},
     ): MiraiImage = idImage(id, flash, builderAction)
-
+    
     /**
      * @see idImage
      */
     @OptIn(Api4J::class)
     override fun resolveImageBlocking(id: ID): MiraiImage = idImage(id, false)
-
-
+    
+    
     /**
      * @see idImage
      */
@@ -308,14 +309,16 @@ public interface MiraiBot : Bot, UserInfo {
     public fun resolveImageBlocking(
         id: ID,
         flash: Boolean,
-        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit
+        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit,
     ): MiraiImage = idImage(id, flash, builderAction)
-
+    // endregion
+    
+    
     @JvmSynthetic
     override suspend fun join() {
         originalBot.join()
     }
-
+    
     @JvmSynthetic
     override suspend fun cancel(reason: Throwable?): Boolean {
         return if (isCancelled) false

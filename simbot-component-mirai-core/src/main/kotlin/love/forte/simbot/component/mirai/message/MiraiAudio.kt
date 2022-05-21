@@ -18,48 +18,101 @@ package love.forte.simbot.component.mirai.message
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import love.forte.simbot.SimbotIllegalArgumentException
+import love.forte.simbot.component.mirai.MiraiContact
+import love.forte.simbot.component.mirai.MiraiContactContainer
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.doSafeCast
 import love.forte.simbot.resources.Resource
 import net.mamoe.mirai.contact.AudioSupported
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.AudioCodec
+import net.mamoe.mirai.message.data.OfflineAudio
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.message.data.Audio as OriginalMiraiAudio
 import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
 
-
+/**
+ * 一个在simbot中仅用于发送的 _语音_ 消息对象。
+ *
+ * [MiraiSendOnlyAudio] 构建时不会产生任何挂起、网络交互等行为，
+ * 其只是一种 _预处理_ 对象，只有在被真正发送时才会进行上传。
+ *
+ *
+ * [MiraiSendOnlyAudio] 可以重复使用，但是**每次发送**都会产生数据流读取和上传的行为。
+ * 如果你希望能够得到一个一次上传后可复用的音频对象（就像 [Mirai OfflineAudio][OfflineAudio]），
+ * 你可以参考api [uploadTo]。
+ *
+ */
 @SerialName("mirai.sendOnlyAudio")
 @Serializable
 public class MiraiSendOnlyAudio(
-    private val resource: Resource
+    private val resource: Resource,
 ) : MiraiSendOnlyComputableMessage<MiraiSendOnlyAudio> {
-
+    
     override val key: Message.Key<MiraiSendOnlyAudio>
         get() = Key
-
+    
     override fun equals(other: Any?): Boolean {
         if (other !is MiraiSendOnlyAudio) return false
         return other === this || other.resource == resource
     }
-
+    
     override fun toString(): String = resource.toString()
-
+    
     override fun hashCode(): Int = resource.hashCode()
-
-    @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
+    
+    private suspend fun uploadAudioTo(originalAudioSupported: AudioSupported): OfflineAudio {
         return resource.openStream().use {
-            if (contact is AudioSupported) {
-                it.toExternalResource().use { external ->
-                    contact.uploadAudio(external)
-                }
-            } else {
-                throw IllegalStateException("Contact $contact of type ${contact::class} does not support audio")
+            it.toExternalResource().use { external ->
+                originalAudioSupported.uploadAudio(external)
             }
         }
     }
-
+    
+    /**
+     * 根据联系目标得到发送用的消息对象。
+     *
+     * @throws IllegalArgumentException 如果 [contact] 不支持音频上传
+     */
+    @JvmSynthetic
+    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
+        return if (contact is AudioSupported) {
+            uploadAudioTo(contact)
+        } else {
+            throw SimbotIllegalArgumentException("Contact $contact of type ${contact::class} does not support audio")
+        }
+    }
+    
+    
+    /**
+     * 直接提供一个mirai原生的 [AudioSupported] 对象，上传并得到上传结果 [MiraiAudio].
+     *
+     * @return 音频上传结果。
+     */
+    public suspend fun uploadTo(originalAudioSupported: AudioSupported): MiraiAudio {
+        return uploadAudioTo(originalAudioSupported).asSimbot()
+    }
+    
+    /**
+     * 提供一个simbot-mirai组件下的 [MiraiContactContainer] 类型（例如[MiraiContact] 或 [MiraiGroup]），
+     * 并尝试使用此对象上传当前音频并得到 [MiraiAudio].
+     *
+     * @throws SimbotIllegalArgumentException 如果 [miraiContact] 中的原始mirai对象不是 [AudioSupported] 类型
+     *
+     * @return 音频上传结果。
+     */
+    public suspend fun uploadTo(miraiContact: MiraiContactContainer): MiraiAudio {
+        val original = miraiContact.originalContact
+        if (original !is AudioSupported) {
+            throw SimbotIllegalArgumentException("Original mirai contact $original in $miraiContact dos not support audio")
+        }
+        return uploadTo(original)
+    }
+    
+    
     public companion object Key : Message.Key<MiraiSendOnlyAudio> {
         override fun safeCast(value: Any): MiraiSendOnlyAudio? = doSafeCast(value)
     }
@@ -67,40 +120,41 @@ public class MiraiSendOnlyAudio(
 
 
 /**
- * 将一个 [OriginalMiraiAudio] 作为 simbot的 [love.forte.simbot.message.Message.Element] 进行使用。
+ * 将一个 [OriginalMiraiAudio] 作为simbot的 [love.forte.simbot.message.Message.Element] 进行使用。
  *
  * @author ForteScarlet
  *
  * @see OriginalMiraiAudio
- * @see MiraiAudio.of
+ * @see MiraiAudio.asSimbot
  */
 public interface MiraiAudio : OriginalMiraiComputableSimbotMessage<MiraiAudio> {
-
+    
     /**
      * Mirai的原生 [OriginalMiraiAudio] 对象实例。
      */
     public val originalAudio: OriginalMiraiAudio
-
+    
     public val filename: String get() = originalAudio.filename
     public val fileMd5: ByteArray get() = originalAudio.fileMd5
     public val fileSize: Long get() = originalAudio.fileSize
-
+    
     public val codec: AudioCodec get() = originalAudio.codec
     public val extraData: ByteArray? get() = originalAudio.extraData
-
+    
     @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage = originalAudio
-
+    
     public companion object Key : Message.Key<MiraiAudio> {
-
+        
         /**
          * 将一个 [OriginalMiraiAudio] 转化为 [MiraiAudio].
          */
         @JvmStatic
-        public fun of(nativeAudio: OriginalMiraiAudio): MiraiAudio {
-            return MiraiAudioImpl(nativeAudio)
+        @JvmName("of")
+        public fun OriginalMiraiAudio.asSimbot(): MiraiAudio {
+            return MiraiAudioImpl(this)
         }
-
+        
         override fun safeCast(value: Any): MiraiAudio? = doSafeCast(value)
     }
 }
@@ -109,20 +163,17 @@ public interface MiraiAudio : OriginalMiraiComputableSimbotMessage<MiraiAudio> {
 @SerialName("mirai.audio")
 @Serializable
 internal class MiraiAudioImpl(
-    override val originalAudio: OriginalMiraiAudio
+    override val originalAudio: OriginalMiraiAudio,
 ) : MiraiAudio {
     override val key: Message.Key<MiraiAudio>
         get() = MiraiAudio.Key
-
+    
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is MiraiAudio) return false
         return originalAudio == other.originalAudio
     }
-
+    
     override fun toString(): String = originalAudio.toString()
     override fun hashCode(): Int = originalAudio.hashCode()
 }
-
-
-public fun OriginalMiraiAudio.asSimbot(): MiraiAudio = MiraiAudio.of(this)
