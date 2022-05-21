@@ -22,9 +22,10 @@ plugins {
 
 dependencies {
     api(project(":simbot-component-mirai-core")) {
-        exclude("love.forte.simbot", "simbot-logger")
+        exclude("love.forte.simbot")
     }
-    api("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
+    implementation(V.Simbot.Core.notation)
+    implementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
 
     testImplementation(V.Kotlin.Test.Junit.notation)
     testImplementation(V.Kotlinx.Serialization.Json.notation)
