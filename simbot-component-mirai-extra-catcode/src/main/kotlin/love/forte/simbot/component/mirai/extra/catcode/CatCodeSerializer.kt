@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.extra.catcode
@@ -31,6 +30,7 @@ import love.forte.simbot.component.mirai.extra.catcode.AppJsonCatCodeSerializer.
 import love.forte.simbot.component.mirai.extra.catcode.XmlCatCodeSerializer.encoder
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.*
+import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
 import love.forte.simbot.literal
 import love.forte.simbot.message.At
 import love.forte.simbot.message.AtAll
@@ -351,7 +351,7 @@ public object AudioCatCodeSerializer : CatCodeSerializer() {
         if (baseMessageChain != null && id != null) {
             val found = baseMessageChain.find { it is Audio && it.id == id }
             if (found != null) {
-                return@CatCodeDecoder MiraiAudio.of(found as Audio)
+                return@CatCodeDecoder (found as Audio).asSimbot()
             }
         }
 
