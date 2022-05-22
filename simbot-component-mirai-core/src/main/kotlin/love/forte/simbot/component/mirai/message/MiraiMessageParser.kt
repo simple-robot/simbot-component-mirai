@@ -20,6 +20,7 @@ package love.forte.simbot.component.mirai.message
 
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.internal.InternalApi
+import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
 import love.forte.simbot.literal
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At

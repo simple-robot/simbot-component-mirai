@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 plugins {
@@ -22,9 +21,9 @@ plugins {
 
 dependencies {
     api(project(":simbot-component-mirai-core")) {
-        exclude("love.forte.simbot", "simbot-logger")
+        exclude("love.forte.simbot")
     }
-    api("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
+    implementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
 
     testImplementation(V.Kotlin.Test.Junit.notation)
     testImplementation(V.Kotlinx.Serialization.Json.notation)
