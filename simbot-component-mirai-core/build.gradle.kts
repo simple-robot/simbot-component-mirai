@@ -26,7 +26,7 @@ plugins {
 
 
 dependencies {
-    implementation(V.Simbot.Core.notation)
+    compileOnly(V.Simbot.Core.notation)
     
     api(V.Mirai.CoreJvm.notation)
     api(V.Kotlinx.Serialization.Json.notation)
@@ -34,8 +34,8 @@ dependencies {
     compileOnly(V.Kotlinx.Serialization.Properties.notation)
     compileOnly(V.Kotlinx.Serialization.Yaml.notation)
     testImplementation(V.Kotlinx.Serialization.Yaml.notation)
-
-
+    
+    testImplementation(V.Simbot.Core.notation)
     testImplementation(V.Kotlin.Test.Junit5.notation)
 }
 
