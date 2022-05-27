@@ -64,10 +64,19 @@ public interface MiraiGroup : Group, MiraiChatroom {
 
     /**
      * 尝试禁言这个群。(即开启全群禁言。)
+     *
+     * 如果使用了有效的 [duration] 参数，则会在 bot 内开启一个伴随 bot 的作用域而存在的延时任务，
+     * 提供基于内存的群禁言周期功能实现。
+     *
      */
     @JvmSynthetic
     override suspend fun mute(duration: Duration): Boolean
-
+    
+    /**
+     * 取消全群禁言。[unmute] 的同时会取消此群涉及到的由 [mute] 构建出来的延时任务。
+     */
+    @JvmSynthetic
+    override suspend fun unmute(): Boolean
 
     @JvmSynthetic
     override suspend fun member(id: ID): MiraiMember?
@@ -171,18 +180,6 @@ public interface MiraiGroup : Group, MiraiChatroom {
      */
     override fun getMember(id: ID): MiraiMember? = runInBlocking { member(id) }
 
-    /**
-     * 取消全群禁言。
-     */
-    @JvmSynthetic
-    override suspend fun unmute(): Boolean {
-        val settings = originalContact.settings
-        val muteAll = settings.isMuteAll
-        return if (muteAll) {
-            originalContact.settings.isMuteAll = false
-            true
-        } else false
-    }
 
     /**
      * 群没有“上层”概念。始终得到null。
