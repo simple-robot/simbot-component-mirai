@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -26,6 +27,7 @@ import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
+import love.forte.simbot.component.mirai.internal.MiraiGroupMemberBotImpl.Companion.toMemberBot
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.contact.getMember
@@ -39,10 +41,23 @@ import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
  * @author ForteScarlet
  */
 internal class MiraiGroupImpl(
-    override val bot: MiraiBotImpl,
+    private val baseBot: MiraiBotImpl,
     override val originalContact: OriginalMiraiGroup,
     private val initOwner: MiraiMemberImpl? = null
 ) : MiraiGroup {
+    // 不关心线程安全
+    private lateinit var memberBot: MiraiGroupMemberBotImpl
+    
+    override val bot: MiraiGroupMemberBotImpl
+        get() {
+            if (::memberBot.isInitialized) {
+                return memberBot
+            }
+            
+            return baseBot.toMemberBot(originalContact.botAsMember.asSimbot(baseBot, this)).also {
+                memberBot = it
+            }
+        }
 
     override val id: LongID = originalContact.id.ID
 
@@ -57,22 +72,22 @@ internal class MiraiGroupImpl(
     }
 
     override suspend fun member(id: ID): MiraiMember? {
-        return originalContact.getMember(id.tryToLongID().number)?.asSimbot(bot, this)
+        return originalContact.getMember(id.tryToLongID().number)?.asSimbot(baseBot, this)
     }
 
     @OptIn(Api4J::class)
     override val owner: MiraiMemberImpl
-        get() = initOwner ?: originalContact.owner.asSimbot(bot, this)
+        get() = initOwner ?: originalContact.owner.asSimbot(baseBot, this)
 
 
     override val ownerId: LongID get() = owner.id
 
     override fun getMembers(groupingId: ID?, limiter: Limiter): Stream<MiraiMemberImpl> {
-        return originalContact.members.stream().map { it.asSimbot(bot) }.withLimiter(limiter)
+        return originalContact.members.stream().map { it.asSimbot(baseBot) }.withLimiter(limiter)
     }
 
     override suspend fun members(groupingId: ID?, limiter: Limiter): Flow<MiraiMemberImpl> {
-        return originalContact.members.asFlow().map { it.asSimbot(bot) }.withLimiter(limiter)
+        return originalContact.members.asFlow().map { it.asSimbot(baseBot) }.withLimiter(limiter)
     }
 
     override suspend fun mute(duration: Duration): Boolean {
