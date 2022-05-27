@@ -30,7 +30,8 @@ dependencies {
     testImplementation(V.Kotlin.Test.Junit.notation)
     testImplementation(V.Kotlinx.Serialization.Json.notation)
     testImplementation(V.Kotlinx.Serialization.Yaml.notation)
-
+    
+    testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
     testImplementation("love.forte.simbot.boot:simboot-core:${P.Simbot.VERSION}")
     testImplementation("love.forte.simbot.boot:simboot-core-spring-boot-starter:${P.Simbot.VERSION}") {
         exclude("org.springframework.boot", "spring-boot-starter-logging")
