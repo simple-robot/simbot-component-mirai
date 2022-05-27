@@ -33,6 +33,8 @@ dependencies {
     
     compileOnly(V.Kotlinx.Serialization.Properties.notation)
     compileOnly(V.Kotlinx.Serialization.Yaml.notation)
+    
+    testImplementation(V.Kotlinx.Serialization.Properties.notation)
     testImplementation(V.Kotlinx.Serialization.Yaml.notation)
     
     testImplementation(V.Simbot.Core.notation)
