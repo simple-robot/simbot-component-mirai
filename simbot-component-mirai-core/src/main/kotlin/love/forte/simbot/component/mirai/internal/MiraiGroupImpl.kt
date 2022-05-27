@@ -45,7 +45,6 @@ internal class MiraiGroupImpl(
     override val originalContact: OriginalMiraiGroup,
     private val initOwner: MiraiMemberImpl? = null
 ) : MiraiGroup {
-    // 不关心线程安全
     private lateinit var memberBot: MiraiGroupMemberBotImpl
     
     override val bot: MiraiGroupMemberBotImpl
@@ -53,7 +52,8 @@ internal class MiraiGroupImpl(
             if (::memberBot.isInitialized) {
                 return memberBot
             }
-            
+    
+            // 不关心线程安全
             return baseBot.toMemberBot(originalContact.botAsMember.asSimbot(baseBot, this)).also {
                 memberBot = it
             }

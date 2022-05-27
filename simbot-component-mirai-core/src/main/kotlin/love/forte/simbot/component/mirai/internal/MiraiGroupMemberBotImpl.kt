@@ -28,7 +28,7 @@ import love.forte.simbot.message.MessageReceipt
 import net.mamoe.mirai.contact.AnonymousMember
 
 /**
- *
+ * [MiraiGroupMemberBot] 实现。应用于 [MiraiGroupImpl.bot].
  * @author ForteScarlet
  */
 internal class MiraiGroupMemberBotImpl(

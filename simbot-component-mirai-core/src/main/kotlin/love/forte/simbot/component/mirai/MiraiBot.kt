@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
@@ -22,6 +23,7 @@ import love.forte.simbot.*
 import love.forte.simbot.Bot
 import love.forte.simbot.component.mirai.message.MiraiImage
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
+import love.forte.simbot.definition.GroupMemberBot
 import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.EventProcessor
@@ -46,6 +48,12 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
  * @author ForteScarlet
  */
 public interface MiraiBot : Bot, UserInfo {
+    
+    /**
+     * 得到自己。
+     */
+    override val bot: MiraiBot
+        get() = this
     
     /**
      * 得到这个Bot所代表的原生mirai bot。
@@ -87,6 +95,11 @@ public interface MiraiBot : Bot, UserInfo {
     
     override val manager: MiraiBotManager
     
+    /**
+     * 得到用户名。
+     *
+     * @see OriginalMiraiBot.nick
+     */
     override val username: String get() = originalBot.nick
     
     // region friend apis
@@ -327,3 +340,36 @@ public interface MiraiBot : Bot, UserInfo {
         }
     }
 }
+
+
+/**
+ * mirai组件中针对于 [GroupMemberBot] 的实现。
+ *
+ * @see GroupMemberBot
+ *
+ */
+@Suppress("UnnecessaryOptInAnnotation")
+public interface MiraiGroupMemberBot : MiraiBot, GroupMemberBot {
+    
+    /**
+     * 得到自己。
+     */
+    override val bot: MiraiBot
+    
+    
+    /**
+     * 得到用户头像。
+     *  @see MiraiBot.avatar
+     */
+    override val avatar: String
+        get() = originalBot.avatarUrl
+    
+    
+    /**
+     * 得到用户名。
+     * @see MiraiBot.username
+     */
+    override val username: String
+        get() = super.username
+}
+
