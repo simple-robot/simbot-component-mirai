@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -48,8 +49,8 @@ internal class MiraiMemberImpl(
 
     override val status: UserStatus =
         when (originalContact) {
-            is AnonymousMember -> AnonymousStatus
-            else -> NormalStatus
+            is AnonymousMember -> AnonymousMemberStatus
+            else -> NormalMemberStatus
         }
 
 
@@ -74,8 +75,8 @@ internal class MiraiMemberImpl(
 
 }
 
-internal val NormalStatus = UserStatus.builder().normal().build()
-internal val AnonymousStatus = UserStatus.builder().anonymous().build()
+internal val NormalMemberStatus = UserStatus.builder().normal().build()
+internal val AnonymousMemberStatus = UserStatus.builder().anonymous().build()
 
 
 internal fun OriginalMiraiMember.asSimbot(bot: MiraiBotImpl): MiraiMemberImpl =

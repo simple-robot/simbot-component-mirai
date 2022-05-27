@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -36,7 +37,7 @@ internal class MiraiFriendImpl(
 ) : MiraiFriend {
 
     override val id = originalContact.id.ID
-    override val status: UserStatus get() = NormalStatus
+    override val status: UserStatus get() = NormalMemberStatus
 
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
         val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))

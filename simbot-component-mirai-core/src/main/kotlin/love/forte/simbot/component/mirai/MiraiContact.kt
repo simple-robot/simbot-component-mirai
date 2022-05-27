@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
@@ -59,7 +60,7 @@ public interface MiraiContact : Contact, MiraiBotContainer, MiraiContactContaine
  * @see MiraiGroup
  */
 public interface MiraiChatroom : ChatRoom, MiraiBotContainer, MiraiContactContainer {
-    override val bot: MiraiBot
+    override val bot: MiraiGroupMemberBot
     override val originalContact: OriginalMiraiGroup
     override val id: LongID
 
