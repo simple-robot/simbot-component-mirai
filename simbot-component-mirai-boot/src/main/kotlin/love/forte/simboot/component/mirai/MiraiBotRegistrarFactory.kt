@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simboot.component.mirai
@@ -25,6 +24,7 @@ import love.forte.simbot.event.EventProcessor
 
 @Deprecated("No longer use")
 public class MiraiBotRegistrarFactory : BotRegistrarFactory {
+    @Suppress("DEPRECATION")
     override fun invoke(processor: EventProcessor): BotRegistrar {
         return miraiBotManager(processor)
     }
