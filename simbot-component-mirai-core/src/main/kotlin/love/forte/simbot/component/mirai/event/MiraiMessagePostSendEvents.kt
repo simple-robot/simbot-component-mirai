@@ -16,13 +16,23 @@
 
 package love.forte.simbot.component.mirai.event
 
+import love.forte.simbot.Api4J
+import love.forte.simbot.SimbotIllegalStateException
 import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
+import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.definition.FriendInfoContainer
 import love.forte.simbot.event.BaseEvent
 import love.forte.simbot.event.BaseEventKey
 import love.forte.simbot.event.FriendMessageEvent
 import love.forte.simbot.event.MessageEvent
+import love.forte.simbot.message.Message
+import love.forte.simbot.message.MessageContent
 import love.forte.simbot.message.doSafeCast
+import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.message.MessageReceipt
+import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.event.events.MessagePostSendEvent as OriginalMiraiMessagePostSendEvent
 
 
@@ -44,10 +54,89 @@ import net.mamoe.mirai.event.events.MessagePostSendEvent as OriginalMiraiMessage
  */
 @BaseEvent
 public interface MiraiMessagePostSendEvent<C : net.mamoe.mirai.contact.Contact, E : OriginalMiraiMessagePostSendEvent<C>> :
-    MiraiSimbotBotEvent<E> {
+    MiraiSimbotBotEvent<E>, MessageEvent {
     override val bot: MiraiBot
-
-
+    
+    
+    /**
+     * 尝试引用回复发送的消息。
+     *
+     * 如果发送失败（[originalEvent] 中的 [receipt][MessageReceipt] 为null）则会抛出 [SimbotIllegalStateException]
+     *
+     * @throws SimbotIllegalStateException 无法引用回复时
+     */
+    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<C> {
+        val quote = originalEvent.receipt?.quote()
+            ?: throw SimbotIllegalStateException("Cannot reply this event: $this: the originalEvent.receipt is null")
+        val target = originalEvent.target
+        val result = target.sendMessage(quote + message.toOriginalMiraiMessage(target))
+        @Suppress("UNCHECKED_CAST")
+        return SimbotMiraiMessageReceiptImpl(result as MessageReceipt<C>)
+    }
+    
+    /**
+     * 尝试引用回复发送的消息。
+     *
+     * 如果发送失败（[originalEvent] 中的 [receipt][MessageReceipt] 为null）则会抛出 [SimbotIllegalStateException]
+     *
+     * @throws SimbotIllegalStateException 无法引用回复时
+     */
+    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<C> {
+        val quote = originalEvent.receipt?.quote()
+            ?: throw SimbotIllegalStateException("Cannot reply this event: $this: the originalEvent.receipt is null")
+        val target = originalEvent.target
+        val result = target.sendMessage(quote + text.toPlainText())
+        @Suppress("UNCHECKED_CAST")
+        return SimbotMiraiMessageReceiptImpl(result as MessageReceipt<C>)
+    }
+    
+    /**
+     * 尝试引用回复发送的消息。
+     *
+     * 如果发送失败（[originalEvent] 中的 [receipt][MessageReceipt] 为null）则会抛出 [SimbotIllegalStateException]
+     *
+     * @throws SimbotIllegalStateException 无法引用回复时
+     */
+    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<C> {
+        return reply(message.messages)
+    }
+    
+    /**
+     * 尝试引用回复发送的消息。
+     *
+     * 如果发送失败（[originalEvent] 中的 [receipt][MessageReceipt] 为null）则会抛出 [SimbotIllegalStateException]
+     *
+     * @throws SimbotIllegalStateException 无法引用回复时
+     */
+    @Api4J
+    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<C> {
+        return runInBlocking { reply(text) }
+    }
+    
+    /**
+     * 尝试引用回复发送的消息。
+     *
+     * 如果发送失败（[originalEvent] 中的 [receipt][MessageReceipt] 为null）则会抛出 [SimbotIllegalStateException]
+     *
+     * @throws SimbotIllegalStateException 无法引用回复时
+     */
+    @Api4J
+    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<C> {
+        return runInBlocking { reply(message) }
+    }
+    
+    /**
+     * 尝试引用回复发送的消息。
+     *
+     * 如果发送失败（[originalEvent] 中的 [receipt][MessageReceipt] 为null）则会抛出 [SimbotIllegalStateException]
+     *
+     * @throws SimbotIllegalStateException 无法引用回复时
+     */
+    @Api4J
+    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<C> {
+        return runInBlocking { reply(message) }
+    }
+    
     public companion object Key : BaseEventKey<MiraiMessagePostSendEvent<*, *>>(
         "mirai.message_post_send", MiraiSimbotBotEvent
     ) {
