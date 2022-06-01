@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
@@ -20,7 +21,6 @@ import love.forte.simbot.Api4J
 import love.forte.simbot.CharSequenceID
 import love.forte.simbot.ID
 import love.forte.simbot.action.DeleteSupport
-import love.forte.simbot.action.MessageReplyReceipt
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.*
@@ -37,35 +37,37 @@ import net.mamoe.mirai.message.MessageReceipt as OriginalMiraiMessageReceipt
  *
  *
  */
-public interface SimbotMiraiMessageReceipt<out C : Contact> : MessageReceipt, MessageReplyReceipt, DeleteSupport,
-    ReplySupport {
+public interface SimbotMiraiMessageReceipt<out C : Contact> : MessageReceipt, DeleteSupport, ReplySupport {
     public val receipt: OriginalMiraiMessageReceipt<C>
-
+    
     @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact>
+    
     @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact>
+    
     @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact>
+    
     @JvmSynthetic
     override suspend fun delete(): Boolean
-
+    
     //// Impl
-
+    
     @Api4J
     override fun deleteBlocking(): Boolean = runInBlocking { delete() }
-
+    
     @Api4J
     override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<Contact> = runInBlocking { reply(text) }
-
+    
     @Api4J
     override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<Contact> = runInBlocking { reply(message) }
-
+    
     @Api4J
     override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<Contact> =
         runInBlocking { reply(message) }
-
-
+    
+    
 }
 
 
@@ -76,12 +78,11 @@ public interface SimbotMiraiMessageReceipt<out C : Contact> : MessageReceipt, Me
  * @author ForteScarlet
  */
 internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
-    override val receipt: OriginalMiraiMessageReceipt<C>
+    override val receipt: OriginalMiraiMessageReceipt<C>,
 ) : SimbotMiraiMessageReceipt<C> {
     override val id: ID = receipt.source.ID
     override val isSuccess: Boolean get() = true
-    override val isReplySuccess: Boolean get() = true
-
+    
     /**
      * 删除/撤回这条消息.
      */
@@ -90,7 +91,7 @@ internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
         receipt.recall()
         return true
     }
-
+    
     @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
@@ -98,14 +99,14 @@ internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
         val newReceipt = receipt.target.sendMessage(quote + sendMessage)
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
-
+    
     @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val newReceipt = receipt.target.sendMessage(quote + text.toPlainText())
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
-
+    
     @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
@@ -143,24 +144,24 @@ public inline fun ID.buildMessageSource(andThen: MessageSourceBuilder.() -> Unit
     val value = toString()
     val elements = value.split(MessageSourceIDConstant.ELEMENT_SEPARATOR)
     require(elements.size == 5) { "The number of elements in the ID must be 5, but ${elements.size}" }
-
+    
     // ids
     val ids = elements[0].splitToSequence(MessageSourceIDConstant.ARRAY_SEPARATOR).map(String::toInt)
-
+    
     // internal ids
     val internalIds = elements[1].splitToSequence(MessageSourceIDConstant.ARRAY_SEPARATOR).map(String::toInt)
-
+    
     // time
     val time = elements[2].toInt()
-
+    
     // botId
     val botId = elements[3].toLong()
-
+    
     // kind
     val kind = MessageSourceKind.values()[(elements[4].toInt())]
-
+    
     return MessageSourceBuilder().id(*ids.toList().toIntArray())
         .internalId(*internalIds.toList().toIntArray())
         .time(time).apply(andThen).build(botId, kind)
-
+    
 }

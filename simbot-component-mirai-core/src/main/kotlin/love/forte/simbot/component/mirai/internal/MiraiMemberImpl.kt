@@ -17,8 +17,6 @@
 
 package love.forte.simbot.component.mirai.internal
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.action.SendSupport
@@ -26,9 +24,10 @@ import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.message.Message
+import love.forte.simbot.utils.item.Items
+import love.forte.simbot.utils.item.Items.Companion.items
 import net.mamoe.mirai.contact.AnonymousMember
 import net.mamoe.mirai.contact.NormalMember
-import java.util.stream.Stream
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 
 
@@ -39,13 +38,12 @@ import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 internal class MiraiMemberImpl(
     override val bot: MiraiBotImpl,
     override val originalContact: OriginalMiraiMember,
-    private val initGroup: MiraiGroupImpl? = null
+    private val initGroup: MiraiGroupImpl? = null,
 ) : MiraiMember, SendSupport {
     override val id: LongID = originalContact.id.ID
 
     override val group: MiraiGroupImpl get() = initGroup ?: originalContact.group.asSimbot(bot)
-    override val roles: Stream<MemberRole> = Stream.of(originalContact.simbotRole)
-    override suspend fun roles(): Flow<MemberRole> = flowOf(originalContact.simbotRole)
+    override val roles: Items<MemberRole> = items(originalContact.simbotRole)
 
     override val status: UserStatus =
         when (originalContact) {

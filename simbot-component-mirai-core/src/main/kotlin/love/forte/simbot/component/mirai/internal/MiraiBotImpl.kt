@@ -18,9 +18,6 @@
 package love.forte.simbot.component.mirai.internal
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import love.forte.simbot.*
@@ -38,12 +35,14 @@ import love.forte.simbot.event.Event
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
 import love.forte.simbot.resources.Resource
+import love.forte.simbot.utils.item.Items
+import love.forte.simbot.utils.item.Items.Companion.asItems
+import love.forte.simbot.utils.item.map
 import net.mamoe.mirai.event.events.NudgeEvent
 import net.mamoe.mirai.supervisorJob
 import net.mamoe.mirai.utils.MiraiExperimentalApi
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
-import java.util.stream.Stream
 import kotlin.time.Duration
 import net.mamoe.mirai.Bot as OriginalMiraiBot
 import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
@@ -172,33 +171,21 @@ internal class MiraiBotImpl(
     
     //// api impls
     
-    
-    override suspend fun friends(limiter: Limiter): Flow<MiraiFriend> {
-        return originalBot.friends.asFlow().map { it.asSimbot(this) }.withLimiter(limiter)
-    }
-    
-    override fun getFriends(): Stream<out MiraiFriend> {
-        return originalBot.friends.stream().map { it.asSimbot(this) }
-    }
-    
-    
-    override suspend fun groups(limiter: Limiter): Flow<MiraiGroup> {
-        return originalBot.groups.asFlow().map { it.asSimbot(this) }.withLimiter(limiter)
-    }
-    
-    override fun getGroups(): Stream<out MiraiGroup> {
-        return originalBot.groups.stream().map { it.asSimbot(this) }.withLimiter(limiter())
-    }
+    override val friends: Items<MiraiFriend>
+        get() = originalBot.friends.asItems().map { it.asSimbot(this) }
     
     
     override fun getFriend(id: ID): MiraiFriend? =
         originalBot.getFriend(id.tryToLongID().number)?.asSimbot(this)
     
+    override suspend fun friend(id: ID): MiraiFriend? = getFriend(id)
+    
+    override val groups: Items<MiraiGroup>
+        get() = originalBot.groups.asItems().map { it.asSimbot(this) }
+    
     override fun getGroup(id: ID): MiraiGroup? =
         originalBot.getGroup(id.tryToLongID().number)?.asSimbot(this)
     
-    
-    override suspend fun friend(id: ID): MiraiFriend? = getFriend(id)
     override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
     
     override fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage {
