@@ -17,19 +17,18 @@
 
 package love.forte.simbot.component.mirai.internal
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.map
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.MiraiGroup
-import love.forte.simbot.component.mirai.MiraiMember
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
+import love.forte.simbot.Api4J
+import love.forte.simbot.ID
+import love.forte.simbot.LongID
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.internal.MiraiGroupMemberBotImpl.Companion.toMemberBot
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
+import love.forte.simbot.tryToLongID
+import love.forte.simbot.utils.item.Items
+import love.forte.simbot.utils.item.Items.Companion.asItems
+import love.forte.simbot.utils.item.map
 import net.mamoe.mirai.contact.getMember
-import java.util.stream.Stream
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
@@ -80,13 +79,12 @@ internal class MiraiGroupImpl(
     
     override val ownerId: LongID get() = owner.id
     
-    override fun getMembers(groupingId: ID?, limiter: Limiter): Stream<MiraiMemberImpl> {
-        return originalContact.members.stream().map { it.asSimbot(baseBot) }.withLimiter(limiter)
-    }
+    override val members: Items<MiraiMember>
+        get() = originalContact.members.asItems().map { it.asSimbot(baseBot) }
     
-    override suspend fun members(groupingId: ID?, limiter: Limiter): Flow<MiraiMemberImpl> {
-        return originalContact.members.asFlow().map { it.asSimbot(baseBot) }.withLimiter(limiter)
-    }
+    
+    override val roles: Items<MemberRole>
+        get() = MemberRole.values().asList().asItems()
     
     override suspend fun mute(duration: Duration): Boolean {
         return baseBot.groupMute(originalContact, duration) != null

@@ -17,14 +17,15 @@
 
 package love.forte.simbot.component.mirai
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import love.forte.simbot.*
+import love.forte.simbot.Api4J
+import love.forte.simbot.ID
+import love.forte.simbot.LongID
+import love.forte.simbot.Timestamp
 import love.forte.simbot.definition.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
+import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.runInBlocking
-import java.util.stream.Stream
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
@@ -35,33 +36,27 @@ import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
  */
 public interface MiraiGroup : Group, MiraiChatroom {
     override val originalContact: OriginalMiraiGroup
-
+    
     override val bot: MiraiGroupMemberBot
     override val id: LongID
-
+    
     /**
      * 群主。
      */
     @OptIn(Api4J::class)
     override val owner: MiraiMember
-
+    
     /**
      * 群主ID。
      */
     override val ownerId: LongID
-
+    
     /**
      * 获取群成员信息流。
      */
-    @JvmSynthetic
-    override suspend fun members(groupingId: ID?, limiter: Limiter): Flow<MiraiMember>
-
-    /**
-     * 获取群成员信息流。
-     */
-    @OptIn(Api4J::class)
-    override fun getMembers(groupingId: ID?, limiter: Limiter): Stream<out MiraiMember>
-
+    override val members: Items<MiraiMember>
+    
+    
     /**
      * 尝试禁言这个群。(即开启全群禁言。)
      *
@@ -77,110 +72,85 @@ public interface MiraiGroup : Group, MiraiChatroom {
      */
     @JvmSynthetic
     override suspend fun unmute(): Boolean
-
+    
     @JvmSynthetic
     override suspend fun member(id: ID): MiraiMember?
-
+    
     /**
      * 向群内发送消息。
      */
     @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-
+    
     /**
      * 向群内发送消息。
      */
     @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-
-
+    
+    
     //// Impl
-
-
+    
+    
     /**
      * 向群内发送消息。
      */
     @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         send(message.messages)
-
+    
     /**
      * 向群内发送消息。
      */
     @Api4J
     override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         runInBlocking { send(text) }
-
+    
     /**
      * 向群内发送消息。
      */
     @Api4J
     override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         runInBlocking { send(message) }
-
+    
     /**
      * 向群内发送消息。
      */
     @Api4J
     override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         runInBlocking { send(message) }
-
-
+    
+    
     /**
      * Mirai中，一个群内可能出现的权限是固定的。
      *
      * @see MemberRole
      */
     @OptIn(Api4J::class)
-    override fun getRoles(groupingId: ID?, limiter: Limiter): Stream<MemberRole> = Stream.of(*MemberRole.values())
-
-    /**
-     * Mirai中，一个群内可能出现的权限是固定的。
-     *
-     * @see MemberRole
-     */
-    @JvmSynthetic
-    override suspend fun roles(groupingId: ID?, limiter: Limiter): Flow<MemberRole> = MemberRole.values().asFlow()
-
+    override val roles: Items<MemberRole> // = Stream.of(*MemberRole.values())
+    
     override val icon: String get() = originalContact.avatarUrl
     override val name: String get() = originalContact.name
     override val createTime: Timestamp get() = Timestamp.NotSupport
     override val currentMember: Int get() = originalContact.members.size
     override val description: String get() = ""
     override val maximumMember: Int get() = -1
-
-
+    
+    
     /**
      * 群主信息。
      */
     @JvmSynthetic
     override suspend fun owner(): MiraiMember = owner
-
-
-    /**
-     * 获取群成员信息流。
-     */
-    @OptIn(Api4J::class)
-    override fun getMembers(groupingId: ID?): Stream<out MiraiMember> = getMembers(groupingId, Limiter)
-
-    /**
-     * 获取群成员信息流。
-     */
-    @OptIn(Api4J::class)
-    override fun getMembers(limiter: Limiter): Stream<out MiraiMember> = getMembers(null, limiter)
-
-    /**
-     * 获取群成员信息流。
-     */
-    @OptIn(Api4J::class)
-    override fun getMembers(): Stream<out MiraiMember> = getMembers(null, Limiter)
-
+    
+    
     /**
      * 根据ID寻找对应群成员。
      */
+    @OptIn(Api4J::class)
     override fun getMember(id: ID): MiraiMember? = runInBlocking { member(id) }
-
-
+    
+    
     /**
      * 群没有“上层”概念。始终得到null。
      */

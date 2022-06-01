@@ -12,11 +12,11 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
 
-import kotlinx.coroutines.flow.Flow
 import love.forte.simbot.Api4J
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
@@ -24,9 +24,9 @@ import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.definition.GroupMember
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
+import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.PermissionDeniedException
-import java.util.stream.Stream
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 import net.mamoe.mirai.contact.NormalMember as OriginalMiraiNormalMember
@@ -44,62 +44,62 @@ import net.mamoe.mirai.contact.NormalMember as OriginalMiraiNormalMember
  * @author ForteScarlet
  */
 public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
-
+    
     override val originalContact: OriginalMiraiMember
-
+    
     override val bot: MiraiBot
     override val id: LongID
-
+    
     @OptIn(Api4J::class)
     override val group: MiraiGroup
-
+    
     /**
      * 向此群成员发送消息。
      */
     @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
+    
     /**
      * 向此群成员发送消息。
      */
     @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
-
+    
+    
     //// Impl
-
-
-    //region send support
+    
+    
+    // region send support
     /**
      * 向此群成员发送消息。
      */
     @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
         send(message.messages)
-
+    
     /**
      * 向此群成员发送消息。
      */
     @Api4J
     override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
         runInBlocking { send(text) }
-
+    
     /**
      * 向此群成员发送消息。
      */
     @Api4J
     override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
         runInBlocking { send(message) }
-
+    
     /**
      * 向此群成员发送消息。
      */
     @Api4J
     override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
         runInBlocking { send(message) }
-    //endregion
-
-
+    // endregion
+    
+    
     /**
      * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
      *
@@ -110,7 +110,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      */
     @JvmSynthetic
     public suspend fun kick(message: String, block: Boolean): Boolean
-
+    
     /**
      * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
      *
@@ -120,7 +120,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      */
     @JvmSynthetic
     public suspend fun kick(message: String): Boolean = kick("", false)
-
+    
     /**
      * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
      *
@@ -131,7 +131,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      */
     @Api4J
     public fun kickBlocking(message: String, block: Boolean): Boolean = runInBlocking { kick(message, block) }
-
+    
     /**
      * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
      *
@@ -141,7 +141,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      */
     @Api4J
     public fun kickBlocking(message: String): Boolean = runInBlocking { kick(message) }
-
+    
     /**
      * 同 [kick], 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
      *
@@ -149,7 +149,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      */
     @JvmSynthetic
     override suspend fun delete(): Boolean = kick("")
-
+    
     /**
      * 同 [kick], 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
      *
@@ -157,39 +157,39 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      */
     @Api4J
     override fun deleteBlocking(): Boolean = runInBlocking { kick("") }
-
-
+    
+    
     @JvmSynthetic
     override suspend fun group(): MiraiGroup = group
-
+    
     @JvmSynthetic
     override suspend fun organization(): MiraiGroup = group
-
+    
     @OptIn(Api4J::class)
     override val organization: MiraiGroup
         get() = group
-
-
+    
+    
     @JvmSynthetic
     override suspend fun mute(duration: Duration): Boolean {
         originalContact.mute(duration.inWholeSeconds.toInt())
         return true
     }
-
+    
     @JvmSynthetic
     override suspend fun unmute(): Boolean {
         originalContact.mute(0)
         return true
     }
-
-    @OptIn(Api4J::class)
-    override val roles: Stream<MemberRole>
-
-    @JvmSynthetic
-    override suspend fun roles(): Flow<MemberRole>
-
+    
+    /**
+     * 当前成员角色所属角色。通常内部只有一个元素。
+     */
+    override val roles: Items<MemberRole>
+    
+    
     //// Impl
-
+    
     override val joinTime: Timestamp get() = Timestamp.NotSupport
     override val nickname: String get() = originalContact.nameCard
     override val avatar: String get() = originalContact.avatarUrl
