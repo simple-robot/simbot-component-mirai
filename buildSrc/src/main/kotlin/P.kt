@@ -56,7 +56,7 @@ sealed class P : SimbotProject() {
             // e.g. 3.0.0.0.preview.1.0
             major = "${Simbot.version.major}.${Simbot.version.minor}",
             minor = 0, patch = 0,
-            status = preview(minor = 8, patch = 0),
+            status = preview(minor = 9, patch = 0),
             isSnapshot = isSnapshot
         )
         const val GROUP = "${Simbot.GROUP}.component"
