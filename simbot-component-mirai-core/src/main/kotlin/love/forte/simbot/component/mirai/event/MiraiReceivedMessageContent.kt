@@ -26,9 +26,11 @@ import love.forte.simbot.message.Messages
 import love.forte.simbot.message.ReceivedMessageContent
 import love.forte.simbot.message.toMessages
 import love.forte.simbot.randomID
+import net.mamoe.mirai.contact.PermissionDeniedException
 import net.mamoe.mirai.event.events.MessagePostSendEvent
 import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.message.data.MessageSource
+import net.mamoe.mirai.message.data.MessageSource.Key.recall
 import net.mamoe.mirai.message.data.SingleMessage
 import net.mamoe.mirai.message.data.sourceOrNull
 import net.mamoe.mirai.event.events.MessageEvent as OriginalMiraiMessageEvent
@@ -81,10 +83,22 @@ public open class MiraiReceivedMessageContent internal constructor(
      *
      */
     override val messageId: ID by lazy(LazyThreadSafetyMode.PUBLICATION) { messageSourceOrNull?.ID ?: randomID() }
-
+    
+    /**
+     * 尝试撤回此消息。
+     *
+     * @throws SimbotIllegalStateException see [messageSource]
+     * @throws PermissionDeniedException see [MessageSource.recall]
+     * @throws IllegalStateException see [MessageSource.recall]
+     *
+     */
+    override suspend fun delete(): Boolean {
+        messageSource.recall()
+        return true
+    }
 
     override fun toString(): String =
-        "MiraiReceivedMessageContent(content=$originalMessageChain,messageSource=$messageSourceOrNull)"
+        "MiraiReceivedMessageContent(content=$originalMessageChain, messageSource=$messageSourceOrNull)"
 }
 
 internal fun MessageChain.toSimbotMessageContent(messageSource: MessageSource? = this.sourceOrNull): MiraiReceivedMessageContent =
