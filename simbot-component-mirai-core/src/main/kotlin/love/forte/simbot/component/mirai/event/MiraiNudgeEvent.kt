@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -22,7 +21,7 @@ import love.forte.simbot.ID
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.toMessage
-import love.forte.simbot.definition.Objectives
+import love.forte.simbot.definition.Objective
 import love.forte.simbot.event.*
 import love.forte.simbot.message.*
 import love.forte.simbot.randomID
@@ -65,14 +64,14 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
      * 如果来自群聊，则为 [MiraiGroup].
      */
     @OptIn(Api4J::class)
-    override val source: Objectives
+    override val source: Objective
 
     /**
      * 发送这个戳一戳的源头。如果来自私聊，则可能是 [MiraiFriend]、[MiraiStranger]、[MiraiMember],
      * 如果来自群聊，则为 [MiraiGroup].
      */
     @JvmSynthetic
-    override suspend fun source(): Objectives = source
+    override suspend fun source(): Objective = source
 
     //// apis
 
@@ -149,11 +148,29 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
 
 /**
  * 针对于 [戳一戳事件][MiraiNudgeEvent] 所使用的 [ReceivedMessageContent] 实现。
+ *
+ * [MiraiReceivedNudgeMessageContent] 来源于戳一戳事件，戳一戳事件不支持撤回，
+ * [MiraiReceivedNudgeMessageContent.delete] 将会始终返回 `false`。
+ *
  */
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
 public class MiraiReceivedNudgeMessageContent(public val nudgeEvent: NudgeEvent) : ReceivedMessageContent() {
-    override val messages: Messages = nudgeEvent.toMessage().toMessages()
     override val messageId: ID = randomID()
+    override val messages: Messages = nudgeEvent.toMessage().toMessages()
+    
+    /**
+     * 戳一戳事件不支持撤回，[delete] 将会始终返回 `false`。
+     */
+    override suspend fun delete(): Boolean = false
+    
+    
+    /**
+     * 戳一戳事件不支持撤回，[delete][deleteBlocking] 将会始终返回 `false`。
+     */
+    @Api4J
+    override fun deleteBlocking(): Boolean {
+        return false
+    }
 }
 
 
@@ -211,18 +228,6 @@ public interface MiraiGroupNudgeEvent : MiraiNudgeEvent, GroupMessageEvent {
      */
     @JvmSynthetic
     override suspend fun author(): MiraiMember
-
-    /**
-     * 戳一戳消息无法撤回，始终返回false。
-     */
-    @JvmSynthetic
-    override suspend fun delete(): Boolean = false
-
-    /**
-     * 戳一戳消息无法撤回，始终返回false。
-     */
-    @Api4J
-    override fun deleteBlocking(): Boolean = false
 
 
     override val key: Event.Key<out MiraiGroupNudgeEvent> get() = Key
