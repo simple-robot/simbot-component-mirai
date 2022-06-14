@@ -165,8 +165,11 @@ tasks.create("createChangelog") {
         if (!file.exists()) {
             file.createNewFile()
             val simbotVersion = P.Simbot.version.fullVersion(false)
+            val miraiVersion = V.Mirai.VERSION
             val autoGenerateText = """
                 > 对应核心版本: [v$simbotVersion](https://github.com/ForteScarlet/simpler-robot/releases/tag/v$simbotVersion)
+                >
+                > 对应[**mirai**](https://github.com/mamoe/mirai)版本: [$miraiVersion](https://github.com/ForteScarlet/simpler-robot/releases/tag/$miraiVersion)
                 
                 
 
