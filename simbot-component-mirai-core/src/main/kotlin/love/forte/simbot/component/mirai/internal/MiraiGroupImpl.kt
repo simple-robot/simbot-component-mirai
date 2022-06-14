@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -21,7 +20,7 @@ import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.component.mirai.*
-import love.forte.simbot.component.mirai.internal.MiraiGroupMemberBotImpl.Companion.toMemberBot
+import love.forte.simbot.component.mirai.internal.MiraiGroupBotImpl.Companion.getGroupBot
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
 import love.forte.simbot.tryToLongID
@@ -42,16 +41,16 @@ internal class MiraiGroupImpl(
     override val originalContact: OriginalMiraiGroup,
     private val initOwner: MiraiMemberImpl? = null,
 ) : MiraiGroup {
-    private lateinit var memberBot: MiraiGroupMemberBotImpl
+    private lateinit var memberBot: MiraiGroupBotImpl
     
-    override val bot: MiraiGroupMemberBotImpl
+    override val bot: MiraiGroupBotImpl
         get() {
             if (::memberBot.isInitialized) {
                 return memberBot
             }
             
             // 不关心线程安全
-            return baseBot.toMemberBot(originalContact.botAsMember.asSimbot(baseBot, this)).also {
+            return getGroupBot(baseBot).also {
                 memberBot = it
             }
         }

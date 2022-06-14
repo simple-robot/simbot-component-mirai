@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -38,6 +37,15 @@ public interface MiraiContactContainer {
     public val originalContact: OriginalMiraiContact
 }
 
+/**
+ * mirai的原生 [OriginalMiraiContact] 类型在simbot中的基本类型。
+ *
+ * 是 [MiraiContact] 与 [MiraiChatroom] 父类型。通常使用目标类型在这两者中都可能的情况下。
+ *
+ * @see MiraiContact
+ * @see MiraiChatroom
+ */
+public interface MiraiContactObjective : MiraiBotContainer, MiraiContactContainer
 
 /**
  * [Contact] 对应Mirai的 [联系人][OriginalMiraiContact] 类型。
@@ -46,12 +54,12 @@ public interface MiraiContactContainer {
  *
  * @see MiraiFriend
  * @see MiraiMember
+ * @see MiraiStranger
  */
-public interface MiraiContact : Contact, MiraiBotContainer, MiraiContactContainer {
+public interface MiraiContact : Contact, MiraiContactObjective {
+    override val id: LongID
     override val bot: MiraiBot
     override val originalContact: OriginalMiraiContact
-    override val id: LongID
-
 }
 
 /**
@@ -59,10 +67,10 @@ public interface MiraiContact : Contact, MiraiBotContainer, MiraiContactContaine
  *
  * @see MiraiGroup
  */
-public interface MiraiChatroom : ChatRoom, MiraiBotContainer, MiraiContactContainer {
-    override val bot: MiraiGroupMemberBot
-    override val originalContact: OriginalMiraiGroup
+public interface MiraiChatroom : ChatRoom, MiraiContactObjective {
     override val id: LongID
+    override val bot: MiraiGroupBot
+    override val originalContact: OriginalMiraiGroup
 
 
 }
