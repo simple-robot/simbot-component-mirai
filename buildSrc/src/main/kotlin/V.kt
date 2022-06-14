@@ -70,7 +70,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
     sealed class Kotlin(id: String) :
         V("org.jetbrains.kotlin", "kotlin-$id", VERSION) {
         companion object {
-            const val VERSION = "1.6.0"
+            const val VERSION = "1.6.21"
         }
 
         sealed class Stdlib(id: String) : Kotlin(id = "stdlib-$id") {
@@ -242,7 +242,6 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
             const val MINOR = 10
             const val PATCH = 1
             const val VERSION = "$MAJOR.$MINOR.$PATCH"
-            val VERSION_SIM = "2${MINOR.toVersionStr()}${PATCH.toVersionStr()}" // VERSION.replace(".", "")
         }
 
         object CoreJvm : Mirai("net.mamoe", "mirai-core-jvm")
