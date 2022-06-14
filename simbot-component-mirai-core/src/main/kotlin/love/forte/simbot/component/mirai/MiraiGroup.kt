@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -37,7 +36,7 @@ import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 public interface MiraiGroup : Group, MiraiChatroom {
     override val originalContact: OriginalMiraiGroup
     
-    override val bot: MiraiGroupMemberBot
+    override val bot: MiraiGroupBot
     override val id: LongID
     
     /**

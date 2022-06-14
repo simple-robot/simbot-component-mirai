@@ -70,7 +70,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
     sealed class Kotlin(id: String) :
         V("org.jetbrains.kotlin", "kotlin-$id", VERSION) {
         companion object {
-            const val VERSION = "1.6.0"
+            const val VERSION = "1.6.21"
         }
 
         sealed class Stdlib(id: String) : Kotlin(id = "stdlib-$id") {
@@ -108,7 +108,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
         // https://github.com/Kotlin/kotlinx.coroutines
         sealed class Coroutines(id: String) : Kotlinx(id = "coroutines-$id", VERSION, true) {
             companion object {
-                const val VERSION = "1.5.2-native-mt"
+                const val VERSION = "1.6.2"
             }
 
             // https://github.com/Kotlin/kotlinx.coroutines/blob/master/kotlinx-coroutines-core/README.md
@@ -157,7 +157,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
         // https://github.com/Kotlin/kotlinx.serialization
         sealed class Serialization(id: String) : Kotlinx(id = "serialization-$id", VERSION, true) {
             companion object {
-                const val VERSION = "1.3.1"
+                const val VERSION = "1.3.3"
             }
 
             object Core : Serialization("core")
@@ -176,7 +176,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
         companion object {
             // NoSuchMethodError: java.nio.ByteBuffer.limit(I)Ljava/nio/ByteBuffer;
             // https://youtrack.jetbrains.com/issue/KTOR-3358
-            const val VERSION = "1.6.4" // 1.6.6
+            const val VERSION = "1.6.7" // 1.6.6
         }
 
         // server
@@ -239,10 +239,9 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
     sealed class Mirai(group: String, id: String, version: String = VERSION) : V(group, id, version) {
         companion object {
             const val MAJOR = 2
-            const val MINOR = 10
+            const val MINOR = 11
             const val PATCH = 1
             const val VERSION = "$MAJOR.$MINOR.$PATCH"
-            val VERSION_SIM = "2${MINOR.toVersionStr()}${PATCH.toVersionStr()}" // VERSION.replace(".", "")
         }
 
         object CoreJvm : Mirai("net.mamoe", "mirai-core-jvm")

@@ -17,7 +17,9 @@
 package love.forte.simbot.component.mirai
 
 import love.forte.simbot.Api4J
+import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.definition.Contact
+import love.forte.simbot.definition.Stranger
 import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
@@ -29,7 +31,7 @@ import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
  * Mirai的陌生人对象实例。
  * @author ForteScarlet
  */
-public interface MiraiStranger : Contact, MiraiContact {
+public interface MiraiStranger : Contact, Stranger, MiraiContact {
 
     override val bot: MiraiBot
     override val originalContact: OriginalMiraiStranger
@@ -37,6 +39,7 @@ public interface MiraiStranger : Contact, MiraiContact {
     override val avatar: String
         get() = originalContact.avatarUrl
 
+    @ExperimentalSimbotApi
     override val status: UserStatus
         get() = strangerStatus
 
@@ -81,5 +84,5 @@ public interface MiraiStranger : Contact, MiraiContact {
     override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
 }
 
-
+@ExperimentalSimbotApi
 private val strangerStatus = UserStatus.builder().normal().build()
