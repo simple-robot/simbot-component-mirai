@@ -27,6 +27,20 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.read
 import kotlin.concurrent.write
 
+/**
+ * 由组件所提供的 [MiraiRecallMessageCacheStrategy] 标准实现类型。
+ *
+ * ## 更多标准策略?
+ * [StandardMiraiRecallMessageCacheStrategy] 的实现应当拥有明确且泛用的适用场景、不应需要额外依赖、不会过于复杂且庞大。
+ *
+ * 如果您有符合上述条件的策略实现需求，可以通过 [Pull requests](https://github.com/simple-robot/simbot-component-mirai/pulls)
+ * 贡献您的方案。
+ *
+ * @see InvalidMiraiRecallMessageCacheStrategy
+ * @see MemoryLruMiraiRecallMessageCacheStrategy
+ */
+public interface StandardMiraiRecallMessageCacheStrategy : MiraiRecallMessageCacheStrategy
+
 
 /**
  * [MiraiRecallMessageCacheStrategy] 的最简实现，无效的缓存策略，即**不进行缓存**。
@@ -37,7 +51,7 @@ import kotlin.concurrent.write
  * [InvalidMiraiRecallMessageCacheStrategy] 将是 [MiraiBotConfiguration] 的默认策略。
  *
  */
-public object InvalidMiraiRecallMessageCacheStrategy : MiraiRecallMessageCacheStrategy {
+public object InvalidMiraiRecallMessageCacheStrategy : StandardMiraiRecallMessageCacheStrategy {
     override fun cacheGroupMessageEvent(bot: MiraiBot, event: GroupMessageEvent) {
         // do nothing
     }
@@ -73,7 +87,7 @@ public object InvalidMiraiRecallMessageCacheStrategy : MiraiRecallMessageCacheSt
 public class MemoryLruMiraiRecallMessageCacheStrategy(
     private val groupMaxSize: Int = DEFAULT_GROUP_MAX_SIZE,
     private val friendMaxSize: Int = DEFAULT_FRIEND_MAX_SIZE,
-) : MiraiRecallMessageCacheStrategy {
+) : StandardMiraiRecallMessageCacheStrategy {
     private val caches = ConcurrentHashMap<Long, BotCacheSegment>()
     
     private fun MiraiBot.getCacheSegment(): BotCacheSegment {

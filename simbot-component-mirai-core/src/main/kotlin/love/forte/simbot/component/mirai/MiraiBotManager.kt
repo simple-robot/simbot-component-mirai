@@ -586,6 +586,8 @@ public data class MiraiBotVerifyInfoConfiguration(
     
     /**
      * 使用的消息撤回缓存策略类型。
+     *
+     * @see StandardMiraiRecallMessageCacheStrategy
      */
     @Serializable(RecallMessageCacheStrategyTypeSerializer::class)
     public enum class RecallMessageCacheStrategyType(public val strategy: () -> MiraiRecallMessageCacheStrategy) {
@@ -597,7 +599,10 @@ public data class MiraiBotVerifyInfoConfiguration(
         /**
          * 使用 [MemoryLruMiraiRecallMessageCacheStrategy]
          */
-        MEMORY({ MemoryLruMiraiRecallMessageCacheStrategy() })
+        MEMORY({ MemoryLruMiraiRecallMessageCacheStrategy() }),
+        
+        // 想要更多实现? see StandardMiraiRecallMessageCacheStrategy
+        
     }
     
     
