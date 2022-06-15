@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -66,59 +65,4 @@ public interface MiraiRecallMessageCacheStrategy {
     public fun invokeOnBotCompletion(bot: MiraiBot, cause: Throwable?)
     
 }
-
-
-/**
- * 用于构建 [MiraiRecallMessageCacheStrategy] 的工厂。使用在 [MiraiBotManager.register]
- * 通过 [MiraiBotVerifyInfoConfiguration] 进行配置的时候。
- *
- * 实现类需要保证能够通过 **公开无参构造** 进行实例化。
- *
- */
-public interface MiraiRecallMessageCacheStrategyFactory {
-    
-    /**
-     * 得到一个 [MiraiRecallMessageCacheStrategy] 实例。
-     */
-    public val strategy: MiraiRecallMessageCacheStrategy
-    
-}
-
-
-/**
- * [MiraiRecallMessageCacheStrategy] 的最简实现，无效的缓存策略，即**不进行缓存**。
- *
- * [InvalidMiraiRecallMessageCacheStrategy] 是处理最快的缓存策略，
- * 但使用后无法再从撤回事件中得到 [撤回的消息内容][love.forte.simbot.component.mirai.event.MiraiMessageRecallEvent.messages]。
- *
- * [InvalidMiraiRecallMessageCacheStrategy] 将是 [MiraiBotConfiguration] 的默认策略。
- *
- */
-public object InvalidMiraiRecallMessageCacheStrategy : MiraiRecallMessageCacheStrategy {
-    override fun cacheGroupMessageEvent(bot: MiraiBot, event: GroupMessageEvent) {
-        // do nothing
-    }
-    
-    override fun cacheFriendMessageEvent(bot: MiraiBot, event: FriendMessageEvent) {
-        // do nothing
-    }
-    
-    override fun getGroupMessageCache(bot: MiraiBot, event: MessageRecallEvent.GroupRecall): MessageChain? {
-        return null
-    }
-    
-    override fun getFriendMessageCache(bot: MiraiBot, event: MessageRecallEvent.FriendRecall): MessageChain? {
-        return null
-    }
-    
-    override fun invokeOnBotCompletion(bot: MiraiBot, cause: Throwable?) {
-        // nothing.
-    }
-}
-
-
-
-
-
-
 

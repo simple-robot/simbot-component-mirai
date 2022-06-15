@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -451,11 +450,32 @@ public data class MiraiBotVerifyInfoConfiguration(
          */
         @SerialName("contactListCache")
         val contactListCacheConfiguration: ContactListCacheConfiguration = ContactListCacheConfiguration(),
-        
-        
+
+        /**
+         * 是否开启登录缓存。
+         * @see BotConfiguration.loginCacheEnabled
+         */
         val loginCacheEnabled: Boolean = BotConfiguration.Default.loginCacheEnabled,
-        
+
+        /**
+         * 是否处理接受到的特殊换行符, 默认为 true
+         * @see BotConfiguration.convertLineSeparator
+         */
         val convertLineSeparator: Boolean = BotConfiguration.Default.convertLineSeparator,
+        
+        ///////////// simbot config
+        /**
+         * 消息撤回缓存策略。默认为 [RecallMessageCacheStrategyType.INVALID]。
+         *
+         * ```json
+         * {
+         *   "recallMessageCacheStrategy": "INVALID"
+         * }
+         * ```
+         *
+         */
+        val recallMessageCacheStrategy: RecallMessageCacheStrategyType = RecallMessageCacheStrategyType.INVALID,
+        
     ) {
         
         
@@ -554,11 +574,30 @@ public data class MiraiBotVerifyInfoConfiguration(
             LoggerFactory.getLogger(name).asMiraiLogger()
         }
         
+
+        
+        
         public companion object {
             
             @JvmField
             public val DEFAULT: Config = Config()
         }
+    }
+    
+    /**
+     * 使用的消息撤回缓存策略类型。
+     */
+    @Serializable(RecallMessageCacheStrategyTypeSerializer::class)
+    public enum class RecallMessageCacheStrategyType(public val strategy: () -> MiraiRecallMessageCacheStrategy) {
+        /**
+         * 使用 [InvalidMiraiRecallMessageCacheStrategy].
+         *
+         */
+        INVALID({ InvalidMiraiRecallMessageCacheStrategy }),
+        /**
+         * 使用 [MemoryLruMiraiRecallMessageCacheStrategy]
+         */
+        MEMORY({ MemoryLruMiraiRecallMessageCacheStrategy() })
     }
     
     
@@ -612,7 +651,16 @@ public data class MiraiBotVerifyInfoConfiguration(
     }
     
     
-    public val simbotBotConfiguration: MiraiBotConfiguration get() = TODO()
+    public val simbotBotConfiguration: MiraiBotConfiguration get() {
+        
+        return MiraiBotConfiguration(
+            config.recallMessageCacheStrategy.strategy(),
+        ).apply {
+            botConfiguration {
+                miraiBotConfiguration(this)
+            }
+        }
+    }
     
     
 }
@@ -661,101 +709,6 @@ internal class HeartbeatStrategySerializer : EnumStringSerializer<BotConfigurati
 internal class MiraiProtocolSerializer :
     EnumStringSerializer<BotConfiguration.MiraiProtocol>("MiraiProtocol", BotConfiguration.MiraiProtocol::valueOf)
 
-@FragileSimbotApi
-@Serializable
-public data class SimpleDeviceInfo(
-    public val display: String,
-    public val product: String,
-    public val device: String,
-    public val board: String,
-    public val brand: String,
-    public val model: String,
-    public val bootloader: String,
-    public val fingerprint: String,
-    public val bootId: String,
-    public val procVersion: String,
-    public val baseBand: String,
-    public val version: Version,
-    public val simInfo: String,
-    public val osType: String,
-    public val macAddress: String,
-    public val wifiBSSID: String,
-    public val wifiSSID: String,
-    public val imsiMd5: String,
-    public val imei: String,
-    public val apn: String,
-) {
-    @Serializable
-    @FragileSimbotApi
-    public data class Version(
-        public val incremental: String = "5891938",
-        public val release: String = "10",
-        public val codename: String = "REL",
-        public val sdk: Int = 29,
-    )
-}
-
-@FragileSimbotApi
-public fun SimpleDeviceInfo.Version.toVersion(): DeviceInfo.Version = DeviceInfo.Version(
-    incremental = incremental.toByteArray(),
-    release = release.toByteArray(),
-    codename = codename.toByteArray(),
-    sdk = 0
-)
-
-@FragileSimbotApi
-public fun SimpleDeviceInfo.toDeviceInfo(): DeviceInfo = DeviceInfo(
-    display = display.toByteArray(),
-    product = product.toByteArray(),
-    device = device.toByteArray(),
-    board = board.toByteArray(),
-    brand = brand.toByteArray(),
-    model = model.toByteArray(),
-    bootloader = bootloader.toByteArray(),
-    fingerprint = fingerprint.toByteArray(),
-    bootId = bootId.toByteArray(),
-    procVersion = procVersion.toByteArray(),
-    baseBand = baseBand.toByteArray(),
-    version = version.toVersion(),
-    simInfo = simInfo.toByteArray(),
-    osType = osType.toByteArray(),
-    macAddress = macAddress.toByteArray(),
-    wifiBSSID = wifiBSSID.toByteArray(),
-    wifiSSID = wifiSSID.toByteArray(),
-    imsiMd5 = imsiMd5.toByteArray(),
-    imei = imei,
-    apn = apn.toByteArray()
-)
-
-
-@FragileSimbotApi
-public fun DeviceInfo.Version.toSimple(): SimpleDeviceInfo.Version = SimpleDeviceInfo.Version(
-    incremental = incremental.decodeToString(),
-    release = release.decodeToString(),
-    codename = codename.decodeToString(),
-    sdk = 0
-)
-
-@FragileSimbotApi
-public fun DeviceInfo.toSimple(): SimpleDeviceInfo = SimpleDeviceInfo(
-    display = display.decodeToString(),
-    product = product.decodeToString(),
-    device = device.decodeToString(),
-    board = board.decodeToString(),
-    brand = brand.decodeToString(),
-    model = model.decodeToString(),
-    bootloader = bootloader.decodeToString(),
-    fingerprint = fingerprint.decodeToString(),
-    bootId = bootId.decodeToString(),
-    procVersion = procVersion.decodeToString(),
-    baseBand = baseBand.decodeToString(),
-    version = version.toSimple(),
-    simInfo = simInfo.decodeToString(),
-    osType = osType.decodeToString(),
-    macAddress = macAddress.decodeToString(),
-    wifiBSSID = wifiBSSID.decodeToString(),
-    wifiSSID = wifiSSID.decodeToString(),
-    imsiMd5 = imsiMd5.decodeToString(),
-    imei = imei,
-    apn = apn.decodeToString()
-)
+@OptIn(InternalApi::class)
+internal class RecallMessageCacheStrategyTypeSerializer :
+        EnumStringSerializer<MiraiBotVerifyInfoConfiguration.RecallMessageCacheStrategyType>("RecallMessageCacheStrategyType", MiraiBotVerifyInfoConfiguration.RecallMessageCacheStrategyType::valueOf)
