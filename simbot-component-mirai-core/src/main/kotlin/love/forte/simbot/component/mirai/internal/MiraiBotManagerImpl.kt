@@ -179,9 +179,9 @@ internal class MiraiBotManagerImpl(
     }
     
     override fun toString(): String {
-        return "MiraiBotManager@${hashCode()}(bots=${
+        return "MiraiBotManager(bots=${
             botCache.keys().asSequence().joinToString(", ", prefix = "[", postfix = "]")
-        }, isActive=$isActive, eventProcessor$eventProcessor)"
+        }, isActive=$isActive, eventProcessor$eventProcessor)@${hashCode()}"
     }
     
 }
