@@ -92,45 +92,55 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         
         val password = configuration.password
         if (password != null) {
-            return register(configuration.code, password = password, configuration.miraiBotConfiguration)
+            return register(
+                configuration.code,
+                password = password,
+                configuration.simbotBotConfiguration,
+            )
         }
         val passwordMD5 = configuration.passwordMD5
             ?: throw VerifyFailureException("One of the [password] or [passwordMD5] must exist")
         
-        return register(configuration.code, passwordMD5 = hex(passwordMD5), configuration.miraiBotConfiguration)
+        return register(
+            configuration.code,
+            passwordMD5 = hex(passwordMD5),
+            configuration.simbotBotConfiguration,
+        )
     }
     
     /**
      * 注册一个Bot。
      *
-     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration], 包括其中的设备信息配置、logger配置等。
+     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 包括其中的设备信息配置、logger配置等。
      *
      * @param code 账号
      * @param password 密码
-     * @param configuration mirai bot 配置
+     * @param configuration simbot中的bot配置类
      */
-    public abstract fun register(code: Long, password: String, configuration: BotConfiguration): MiraiBot
+    public abstract fun register(code: Long, password: String, configuration: MiraiBotConfiguration): MiraiBot
+    
     
     /**
      * 注册一个Bot。
      * @param code 账号
      * @param password 密码
      */
-    @OptIn(InternalApi::class)
     public fun register(code: Long, password: String): MiraiBot =
-        register(code, password, MiraiBotVerifyInfoConfiguration(code, password = password).miraiBotConfiguration)
+        register(code, password, MiraiBotConfiguration())
     
     
     /**
      * 注册一个Bot。
      *
-     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration], 包括其中的设备信息配置、logger配置等。
+     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 包括其中的设备信息配置、logger配置等。
      *
      * @param code 账号
      * @param passwordMD5 密码的MD5字节数组
-     * @param configuration mirai bot 配置
+     * @param configuration simbot bot 配置
      */
-    public abstract fun register(code: Long, passwordMD5: ByteArray, configuration: BotConfiguration): MiraiBot
+    public abstract fun register(code: Long, passwordMD5: ByteArray, configuration: MiraiBotConfiguration): MiraiBot
     
     /**
      * 注册一个Bot。
@@ -139,39 +149,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param passwordMD5 密码的MD5字节数组
      */
     public fun register(code: Long, passwordMD5: ByteArray): MiraiBot =
-        register(code, passwordMD5, BotConfiguration.Default)
-    
-    
-    /**
-     * 注册一个Bot。
-     *
-     * 此函数构建 [MiraiBot] 时所使用的初始化配置类 [configuration] 会提前准备好simbot组件中的特殊配置, 包括其中的设备信息配置、logger配置等。
-     *
-     * @param code 账号
-     * @param password 密码
-     * @param configuration mirai bot 配置
-     */
-    public abstract fun register(
-        code: Long,
-        password: String,
-        configuration: BotFactory.BotConfigurationLambda,
-    ): MiraiBot
-    
-    
-    /**
-     * 注册一个Bot。
-     *
-     * 此函数构建 [MiraiBot] 时所使用的初始化配置类 [configuration] 会提前准备好simbot组件中的特殊配置, 包括其中的设备信息配置、logger配置等。
-     *
-     * @param code 账号
-     * @param passwordMD5 密码的MD5字节数组
-     * @param configuration mirai bot 配置
-     */
-    public abstract fun register(
-        code: Long,
-        passwordMD5: ByteArray,
-        configuration: BotFactory.BotConfigurationLambda,
-    ): MiraiBot
+        register(code, passwordMD5, MiraiBotConfiguration())
     
     
     /**
@@ -240,7 +218,7 @@ public interface MiraiBotManagerConfiguration {
     public fun register(
         code: Long,
         password: String,
-        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda {},
+        configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit = {},
     )
     
@@ -255,9 +233,45 @@ public interface MiraiBotManagerConfiguration {
     public fun register(
         code: Long,
         passwordMd5: ByteArray,
-        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda {},
+        configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit = {},
     )
+    
+    /**
+     * 注册一个mirai bot.
+     *
+     * 从此处注册bot将会早于通过 [ApplicationBuilder.bots] 中进行全局注册的bot被执行。
+     *
+     * @param code 账号
+     * @param password 密码
+     * @param configuration simbot组件的 bot 注册所需要的配置类。
+     * @param onBot 当bot被注册后执行函数。
+     */
+    public fun register(
+        code: Long,
+        password: String,
+        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda {},
+        onBot: suspend (bot: MiraiBot) -> Unit = {},
+    ) {
+        register(code, password, MiraiBotConfiguration().botConfiguration(configuration), onBot)
+    }
+    
+    /**
+     * 注册一个mirai bot.
+     *
+     * @param code 账号
+     * @param passwordMd5 密码的md5数据
+     * @param configuration mirai的 bot 注册所需要的配置类。
+     * @param onBot 当bot被注册后执行函数。
+     */
+    public fun register(
+        code: Long,
+        passwordMd5: ByteArray,
+        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda {},
+        onBot: suspend (bot: MiraiBot) -> Unit = {},
+    ) {
+        register(code, passwordMd5, MiraiBotConfiguration().botConfiguration(configuration), onBot)
+    }
 }
 
 
@@ -291,7 +305,7 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
     override fun register(
         code: Long,
         password: String,
-        configuration: BotFactory.BotConfigurationLambda,
+        configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit,
     ) {
         newProcessor { manager -> onBot(manager.register(code, password, configuration)) }
@@ -301,13 +315,10 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
     override fun register(
         code: Long,
         passwordMd5: ByteArray,
-        configuration: BotFactory.BotConfigurationLambda,
+        configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit,
     ) {
         newProcessor { manager -> onBot(manager.register(code, passwordMd5, configuration)) }
-        // botManagerProcessors.add { manager ->
-        //     onBot(manager.register(code, passwordMd5, configuration))
-        // }
     }
     
     suspend fun useBotManager(botManager: MiraiBotManager) {
@@ -491,8 +502,8 @@ public data class MiraiBotVerifyInfoConfiguration(
         /**
          * 将当前配置的信息转化为 [MiraiBotConfiguration][BotConfiguration] 实例。
          */
-        val miraiBotConfiguration: BotConfiguration
-            get() = BotConfiguration().also {
+        public fun miraiBotConfiguration(initial: BotConfiguration): BotConfiguration {
+            return initial.also {
                 it.workingDir = workingDir
                 it.heartbeatPeriodMillis = heartbeatPeriodMillis
                 it.statHeartbeatPeriodMillis = statHeartbeatPeriodMillis
@@ -515,6 +526,7 @@ public data class MiraiBotVerifyInfoConfiguration(
                 it.loginCacheEnabled = loginCacheEnabled
                 it.convertLineSeparator = convertLineSeparator
             }
+        }
         
         
         private fun Json.readFileDeviceInfo(path: Path): DeviceInfo {
@@ -553,7 +565,8 @@ public data class MiraiBotVerifyInfoConfiguration(
     /**
      * 通过 [config] 构建一个 [MiraiBotConfiguration][BotConfiguration].
      */
-    public val miraiBotConfiguration: BotConfiguration get() = config.miraiBotConfiguration
+    public fun miraiBotConfiguration(initial: BotConfiguration): BotConfiguration =
+        config.miraiBotConfiguration(initial)
     
     
     /**
@@ -597,6 +610,9 @@ public data class MiraiBotVerifyInfoConfiguration(
             public val DEFAULT: ContactListCacheConfiguration = ContactListCacheConfiguration()
         }
     }
+    
+    
+    public val simbotBotConfiguration: MiraiBotConfiguration get() = TODO()
     
     
 }

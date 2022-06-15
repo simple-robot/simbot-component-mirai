@@ -36,11 +36,11 @@ import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 internal class MiraiMemberImpl(
     override val bot: MiraiBotImpl,
     override val originalContact: OriginalMiraiMember,
-    private val initGroup: MiraiGroupImpl? = null,
+    initGroup: MiraiGroupImpl? = null,
 ) : MiraiMember, SendSupport {
     override val id: LongID = originalContact.id.ID
 
-    override val group: MiraiGroupImpl get() = initGroup ?: originalContact.group.asSimbot(bot)
+    override val group: MiraiGroupImpl = initGroup ?: originalContact.group.asSimbot(bot)
     override val roles: Items<MemberRole> = items(originalContact.simbotRole)
     
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> {

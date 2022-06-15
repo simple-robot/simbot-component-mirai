@@ -36,6 +36,7 @@ import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.asItems
 import love.forte.simbot.utils.item.effectedSequenceItems
 import love.forte.simbot.utils.item.map
+import net.mamoe.mirai.event.events.MessageRecallEvent
 import net.mamoe.mirai.event.events.NudgeEvent
 import net.mamoe.mirai.supervisorJob
 import net.mamoe.mirai.utils.MiraiExperimentalApi
@@ -98,9 +99,12 @@ internal class MiraiBotImpl(
     override val manager: MiraiBotManagerImpl,
     override val eventProcessor: EventProcessor,
     override val component: Component,
+    configuration: MiraiBotConfiguration
 ) : MiraiBot {
     override val logger: Logger = LoggerFactory.getLogger("love.forte.simbot.mirai.bot.${originalBot.id}")
     override val id: LongID = originalBot.id.ID
+    
+    internal val recallMessageCacheStrategy: MiraiRecallMessageCacheStrategy = configuration.recallCacheStrategy
     
     override fun isMe(id: ID): Boolean {
         return when (id) {
@@ -304,6 +308,8 @@ private fun MiraiBotImpl.registerEvents() {
             // region Message events
             // friend message
             is OriginalMiraiFriendMessageEvent -> {
+                recallMessageCacheStrategy.cacheFriendMessageEvent(this@registerEvents, this)
+                
                 // 临时处理，不接受friend为bot自己的消息
                 // fix in 2.9.2
                 if (this.sender.id != bot.id) {
@@ -316,8 +322,11 @@ private fun MiraiBotImpl.registerEvents() {
             is OriginalMiraiStrangerMessageEvent ->
                 doHandler(this, MiraiStrangerMessageEvent) { MiraiStrangerMessageEventImpl(this@registerEvents, this) }
             // group message
-            is OriginalMiraiGroupMessageEvent ->
+            is OriginalMiraiGroupMessageEvent -> {
+                recallMessageCacheStrategy.cacheGroupMessageEvent(this@registerEvents, this)
+    
                 doHandler(this, MiraiGroupMessageEvent) { MiraiGroupMessageEventImpl(this@registerEvents, this) }
+            }
             // group temp message
             is OriginalMiraiGroupTempMessageEvent ->
                 doHandler(this, MiraiMemberMessageEvent) { MiraiMemberMessageEventImpl(this@registerEvents, this) }
@@ -533,7 +542,20 @@ private fun MiraiBotImpl.registerEvents() {
                         }
                     }
                 }
-                
+            }
+            
+            // 撤回消息
+            is MessageRecallEvent -> {
+                when (this) {
+                    is MessageRecallEvent.GroupRecall ->
+                        doHandler(this, MiraiGroupMessageRecallEvent) {
+                            MiraiGroupMessageRecallEventImpl(this@registerEvents, this)
+                        }
+                    is MessageRecallEvent.FriendRecall ->
+                        doHandler(this, MiraiFriendMessageRecallEvent) {
+                            MiraiFriendMessageRecallEventImpl(this@registerEvents, this)
+                        }
+                }
             }
             
             else -> {
