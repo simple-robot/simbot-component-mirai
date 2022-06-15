@@ -169,7 +169,7 @@ tasks.create("createChangelog") {
             val autoGenerateText = """
                 > 对应核心版本: [v$simbotVersion](https://github.com/ForteScarlet/simpler-robot/releases/tag/v$simbotVersion)
                 >
-                > 对应[**mirai**](https://github.com/mamoe/mirai)版本: [$miraiVersion](https://github.com/ForteScarlet/simpler-robot/releases/tag/$miraiVersion)
+                > 对应[**mirai**](https://github.com/mamoe/mirai)版本: [v$miraiVersion](https://github.com/ForteScarlet/simpler-robot/releases/tag/$miraiVersion)
                 
                 
 
