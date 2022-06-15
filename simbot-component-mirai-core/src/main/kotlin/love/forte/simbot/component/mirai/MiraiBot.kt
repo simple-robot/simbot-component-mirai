@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
@@ -248,29 +249,18 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      */
     public fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage
     
-    
     /**
      * @see sendOnlyImage
      */
     @JvmSynthetic
-    override suspend fun uploadImage(resource: Resource): MiraiSendOnlyImage = sendOnlyImage(resource, false)
-    
-    /**
-     * @see sendOnlyImage
-     */
-    @JvmSynthetic
+    @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"))
     public suspend fun uploadImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         sendOnlyImage(resource, flash)
     
     /**
      * @see sendOnlyImage
      */
-    @OptIn(Api4J::class)
-    override fun uploadImageBlocking(resource: Resource): MiraiSendOnlyImage = sendOnlyImage(resource, false)
-    
-    /**
-     * @see sendOnlyImage
-     */
+    @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"))
     public fun uploadImageBlocking(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         sendOnlyImage(resource, flash)
     

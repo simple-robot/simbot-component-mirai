@@ -12,21 +12,19 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.internal
 
-import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.action.SendSupport
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
-import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.message.Message
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.items
-import net.mamoe.mirai.contact.AnonymousMember
 import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 
@@ -45,14 +43,6 @@ internal class MiraiMemberImpl(
     override val group: MiraiGroupImpl get() = initGroup ?: originalContact.group.asSimbot(bot)
     override val roles: Items<MemberRole> = items(originalContact.simbotRole)
     
-    @ExperimentalSimbotApi
-    override val status: UserStatus =
-        when (originalContact) {
-            is AnonymousMember -> AnonymousMemberStatus
-            else -> NormalMemberStatus
-        }
-
-
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
         val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
         return SimbotMiraiMessageReceiptImpl(receipt)
@@ -74,10 +64,6 @@ internal class MiraiMemberImpl(
 
 }
 
-@ExperimentalSimbotApi
-internal val NormalMemberStatus = UserStatus.builder().normal().build()
-@ExperimentalSimbotApi
-internal val AnonymousMemberStatus = UserStatus.builder().anonymous().build()
 
 
 internal fun OriginalMiraiMember.asSimbot(bot: MiraiBotImpl): MiraiMemberImpl =
