@@ -12,14 +12,16 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
 
-import love.forte.simbot.*
+import love.forte.simbot.ID
+import love.forte.simbot.IntID
 import love.forte.simbot.component.mirai.MemberRole.*
-import love.forte.simbot.definition.*
-import net.mamoe.mirai.contact.*
+import love.forte.simbot.definition.Role
+import net.mamoe.mirai.contact.isOperator
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 import net.mamoe.mirai.contact.MemberPermission as MiraiMemberPermission
 
@@ -33,38 +35,26 @@ import net.mamoe.mirai.contact.MemberPermission as MiraiMemberPermission
  */
 @Suppress("MemberVisibilityCanBePrivate")
 public enum class MemberRole(
+    /**
+     * 对应的原始 [MiraiMemberPermission] 类型。
+     */
     public val originalMiraiPermission: MiraiMemberPermission,
-) : Role {
-
+) : Role, Comparable<MemberRole> {
+    
     MEMBER(MiraiMemberPermission.MEMBER),
     ADMINISTRATOR(MiraiMemberPermission.ADMINISTRATOR),
     OWNER(MiraiMemberPermission.OWNER),
     ;
-
+    
     /**
-     * ID, 等同于 [net.mamoe.mirai.contact.MemberPermission1.level].
+     * ID, 等同于 [net.mamoe.mirai.contact.MemberPermission.level].
      */
     override val id: IntID = originalMiraiPermission.level.ID
-
+    
     override val isAdmin: Boolean
         get() = originalMiraiPermission.isOperator()
-
-    override val isOwner: Boolean
-        get() = originalMiraiPermission.isOwner()
-
-    //
-    // /**
-    //  * 权限列表。在Mirai中实际上的权限，一种角色只有一个。
-    //  */
-    // @OptIn(Api4J::class)
-    // override val permissions: List<MemberPermission> = listOf(permission)
-    //
-    // /**
-    //  * 权限列表。在Mirai中实际上的权限，一种角色只有一个。
-    //  */
-    // @JvmSynthetic
-    // override suspend fun permissions(): Flow<MemberPermission> = permissions.asFlow()
-
+    
+    
 }
 
 

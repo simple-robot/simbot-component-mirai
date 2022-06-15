@@ -12,22 +12,22 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 @file:JvmName("MiraiMessageParserUtil")
 
 package love.forte.simbot.component.mirai.message
 
+import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
-import love.forte.simbot.literal
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
 import love.forte.simbot.message.Message
-import love.forte.simbot.tryToLongID
+import love.forte.simbot.tryToLong
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.contact.Contact.Companion.uploadImage
 import net.mamoe.mirai.message.data.EmptyMessageChain
 import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.message.data.toMessageChain
@@ -44,7 +44,7 @@ import net.mamoe.mirai.message.data.SingleMessage as OriginalMiraiSingleMessage
 public object EmptySingleMessage : OriginalMiraiSingleMessage {
     override fun contentToString(): String = "EmptySingleMessage"
     override fun toString(): String = "EmptySingleMessage()"
-
+    
     public val simbotMessage: Message.Element<*> = this.asSimbotMessage()
 }
 
@@ -79,7 +79,7 @@ public suspend fun Message.toOriginalMiraiMessage(contact: Contact): OriginalMir
             ?: EmptyMessageChain
         else -> {
             val list = mutableListOf<OriginalMiraiMessage>()
-
+            
             if (this is Message.Element<*>) {
                 StandardParser.toMirai(this, contact, list)
             } else if (this is Messages) {
@@ -87,7 +87,7 @@ public suspend fun Message.toOriginalMiraiMessage(contact: Contact): OriginalMir
                     StandardParser.toMirai(it, contact, list)
                 }
             }
-
+            
             if (list.isEmpty()) EmptyMessageChain else list.toMessageChain()
         }
     }
@@ -104,9 +104,9 @@ internal interface MiraiMessageParser {
     suspend fun toMirai(
         message: Message.Element<*>,
         contact: Contact,
-        messages: MutableCollection<OriginalMiraiMessage>
+        messages: MutableCollection<OriginalMiraiMessage>,
     )
-
+    
     fun toSimbot(
         message: OriginalMiraiSingleMessage,
     ): Message.Element<*>
@@ -123,31 +123,31 @@ private object StandardParser : MiraiMessageParser {
     override suspend fun toMirai(
         message: Message.Element<*>,
         contact: Contact,
-        messages: MutableCollection<OriginalMiraiMessage>
+        messages: MutableCollection<OriginalMiraiMessage>,
     ) {
         when (message) {
             is StandardMessage<*> -> when (message) {
                 is BaseStandardMessage<*> -> when (message) {
-                    is At -> messages.add(MiraiAtFunc(message.target.tryToLongID().number))
+                    is At -> messages.add(MiraiAtFunc(message.target.tryToLong()))
                     is AtAll -> messages.add(net.mamoe.mirai.message.data.AtAll)
                     is Text -> messages.add(message.text.toPlainText())
                 }
                 is PlainText -> messages.add(message.text.toPlainText())
-                is love.forte.simbot.message.Image -> messages.add(message.toMirai(contact))
+                is Image -> messages.add(message.toMirai(contact))
                 is Emoji -> messages.add(":${message.id}:".toPlainText())
                 is Face -> {
-                    val miraiFace = net.mamoe.mirai.message.data.Face(message.id.tryToLongID().toInt())
+                    val miraiFace = net.mamoe.mirai.message.data.Face(message.id.tryToLong().toInt())
                     messages.add(miraiFace)
                 }
-                is RemoteResource -> {
-                    // not support?
-                }
+                
+                // ignore RemoteResource
+                else -> {}
             }
             is OriginalMiraiComputableSimbotMessage<*> -> message.originalMiraiMessage(contact)
                 .takeIf { it !== EmptySingleMessage }?.also(messages::add)
         }
     }
-
+    
     /**
      * mirai message 转化为 simbot message
      */
@@ -160,7 +160,7 @@ private object StandardParser : MiraiMessageParser {
             is OriginalMiraiFlashImage -> message.asSimbot()
             is OriginalMiraiAudio -> message.asSimbot()
             is net.mamoe.mirai.message.data.Face -> Face(message.id.ID)
-
+            
             // other messages.
             else -> SimbotOriginalMiraiMessage(message)
         }
@@ -168,23 +168,17 @@ private object StandardParser : MiraiMessageParser {
 }
 
 
-private suspend fun love.forte.simbot.message.Image<*>.toMirai(contact: Contact): OriginalMiraiMessage {
-    val id = id.literal
-    if (id.isNotEmpty()) {
-        return OriginalMiraiImage(id)
-    }
-
-    val image: OriginalMiraiImage = when (this) {
+@OptIn(Api4J::class)
+private suspend fun Image<*>.toMirai(contact: Contact): OriginalMiraiMessage {
+    
+    val image: OriginalMiraiMessage = when (this) {
         is MiraiImage -> originalImage
-        is MiraiSendOnlyImage -> when (val ntImg = originalMiraiMessage(contact)) {
-            is OriginalMiraiImage -> ntImg
-            is OriginalMiraiFlashImage -> ntImg.image
-            else -> throw IllegalStateException("Can not resolve type of img content in MiraiSendOnlyImage")
-        }
-        else -> resource().use { r -> r.openStream().use { i -> contact.uploadImage(i) } }
+        is ResourceImage -> resource.uploadToImage(contact, false)
+        is MiraiSendOnlyImage -> originalMiraiMessage(contact)
+        else -> resource().uploadToImage(contact, false)
     }
-
-
+    
+    
     return image
 }
 

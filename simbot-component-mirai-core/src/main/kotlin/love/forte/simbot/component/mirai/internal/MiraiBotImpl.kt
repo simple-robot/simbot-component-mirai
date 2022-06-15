@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -27,7 +28,6 @@ import love.forte.simbot.component.mirai.message.MiraiImage
 import love.forte.simbot.component.mirai.message.MiraiImageImpl
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
 import love.forte.simbot.component.mirai.util.LRUCacheMap
-import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.event.Event
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
@@ -102,9 +102,6 @@ internal class MiraiBotImpl(
     override val logger: Logger = LoggerFactory.getLogger("love.forte.simbot.mirai.bot.${originalBot.id}")
     override val id: LongID = originalBot.id.ID
     
-    @ExperimentalSimbotApi
-    override val status: UserStatus get() = MiraiBotStatus
-    
     override fun isMe(id: ID): Boolean {
         return when (id) {
             is LongID -> id.value == this.id.value
@@ -173,7 +170,7 @@ internal class MiraiBotImpl(
         get() = originalBot.strangers.asItems().map { it.asSimbot(this) }
     
     override fun getStranger(id: ID): MiraiStranger? {
-        return originalBot.getStranger(id.tryToLongID().number)?.asSimbot(this)
+        return originalBot.getStranger(id.tryToLong())?.asSimbot(this)
     }
     
     override val friends: Items<MiraiFriend>
@@ -181,7 +178,7 @@ internal class MiraiBotImpl(
     
     
     override fun getFriend(id: ID): MiraiFriend? =
-        originalBot.getFriend(id.tryToLongID().number)?.asSimbot(this)
+        originalBot.getFriend(id.tryToLong())?.asSimbot(this)
     
     
     override val contacts: Items<MiraiContact>
@@ -196,7 +193,7 @@ internal class MiraiBotImpl(
         }
     
     override fun getContact(id: ID): MiraiContact? {
-        val number = id.tryToLongID().number
+        val number = id.tryToLong()
         return originalBot.getFriend(number)?.asSimbot(this)
             ?: originalBot.getStranger(number)?.asSimbot(this)
     }
@@ -205,7 +202,7 @@ internal class MiraiBotImpl(
         get() = originalBot.groups.asItems().map { it.asSimbot(this) }
     
     override fun getGroup(id: ID): MiraiGroup? =
-        originalBot.getGroup(id.tryToLongID().number)?.asSimbot(this)
+        originalBot.getGroup(id.tryToLong())?.asSimbot(this)
     
     override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
     
@@ -296,9 +293,6 @@ internal class MiraiBotImpl(
         private const val CANCEL_MUTE_MESSAGE = "\$\$MUTE_JOB_CANCEL\$\$"
     }
 }
-
-@ExperimentalSimbotApi
-private val MiraiBotStatus = UserStatus.builder().bot().fakeUser().build()
 
 
 @OptIn(MiraiExperimentalApi::class)

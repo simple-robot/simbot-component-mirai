@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -23,7 +24,7 @@ import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.internal.MiraiGroupBotImpl.Companion.getGroupBot
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
-import love.forte.simbot.tryToLongID
+import love.forte.simbot.tryToLong
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.asItems
 import love.forte.simbot.utils.item.map
@@ -68,7 +69,7 @@ internal class MiraiGroupImpl(
     }
     
     override suspend fun member(id: ID): MiraiMember? {
-        return originalContact.getMember(id.tryToLongID().number)?.asSimbot(baseBot, this)
+        return originalContact.getMember(id.tryToLong())?.asSimbot(baseBot, this)
     }
     
     @OptIn(Api4J::class)

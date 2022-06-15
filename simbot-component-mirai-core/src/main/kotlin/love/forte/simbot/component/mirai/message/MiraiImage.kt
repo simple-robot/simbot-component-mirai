@@ -29,13 +29,14 @@ import love.forte.simbot.message.doSafeCast
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.Resource.Companion.toResource
 import love.forte.simbot.utils.runInBlocking
+import love.forte.simbot.utils.runWithInterruptible
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
 import net.mamoe.mirai.message.data.ImageType
 import net.mamoe.mirai.message.data.flash
+import java.io.IOException
 import java.net.URL
-import java.util.concurrent.atomic.AtomicReference
 import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
 import net.mamoe.mirai.message.data.Image as OriginalMiraiImage
 import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
@@ -55,23 +56,23 @@ import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
 public interface MiraiSendOnlyImage :
     MiraiSendOnlyComputableMessage<MiraiSendOnlyImage>,
     Image<MiraiSendOnlyImage> {
-
+    
     /**
      * 图片发送所使用的资源对象。
      */
     override suspend fun resource(): Resource
-
+    
     /**
      * 图片发送所使用的资源对象。
      */
     @OptIn(Api4J::class)
     public override val resource: Resource
-
+    
     /**
      * 是否作为一个闪照。
      */
     public val isFlash: Boolean
-
+    
     /**
      * 作为仅用于发送的图片时的类型，
      * 在真正获取过图片(执行过一次 [originalMiraiMessage])之前将无法获取到ID，因此在那之前 [id] 的值将为空。
@@ -81,10 +82,11 @@ public interface MiraiSendOnlyImage :
      * 因此无法保证ID的准确性，应尽可能避免对此ID进行操作。
      */
     override val id: ID
-
+    
     public companion object Key : Message.Key<MiraiSendOnlyImage> {
         override fun safeCast(value: Any): MiraiSendOnlyImage? = doSafeCast(value)
-        public fun of(resource: Resource, isFlash: Boolean = false): MiraiSendOnlyImage = MiraiSendOnlyImageImpl(resource, isFlash)
+        public fun of(resource: Resource, isFlash: Boolean = false): MiraiSendOnlyImage =
+            MiraiSendOnlyImageImpl(resource, isFlash)
     }
 }
 
@@ -93,45 +95,49 @@ public interface MiraiSendOnlyImage :
 @Serializable
 internal class MiraiSendOnlyImageImpl(
     override val resource: Resource,
-    override val isFlash: Boolean
+    override val isFlash: Boolean,
 ) : MiraiSendOnlyImage {
+    
     @Transient
-    private val _id = AtomicReference(ID)
-
-    override val id: ID get() = _id.get()
-
+    override val id: ID = resource.name.ID
+    
     @JvmSynthetic
     override suspend fun resource(): Resource = resource
     override val key: Message.Key<MiraiSendOnlyImage>
         get() = MiraiSendOnlyImage.Key
-
+    
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is MiraiSendOnlyImageImpl) return false
         return resource === other.resource
     }
-
+    
     /**
      * 返回值只可能是 [OriginalMiraiFlashImage] 或 [OriginalMiraiImage].
      */
     @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
-        return resource.openStream().use {
-            contact.uploadImage(it).let { image ->
-                _id.compareAndSet(ID, image.imageId.ID)
-
-                if (isFlash) image.flash() else image
-            }
-        }
+        return resource.uploadToImage(contact, isFlash)
     }
-
+    
     override fun toString(): String = resource.toString()
     override fun hashCode(): Int = resource.hashCode()
-
+    
     companion object {
-        private val ID = "".ID
+        // private val ID = "".ID
     }
 }
+
+
+@Throws(IOException::class)
+internal suspend fun Resource.uploadToImage(contact: Contact, isFlash: Boolean): OriginalMiraiMessage {
+    return runWithInterruptible { openStream() }.use {
+        contact.uploadImage(it).let { image ->
+            if (isFlash) image.flash() else image
+        }
+    }
+}
+
 
 /**
  * 将一个 [OriginalMiraiImage] 作为 simbot的 [love.forte.simbot.message.Image] 进行使用。
@@ -140,51 +146,51 @@ internal class MiraiSendOnlyImageImpl(
 public interface MiraiImage :
     MiraiSimbotMessage<MiraiImage>,
     Image<MiraiImage> {
-
+    
     /**
      * 得到Mirai的原生图片类型 [OriginalMiraiImage].
      */
     public val originalImage: OriginalMiraiImage
-
+    
     /**
      * 此图片是否为一个 `闪照`。
      * @see OriginalMiraiFlashImage
      *
      */
     public val isFlash: Boolean
-
+    
     /**
      * 此图片的 `imageId`
      */
     override val id: ID
-
+    
     /**
      * 图片的宽度 (px), 当无法获取时为 0
      */
     public val width: Int get() = originalImage.width
-
+    
     /**
      * 图片的高度 (px), 当无法获取时为 0
      */
     public val height: Int get() = originalImage.height
-
+    
     /**
      * 图片的大小（字节）, 当无法获取时为 0
      */
     public val size: Long get() = originalImage.size
-
+    
     /**
      * 图片的类型, 当无法获取时为未知 [ImageType.UNKNOWN]
      * @see ImageType
      */
     public val imageType: ImageType get() = originalImage.imageType
-
+    
     /**
      * 判断该图片是否为 `动画表情`
      */
     public val isEmoji: Boolean get() = originalImage.isEmoji
-
-
+    
+    
     /**
      * 通过 [queryUrl] 查询并得到 [Resource] 对象。
      */
@@ -192,32 +198,32 @@ public interface MiraiImage :
     override suspend fun resource(): Resource {
         return URL(originalImage.queryUrl()).toResource()
     }
-
-
+    
+    
     /**
      * 通过 [queryUrl] 查询并得到 [Resource] 对象。
      */
     @Api4J
     override val resource: Resource get() = runInBlocking { resource() }
-
-
+    
+    
     public companion object Key : Message.Key<MiraiImage> {
-
+        
         @JvmStatic
         @JvmOverloads
         public fun of(nativeImage: OriginalMiraiImage, isFlash: Boolean = false): MiraiImage {
             return MiraiImageImpl(nativeImage, isFlash)
         }
-
+        
         @JvmStatic
         @JvmOverloads
         public fun of(nativeImage: OriginalMiraiFlashImage, isFlash: Boolean = true): MiraiImage {
             return MiraiImageImpl(nativeImage.image, isFlash)
         }
-
+        
         override fun safeCast(value: Any): MiraiImage? = doSafeCast(value)
     }
-
+    
 }
 
 
@@ -225,22 +231,22 @@ public interface MiraiImage :
 @Serializable
 internal class MiraiImageImpl(
     override val originalImage: OriginalMiraiImage,
-    override val isFlash: Boolean
+    override val isFlash: Boolean,
 ) : MiraiImage {
     override val id: ID = originalImage.imageId.ID
     override val key: Message.Key<MiraiImage> get() = MiraiImage.Key
-
-
+    
+    
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is MiraiImage) return false
         return originalImage == other.originalImage
     }
-
+    
     override fun toString(): String = originalImage.toString()
     override fun hashCode(): Int = originalImage.hashCode()
-
-
+    
+    
 }
 
 public fun OriginalMiraiImage.asSimbot(isFlash: Boolean = false): MiraiImage = MiraiImage.of(this, isFlash)

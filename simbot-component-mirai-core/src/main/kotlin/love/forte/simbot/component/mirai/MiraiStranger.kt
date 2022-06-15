@@ -12,15 +12,14 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
 
 import love.forte.simbot.Api4J
-import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.definition.Contact
 import love.forte.simbot.definition.Stranger
-import love.forte.simbot.definition.UserStatus
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
@@ -32,57 +31,50 @@ import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
  * @author ForteScarlet
  */
 public interface MiraiStranger : Contact, Stranger, MiraiContact {
-
+    
     override val bot: MiraiBot
     override val originalContact: OriginalMiraiStranger
-
+    
     override val avatar: String
         get() = originalContact.avatarUrl
-
-    @ExperimentalSimbotApi
-    override val status: UserStatus
-        get() = strangerStatus
-
+    
     override val username: String
         get() = originalContact.nick
-
-
+    
+    
     /**
      * 向此人发送消息。
      */
     @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
+    
     /**
      * 向此人发送消息。
      */
     @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
+    
     /**
      * 向此人发送消息。
      */
     @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
+    
     /**
      * 向此人发送消息。
      */
     @Api4J
     override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
+    
     /**
      * 向此人发送消息。
      */
     @Api4J
     override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
+    
     /**
      * 向此人发送消息。
      */
     @Api4J
     override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
 }
-
-@ExperimentalSimbotApi
-private val strangerStatus = UserStatus.builder().normal().build()

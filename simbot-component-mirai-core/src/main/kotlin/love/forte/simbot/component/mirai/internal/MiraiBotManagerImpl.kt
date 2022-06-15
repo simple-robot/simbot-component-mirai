@@ -27,7 +27,7 @@ import love.forte.simbot.component.mirai.event.impl.MiraiBotRegisteredEventImpl
 import love.forte.simbot.event.EventProcessingResult
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
-import love.forte.simbot.tryToLongID
+import love.forte.simbot.tryToLong
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.supervisorJob
 import net.mamoe.mirai.utils.BotConfiguration
@@ -164,7 +164,7 @@ internal class MiraiBotManagerImpl(
         return true
     }
     
-    override fun get(id: ID): MiraiBot? = botCache[id.tryToLongID().number]
+    override fun get(id: ID): MiraiBot? = botCache[id.tryToLong()]
     
     override fun all(): List<MiraiBot> {
         return botCache.values.toList()
@@ -179,9 +179,9 @@ internal class MiraiBotManagerImpl(
     }
     
     override fun toString(): String {
-        return "MiraiBotManager@${hashCode()}(bots=${
+        return "MiraiBotManager(bots=${
             botCache.keys().asSequence().joinToString(", ", prefix = "[", postfix = "]")
-        }, isActive=$isActive, eventProcessor$eventProcessor)"
+        }, isActive=$isActive, eventProcessor$eventProcessor)@${hashCode()}"
     }
     
 }
