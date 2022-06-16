@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
@@ -599,7 +600,7 @@ public data class MiraiBotVerifyInfoConfiguration(
         /**
          * 使用 [MemoryLruMiraiRecallMessageCacheStrategy]
          */
-        MEMORY({ MemoryLruMiraiRecallMessageCacheStrategy() }),
+        MEMORY_LRU({ MemoryLruMiraiRecallMessageCacheStrategy() }),
         
         // 想要更多实现? see StandardMiraiRecallMessageCacheStrategy
         
