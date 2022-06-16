@@ -84,6 +84,7 @@ sealed class V(group: String?, id: String, version: String?) : Dep(group, id, ve
             object Common : Test("common")
             object Junit : Test("junit")
             object Junit5 : Test("junit5")
+            object Testng : Test("testng")
             object Js : Test("js")
             object AnnotationsCommon : Test("annotations-common")
         }

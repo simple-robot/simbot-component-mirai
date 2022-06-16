@@ -92,45 +92,55 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         
         val password = configuration.password
         if (password != null) {
-            return register(configuration.code, password = password, configuration.miraiBotConfiguration)
+            return register(
+                configuration.code,
+                password = password,
+                configuration.simbotBotConfiguration,
+            )
         }
         val passwordMD5 = configuration.passwordMD5
             ?: throw VerifyFailureException("One of the [password] or [passwordMD5] must exist")
         
-        return register(configuration.code, passwordMD5 = hex(passwordMD5), configuration.miraiBotConfiguration)
+        return register(
+            configuration.code,
+            passwordMD5 = hex(passwordMD5),
+            configuration.simbotBotConfiguration,
+        )
     }
     
     /**
      * 注册一个Bot。
      *
-     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration], 包括其中的设备信息配置、logger配置等。
+     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 包括其中的设备信息配置、logger配置等。
      *
      * @param code 账号
      * @param password 密码
-     * @param configuration mirai bot 配置
+     * @param configuration simbot中的bot配置类
      */
-    public abstract fun register(code: Long, password: String, configuration: BotConfiguration): MiraiBot
+    public abstract fun register(code: Long, password: String, configuration: MiraiBotConfiguration): MiraiBot
+    
     
     /**
      * 注册一个Bot。
      * @param code 账号
      * @param password 密码
      */
-    @OptIn(InternalApi::class)
     public fun register(code: Long, password: String): MiraiBot =
-        register(code, password, MiraiBotVerifyInfoConfiguration(code, password = password).miraiBotConfiguration)
+        register(code, password, MiraiBotConfiguration())
     
     
     /**
      * 注册一个Bot。
      *
-     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration], 包括其中的设备信息配置、logger配置等。
+     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 包括其中的设备信息配置、logger配置等。
      *
      * @param code 账号
      * @param passwordMD5 密码的MD5字节数组
-     * @param configuration mirai bot 配置
+     * @param configuration simbot bot 配置
      */
-    public abstract fun register(code: Long, passwordMD5: ByteArray, configuration: BotConfiguration): MiraiBot
+    public abstract fun register(code: Long, passwordMD5: ByteArray, configuration: MiraiBotConfiguration): MiraiBot
     
     /**
      * 注册一个Bot。
@@ -139,39 +149,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param passwordMD5 密码的MD5字节数组
      */
     public fun register(code: Long, passwordMD5: ByteArray): MiraiBot =
-        register(code, passwordMD5, BotConfiguration.Default)
-    
-    
-    /**
-     * 注册一个Bot。
-     *
-     * 此函数构建 [MiraiBot] 时所使用的初始化配置类 [configuration] 会提前准备好simbot组件中的特殊配置, 包括其中的设备信息配置、logger配置等。
-     *
-     * @param code 账号
-     * @param password 密码
-     * @param configuration mirai bot 配置
-     */
-    public abstract fun register(
-        code: Long,
-        password: String,
-        configuration: BotFactory.BotConfigurationLambda,
-    ): MiraiBot
-    
-    
-    /**
-     * 注册一个Bot。
-     *
-     * 此函数构建 [MiraiBot] 时所使用的初始化配置类 [configuration] 会提前准备好simbot组件中的特殊配置, 包括其中的设备信息配置、logger配置等。
-     *
-     * @param code 账号
-     * @param passwordMD5 密码的MD5字节数组
-     * @param configuration mirai bot 配置
-     */
-    public abstract fun register(
-        code: Long,
-        passwordMD5: ByteArray,
-        configuration: BotFactory.BotConfigurationLambda,
-    ): MiraiBot
+        register(code, passwordMD5, MiraiBotConfiguration())
     
     
     /**
@@ -240,7 +218,7 @@ public interface MiraiBotManagerConfiguration {
     public fun register(
         code: Long,
         password: String,
-        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda {},
+        configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit = {},
     )
     
@@ -255,9 +233,45 @@ public interface MiraiBotManagerConfiguration {
     public fun register(
         code: Long,
         passwordMd5: ByteArray,
-        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda {},
+        configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit = {},
     )
+    
+    /**
+     * 注册一个mirai bot.
+     *
+     * 从此处注册bot将会早于通过 [ApplicationBuilder.bots] 中进行全局注册的bot被执行。
+     *
+     * @param code 账号
+     * @param password 密码
+     * @param configuration simbot组件的 bot 注册所需要的配置类。
+     * @param onBot 当bot被注册后执行函数。
+     */
+    public fun register(
+        code: Long,
+        password: String,
+        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda {},
+        onBot: suspend (bot: MiraiBot) -> Unit = {},
+    ) {
+        register(code, password, MiraiBotConfiguration().botConfiguration(configuration), onBot)
+    }
+    
+    /**
+     * 注册一个mirai bot.
+     *
+     * @param code 账号
+     * @param passwordMd5 密码的md5数据
+     * @param configuration mirai的 bot 注册所需要的配置类。
+     * @param onBot 当bot被注册后执行函数。
+     */
+    public fun register(
+        code: Long,
+        passwordMd5: ByteArray,
+        configuration: BotFactory.BotConfigurationLambda = BotFactory.BotConfigurationLambda {},
+        onBot: suspend (bot: MiraiBot) -> Unit = {},
+    ) {
+        register(code, passwordMd5, MiraiBotConfiguration().botConfiguration(configuration), onBot)
+    }
 }
 
 
@@ -291,7 +305,7 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
     override fun register(
         code: Long,
         password: String,
-        configuration: BotFactory.BotConfigurationLambda,
+        configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit,
     ) {
         newProcessor { manager -> onBot(manager.register(code, password, configuration)) }
@@ -301,13 +315,10 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
     override fun register(
         code: Long,
         passwordMd5: ByteArray,
-        configuration: BotFactory.BotConfigurationLambda,
+        configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit,
     ) {
         newProcessor { manager -> onBot(manager.register(code, passwordMd5, configuration)) }
-        // botManagerProcessors.add { manager ->
-        //     onBot(manager.register(code, passwordMd5, configuration))
-        // }
     }
     
     suspend fun useBotManager(botManager: MiraiBotManager) {
@@ -440,11 +451,32 @@ public data class MiraiBotVerifyInfoConfiguration(
          */
         @SerialName("contactListCache")
         val contactListCacheConfiguration: ContactListCacheConfiguration = ContactListCacheConfiguration(),
-        
-        
+
+        /**
+         * 是否开启登录缓存。
+         * @see BotConfiguration.loginCacheEnabled
+         */
         val loginCacheEnabled: Boolean = BotConfiguration.Default.loginCacheEnabled,
-        
+
+        /**
+         * 是否处理接受到的特殊换行符, 默认为 true
+         * @see BotConfiguration.convertLineSeparator
+         */
         val convertLineSeparator: Boolean = BotConfiguration.Default.convertLineSeparator,
+        
+        ///////////// simbot config
+        /**
+         * 消息撤回缓存策略。默认为 [RecallMessageCacheStrategyType.INVALID]。
+         *
+         * ```json
+         * {
+         *   "recallMessageCacheStrategy": "INVALID"
+         * }
+         * ```
+         *
+         */
+        val recallMessageCacheStrategy: RecallMessageCacheStrategyType = RecallMessageCacheStrategyType.INVALID,
+        
     ) {
         
         
@@ -491,8 +523,8 @@ public data class MiraiBotVerifyInfoConfiguration(
         /**
          * 将当前配置的信息转化为 [MiraiBotConfiguration][BotConfiguration] 实例。
          */
-        val miraiBotConfiguration: BotConfiguration
-            get() = BotConfiguration().also {
+        public fun miraiBotConfiguration(initial: BotConfiguration): BotConfiguration {
+            return initial.also {
                 it.workingDir = workingDir
                 it.heartbeatPeriodMillis = heartbeatPeriodMillis
                 it.statHeartbeatPeriodMillis = statHeartbeatPeriodMillis
@@ -515,6 +547,7 @@ public data class MiraiBotVerifyInfoConfiguration(
                 it.loginCacheEnabled = loginCacheEnabled
                 it.convertLineSeparator = convertLineSeparator
             }
+        }
         
         
         private fun Json.readFileDeviceInfo(path: Path): DeviceInfo {
@@ -542,6 +575,9 @@ public data class MiraiBotVerifyInfoConfiguration(
             LoggerFactory.getLogger(name).asMiraiLogger()
         }
         
+
+        
+        
         public companion object {
             
             @JvmField
@@ -549,11 +585,33 @@ public data class MiraiBotVerifyInfoConfiguration(
         }
     }
     
+    /**
+     * 使用的消息撤回缓存策略类型。
+     *
+     * @see StandardMiraiRecallMessageCacheStrategy
+     */
+    @Serializable(RecallMessageCacheStrategyTypeSerializer::class)
+    public enum class RecallMessageCacheStrategyType(public val strategy: () -> MiraiRecallMessageCacheStrategy) {
+        /**
+         * 使用 [InvalidMiraiRecallMessageCacheStrategy].
+         *
+         */
+        INVALID({ InvalidMiraiRecallMessageCacheStrategy }),
+        /**
+         * 使用 [MemoryLruMiraiRecallMessageCacheStrategy]
+         */
+        MEMORY_LRU({ MemoryLruMiraiRecallMessageCacheStrategy() }),
+        
+        // 想要更多实现? see StandardMiraiRecallMessageCacheStrategy
+        
+    }
+    
     
     /**
      * 通过 [config] 构建一个 [MiraiBotConfiguration][BotConfiguration].
      */
-    public val miraiBotConfiguration: BotConfiguration get() = config.miraiBotConfiguration
+    public fun miraiBotConfiguration(initial: BotConfiguration): BotConfiguration =
+        config.miraiBotConfiguration(initial)
     
     
     /**
@@ -595,6 +653,18 @@ public data class MiraiBotVerifyInfoConfiguration(
         public companion object {
             @JvmField
             public val DEFAULT: ContactListCacheConfiguration = ContactListCacheConfiguration()
+        }
+    }
+    
+    
+    public val simbotBotConfiguration: MiraiBotConfiguration get() {
+        
+        return MiraiBotConfiguration(
+            config.recallMessageCacheStrategy.strategy(),
+        ).apply {
+            botConfiguration {
+                miraiBotConfiguration(this)
+            }
         }
     }
     
@@ -645,101 +715,6 @@ internal class HeartbeatStrategySerializer : EnumStringSerializer<BotConfigurati
 internal class MiraiProtocolSerializer :
     EnumStringSerializer<BotConfiguration.MiraiProtocol>("MiraiProtocol", BotConfiguration.MiraiProtocol::valueOf)
 
-@FragileSimbotApi
-@Serializable
-public data class SimpleDeviceInfo(
-    public val display: String,
-    public val product: String,
-    public val device: String,
-    public val board: String,
-    public val brand: String,
-    public val model: String,
-    public val bootloader: String,
-    public val fingerprint: String,
-    public val bootId: String,
-    public val procVersion: String,
-    public val baseBand: String,
-    public val version: Version,
-    public val simInfo: String,
-    public val osType: String,
-    public val macAddress: String,
-    public val wifiBSSID: String,
-    public val wifiSSID: String,
-    public val imsiMd5: String,
-    public val imei: String,
-    public val apn: String,
-) {
-    @Serializable
-    @FragileSimbotApi
-    public data class Version(
-        public val incremental: String = "5891938",
-        public val release: String = "10",
-        public val codename: String = "REL",
-        public val sdk: Int = 29,
-    )
-}
-
-@FragileSimbotApi
-public fun SimpleDeviceInfo.Version.toVersion(): DeviceInfo.Version = DeviceInfo.Version(
-    incremental = incremental.toByteArray(),
-    release = release.toByteArray(),
-    codename = codename.toByteArray(),
-    sdk = 0
-)
-
-@FragileSimbotApi
-public fun SimpleDeviceInfo.toDeviceInfo(): DeviceInfo = DeviceInfo(
-    display = display.toByteArray(),
-    product = product.toByteArray(),
-    device = device.toByteArray(),
-    board = board.toByteArray(),
-    brand = brand.toByteArray(),
-    model = model.toByteArray(),
-    bootloader = bootloader.toByteArray(),
-    fingerprint = fingerprint.toByteArray(),
-    bootId = bootId.toByteArray(),
-    procVersion = procVersion.toByteArray(),
-    baseBand = baseBand.toByteArray(),
-    version = version.toVersion(),
-    simInfo = simInfo.toByteArray(),
-    osType = osType.toByteArray(),
-    macAddress = macAddress.toByteArray(),
-    wifiBSSID = wifiBSSID.toByteArray(),
-    wifiSSID = wifiSSID.toByteArray(),
-    imsiMd5 = imsiMd5.toByteArray(),
-    imei = imei,
-    apn = apn.toByteArray()
-)
-
-
-@FragileSimbotApi
-public fun DeviceInfo.Version.toSimple(): SimpleDeviceInfo.Version = SimpleDeviceInfo.Version(
-    incremental = incremental.decodeToString(),
-    release = release.decodeToString(),
-    codename = codename.decodeToString(),
-    sdk = 0
-)
-
-@FragileSimbotApi
-public fun DeviceInfo.toSimple(): SimpleDeviceInfo = SimpleDeviceInfo(
-    display = display.decodeToString(),
-    product = product.decodeToString(),
-    device = device.decodeToString(),
-    board = board.decodeToString(),
-    brand = brand.decodeToString(),
-    model = model.decodeToString(),
-    bootloader = bootloader.decodeToString(),
-    fingerprint = fingerprint.decodeToString(),
-    bootId = bootId.decodeToString(),
-    procVersion = procVersion.decodeToString(),
-    baseBand = baseBand.decodeToString(),
-    version = version.toSimple(),
-    simInfo = simInfo.decodeToString(),
-    osType = osType.decodeToString(),
-    macAddress = macAddress.decodeToString(),
-    wifiBSSID = wifiBSSID.decodeToString(),
-    wifiSSID = wifiSSID.decodeToString(),
-    imsiMd5 = imsiMd5.decodeToString(),
-    imei = imei,
-    apn = apn.decodeToString()
-)
+@OptIn(InternalApi::class)
+internal class RecallMessageCacheStrategyTypeSerializer :
+        EnumStringSerializer<MiraiBotVerifyInfoConfiguration.RecallMessageCacheStrategyType>("RecallMessageCacheStrategyType", MiraiBotVerifyInfoConfiguration.RecallMessageCacheStrategyType::valueOf)

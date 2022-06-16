@@ -21,7 +21,6 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
-    //kotlin("kapt")
 }
 
 
@@ -38,12 +37,14 @@ dependencies {
     testImplementation(V.Kotlinx.Serialization.Yaml.notation)
     
     testImplementation(V.Simbot.Core.notation)
-    testImplementation(V.Kotlin.Test.Junit5.notation)
+    testImplementation(V.Kotlin.Test.Testng.notation)
+    // testImplementation()
 }
 
 
 tasks.getByName<Test>("test") {
-    useJUnitPlatform()
+    // useJUnitPlatform()
+    useTestNG()
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {

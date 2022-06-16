@@ -63,33 +63,18 @@ internal class MiraiBotManagerImpl(
         coroutineContext = configCoroutineContext + completableJob
     }
     
-    override fun register(code: Long, password: String, configuration: BotConfiguration): MiraiBotImpl {
-        logger.debug("Register bot {} with password: <length {}>", code, password.length)
-        return processMiraiBot(code) {
-            BotFactory.newBot(code, password, configuration.configurationProcess())
-        }.also { bot ->
-            launch { pushRegisteredEvent(bot) }
-        }
-    }
-    
-    override fun register(code: Long, passwordMD5: ByteArray, configuration: BotConfiguration): MiraiBotImpl {
-        logger.debug("Register bot {} with password(MD5): <size {}>", code, passwordMD5.size)
-        return processMiraiBot(code) {
-            BotFactory.newBot(code, passwordMD5, configuration.configurationProcess())
-        }.also { bot ->
-            launch { pushRegisteredEvent(bot) }
-        }
-    }
-    
-    
     override fun register(
         code: Long,
         password: String,
-        configuration: BotFactory.BotConfigurationLambda,
+        configuration: MiraiBotConfiguration,
     ): MiraiBotImpl {
         logger.debug("Register bot {} with password: <length {}>", code, password.length)
-        return processMiraiBot(code) {
-            BotFactory.newBot(code, password, configuration.configurationProcess())
+        val botConfiguration = configuration.createBotConfiguration {
+            it ?: createInitialBotConfiguration()
+        }.apply { configurationContext() }
+        
+        return processMiraiBot(code, configuration) {
+            BotFactory.newBot(code, password, botConfiguration)
         }.also { bot ->
             launch { pushRegisteredEvent(bot) }
         }
@@ -98,11 +83,14 @@ internal class MiraiBotManagerImpl(
     override fun register(
         code: Long,
         passwordMD5: ByteArray,
-        configuration: BotFactory.BotConfigurationLambda,
+        configuration: MiraiBotConfiguration,
     ): MiraiBotImpl {
         logger.debug("Register bot {} with password(MD5): <size {}>", code, passwordMD5.size)
-        return processMiraiBot(code) {
-            BotFactory.newBot(code, passwordMD5, configuration.configurationProcess())
+        val botConfiguration = configuration.createBotConfiguration {
+            it ?: createInitialBotConfiguration()
+        }.apply { configurationContext() }
+        return processMiraiBot(code, configuration) {
+            BotFactory.newBot(code, passwordMD5, botConfiguration)
         }.also { bot ->
             launch { pushRegisteredEvent(bot) }
         }
@@ -116,28 +104,29 @@ internal class MiraiBotManagerImpl(
     }
     
     
-    private fun BotConfiguration.configurationProcess(): BotConfiguration {
+    private fun createInitialBotConfiguration(): BotConfiguration {
+        return BotConfiguration {
+            botLoggerSupplier = { LoggerFactory.getLogger("love.forte.simbot.mirai.bot.${it.id}").asMiraiLogger() }
+            networkLoggerSupplier = { LoggerFactory.getLogger("love.forte.simbot.mirai.net.${it.id}").asMiraiLogger() }
+            deviceInfo = { simbotMiraiDeviceInfo(it.id) }
+        }
+    }
+    
+    private fun BotConfiguration.configurationContext(): BotConfiguration {
         parentCoroutineContext += coroutineContext
         return this
     }
     
-    private fun BotFactory.BotConfigurationLambda.configurationProcess(): BotFactory.BotConfigurationLambda {
-        return BotFactory.BotConfigurationLambda {
-            botLoggerSupplier = { LoggerFactory.getLogger("love.forte.simbot.mirai.bot.${it.id}").asMiraiLogger() }
-            networkLoggerSupplier = { LoggerFactory.getLogger("love.forte.simbot.mirai.net.${it.id}").asMiraiLogger() }
-            deviceInfo = { simbotMiraiDeviceInfo(it.id) }
-            
-            run { apply { invoke() } }
-            parentCoroutineContext += coroutineContext
-        }
-    }
-    
-    private inline fun processMiraiBot(code: Long, crossinline factory: () -> OriginalMiraiBot): MiraiBotImpl {
+    private inline fun processMiraiBot(
+        code: Long,
+        configuration: MiraiBotConfiguration,
+        crossinline factory: () -> OriginalMiraiBot,
+    ): MiraiBotImpl {
         return botCache.compute(code) { key, old ->
             if (old != null) {
                 throw BotAlreadyRegisteredException("$key")
             }
-            MiraiBotImpl(factory(), this@MiraiBotManagerImpl, eventProcessor, component)
+            MiraiBotImpl(factory(), this@MiraiBotManagerImpl, eventProcessor, component, configuration)
         }!!.also {
             val originalBot = it.originalBot
             originalBot.supervisorJob.invokeOnCompletion {
