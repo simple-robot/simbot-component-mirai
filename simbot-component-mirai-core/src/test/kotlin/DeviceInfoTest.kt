@@ -24,7 +24,7 @@ import love.forte.simbot.component.mirai.SimpleDeviceInfo
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.toSimple
 import net.mamoe.mirai.utils.DeviceInfo
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 
 /*
  *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>

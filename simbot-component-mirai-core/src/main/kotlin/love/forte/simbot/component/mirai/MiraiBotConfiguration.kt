@@ -26,6 +26,8 @@ import net.mamoe.mirai.utils.BotConfiguration
  * 与 [net.mamoe.mirai.utils.BotConfiguration] 不同，
  * 此配置类是由simbot所需的。
  *
+ * @see createMiraiBotConfiguration
+ *
  * @author ForteScarlet
  */
 public data class MiraiBotConfiguration(
@@ -80,6 +82,15 @@ public data class MiraiBotConfiguration(
         val initialBotConfiguration = initialBotConfigurationResolver(initialBotConfiguration)
         return initialBotConfiguration.apply { botConfigurationLambda.apply { invoke() } }
     }
-    
-    
+}
+
+
+/**
+ * 构建一个 [MiraiBotConfiguration] 并进行配置。
+ */
+public inline fun createMiraiBotConfiguration(
+    initial: MiraiBotConfiguration = MiraiBotConfiguration(),
+    block: MiraiBotConfiguration.() -> Unit,
+): MiraiBotConfiguration {
+    return initial.also(block)
 }

@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
@@ -173,6 +174,7 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
     
     private val MessageRecallEvent.FriendRecall.cacheId: String
         get() {
+            // md5..?
             return buildString(64) {
                 messageIds.joinTo(this, separator = ".", postfix = ",")
                 messageInternalIds.joinTo(this, separator = ".", postfix = ",")
