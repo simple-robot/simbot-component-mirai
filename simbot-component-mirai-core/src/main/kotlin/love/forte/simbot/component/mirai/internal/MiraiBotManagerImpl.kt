@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -74,6 +73,7 @@ internal class MiraiBotManagerImpl(
         }.apply { configurationContext() }
         
         return processMiraiBot(code, configuration) {
+            println(botConfiguration.parentCoroutineContext[Job])
             BotFactory.newBot(code, password, botConfiguration)
         }.also { bot ->
             launch { pushRegisteredEvent(bot) }

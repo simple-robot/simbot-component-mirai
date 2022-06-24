@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -30,7 +29,7 @@ import net.mamoe.mirai.utils.BotConfiguration
  *
  * @author ForteScarlet
  */
-public data class MiraiBotConfiguration(
+public class MiraiBotConfiguration(
     /**
      * 消息撤回事件的消息缓存策略。
      * 默认使用 [InvalidMiraiRecallMessageCacheStrategy]。
@@ -45,11 +44,20 @@ public data class MiraiBotConfiguration(
     
     /**
      * 初始化的配置类。
+     *
+     * 默认情况下, 当没有覆盖初始配置类的时候，simbot会提供一个提前准备了simbot基础信息的[BotConfiguration]。
+     * 但是如果通过 [initialBotConfiguration] 函数覆盖了初始配置类，则simbot将会直接完全按照初始配置类使用，
+     * 不再提供拥有simbot特殊配置的配置类。
+     *
+     * 如果你想基于特殊配置类之上进行配置，请使用 [botConfiguration] 函数进行配置，而不是覆盖初始配置类。
      */
-    private var initialBotConfiguration: BotConfiguration? = null
+    public var initialBotConfiguration: BotConfiguration? = null
     
     /**
      * 追加对配置类的额外配置。
+     *
+     * 与 [initialBotConfiguration] 不同，[botConfiguration] 添加的只是 **额外** 配置，
+     * 不会影响 [initialBotConfiguration] 属性的特性。
      *
      */
     @Suppress("MemberVisibilityCanBePrivate")
@@ -78,7 +86,7 @@ public data class MiraiBotConfiguration(
     /**
      * 根据配置构建 [BotConfiguration] 实例。
      */
-    public fun createBotConfiguration(initialBotConfigurationResolver: (BotConfiguration?) -> BotConfiguration): BotConfiguration {
+    internal fun createBotConfiguration(initialBotConfigurationResolver: (BotConfiguration?) -> BotConfiguration): BotConfiguration {
         val initialBotConfiguration = initialBotConfigurationResolver(initialBotConfiguration)
         return initialBotConfiguration.apply { botConfigurationLambda.apply { invoke() } }
     }

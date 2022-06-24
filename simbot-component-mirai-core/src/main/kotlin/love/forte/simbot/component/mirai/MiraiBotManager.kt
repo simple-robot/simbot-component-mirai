@@ -12,11 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -111,7 +112,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     /**
      * 注册一个Bot。
      *
-     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 此函数构建的 [MiraiBot] 中，如果配置了[MiraiBotConfiguration.initialBotConfiguration],
+     * 则将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
      * 包括其中的设备信息配置、logger配置等。
      *
      * @param code 账号
@@ -119,6 +121,21 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param configuration simbot中的bot配置类
      */
     public abstract fun register(code: Long, password: String, configuration: MiraiBotConfiguration): MiraiBot
+    
+    
+    /**
+     * 注册一个Bot。
+     *
+     * 此函数构建的 [MiraiBot] 中，如果配置了[MiraiBotConfiguration.initialBotConfiguration],
+     * 则将会完全的直接使用 [configuration] 配置结果中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 包括其中的设备信息配置、logger配置等。
+     *
+     * @param code 账号
+     * @param password 密码
+     * @param configuration simbot中的bot配置类配置函数
+     */
+    public fun register(code: Long, password: String, configuration: MiraiBotConfigurationConfigurator): MiraiBot =
+        register(code, password, configuration.run { MiraiBotConfiguration().also { c -> c.config() } })
     
     
     /**
@@ -133,7 +150,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     /**
      * 注册一个Bot。
      *
-     * 此函数构建的 [MiraiBot] 将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 此函数构建的 [MiraiBot] 中，如果配置了[MiraiBotConfiguration.initialBotConfiguration],
+     * 则将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
      * 包括其中的设备信息配置、logger配置等。
      *
      * @param code 账号
@@ -141,6 +159,21 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param configuration simbot bot 配置
      */
     public abstract fun register(code: Long, passwordMD5: ByteArray, configuration: MiraiBotConfiguration): MiraiBot
+    
+    
+    /**
+     * 注册一个Bot。
+     *
+     * 此函数构建的 [MiraiBot] 中，如果配置了[MiraiBotConfiguration.initialBotConfiguration],
+     * 则将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 包括其中的设备信息配置、logger配置等。
+     *
+     * @param code 账号
+     * @param passwordMD5 密码的MD5字节数组
+     * @param configuration simbot bot 配置函数
+     */
+    public fun register(code: Long, passwordMD5: ByteArray, configuration: MiraiBotConfigurationConfigurator): MiraiBot =
+        register(code, passwordMD5, configuration.run { MiraiBotConfiguration().also { c -> c.config() } })
     
     /**
      * 注册一个Bot。
@@ -179,7 +212,9 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID_VALUE}) registered in the current application.")
             
             val configuration = MiraiBotManagerConfigurationImpl().also {
-                it.parentCoroutineContext = applicationConfiguration.coroutineContext
+                val context = applicationConfiguration.coroutineContext
+                val parentJob = context[Job]
+                it.parentCoroutineContext = context + SupervisorJob(parentJob)
                 configurator(it)
             }
             
@@ -190,6 +225,13 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     }
     
 }
+
+
+public fun interface MiraiBotConfigurationConfigurator {
+    public fun MiraiBotConfiguration.config()
+}
+
+
 
 /**
  * [MiraiBotManager] 的配置类。
