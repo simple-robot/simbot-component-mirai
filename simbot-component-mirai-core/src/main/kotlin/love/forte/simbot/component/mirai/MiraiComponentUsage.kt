@@ -12,14 +12,10 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
-import love.forte.simbot.BotManager
-import love.forte.simbot.FragileSimbotApi
-import love.forte.simbot.OriginBotManager
 import love.forte.simbot.ability.CompletionPerceivable
 import love.forte.simbot.application.Application
 import love.forte.simbot.application.ApplicationBuilder
@@ -202,38 +198,3 @@ private class MiraiComponentUsageBuilderImpl<A : Application> : MiraiComponentUs
 // endregion
 
 
-// region manager获取扩展
-/**
- * 通过 [OriginBotManager] 获取所有的 [MiraiBotManager]。
- *
- * @see OriginBotManager
- */
-@FragileSimbotApi
-@Suppress("NOTHING_TO_INLINE")
-public inline fun miraiComponents(): List<MiraiBotManager> = OriginBotManager.filterIsInstance<MiraiBotManager>()
-
-
-/**
- * 获取其中为 [MiraiBotManager] 的管理器。
- */
-@Suppress("NOTHING_TO_INLINE")
-public inline fun Iterable<BotManager<*>>.filterIsMiraiBotManagers(): List<MiraiBotManager> =
-    filterIsInstance<MiraiBotManager>()
-
-
-/**
- * 过滤获取其中为 [MiraiBotManager] 的管理器。
- */
-@Suppress("NOTHING_TO_INLINE")
-public inline fun Sequence<BotManager<*>>.filterIsMiraiBotManagers(): Sequence<MiraiBotManager> =
-    filterIsInstance<MiraiBotManager>()
-
-
-/**
- * 得到 [OriginBotManager] 中的所有 mirai 组件。
- *
- * @see OriginBotManager
- */
-@FragileSimbotApi
-public inline val OriginBotManager.miraiBotManagers: List<MiraiBotManager> get() = filterIsMiraiBotManagers()
-// endregion
