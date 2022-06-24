@@ -195,6 +195,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
  * [MiraiBotManager] 的配置类。
  *
  */
+@Suppress("DEPRECATION")
 public interface MiraiBotManagerConfiguration {
     
     /**
@@ -215,6 +216,7 @@ public interface MiraiBotManagerConfiguration {
      * @param configuration mirai的 bot 注册所需要的配置类。
      * @param onBot 当bot被注册后执行函数。
      */
+    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }")
     public fun register(
         code: Long,
         password: String,
@@ -230,6 +232,7 @@ public interface MiraiBotManagerConfiguration {
      * @param configuration mirai的 bot 注册所需要的配置类。
      * @param onBot 当bot被注册后执行函数。
      */
+    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }")
     public fun register(
         code: Long,
         passwordMd5: ByteArray,
@@ -247,6 +250,8 @@ public interface MiraiBotManagerConfiguration {
      * @param configuration simbot组件的 bot 注册所需要的配置类。
      * @param onBot 当bot被注册后执行函数。
      */
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }")
     public fun register(
         code: Long,
         password: String,
@@ -264,6 +269,8 @@ public interface MiraiBotManagerConfiguration {
      * @param configuration mirai的 bot 注册所需要的配置类。
      * @param onBot 当bot被注册后执行函数。
      */
+    @Suppress("DeprecatedCallableAddReplaceWith")
+    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }")
     public fun register(
         code: Long,
         passwordMd5: ByteArray,
@@ -302,6 +309,7 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
         }
     }
     
+    @Suppress("OVERRIDE_DEPRECATION", "OverridingDeprecatedMember")
     override fun register(
         code: Long,
         password: String,
@@ -312,6 +320,7 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
     }
     
     
+    @Suppress("OVERRIDE_DEPRECATION", "OverridingDeprecatedMember")
     override fun register(
         code: Long,
         passwordMd5: ByteArray,
@@ -333,9 +342,6 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
 @Deprecated("Use simbotApplication and install MiraiBotManager.")
 public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
     MiraiBotManager.newInstance(eventProcessor)
-
-
-// TODO 调整结构
 
 
 /**
@@ -451,13 +457,13 @@ public data class MiraiBotVerifyInfoConfiguration(
          */
         @SerialName("contactListCache")
         val contactListCacheConfiguration: ContactListCacheConfiguration = ContactListCacheConfiguration(),
-
+        
         /**
          * 是否开启登录缓存。
          * @see BotConfiguration.loginCacheEnabled
          */
         val loginCacheEnabled: Boolean = BotConfiguration.Default.loginCacheEnabled,
-
+        
         /**
          * 是否处理接受到的特殊换行符, 默认为 true
          * @see BotConfiguration.convertLineSeparator
@@ -477,7 +483,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          */
         val recallMessageCacheStrategy: RecallMessageCacheStrategyType = RecallMessageCacheStrategyType.INVALID,
         
-    ) {
+        ) {
         
         
         @OptIn(FragileSimbotApi::class)
@@ -575,8 +581,6 @@ public data class MiraiBotVerifyInfoConfiguration(
             LoggerFactory.getLogger(name).asMiraiLogger()
         }
         
-
-        
         
         public companion object {
             
@@ -597,6 +601,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          *
          */
         INVALID({ InvalidMiraiRecallMessageCacheStrategy }),
+        
         /**
          * 使用 [MemoryLruMiraiRecallMessageCacheStrategy]
          */
@@ -657,16 +662,17 @@ public data class MiraiBotVerifyInfoConfiguration(
     }
     
     
-    public val simbotBotConfiguration: MiraiBotConfiguration get() {
-        
-        return MiraiBotConfiguration(
-            config.recallMessageCacheStrategy.strategy(),
-        ).apply {
-            botConfiguration {
-                miraiBotConfiguration(this)
+    public val simbotBotConfiguration: MiraiBotConfiguration
+        get() {
+            
+            return MiraiBotConfiguration(
+                config.recallMessageCacheStrategy.strategy(),
+            ).apply {
+                botConfiguration {
+                    miraiBotConfiguration(this)
+                }
             }
         }
-    }
     
     
 }
@@ -717,4 +723,7 @@ internal class MiraiProtocolSerializer :
 
 @OptIn(InternalApi::class)
 internal class RecallMessageCacheStrategyTypeSerializer :
-        EnumStringSerializer<MiraiBotVerifyInfoConfiguration.RecallMessageCacheStrategyType>("RecallMessageCacheStrategyType", MiraiBotVerifyInfoConfiguration.RecallMessageCacheStrategyType::valueOf)
+    EnumStringSerializer<MiraiBotVerifyInfoConfiguration.RecallMessageCacheStrategyType>(
+        "RecallMessageCacheStrategyType",
+        MiraiBotVerifyInfoConfiguration.RecallMessageCacheStrategyType::valueOf
+    )
