@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 @file:JvmName("MiraiComponents")
@@ -42,7 +41,7 @@ public class MiraiComponent : Component {
     /**
      * 代表组件的唯一标识。
      */
-    override val id: ID get() = componentID
+    override val id: String get() = ID_VALUE
     
     /**
      * 得到 [MiraiComponent] 所使用的消息序列化信息。
@@ -87,6 +86,7 @@ public class MiraiComponent : Component {
          * [Factory.ID_VALUE] 的ID实例。
          */
         @JvmField
+        @Deprecated("Unused")
         public val componentID: ID = ID_VALUE.ID
         
         /**

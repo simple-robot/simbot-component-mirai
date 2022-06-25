@@ -84,7 +84,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     override fun register(verifyInfo: BotVerifyInfo): MiraiBot {
         val serializer = MiraiBotVerifyInfoConfiguration.serializer()
         
-        if (verifyInfo.componentId != this.component.id.literal) {
+        if (verifyInfo.componentId != this.component.id) {
             logger.debug("[{}] mismatch by mirai: [{}] != [{}]", verifyInfo.name, component, this.component.id)
             throw ComponentMismatchException("[$component] != [${this.component.id}]")
         }
@@ -208,7 +208,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         ): MiraiBotManager {
             // configurator ignore
             // find self
-            val component = components.find { it.id == MiraiComponent.componentID } as? MiraiComponent
+            val component = components.find { it.id == MiraiComponent.ID_VALUE } as? MiraiComponent
                 ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID_VALUE}) registered in the current application.")
             
             val configuration = MiraiBotManagerConfigurationImpl().also {
