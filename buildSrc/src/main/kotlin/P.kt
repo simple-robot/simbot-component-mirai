@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 abstract class SimbotProject {
@@ -57,7 +56,7 @@ sealed class P : SimbotProject() {
             // e.g. 3.0.0.0.preview.1.0
             major = "${Simbot.version.major}.${Simbot.version.minor}",
             minor = 0, patch = 0,
-            status = preview(minor = 11, patch = 0),
+            status = preview(minor = 11, patch = 1),
             isSnapshot = isSnapshot
         )
         const val GROUP = "${Simbot.GROUP}.component"
