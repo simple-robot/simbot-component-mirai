@@ -73,7 +73,6 @@ internal class MiraiBotManagerImpl(
         }.apply { configurationContext() }
         
         return processMiraiBot(code, configuration) {
-            println(botConfiguration.parentCoroutineContext[Job])
             BotFactory.newBot(code, password, botConfiguration)
         }.also { bot ->
             launch { pushRegisteredEvent(bot) }
