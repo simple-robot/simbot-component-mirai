@@ -17,57 +17,24 @@
 
 
 plugins {
-    `java-library`
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("org.jetbrains.dokka")
+    id("simbot-mirai.module-conventions")
+    id("simbot-mirai.maven-publish")
 }
 
 
 dependencies {
     compileOnly(V.Simbot.Core.notation)
     
-    api(V.Mirai.CoreJvm.notation)
-    api(V.Kotlinx.Serialization.Json.notation)
+    api(libs.mirai)
+    api(libs.kotlinx.serialization.json)
     
-    compileOnly(V.Kotlinx.Serialization.Properties.notation)
-    compileOnly(V.Kotlinx.Serialization.Yaml.notation)
+    compileOnly(libs.kotlinx.serialization.properties)
+    compileOnly(libs.charleskorn.kaml)
     
-    testImplementation(V.Kotlinx.Serialization.Properties.notation)
-    testImplementation(V.Kotlinx.Serialization.Yaml.notation)
     
+    testImplementation(libs.kotlinx.serialization.properties)
+    testImplementation(libs.charleskorn.kaml)
     testImplementation(V.Simbot.Core.notation)
-    testImplementation(V.Kotlin.Test.Testng.notation)
-    // testImplementation()
-}
-
-
-tasks.getByName<Test>("test") {
-    // useJUnitPlatform()
-    useTestNG()
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        javaParameters = true
-        jvmTarget = "1.8"
-    }
-}
-
-tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
-    outputDirectory.set(File(rootProject.projectDir, "doc"))
-}
-
-kotlin {
-    // 严格模式
-    explicitApiWarning()
-
-
-    sourceSets.all {
-        languageSettings {
-            optIn("kotlin.RequiresOptIn")
-        }
-    }
 }
 
 

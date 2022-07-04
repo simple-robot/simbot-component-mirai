@@ -15,14 +15,17 @@
  *
  */
 
+package util
 
-plugins {
-    id("simbot-mirai.nexus-publish")
-    id("simbot-mirai.dokka-multi-module")
-    id("simbot-mirai.changelog-generator")
-}
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.extra
 
-group = P.ComponentMirai.GROUP
-version = P.ComponentMirai.VERSION
+/**
+ * 尝试从 [System.getProperty] 和 [System.getenv] 中获取指定属性。
+ * 优先使用 [System.getProperty]。
+ */
+fun systemProp(propKey: String, envKey: String = propKey): String? =
+    System.getProperty(propKey) ?: System.getenv(envKey)
 
-println("=== Current version: $version ===")
+
+fun Project.getProp(key: String): Any? = if (extra.has(key)) extra.get(key) else null

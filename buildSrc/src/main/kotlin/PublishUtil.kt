@@ -102,11 +102,11 @@ fun Project.configurePublishing(artifactId: String) {
             maven {
                 if (version.toString().contains("SNAPSHOT", true)) {
                     // snapshot
-                    name = Sonatype.`snapshot-oss`.NAME
-                    url = uri(Sonatype.`snapshot-oss`.URL)
+                    name = Sonatype.Snapshot.NAME
+                    url = uri(Sonatype.Snapshot.URL)
                 } else {
-                    name = Sonatype.oss.NAME
-                    url = uri(Sonatype.oss.URL)
+                    name = Sonatype.Central.NAME
+                    url = uri(Sonatype.Central.URL)
                 }
 
                 println("Publish repositories - name: $name")
@@ -218,20 +218,4 @@ inline val Project.sourceSets: SourceSetContainer
 
 fun Project.publishing(configure: PublishingExtension.() -> Unit) {
     (this as ExtensionAware).extensions.configure("publishing", configure)
-}
-
-
-@Suppress("ClassName")
-object Sonatype {
-    object oss {
-        const val NAME = "oss"
-        const val URL = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    }
-
-    object `snapshot-oss` {
-        const val NAME = "snapshot-oss"
-        const val URL = "https://oss.sonatype.org/content/repositories/snapshots/"
-        // const val URL = "https://oss.sonatype.org/content/repositories/snapshots/"
-
-    }
 }

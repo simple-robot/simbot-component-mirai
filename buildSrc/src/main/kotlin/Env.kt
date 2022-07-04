@@ -15,14 +15,10 @@
  *
  */
 
-
-plugins {
-    id("simbot-mirai.nexus-publish")
-    id("simbot-mirai.dokka-multi-module")
-    id("simbot-mirai.changelog-generator")
+object Env {
+    const val IS_SNAPSHOT = "SIMBOT_IS_SNAPSHOT"
+    const val SNAPSHOT_ONLY = "SIMBOT_SNAPSHOT_ONLY"
+    const val RELEASES_ONLY = "SIMBOT_RELEASES_ONLY"
+    
+    
 }
-
-group = P.ComponentMirai.GROUP
-version = P.ComponentMirai.VERSION
-
-println("=== Current version: $version ===")

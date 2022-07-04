@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 abstract class SimbotProject {
@@ -41,13 +42,13 @@ sealed class P : SimbotProject() {
 
         val isSnapshot get() = version.isSnapshot
 
-        val VERSION = version.fullVersion(true)
+        val VERSION: String get() = version.fullVersion(true)
 
     }
 
     object Simboot {
         const val GROUP = "love.forte.simbot.boot"
-        val VERSION = Simbot.VERSION
+        val VERSION: String get()  = Simbot.VERSION
     }
 
     object ComponentMirai {
@@ -60,7 +61,8 @@ sealed class P : SimbotProject() {
             isSnapshot = isSnapshot
         )
         const val GROUP = "${Simbot.GROUP}.component"
-        val VERSION: String = version.fullVersion(true)
+        const val DESCRIPTION = "Simple Robot框架下针对Mirai框架的组件实现"
+        val VERSION: String get() = version.fullVersion(true)
 
 
     }

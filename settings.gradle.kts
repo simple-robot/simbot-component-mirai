@@ -14,13 +14,19 @@
  *
  *
  */
-pluginManagement {
-    plugins {
-        id("org.jetbrains.dokka") version "1.6.10"
-    }
-}
 
 rootProject.name = "simbot-component-mirai"
+
+enableFeaturePreview("VERSION_CATALOGS")
+
+dependencyResolutionManagement {
+    @Suppress("UnstableApiUsage")
+    versionCatalogs {
+        create("libs") {
+            from(files(File(rootProject.projectDir, "libs.versions.toml")))
+        }
+    }
+}
 
 include(":simbot-component-mirai-core")
 include(":simbot-component-mirai-boot")
