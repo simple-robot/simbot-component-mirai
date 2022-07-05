@@ -15,7 +15,6 @@
  *
  */
 
-import gradle.kotlin.dsl.accessors._c787c0d43b9a088cc091c6042ccb1462.sourceSets
 import util.checkPublishConfigurable
 import util.systemProp
 

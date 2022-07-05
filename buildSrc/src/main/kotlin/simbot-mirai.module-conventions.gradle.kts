@@ -20,6 +20,7 @@ plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jetbrains.dokka")
+    idea
 }
 
 group = P.ComponentMirai.GROUP
@@ -72,6 +73,14 @@ tasks.withType<JavaCompile> {
 configurations.all {
     // check for updates every build
     resolutionStrategy.cacheChangingModulesFor(0, "seconds")
+}
+
+
+idea {
+    module {
+        isDownloadSources = true
+        isDownloadJavadoc = true
+    }
 }
 
 

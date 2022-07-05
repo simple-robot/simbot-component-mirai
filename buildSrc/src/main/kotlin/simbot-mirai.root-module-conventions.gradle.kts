@@ -14,17 +14,21 @@
  *
  *
  */
-
-
 plugins {
-    id("simbot-mirai.root-module-conventions")
-    id("simbot-mirai.nexus-publish")
-    id("simbot-mirai.dokka-multi-module")
-    id("simbot-mirai.changelog-generator")
+    idea
 }
 
 group = P.ComponentMirai.GROUP
 version = P.ComponentMirai.VERSION
 description = P.ComponentMirai.DESCRIPTION
 
-println("=== Current version: $version ===")
+idea {
+    project {
+        modules.forEach { module ->
+            module.apply {
+                isDownloadSources = true
+                isDownloadJavadoc = true
+            }
+        }
+    }
+}

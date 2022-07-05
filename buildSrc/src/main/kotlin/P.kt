@@ -54,7 +54,6 @@ sealed class P : SimbotProject() {
     object ComponentMirai {
         val isSnapshot get() = Simbot.isSnapshot
         val version = Version(
-            // e.g. 3.0.0.0.preview.1.0
             major = "${Simbot.version.major}.${Simbot.version.minor}",
             minor = 0, patch = 0,
             status = preview(minor = 13, patch = 0),

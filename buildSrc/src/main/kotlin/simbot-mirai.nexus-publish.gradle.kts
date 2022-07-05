@@ -40,10 +40,6 @@ plugins {
     id("io.github.gradle-nexus.publish-plugin")
 }
 
-group = P.ComponentMirai.GROUP
-version = P.ComponentMirai.VERSION
-description = P.ComponentMirai.DESCRIPTION
-
 
 val (isSnapshotOnly, isReleaseOnly, isPublishConfigurable) = checkPublishConfigurable()
 
