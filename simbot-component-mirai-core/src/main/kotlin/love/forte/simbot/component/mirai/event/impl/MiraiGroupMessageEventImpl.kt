@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.event.impl
@@ -64,7 +65,7 @@ internal data class MiraiGroupMessageEventImpl(
 
     //// api
 
-    override suspend fun delete(): Boolean {
+    override suspend fun recall(): Boolean {
         return try {
             messageContent.messageSourceOrNull?.recall() ?: return false
             true
