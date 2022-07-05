@@ -16,8 +16,8 @@
  */
 
 plugins {
-    `java-library`
-    kotlin("jvm")
+    id("simbot-mirai.module-conventions")
+    id("simbot-mirai.maven-publish")
 }
 
 dependencies {
@@ -26,43 +26,14 @@ dependencies {
     }
     compileOnly("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
     
-    
-    testImplementation(V.Kotlin.Test.Junit.notation)
-    testImplementation(V.Kotlinx.Serialization.Json.notation)
-    testImplementation(V.Kotlinx.Serialization.Yaml.notation)
+    testImplementation(libs.kotlinx.serialization.json)
+    testImplementation(libs.charleskorn.kaml)
     
     testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
+    testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
     testImplementation("love.forte.simbot.boot:simboot-core:${P.Simbot.VERSION}")
-    testImplementation("love.forte.simbot.boot:simboot-core-spring-boot-starter:${P.Simbot.VERSION}") {
-        exclude("org.springframework.boot", "spring-boot-starter-logging")
-    }
-    testImplementation("org.springframework.boot:spring-boot-starter-web:2.6.7") {
-        exclude("org.springframework.boot", "spring-boot-starter-logging")
-    }
+    testImplementation("love.forte.simbot.boot:simboot-core-spring-boot-starter:${P.Simbot.VERSION}")
+    testImplementation(libs.spring.boot.web)
 
     // implementation("love.forte.simple-robot:api:3.0.0-PREVIEW")
 }
-
-tasks.getByName<Test>("test") {
-    useJUnit()
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        javaParameters = true
-        jvmTarget = "1.8"
-    }
-}
-
-kotlin {
-    // 严格模式
-    explicitApiWarning()
-
-
-    sourceSets.all {
-        languageSettings {
-            optIn("kotlin.RequiresOptIn")
-        }
-    }
-}
-

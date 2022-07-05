@@ -15,22 +15,17 @@
  *
  */
 
-rootProject.name = "simbot-component-mirai"
+package util
 
-enableFeaturePreview("VERSION_CATALOGS")
+import org.gradle.api.Project
+import org.gradle.kotlin.dsl.extra
 
-dependencyResolutionManagement {
-    @Suppress("UnstableApiUsage")
-    versionCatalogs {
-        create("libs") {
-            from(files(File(rootProject.projectDir, "libs.versions.toml")))
-        }
-    }
-}
+/**
+ * 尝试从 [System.getProperty] 和 [System.getenv] 中获取指定属性。
+ * 优先使用 [System.getProperty]。
+ */
+fun systemProp(propKey: String, envKey: String = propKey): String? =
+    System.getProperty(propKey) ?: System.getenv(envKey)
 
-include(":simbot-component-mirai-core")
-include(":simbot-component-mirai-boot")
 
-// extra
-include(":simbot-component-mirai-extra-catcode")
-
+fun Project.getProp(key: String): Any? = if (extra.has(key)) extra.get(key) else null

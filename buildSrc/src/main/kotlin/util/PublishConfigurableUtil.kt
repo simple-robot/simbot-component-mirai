@@ -15,22 +15,22 @@
  *
  */
 
-rootProject.name = "simbot-component-mirai"
+package util
 
-enableFeaturePreview("VERSION_CATALOGS")
-
-dependencyResolutionManagement {
-    @Suppress("UnstableApiUsage")
-    versionCatalogs {
-        create("libs") {
-            from(files(File(rootProject.projectDir, "libs.versions.toml")))
-        }
+data class PublishConfigurableResult(
+    val isSnapshotOnly: Boolean,
+    val isReleaseOnly: Boolean,
+    val isPublishConfigurable: Boolean = when {
+        isSnapshotOnly -> P.Simbot.isSnapshot
+        isReleaseOnly -> !P.Simbot.isSnapshot
+        else -> true
     }
+)
+
+
+fun checkPublishConfigurable(): PublishConfigurableResult {
+    val isSnapshotOnly = (System.getProperty("snapshotOnly") ?: System.getenv(Env.SNAPSHOT_ONLY))?.equals("true", true) == true
+    val isReleaseOnly = (System.getProperty("releaseOnly") ?: System.getenv(Env.RELEASES_ONLY))?.equals("true", true) == true
+    
+    return PublishConfigurableResult(isSnapshotOnly, isReleaseOnly)
 }
-
-include(":simbot-component-mirai-core")
-include(":simbot-component-mirai-boot")
-
-// extra
-include(":simbot-component-mirai-extra-catcode")
-

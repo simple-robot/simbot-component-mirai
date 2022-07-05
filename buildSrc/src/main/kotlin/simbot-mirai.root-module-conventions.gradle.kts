@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -14,4 +14,21 @@
  *
  *
  */
+plugins {
+    idea
+}
 
+group = P.ComponentMirai.GROUP
+version = P.ComponentMirai.VERSION
+description = P.ComponentMirai.DESCRIPTION
+
+idea {
+    project {
+        modules.forEach { module ->
+            module.apply {
+                isDownloadSources = true
+                isDownloadJavadoc = true
+            }
+        }
+    }
+}

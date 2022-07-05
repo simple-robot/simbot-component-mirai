@@ -15,10 +15,8 @@
  *
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
-
+import gradle.kotlin.dsl.accessors._ef8df8565a6e8c0564755ef1bcb196f5.sourceSets
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.SourceSetContainer
@@ -37,15 +35,15 @@ fun Project.doPublish(artifactId: String = name) {
     val secretRingFile = File(project.rootDir, "ForteScarlet.gpg")
     extra[secretKeyRingFileKey] = secretRingFile
     setProperty(secretKeyRingFileKey, secretRingFile)
-
+    
     extensions.configure<SigningExtension>("signing") {
         sign(extensions.getByName<PublishingExtension>("publishing").publications)
     }
-
+    
     // signing {
-        // val key = local().getProperty("signing.keyId")
-        // val password = local().getProperty("signing.password")
-        // this.useInMemoryPgpKeys(key, password)
+    // val key = local().getProperty("signing.keyId")
+    // val password = local().getProperty("signing.password")
+    // this.useInMemoryPgpKeys(key, password)
     // }
 }
 
@@ -70,7 +68,7 @@ signing {
 
 
 fun Project.configurePublishing(artifactId: String) {
-
+    
     val sourcesJar by tasks.registering(Jar::class) {
         archiveClassifier.set("sources")
         from(sourceSets["main"].allSource)
@@ -80,90 +78,90 @@ fun Project.configurePublishing(artifactId: String) {
         @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
         archiveClassifier.set("javadoc")
     }
-
+    
     publishing {
         publications {
             register("mavenJava", MavenPublication::class) {
                 from(components["java"])
-
+                
                 groupId = rootProject.group.toString()
                 setArtifactId(artifactId)
                 version = project.version.toString()
-
+                
                 setupPom(project = project)
-
+                
                 artifact(sourcesJar)
                 artifact(javadocJar.get())
             }
         }
-
+        
         repositories {
             mavenLocal()
             maven {
                 if (version.toString().contains("SNAPSHOT", true)) {
                     // snapshot
-                    name = Sonatype.`snapshot-oss`.NAME
-                    url = uri(Sonatype.`snapshot-oss`.URL)
+                    name = Sonatype.Snapshot.NAME
+                    url = uri(Sonatype.Snapshot.URL)
                 } else {
-                    name = Sonatype.oss.NAME
-                    url = uri(Sonatype.oss.URL)
+                    name = Sonatype.Central.NAME
+                    url = uri(Sonatype.Central.URL)
                 }
-
+                
                 println("Publish repositories - name: $name")
                 println("Publish repositories - url:  $url")
-
+                
                 val username0 = getProp("sonatype.username")?.toString() ?: run {
                     println("[WARN] Cannot read property 'sonatype.username' from local() for $artifactId")
                     return@maven
                 }
-                    // ?: throw NullPointerException("snapshots-sonatype-username")
+                // ?: throw NullPointerException("snapshots-sonatype-username")
                 val password0 = getProp("sonatype.password")?.toString()
                     ?: throw NullPointerException("snapshots-sonatype-password")
-
+                
                 credentials {
                     username = username0
                     password = password0
                 }
             }
         }
-
+        
     }
-
+    
 }
 
 // fun Project.configurePublishingLocal(artifactId: String) {
 // val sourcesJar by tasks.registering(Jar::class) {
-    //     archiveClassifier.set("sources")
-    //     from(sourceSets["main"].allSource)
-    // }
-    // // val sourcesJar = tasks["sourcesJar"]
-    // val javadocJar = tasks.register("javadocJar", Jar::class) {
-    //     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-    //     archiveClassifier.set("javadoc")
-    // }
-    //
-    // publishing {
-    //     publications {
-    //         register("mavenJava", MavenPublication::class) {
-    //             from(components["java"])
-    //
-    //             groupId = rootProject.group.toString()
-    //             version = project.version.toString()
-    //
-    //             setupPom(project = project)
-    //
-    //             artifact(sourcesJar)
-    //             artifact(javadocJar.get())
-    //         }
-    //     }
-    //
-    //     repositories {
-    //         mavenLocal().also {
-    //             println(it.name)
-    //             println(it.url)
-    //         }
-    //     }
-    // }
+//     archiveClassifier.set("sources")
+//     from(sourceSets["main"].allSource)
+// }
+// // val sourcesJar = tasks["sourcesJar"]
+// val javadocJar = tasks.register("javadocJar", Jar::class) {
+//     @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+//     archiveClassifier.set("javadoc")
+// }
+//
+// publishing {
+//     publications {
+//         register("mavenJava", MavenPublication::class) {
+//             from(components["java"])
+//
+//             groupId = rootProject.group.toString()
+//             version = project.version.toString()
+//
+//             setupPom(project = project)
+//
+//             artifact(sourcesJar)
+//             artifact(javadocJar.get())
+//         }
+//     }
+//
+//     repositories {
+//         mavenLocal().also {
+//             println(it.name)
+//             println(it.url)
+//         }
+//     }
+// }
 // }
 
 
@@ -175,12 +173,12 @@ fun MavenPublication.setupPom(project: Project) {
             connection.set("scm:$vcs.git")
             developerConnection.set("scm:${vcs.replace("https:", "git:")}.git")
         }
-
+        
         issueManagement {
             system.set("GitHub Issue Management")
             url.set("$vcs/issues")
         }
-
+        
         licenses {
             license {
                 name.set("GNU GENERAL PUBLIC LICENSE, Version 3")
@@ -191,7 +189,7 @@ fun MavenPublication.setupPom(project: Project) {
                 url.set("https://www.gnu.org/licenses/lgpl-3.0-standalone.html")
             }
         }
-
+        
         developers {
             developer {
                 id.set("forte")
@@ -199,39 +197,25 @@ fun MavenPublication.setupPom(project: Project) {
                 email.set("ForteScarlet@163.com")
             }
         }
-
+        
         withXml {
             val root = asNode()
             root.appendNode("description", project.description)
             root.appendNode("name", project.name)
             root.appendNode("url", vcs)
         }
-
+        
     }
-
+    
 }
 
 
-inline val Project.sourceSets: SourceSetContainer
+val Project.sourceSets: SourceSetContainer
     get() = extensions.getByName("sourceSets") as SourceSetContainer
 
 
-fun Project.publishing(configure: PublishingExtension.() -> Unit) {
-    (this as ExtensionAware).extensions.configure("publishing", configure)
-}
-
-
-@Suppress("ClassName")
-object Sonatype {
-    object oss {
-        const val NAME = "oss"
-        const val URL = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    }
-
-    object `snapshot-oss` {
-        const val NAME = "snapshot-oss"
-        const val URL = "https://oss.sonatype.org/content/repositories/snapshots/"
-        // const val URL = "https://oss.sonatype.org/content/repositories/snapshots/"
-
+inline fun Project.publishing(crossinline configure: PublishingExtension.() -> Unit) {
+    this.extensions.configure<PublishingExtension>("publishing") {
+        configure()
     }
 }

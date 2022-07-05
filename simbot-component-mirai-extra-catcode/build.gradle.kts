@@ -17,11 +17,8 @@
 
 
 plugins {
-    `java-library`
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("org.jetbrains.dokka")
-    //kotlin("kapt")
+    id("simbot-mirai.module-conventions")
+    id("simbot-mirai.maven-publish")
 }
 
 
@@ -30,38 +27,6 @@ dependencies {
     api("love.forte:catcode:1.0.0-BETA.1")
     
     compileOnly(V.Simbot.Core.notation)
-    
     testImplementation(V.Simbot.Core.notation)
-    testImplementation(V.Kotlin.Test.Junit5.notation)
 }
-
-
-tasks.getByName<Test>("test") {
-    useJUnitPlatform()
-}
-
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions {
-        javaParameters = true
-        jvmTarget = "1.8"
-    }
-}
-
-tasks.withType<org.jetbrains.dokka.gradle.DokkaTask>().configureEach {
-    outputDirectory.set(File(rootProject.projectDir, "doc"))
-}
-
-kotlin {
-    // 严格模式
-    explicitApiWarning()
-
-
-    sourceSets.all {
-        languageSettings {
-            optIn("kotlin.RequiresOptIn")
-        }
-    }
-}
-
-
 

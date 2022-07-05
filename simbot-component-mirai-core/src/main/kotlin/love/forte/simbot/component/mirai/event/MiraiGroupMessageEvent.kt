@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -111,7 +112,7 @@ public interface MiraiGroupMessageEvent :
      * @see net.mamoe.mirai.message.data.MessageSource.recall
      */
     @JvmSynthetic
-    override suspend fun delete(): Boolean
+    public suspend fun recall(): Boolean
 
 
     //region reply api
