@@ -37,10 +37,10 @@ sealed class P : SimbotProject() {
         val version = Version(
             "3", 0, 0,
             status = preview(19, 0),
-            isSnapshot = System.getProperty("isSnapshot")?.equals("true", true) ?: false
+            isSnapshot = isSnapshot()
         )
 
-        val isSnapshot get() = version.isSnapshot
+        val isSnapshot: Boolean get() = version.isSnapshot
 
         val VERSION: String get() = version.fullVersion(true)
 
@@ -156,4 +156,12 @@ data class PVS(
 internal fun preview(minor: Int, patch: Int) = PVS(PVS.PREVIEW_STATUS, minor, patch)
 
 
-private fun isSnapshot() {}
+private fun isSnapshot(): Boolean {
+    println("property: ${System.getProperty("simbot.snapshot")}")
+    println("env: ${System.getenv(Env.IS_SNAPSHOT)}")
+    
+    return System.getProperty("simbot.snapshot")?.toBoolean()
+        ?: System.getenv(Env.IS_SNAPSHOT)?.toBoolean()
+        ?: false
+    
+}
