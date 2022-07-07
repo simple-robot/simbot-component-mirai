@@ -19,7 +19,7 @@ package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
-import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.component.mirai.event.InvitorUserInfo
 import love.forte.simbot.component.mirai.event.MiraiBotInvitedJoinGroupRequestEvent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl

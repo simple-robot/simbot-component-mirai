@@ -12,9 +12,10 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
-package love.forte.simbot.component.mirai
+package love.forte.simbot.component.mirai.bot
 
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -33,6 +34,11 @@ import love.forte.simbot.application.ApplicationBuilder
 import love.forte.simbot.application.ApplicationConfiguration
 import love.forte.simbot.application.EventProviderAutoRegistrarFactory
 import love.forte.simbot.application.EventProviderFactory
+import love.forte.simbot.bot.BotManager
+import love.forte.simbot.bot.BotVerifyInfo
+import love.forte.simbot.bot.ComponentMismatchException
+import love.forte.simbot.bot.VerifyFailureException
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
 import love.forte.simbot.event.EventProcessor
@@ -432,30 +438,30 @@ public data class MiraiBotVerifyInfoConfiguration(
     @OptIn(FragileSimbotApi::class)
     @Serializable
     public data class Config(
-        
+    
         /** mirai配置自定义deviceInfoSeed的时候使用的随机种子。默认为1. */
         val deviceInfoSeed: Long = DEFAULT_SIMBOT_MIRAI_DEVICE_INFO_SEED,
-        
+    
         @Serializable(FileSerializer::class)
         val workingDir: File = BotConfiguration.Default.workingDir,
-        
+    
         val heartbeatPeriodMillis: Long = BotConfiguration.Default.heartbeatPeriodMillis,
-        
+    
         val statHeartbeatPeriodMillis: Long = BotConfiguration.Default.statHeartbeatPeriodMillis,
-        
+    
         val heartbeatTimeoutMillis: Long = BotConfiguration.Default.heartbeatTimeoutMillis,
-        
+    
         @Serializable(HeartbeatStrategySerializer::class)
         val heartbeatStrategy: BotConfiguration.HeartbeatStrategy = BotConfiguration.Default.heartbeatStrategy,
-        
+    
         val reconnectionRetryTimes: Int = BotConfiguration.Default.reconnectionRetryTimes,
         val autoReconnectOnForceOffline: Boolean = BotConfiguration.Default.autoReconnectOnForceOffline,
-        
+    
         @Serializable(MiraiProtocolSerializer::class)
         val protocol: BotConfiguration.MiraiProtocol = BotConfiguration.Default.protocol,
-        
+    
         val highwayUploadCoroutineCount: Int = BotConfiguration.Default.highwayUploadCoroutineCount,
-        
+    
         /**
          * 如果是字符串，尝试解析为json
          * 否则视为文件路径。
@@ -464,26 +470,26 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 优先使用此属性。
          */
         val deviceInfoJson: DeviceInfo? = null,
-        
+    
         /**
          * 优先使用 [deviceInfo].
          */
         val simpleDeviceInfoJson: SimpleDeviceInfo? = null,
-        
+    
         /**
          * 加载的设备信息json文件的路径。
          * 如果是 `classpath:` 开头，则会优先尝试加载resource，
          * 否则优先视为文件路径加载。
          */
         val deviceInfoFile: String? = null,
-        
+    
         val noNetworkLog: Boolean = false,
         val noBotLog: Boolean = false,
         val isShowingVerboseEventLog: Boolean = BotConfiguration.Default.isShowingVerboseEventLog,
-        
+    
         @Serializable(FileSerializer::class)
         val cacheDir: File = BotConfiguration.Default.cacheDir,
-        
+    
         /**
          *
          * json:
@@ -499,13 +505,13 @@ public data class MiraiBotVerifyInfoConfiguration(
          */
         @SerialName("contactListCache")
         val contactListCacheConfiguration: ContactListCacheConfiguration = ContactListCacheConfiguration(),
-        
+    
         /**
          * 是否开启登录缓存。
          * @see BotConfiguration.loginCacheEnabled
          */
         val loginCacheEnabled: Boolean = BotConfiguration.Default.loginCacheEnabled,
-        
+    
         /**
          * 是否处理接受到的特殊换行符, 默认为 true
          * @see BotConfiguration.convertLineSeparator
@@ -524,7 +530,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          *
          */
         val recallMessageCacheStrategy: RecallMessageCacheStrategyType = RecallMessageCacheStrategyType.INVALID,
-        
+    
         ) {
         
         

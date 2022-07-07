@@ -22,6 +22,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.*
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.event.impl.*
 import love.forte.simbot.component.mirai.message.MiraiImage

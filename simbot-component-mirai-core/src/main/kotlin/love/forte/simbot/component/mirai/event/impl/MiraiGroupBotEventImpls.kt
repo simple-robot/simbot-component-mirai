@@ -21,10 +21,14 @@ import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.action.ActionType
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.component.mirai.MemberRole
+import love.forte.simbot.component.mirai.MiraiGroup
+import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
+import love.forte.simbot.component.mirai.simbotRole
 import love.forte.simbot.randomID
 import net.mamoe.mirai.utils.MiraiExperimentalApi
 import kotlin.time.Duration

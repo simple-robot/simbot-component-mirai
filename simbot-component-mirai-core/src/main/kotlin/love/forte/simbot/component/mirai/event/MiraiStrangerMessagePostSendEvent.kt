@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -19,8 +20,8 @@ package love.forte.simbot.component.mirai.event
 import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
-import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiStranger
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.UserInfoContainer
 import love.forte.simbot.event.BaseEventKey
 import love.forte.simbot.event.ContactMessageEvent

@@ -17,8 +17,8 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.component.mirai.MiraiBot
-import love.forte.simbot.component.mirai.MiraiBotManager
+import love.forte.simbot.component.mirai.bot.MiraiBot
+import love.forte.simbot.component.mirai.bot.MiraiBotManager
 import love.forte.simbot.component.mirai.event.MiraiInternalBotEvent.Key
 import love.forte.simbot.event.BaseEventKey
 import love.forte.simbot.event.Event

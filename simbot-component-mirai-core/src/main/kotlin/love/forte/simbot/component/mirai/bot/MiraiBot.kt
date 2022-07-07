@@ -15,9 +15,13 @@
  *
  */
 
-package love.forte.simbot.component.mirai
+package love.forte.simbot.component.mirai.bot
 
-import love.forte.simbot.*
+import love.forte.simbot.Api4J
+import love.forte.simbot.ID
+import love.forte.simbot.LongID
+import love.forte.simbot.bot.*
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.MiraiImage
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
 import love.forte.simbot.definition.GroupBot
@@ -128,7 +132,7 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     
     // endregion
     
-    //region contacts api
+    // region contacts api
     /**
      * 陌生人数据序列。
      *
@@ -154,9 +158,9 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      * @see OriginalMiraiBot.getStranger
      */
     public fun getStranger(id: ID): MiraiStranger?
-    //endregion
+    // endregion
     
-    //region contacts api
+    // region contacts api
     /**
      * 联系人数据序列。
      *
@@ -191,8 +195,7 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      */
     @OptIn(Api4J::class)
     override fun getContact(id: ID): MiraiContact?
-    //endregion
-    
+    // endregion
     
     
     // region group apis
