@@ -19,8 +19,8 @@ import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.json.Json
 import love.forte.simbot.FragileSimbotApi
-import love.forte.simbot.component.mirai.MiraiBotVerifyInfoConfiguration
 import love.forte.simbot.component.mirai.SimpleDeviceInfo
+import love.forte.simbot.component.mirai.bot.MiraiBotVerifyInfoConfiguration
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.toSimple
 import net.mamoe.mirai.utils.DeviceInfo

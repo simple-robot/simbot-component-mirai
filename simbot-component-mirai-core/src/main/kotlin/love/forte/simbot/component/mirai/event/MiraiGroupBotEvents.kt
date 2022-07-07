@@ -22,9 +22,9 @@ import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.ID
 import love.forte.simbot.action.ActionType
 import love.forte.simbot.component.mirai.MemberRole
-import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.GroupInfo
 import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.event.*

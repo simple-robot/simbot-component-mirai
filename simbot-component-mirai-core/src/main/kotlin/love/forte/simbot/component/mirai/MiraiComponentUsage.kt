@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
@@ -20,6 +21,8 @@ import love.forte.simbot.ability.CompletionPerceivable
 import love.forte.simbot.application.Application
 import love.forte.simbot.application.ApplicationBuilder
 import love.forte.simbot.application.ApplicationBuilderDsl
+import love.forte.simbot.component.mirai.bot.MiraiBotManager
+import love.forte.simbot.component.mirai.bot.MiraiBotManagerConfiguration
 
 
 // region 组件、provider的安装

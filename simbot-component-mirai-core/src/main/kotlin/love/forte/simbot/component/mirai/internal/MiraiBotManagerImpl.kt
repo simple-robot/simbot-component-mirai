@@ -12,17 +12,23 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.internal
 
 import kotlinx.coroutines.*
-import love.forte.simbot.BotAlreadyRegisteredException
 import love.forte.simbot.ID
 import love.forte.simbot.LoggerFactory
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.bot.BotAlreadyRegisteredException
+import love.forte.simbot.component.mirai.MiraiBotConfiguration
+import love.forte.simbot.component.mirai.MiraiComponent
+import love.forte.simbot.component.mirai.bot.MiraiBot
+import love.forte.simbot.component.mirai.bot.MiraiBotManager
+import love.forte.simbot.component.mirai.bot.MiraiBotManagerConfiguration
 import love.forte.simbot.component.mirai.event.MiraiBotRegisteredEvent
 import love.forte.simbot.component.mirai.event.impl.MiraiBotRegisteredEventImpl
+import love.forte.simbot.component.mirai.simbotMiraiDeviceInfo
 import love.forte.simbot.event.EventProcessingResult
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable

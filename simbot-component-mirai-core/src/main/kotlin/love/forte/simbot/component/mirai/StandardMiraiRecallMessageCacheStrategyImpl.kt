@@ -19,6 +19,7 @@ package love.forte.simbot.component.mirai
 
 import love.forte.simbot.component.mirai.MemoryLruMiraiRecallMessageCacheStrategy.Companion.DEFAULT_FRIEND_MAX_SIZE
 import love.forte.simbot.component.mirai.MemoryLruMiraiRecallMessageCacheStrategy.Companion.DEFAULT_GROUP_MAX_SIZE
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import net.mamoe.mirai.event.events.FriendMessageEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent
 import net.mamoe.mirai.event.events.MessageRecallEvent

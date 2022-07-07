@@ -19,10 +19,10 @@ package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.Api4J
 import love.forte.simbot.ID
-import love.forte.simbot.component.mirai.MiraiBot
 import love.forte.simbot.component.mirai.MiraiContact
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.event.*
 import love.forte.simbot.message.doSafeCast
 import net.mamoe.mirai.event.Event as OriginalMiraiEvent
