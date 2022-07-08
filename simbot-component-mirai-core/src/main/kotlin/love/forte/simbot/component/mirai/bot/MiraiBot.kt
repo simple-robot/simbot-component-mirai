@@ -24,6 +24,7 @@ import love.forte.simbot.bot.*
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.MiraiImage
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
+import love.forte.simbot.definition.FriendsContainer
 import love.forte.simbot.definition.GroupBot
 import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.UserInfo
