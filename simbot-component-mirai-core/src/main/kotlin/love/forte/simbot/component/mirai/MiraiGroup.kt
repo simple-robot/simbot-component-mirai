@@ -156,6 +156,13 @@ public interface MiraiGroup : Group, MiraiChatroom {
      * 群没有“上层”概念。始终得到null。
      */
     @JvmSynthetic
-    override suspend fun previous(): Group? = null
+    override suspend fun previous(): Organization? = null
+    
+    /**
+     * 群没有“上层”概念。始终得到null。
+     */
+    @Api4J
+    override val previous: Organization?
+        get() = null
 }
 
