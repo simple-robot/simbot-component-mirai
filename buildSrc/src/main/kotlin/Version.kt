@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -104,7 +104,7 @@ data class VersionStatus(
     val patch: Int?,
     
     /**
-     * 版本额外后缀，例如 `-M1`、`-RC`。
+     * 版本额外后缀，例如 `M1`、`RC`。
      */
     val suffix: VersionStatus? = null,
 ) {
