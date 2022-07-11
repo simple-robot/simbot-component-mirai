@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -11,7 +11,6 @@
  *  https://www.gnu.org/licenses
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
- *
  *
  */
 
@@ -100,14 +99,14 @@ data class VersionStatus(
     val minor: Int?,
     
     /**
-     * 修订号。只有 [minor] 不为null的时候才会被检测。应当 >= 0。
+     * 修订号。只有 [minor] 不为null的时候才会被检测。不为null时才会被拼接，应当 >= 0。
      */
     val patch: Int?,
     
     /**
      * 版本额外后缀，例如 `-M1`、`-RC`。
      */
-    val suffix: String?,
+    val suffix: VersionStatus? = null,
 ) {
     
     fun joinToVersion(builder: StringBuilder) {
@@ -119,22 +118,31 @@ data class VersionStatus(
                     append('.').append(patch)
                 }
             }
-            if (suffix != null) {
-                append(suffix)
-            }
+            suffix?.joinToVersion(builder)
         }
     }
     
     companion object {
         const val PREVIEW_STATUS = "preview"
         const val BETA_STATUS = "beta"
+        const val ALPHA_STATUS = "alpha"
         
     }
 }
 
 
 internal fun VersionStatus.Companion.preview(minor: Int?, patch: Int?, suffix: String? = null) =
-    VersionStatus(PREVIEW_STATUS, ".", minor, patch, suffix)
+    VersionStatus(PREVIEW_STATUS, ".", minor, patch, suffix?.toVersionStatus())
 
 internal fun VersionStatus.Companion.beta(minor: Int?, patch: Int?, suffix: String? = null) =
-    VersionStatus(BETA_STATUS, "-", minor, patch, suffix)
+    VersionStatus(BETA_STATUS, "-", minor, patch, suffix?.toVersionStatus())
+
+internal fun VersionStatus.Companion.alpha(minor: Int?, patch: Int?, suffix: String? = null) =
+    VersionStatus(ALPHA_STATUS, "-", minor, patch, suffix?.toVersionStatus())
+
+private fun String.toVersionStatus(
+    joiner: String = "-",
+    minor: Int? = null,
+    patch: Int? = null,
+    suffix: VersionStatus? = null,
+): VersionStatus = VersionStatus(this, joiner, minor, patch, suffix)
