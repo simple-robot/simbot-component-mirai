@@ -18,6 +18,7 @@
 package love.forte.simbot.component.mirai
 
 import love.forte.simbot.Api4J
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.Contact
 import love.forte.simbot.definition.Stranger
 import love.forte.simbot.message.Message

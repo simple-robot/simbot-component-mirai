@@ -12,13 +12,14 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.internal
 
-import love.forte.simbot.component.mirai.MiraiBot
-import love.forte.simbot.component.mirai.MiraiGroupBot
 import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.bot.MiraiBot
+import love.forte.simbot.component.mirai.bot.MiraiGroupBot
 import net.mamoe.mirai.contact.NormalMember
 
 /**

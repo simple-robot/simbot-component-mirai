@@ -33,6 +33,7 @@ dependencies {
     testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
     testImplementation("love.forte.simbot.boot:simboot-core:${P.Simbot.VERSION}")
     testImplementation("love.forte.simbot.boot:simboot-core-spring-boot-starter:${P.Simbot.VERSION}")
+    testImplementation(libs.spring.boot.test)
     testImplementation(libs.spring.boot.web)
 
     // implementation("love.forte.simple-robot:api:3.0.0-PREVIEW")

@@ -12,16 +12,18 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
-package love.forte.simbot.component.mirai
+package love.forte.simbot.component.mirai.bot
 
 import love.forte.simbot.FragileSimbotApi
-import love.forte.simbot.OriginBotManager
 import love.forte.simbot.application.Application
 import love.forte.simbot.application.ApplicationBuilder
 import love.forte.simbot.application.BotRegistrar
 import love.forte.simbot.application.EventProvider
+import love.forte.simbot.bot.OriginBotManager
+import love.forte.simbot.component.mirai.MiraiComponent
 
 
 /**

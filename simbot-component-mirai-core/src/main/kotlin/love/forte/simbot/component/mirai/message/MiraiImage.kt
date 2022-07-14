@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import love.forte.simbot.Api4J
 import love.forte.simbot.ID
-import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.message.Image
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.doSafeCast

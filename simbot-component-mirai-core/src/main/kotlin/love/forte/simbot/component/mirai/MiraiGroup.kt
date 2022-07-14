@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai
@@ -20,6 +21,7 @@ import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.bot.MiraiGroupBot
 import love.forte.simbot.definition.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
@@ -154,6 +156,13 @@ public interface MiraiGroup : Group, MiraiChatroom {
      * 群没有“上层”概念。始终得到null。
      */
     @JvmSynthetic
-    override suspend fun previous(): Group? = null
+    override suspend fun previous(): Organization? = null
+    
+    /**
+     * 群没有“上层”概念。始终得到null。
+     */
+    @Api4J
+    override val previous: Organization?
+        get() = null
 }
 

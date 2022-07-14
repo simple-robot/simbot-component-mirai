@@ -20,7 +20,7 @@ package love.forte.simbot.component.mirai.event
 import love.forte.simbot.DiscreetSimbotApi
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
-import love.forte.simbot.component.mirai.MiraiBot
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.event.*
 import love.forte.simbot.message.doSafeCast
 import love.forte.simbot.randomID
