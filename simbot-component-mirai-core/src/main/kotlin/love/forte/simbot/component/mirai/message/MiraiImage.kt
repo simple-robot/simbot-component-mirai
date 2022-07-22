@@ -21,6 +21,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import love.forte.simbot.Api4J
+import love.forte.simbot.CharSequenceID
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.message.Image
@@ -233,7 +234,7 @@ internal class MiraiImageImpl(
     override val originalImage: OriginalMiraiImage,
     override val isFlash: Boolean,
 ) : MiraiImage {
-    override val id: ID = originalImage.imageId.ID
+    override val id: CharSequenceID = originalImage.imageId.ID
     override val key: Message.Key<MiraiImage> get() = MiraiImage.Key
     
     
