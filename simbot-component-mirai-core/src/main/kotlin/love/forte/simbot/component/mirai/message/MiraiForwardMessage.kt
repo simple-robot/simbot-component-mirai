@@ -28,6 +28,7 @@ import love.forte.simbot.message.MessageContent
 import love.forte.simbot.message.doSafeCast
 import net.mamoe.mirai.contact.User
 import net.mamoe.mirai.message.data.ForwardMessage
+import net.mamoe.mirai.message.data.ForwardMessageBuilder
 
 
 /**
@@ -201,5 +202,8 @@ internal data class MiraiForwardMessageNodeImpl(override val originalNode: Forwa
 }
 
 
-
+/**
+ *
+ * @see ForwardMessageBuilder
+ */
 public class MiraiForwardMessageBuilder // TODO
