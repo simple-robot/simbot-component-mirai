@@ -12,26 +12,23 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
-
-@file:Suppress("NOTHING_TO_INLINE")
 
 package love.forte.simbot.component.mirai.event
 
 import love.forte.simbot.ID
 import love.forte.simbot.SimbotIllegalStateException
-import love.forte.simbot.component.mirai.ID
-import love.forte.simbot.component.mirai.message.asSimbotMessage
+import love.forte.simbot.component.mirai.message.MiraiMessageChainContainer
+import love.forte.simbot.component.mirai.message.MiraiMessageChainContent
 import love.forte.simbot.message.Messages
 import love.forte.simbot.message.ReceivedMessageContent
-import love.forte.simbot.message.toMessages
 import love.forte.simbot.randomID
 import net.mamoe.mirai.contact.PermissionDeniedException
 import net.mamoe.mirai.event.events.MessagePostSendEvent
 import net.mamoe.mirai.message.data.MessageChain
 import net.mamoe.mirai.message.data.MessageSource
 import net.mamoe.mirai.message.data.MessageSource.Key.recall
-import net.mamoe.mirai.message.data.SingleMessage
 import net.mamoe.mirai.message.data.sourceOrNull
 import net.mamoe.mirai.event.events.MessageEvent as OriginalMiraiMessageEvent
 
@@ -41,62 +38,69 @@ import net.mamoe.mirai.event.events.MessageEvent as OriginalMiraiMessageEvent
  */
 @Suppress("MemberVisibilityCanBePrivate")
 public open class MiraiReceivedMessageContent internal constructor(
-    @Suppress("CanBeParameter")
-    public val originalMessageChain: MessageChain,
-
+    originalMessageChain: MessageChain,
+    
     /**
      * 消息源，即此消息的Mirai原生对象。
      *
      * 当此消息对象为通过 [MessagePostSendEvent] 事件而得到的时候，此属性有概率不存在。
+     * 当此属性不存在时，当前消息将无法被 [删除][MiraiReceivedMessageContent.delete].
+     */
+    messageSourceOrNull: MessageSource?,
+) : ReceivedMessageContent(), MiraiMessageChainContainer {
+    private val delegateContent = MiraiMessageChainContent(originalMessageChain, messageSourceOrNull)
+    
+    override val originalMessageChain: MessageChain
+        get() = delegateContent.originalMessageChain
+    
+    /**
+     * 当前消息中的消息源。
      */
     public val messageSourceOrNull: MessageSource?
-) : ReceivedMessageContent() {
-
+        get() = delegateContent.messageSourceOrNull
+    
     /**
      * 此消息中的 [MessageSource]. 不一定100%能够获取：当此消息对象为通过 [MessagePostSendEvent] 事件而得到的时候，
-     * [messageSource] 有概率不存在。当 [messageSource] 不存在的时候获取此属性将会抛出 [SimbotIllegalStateException].
+     * [messageSource] 有概率不存在。当 [messageSource] 不存在的时候获取此属性将会抛出 [IllegalStateException].
      *
      * 如果你想在正确处理 `null` 的情况下使用，请使用 [messageSourceOrNull].
      *
-     * @throws SimbotIllegalStateException 当消息内的 [messageSource] 实际不存在的时候。
+     * @throws IllegalStateException 当消息内的 [messageSource] 实际不存在的时候。
      *
      */
     public val messageSource: MessageSource
-        get() = messageSourceOrNull
+        get() = delegateContent.messageSourceOrNull
             ?: throw SimbotIllegalStateException("No 'MessageSource' in current message content.")
-
+    
     /**
      * 消息链。
      *
      * 消息链中不追加source. 如果需要, 使用 [originalMessageChain] 或者 [messageSource]。
      */
-    override val messages: Messages by lazy(
-        LazyThreadSafetyMode.PUBLICATION,
-        originalMessageChain.filter { it !is MessageSource }.map(SingleMessage::asSimbotMessage)::toMessages
-    )
-
+    override val messages: Messages
+        get() = delegateContent.messages
+    
     /**
      * mirai接收到的消息的ID。
      *
      * 当 [messageSourceOrNull] 为null的时候会使用 [randomID] 作为消息ID.
      *
-     *
      */
-    override val messageId: ID by lazy(LazyThreadSafetyMode.PUBLICATION) { messageSourceOrNull?.ID ?: randomID() }
+    override val messageId: ID
+        get() = delegateContent.messageId
     
     /**
      * 尝试撤回此消息。
      *
-     * @throws SimbotIllegalStateException see [messageSource]
      * @throws PermissionDeniedException see [MessageSource.recall]
-     * @throws IllegalStateException see [MessageSource.recall]
+     * @throws IllegalStateException see [messageSource]、[MessageSource.recall]
      *
      */
     override suspend fun delete(): Boolean {
         messageSource.recall()
         return true
     }
-
+    
     override fun toString(): String =
         "MiraiReceivedMessageContent(content=$originalMessageChain, messageSource=$messageSourceOrNull)"
 }
