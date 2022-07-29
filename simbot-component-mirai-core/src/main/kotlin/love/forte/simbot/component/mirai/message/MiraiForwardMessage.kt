@@ -199,3 +199,7 @@ internal data class MiraiForwardMessageNodeImpl(override val originalNode: Forwa
     @kotlin.jvm.Transient
     override val messageContent: MessageContent = MiraiMessageChainContent(originalNode.messageChain)
 }
+
+
+
+public class MiraiForwardMessageBuilder // TODO
