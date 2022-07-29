@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 @file:JvmName("MiraiMessageParserUtil")
@@ -23,15 +22,16 @@ import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
+import love.forte.simbot.component.mirai.message.MiraiForwardMessage.Key.asSimbot
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
+import love.forte.simbot.message.AtAll
+import love.forte.simbot.message.Face
 import love.forte.simbot.message.Message
+import love.forte.simbot.message.PlainText
 import love.forte.simbot.tryToLong
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.message.data.EmptyMessageChain
-import net.mamoe.mirai.message.data.MessageChain
-import net.mamoe.mirai.message.data.toMessageChain
-import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.At as MiraiAtFunc
 import net.mamoe.mirai.message.data.Audio as OriginalMiraiAudio
 import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
@@ -156,10 +156,11 @@ private object StandardParser : MiraiMessageParser {
             is net.mamoe.mirai.message.data.At -> At(message.target.ID)
             is net.mamoe.mirai.message.data.AtAll -> AtAll
             is net.mamoe.mirai.message.data.PlainText -> Text { message.content }
+            is net.mamoe.mirai.message.data.Face -> Face(message.id.ID)
             is OriginalMiraiImage -> message.asSimbot()
             is OriginalMiraiFlashImage -> message.asSimbot()
             is OriginalMiraiAudio -> message.asSimbot()
-            is net.mamoe.mirai.message.data.Face -> Face(message.id.ID)
+            is ForwardMessage -> message.asSimbot()
             
             // other messages.
             else -> SimbotOriginalMiraiMessage(message)

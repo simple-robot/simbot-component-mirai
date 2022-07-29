@@ -117,19 +117,27 @@ public class MiraiComponent : Component {
             polymorphic(Message.Element::class) {
                 subclass(SimbotOriginalMiraiMessage.serializer())
                 
-                ////
-                
+                //// image
                 polymorphic(MiraiImage::class) {
                     subclass(MiraiImageImpl.serializer())
                 }
                 subclass(MiraiImageImpl.serializer())
                 
-                ////
-                
+                //// audio
                 polymorphic(MiraiAudio::class) {
                     subclass(MiraiAudioImpl.serializer())
                 }
                 subclass(MiraiAudioImpl.serializer())
+                
+                //// forward message
+                polymorphic(MiraiForwardMessage::class) {
+                    subclass(MiraiForwardMessageImpl.serializer())
+                }
+                subclass(MiraiForwardMessageImpl.serializer())
+                
+                polymorphic(MiraiForwardMessage.Node::class) {
+                    subclass(MiraiForwardMessageNodeImpl.serializer())
+                }
                 
                 ////
                 @OptIn(MiraiExperimentalApi::class) subclass(MiraiShare.serializer())

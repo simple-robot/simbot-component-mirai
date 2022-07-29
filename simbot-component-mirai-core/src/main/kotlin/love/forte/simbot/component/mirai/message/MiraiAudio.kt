@@ -127,7 +127,7 @@ public class MiraiSendOnlyAudio(
  * @see OriginalMiraiAudio
  * @see MiraiAudio.asSimbot
  */
-public interface MiraiAudio : OriginalMiraiComputableSimbotMessage<MiraiAudio> {
+public interface MiraiAudio : OriginalMiraiDirectlySimbotMessage<MiraiAudio> {
     
     /**
      * Mirai的原生 [OriginalMiraiAudio] 对象实例。
@@ -141,8 +141,8 @@ public interface MiraiAudio : OriginalMiraiComputableSimbotMessage<MiraiAudio> {
     public val codec: AudioCodec get() = originalAudio.codec
     public val extraData: ByteArray? get() = originalAudio.extraData
     
-    @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage = originalAudio
+    override val originalMiraiMessage: OriginalMiraiAudio
+        get() = originalAudio
     
     public companion object Key : Message.Key<MiraiAudio> {
         

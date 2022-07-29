@@ -66,7 +66,7 @@ public interface OriginalMiraiComputableSimbotMessage<E : OriginalMiraiComputabl
     MiraiSimbotMessage<E> {
     @JvmSynthetic
     public suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage
-
+    
     @Api4J
     public fun getOriginalMiraiMessage(contact: Contact): OriginalMiraiMessage =
         runInBlocking { originalMiraiMessage(contact) }
@@ -87,10 +87,15 @@ public interface OriginalMiraiDirectlySimbotMessage<E : OriginalMiraiComputableS
      * 不需要通过 [Contact] 计算 [originalMiraiMessage] 而直接获取 [OriginalMiraiMessage] 对象。
      */
     public val originalMiraiMessage: OriginalMiraiMessage
-
-
+    
+    
     @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
+        return originalMiraiMessage
+    }
+    
+    @OptIn(Api4J::class)
+    override fun getOriginalMiraiMessage(contact: Contact): net.mamoe.mirai.message.data.Message {
         return originalMiraiMessage
     }
 }
@@ -118,16 +123,16 @@ public class SimbotOriginalMiraiMessage(
     override val originalMiraiMessage: OriginalMiraiSingleMessage,
 ) : OriginalMiraiDirectlySimbotMessage<SimbotOriginalMiraiMessage> {
     override val key: Message.Key<SimbotOriginalMiraiMessage> get() = Key
-
+    
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is SimbotOriginalMiraiMessage) return false
         return other.originalMiraiMessage == this.originalMiraiMessage
     }
-
+    
     override fun toString(): String = originalMiraiMessage.toString()
     override fun hashCode(): Int = originalMiraiMessage.hashCode()
-
+    
     public companion object Key : Message.Key<SimbotOriginalMiraiMessage> {
         override fun safeCast(value: Any): SimbotOriginalMiraiMessage? = doSafeCast(value)
     }
@@ -152,23 +157,23 @@ public class SimpleMiraiSendOnlyComputableMessage(
     private val factory: suspend (Contact) -> OriginalMiraiMessage,
 ) : MiraiSendOnlyComputableMessage<SimpleMiraiSendOnlyComputableMessage> {
     override val key: Message.Key<SimpleMiraiSendOnlyComputableMessage> get() = Key
-
-
+    
+    
     @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
         return factory(contact)
     }
-
-
+    
+    
     override fun equals(other: Any?): Boolean {
         if (other !is SimpleMiraiSendOnlyComputableMessage) return false
         return other === this
     }
-
+    
     override fun toString(): String = "SimbotSendOnlyMiraiMessage($factory)"
     override fun hashCode(): Int = factory.hashCode()
-
-
+    
+    
     public companion object Key : Message.Key<SimpleMiraiSendOnlyComputableMessage> {
         override fun safeCast(value: Any): SimpleMiraiSendOnlyComputableMessage? = doSafeCast(value)
     }

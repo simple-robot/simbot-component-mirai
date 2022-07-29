@@ -12,16 +12,17 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.message.MiraiForwardMessage.Node.Companion.asSimbot
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.message.doSafeCast
@@ -32,7 +33,7 @@ import net.mamoe.mirai.message.data.ForwardMessage
 /**
  * 对一个 [ForwardMessage] 的直接包装, 并提供此类型的属性代理。
  */
-public interface MiraiForwardMessage : MiraiSimbotMessage<MiraiForwardMessage> {
+public interface MiraiForwardMessage : OriginalMiraiDirectlySimbotMessage<MiraiForwardMessage> {
     
     /**
      * 得到当前消息中包装的 [ForwardMessage] 类型。
@@ -71,11 +72,34 @@ public interface MiraiForwardMessage : MiraiSimbotMessage<MiraiForwardMessage> {
      */
     public val nodeList: List<Node>
     
+    override val originalMiraiMessage: ForwardMessage
+        get() = originalForwardMessage
+    
     override val key: Message.Key<MiraiForwardMessage>
         get() = Key
     
     public companion object Key : Message.Key<MiraiForwardMessage> {
         override fun safeCast(value: Any): MiraiForwardMessage? = doSafeCast(value)
+    
+        /**
+         * 通过一个 [ForwardMessage] 对象构建一个在simbot中流通的 [MiraiForwardMessage] 对象实例。
+         *
+         * **Kotlin**
+         *
+         * ```kotlin
+         * val miraiForward = forward.asSimbot()
+         * ```
+         *
+         * **Java**
+         *
+         * ```java
+         * MiraiForwardMessage miraiForward = MiraiForwardMessage.of(forward);
+         * ```
+         */
+        @JvmStatic
+        @JvmName("of")
+        public fun ForwardMessage.asSimbot(): MiraiForwardMessage = MiraiForwardMessageImpl(this)
+        
     }
     
     
@@ -137,14 +161,14 @@ public interface MiraiForwardMessage : MiraiSimbotMessage<MiraiForwardMessage> {
              * **Kotlin**
              *
              * ```kotlin
-             * val node = originalNode.toSimbot()
+             * val node = originalNode.asSimbot()
              * ```
              *
              *
              */
             @JvmStatic
             @JvmName("of")
-            public fun ForwardMessage.Node.toSimbot(): Node = MiraiForwardMessageNodeImpl(this)
+            public fun ForwardMessage.Node.asSimbot(): Node = MiraiForwardMessageNodeImpl(this)
             
         }
         
@@ -152,16 +176,19 @@ public interface MiraiForwardMessage : MiraiSimbotMessage<MiraiForwardMessage> {
 }
 
 
-private data class MiraiForwardMessageImpl(override val originalForwardMessage: ForwardMessage) : MiraiForwardMessage {
-    
-    override val nodeList: List<MiraiForwardMessage.Node>
-        get() = TODO("Not yet implemented")
+@SerialName("mirai.forward")
+@Serializable
+internal data class MiraiForwardMessageImpl(override val originalForwardMessage: ForwardMessage) : MiraiForwardMessage {
+    @Transient
+    @kotlin.jvm.Transient
+    override val nodeList: List<MiraiForwardMessage.Node> = originalForwardMessage.nodeList.map { it.asSimbot() }
     
 }
 
-// TODO serialName?
+
+@SerialName("mirai.forwardNode")
 @Serializable
-private data class MiraiForwardMessageNodeImpl(override val originalNode: ForwardMessage.Node) :
+internal data class MiraiForwardMessageNodeImpl(override val originalNode: ForwardMessage.Node) :
     MiraiForwardMessage.Node {
     override val senderId: LongID = originalNode.senderId.ID
     override val time: Timestamp = Timestamp.bySecond(originalNode.time.toLong())
@@ -172,21 +199,3 @@ private data class MiraiForwardMessageNodeImpl(override val originalNode: Forwar
     @kotlin.jvm.Transient
     override val messageContent: MessageContent = MiraiMessageChainContent(originalNode.messageChain)
 }
-
-
-/**
- * 仅用于发送的针对 [ForwardMessage]
- */
-public interface MiraiSendOnlyForwardMessage {
-    // TODO
-}
-
-
-
-
-
-
-
-
-
-
