@@ -90,6 +90,8 @@ private suspend fun sendNudge(contact: Contact, target: Long?) {
 /**
  * 仅用于发送的 nudge 对象, 不会在接收中出现。
  *
+ * 对于在消息中会接收到的 nudge, 参考 [MiraiReceivedNudge]。
+ *
  * 如果发送目标不是群聊，那么[target]除非等于bot自己的id，否则将无效。如果发送目标是群聊，
  * 那么假如[target]不存在，则会尝试获取当前是否存在环境事件。如果处于事件当中, 则会戳对应的当前事件中的人，
  * 否则将会戳bot自己。
