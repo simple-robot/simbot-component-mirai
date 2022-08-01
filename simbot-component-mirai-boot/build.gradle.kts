@@ -30,7 +30,6 @@ dependencies {
     testImplementation(libs.charleskorn.kaml)
     
     testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
-    testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
     testImplementation("love.forte.simbot.boot:simboot-core:${P.Simbot.VERSION}")
     testImplementation("love.forte.simbot.boot:simboot-core-spring-boot-starter:${P.Simbot.VERSION}")
     testImplementation(libs.spring.boot.test)

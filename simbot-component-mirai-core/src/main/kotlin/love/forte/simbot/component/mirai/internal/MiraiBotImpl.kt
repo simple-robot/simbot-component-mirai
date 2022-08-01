@@ -244,10 +244,11 @@ internal class MiraiBotImpl(
             val cause = e.cause
             throw IllegalStateException("Bot login failed. cause: $cause", e)
         }
+        true
+    }.also {
         eventProcessor.pushIfProcessable(MiraiBotStartedEvent) {
             MiraiBotStartedEventImpl(this)
         }
-        true
     }
     
     override fun toString(): String {
