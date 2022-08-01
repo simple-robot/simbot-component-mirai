@@ -184,7 +184,8 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     
     @JvmSynthetic
     override suspend fun unmute(): Boolean {
-        (originalContact as? NormalMember)?.unmute()
+        val normalMember = originalContact as? NormalMember ?: return false
+        normalMember.unmute()
         return true
     }
     
