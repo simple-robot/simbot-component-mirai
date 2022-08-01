@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -27,6 +26,7 @@ import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.contact.PermissionDeniedException
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
@@ -173,13 +173,18 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     
     @JvmSynthetic
     override suspend fun mute(duration: Duration): Boolean {
-        originalContact.mute(duration.inWholeSeconds.toInt())
-        return true
+        val second = duration.inWholeSeconds.toInt()
+        return if (second > 0) {
+            originalContact.mute(duration.inWholeSeconds.toInt())
+            true
+        } else {
+            false
+        }
     }
     
     @JvmSynthetic
     override suspend fun unmute(): Boolean {
-        originalContact.mute(0)
+        (originalContact as? NormalMember)?.unmute()
         return true
     }
     
