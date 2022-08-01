@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -246,8 +245,11 @@ internal class MiraiBotImpl(
         }
         true
     }.also {
-        eventProcessor.pushIfProcessable(MiraiBotStartedEvent) {
-            MiraiBotStartedEventImpl(this)
+        launch {
+            val self = this@MiraiBotImpl
+            eventProcessor.pushIfProcessable(MiraiBotStartedEvent) {
+                MiraiBotStartedEventImpl(self)
+            }
         }
     }
     
