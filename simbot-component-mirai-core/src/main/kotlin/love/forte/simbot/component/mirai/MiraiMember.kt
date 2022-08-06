@@ -51,6 +51,73 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     override val bot: MiraiBot
     override val id: LongID
     
+    /**
+     * 当前群成员在此群中的昵称（或者为名片）。
+     *
+     * [nickname] 可修改，但是仅限于当 [originalContact] 类型为 [NormalMember][OriginalMiraiNormalMember]
+     * 时才允许修改，修改时行为与 [OriginalMiraiNormalMember.nameCard] 的行为一致。
+     * 当类型不匹配时，将会抛出 [UnsupportedOperationException]。
+     *
+     * @see OriginalMiraiMember.nameCard
+     *
+     */
+    override var nickname: String
+        get() = originalContact.nameCard
+        set(value) {
+            when (val member = originalContact) {
+                is OriginalMiraiNormalMember -> {
+                    member.nameCard = value
+                }
+                
+                else -> throw UnsupportedOperationException("member $originalContact type is not NormalMember")
+            }
+        }
+    
+    
+    /**
+     * 当前群成员的 _群特殊头衔_。
+     *
+     *  [specialTitle] 可修改，但是仅限于当 [originalContact] 类型为 [NormalMember][OriginalMiraiNormalMember]
+     * 时才允许修改，修改时行为与 [OriginalMiraiNormalMember.specialTitle] 的行为一致。
+     * 当类型不匹配时，将会抛出 [UnsupportedOperationException]。
+     *
+     * @see OriginalMiraiMember.specialTitle
+     */
+    public var specialTitle: String
+        get() = originalContact.specialTitle
+        set(value) {
+            when (val member = originalContact) {
+                is OriginalMiraiNormalMember -> {
+                    member.specialTitle = value
+                }
+        
+                else -> throw UnsupportedOperationException("member $originalContact type is not NormalMember")
+            }
+        }
+    
+    
+    /**
+     * 群成员入群时间。
+     *
+     * 当 [originalContact] 类型为 [NormalMember][OriginalMiraiNormalMember] 时，
+     * 得到的结果为 [OriginalMiraiNormalMember.joinTimestamp]，否则将会得到 [Timestamp.NotSupport]。
+     *
+     * @see OriginalMiraiNormalMember.joinTimestamp
+     */
+    override val joinTime: Timestamp
+    
+    
+    /**
+     * 最后发言时间。
+     *
+     * 当 [originalContact] 类型为 [NormalMember][OriginalMiraiNormalMember] 时，
+     * 得到的结果为 [OriginalMiraiNormalMember.lastSpeakTimestamp]，否则将会得到 `null`。
+     *
+     * @see OriginalMiraiNormalMember.lastSpeakTimestamp
+     */
+    public val lastSpeakTime: Timestamp?
+    
+    
     @OptIn(Api4J::class)
     override val group: MiraiGroup
     
@@ -197,8 +264,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     
     //// Impl
     
-    override val joinTime: Timestamp get() = Timestamp.NotSupport
-    override val nickname: String get() = originalContact.nameCard
+
     override val avatar: String get() = originalContact.avatarUrl
     override val username: String get() = originalContact.nick
 }
