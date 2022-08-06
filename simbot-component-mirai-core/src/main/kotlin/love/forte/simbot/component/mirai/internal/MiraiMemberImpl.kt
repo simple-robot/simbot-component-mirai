@@ -12,13 +12,13 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
 
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
+import love.forte.simbot.Timestamp
 import love.forte.simbot.action.SendSupport
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
@@ -39,7 +39,17 @@ internal class MiraiMemberImpl(
     initGroup: MiraiGroupImpl? = null,
 ) : MiraiMember, SendSupport {
     override val id: LongID = originalContact.id.ID
-
+    
+    override val joinTime: Timestamp = when (val member = originalContact) {
+        is NormalMember -> Timestamp.bySecond(member.joinTimestamp.toLong())
+        else -> Timestamp.NotSupport
+    }
+    
+    override val lastSpeakTime: Timestamp? = when (val member = originalContact) {
+        is NormalMember -> Timestamp.bySecond(member.joinTimestamp.toLong())
+        else -> null
+    }
+    
     override val group: MiraiGroupImpl = initGroup ?: originalContact.group.asSimbot(bot)
     override val roles: Items<MemberRole> = items(originalContact.simbotRole)
     
