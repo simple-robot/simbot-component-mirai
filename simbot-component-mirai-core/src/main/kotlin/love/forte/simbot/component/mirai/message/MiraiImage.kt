@@ -117,7 +117,7 @@ internal class MiraiSendOnlyImageImpl(
      * 返回值只可能是 [OriginalMiraiFlashImage] 或 [OriginalMiraiImage].
      */
     @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
+    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
         return resource.uploadToImage(contact, isFlash)
     }
     
