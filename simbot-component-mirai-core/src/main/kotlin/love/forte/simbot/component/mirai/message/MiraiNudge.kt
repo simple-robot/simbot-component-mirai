@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -51,12 +52,13 @@ private suspend fun sendNudge(contact: Contact, target: Long?) {
             contact.sendNudge(contact.bot.nudge())
             return
         }
-
+        
         when (contact) {
             is OriginalMiraiGroup -> {
                 val nudge = contact.getMemberOrFail(target).nudge()
                 contact.sendNudge(nudge)
             }
+            
             is OriginalMiraiFriend -> contact.sendNudge(contact.nudge())
             is OriginalMiraiMember -> contact.sendNudge(contact.nudge())
             is OriginalMiraiStranger -> contact.sendNudge(contact.nudge())
@@ -81,7 +83,7 @@ private suspend fun sendNudge(contact: Contact, target: Long?) {
                 // 发送nudge自己
                 else -> contact.sendNudge(contact.bot.nudge())
             }
-
+            
         }
     }
 }
@@ -106,16 +108,18 @@ public data class MiraiNudge @JvmOverloads constructor(
     public val target: ID? = null,
 ) : MiraiSendOnlyComputableMessage<MiraiNudge> {
     override val key: Message.Key<MiraiNudge> get() = Key
-
+    
     @OptIn(InternalApi::class)
     @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
-        sendNudge(contact, target?.literal?.toLong())
+    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
+        if (!isDropAction) {
+            sendNudge(contact, target?.literal?.toLong())
+        }
         return EmptySingleMessage
     }
-
+    
     override fun toString(): String = "MiraiNudge(target=$target)"
-
+    
     public companion object Key : Message.Key<MiraiNudge> {
         override fun safeCast(value: Any): MiraiNudge? = doSafeCast(value)
     }
@@ -138,14 +142,14 @@ public data class MiraiReceivedNudge @InternalSimbotApi constructor(
      * 原类型为 [net.mamoe.mirai.contact.UserOrBot].
      */
     public val from: LongID, // UserOrBot
-
+    
     /**
      * 戳一戳目标, 可能与 [from] 相同.
      *
      * 原类型为 [net.mamoe.mirai.contact.UserOrBot].
      */
     public val target: LongID, // UserOrBot
-
+    
     /**
      * 主体类型。
      * @see SubjectType
@@ -156,11 +160,11 @@ public data class MiraiReceivedNudge @InternalSimbotApi constructor(
      * 原类型为 [net.mamoe.mirai.contact.Contact].
      */
     public val subject: LongID,
-
+    
     public val action: String,
     public val suffix: String,
 ) : OriginalMiraiComputableSimbotMessage<MiraiReceivedNudge> {
-
+    
     /**
      * [MiraiReceivedNudge] 中 [subjectType] 所使用的可能值。
      */
@@ -168,20 +172,22 @@ public data class MiraiReceivedNudge @InternalSimbotApi constructor(
     public enum class SubjectType {
         GROUP, STRANGER, FRIEND, MEMBER
     }
-
+    
     /**
      * 立即发送戳一戳消息，并返回一个 [EmptySingleMessage].
      */
     @OptIn(InternalApi::class)
     @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
-        sendNudge(contact, target.number)
+    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
+        if (!isDropAction) {
+            sendNudge(contact, target.number)
+        }
         return EmptySingleMessage
     }
-
+    
     override val key: Message.Key<MiraiReceivedNudge>
         get() = Key
-
+    
     public companion object Key : Message.Key<MiraiReceivedNudge> {
         override fun safeCast(value: Any): MiraiReceivedNudge? = doSafeCast(value)
     }

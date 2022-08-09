@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 @file:JvmName("MiraiMessageParserUtil")
@@ -25,18 +26,19 @@ import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
 import love.forte.simbot.component.mirai.message.MiraiForwardMessage.Key.asSimbot
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
-import love.forte.simbot.message.AtAll
-import love.forte.simbot.message.Face
 import love.forte.simbot.message.Message
-import love.forte.simbot.message.PlainText
 import love.forte.simbot.tryToLong
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.EmptyMessageChain
+import net.mamoe.mirai.message.data.ForwardMessage
+import net.mamoe.mirai.message.data.toMessageChain
+import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.message.data.At as MiraiAtFunc
 import net.mamoe.mirai.message.data.Audio as OriginalMiraiAudio
 import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
 import net.mamoe.mirai.message.data.Image as OriginalMiraiImage
 import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
+import net.mamoe.mirai.message.data.MessageChain as OriginalMiraiMessageChain
 import net.mamoe.mirai.message.data.SingleMessage as OriginalMiraiSingleMessage
 
 
@@ -59,11 +61,22 @@ public fun OriginalMiraiSingleMessage.asSimbotMessage(): Message.Element<*> =
  *
  * 提供一个 [OriginalMiraiMessage] 的计算函数并作为 [Message] 使用。
  *
- * **注意：通过此方式得到的 [Message] 不可参与序列化。 **
+ * **注意：通过此方式得到的 [Message] 不可参与序列化。**
  *
  * @see SimpleMiraiSendOnlyComputableMessage
  */
 public fun simbotMessage(factory: (Contact) -> OriginalMiraiMessage): Message =
+    SimpleMiraiSendOnlyComputableMessage(factory)
+
+/**
+ *
+ * 提供一个 [OriginalMiraiMessage] 的计算函数并作为 [Message] 使用。
+ *
+ * **注意：通过此方式得到的 [Message] 不可参与序列化。**
+ *
+ * @see SimpleMiraiSendOnlyComputableMessage
+ */
+public fun simbotMessage(factory: (Contact, drop: Boolean) -> OriginalMiraiMessage): Message =
     SimpleMiraiSendOnlyComputableMessage(factory)
 
 
@@ -71,12 +84,20 @@ public fun simbotMessage(factory: (Contact) -> OriginalMiraiMessage): Message =
  * 将一个 [Message] 转化为 [OriginalMiraiMessage] 以发送。
  */
 @OptIn(InternalApi::class)
-public suspend fun Message.toOriginalMiraiMessage(contact: Contact): OriginalMiraiMessage {
+public suspend fun Message.toOriginalMiraiMessage(
+    contact: Contact,
+    isDropAction: Boolean = false,
+): OriginalMiraiMessage {
     return when (this) {
         is OriginalMiraiDirectlySimbotMessage<*> -> originalMiraiMessage.takeIf { it !== EmptySingleMessage }
             ?: EmptyMessageChain
-        is OriginalMiraiComputableSimbotMessage<*> -> originalMiraiMessage(contact).takeIf { it !== EmptySingleMessage }
+        
+        is OriginalMiraiComputableSimbotMessage<*> -> originalMiraiMessage(
+            contact,
+            isDropAction
+        ).takeIf { it !== EmptySingleMessage }
             ?: EmptyMessageChain
+        
         else -> {
             val list = mutableListOf<OriginalMiraiMessage>()
             
@@ -93,10 +114,13 @@ public suspend fun Message.toOriginalMiraiMessage(contact: Contact): OriginalMir
     }
 }
 
-
-// internal suspend fun Message.doParse(contact: Contact): NativeMiraiMessage {
-//
-// }
+public suspend fun Message.toOriginalMiraiMessageChain(
+    contact: Contact,
+    isDropAction: Boolean = false,
+): OriginalMiraiMessageChain {
+    val msg = toOriginalMiraiMessage(contact, isDropAction)
+    return if (msg is OriginalMiraiMessageChain) msg else msg.toMessageChain()
+}
 
 
 internal interface MiraiMessageParser {
@@ -132,6 +156,7 @@ private object StandardParser : MiraiMessageParser {
                     is AtAll -> messages.add(net.mamoe.mirai.message.data.AtAll)
                     is Text -> messages.add(message.text.toPlainText())
                 }
+                
                 is PlainText -> messages.add(message.text.toPlainText())
                 is Image -> messages.add(message.toMirai(contact))
                 is Emoji -> messages.add(":${message.id}:".toPlainText())
@@ -143,6 +168,7 @@ private object StandardParser : MiraiMessageParser {
                 // ignore RemoteResource
                 else -> {}
             }
+            
             is OriginalMiraiComputableSimbotMessage<*> -> message.originalMiraiMessage(contact)
                 .takeIf { it !== EmptySingleMessage }?.also(messages::add)
         }
@@ -184,6 +210,6 @@ private suspend fun Image<*>.toMirai(contact: Contact): OriginalMiraiMessage {
 }
 
 
-internal fun MessageChain.toSimbot(): Messages {
+internal fun OriginalMiraiMessageChain.toSimbot(): Messages {
     return map { StandardParser.toSimbot(it) }.toMessages()
 }

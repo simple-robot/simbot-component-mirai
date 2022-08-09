@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -19,20 +20,26 @@ package love.forte.simbot.component.mirai.message
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import love.forte.simbot.ID
-import love.forte.simbot.LongID
-import love.forte.simbot.Timestamp
+import love.forte.simbot.*
 import love.forte.simbot.bot.Bot
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.component.mirai.message.MiraiForwardMessage.Node.Companion.asSimbot
+import love.forte.simbot.definition.Contact
+import love.forte.simbot.definition.Member
 import love.forte.simbot.definition.OrganizationBot
-import love.forte.simbot.message.Message
-import love.forte.simbot.message.Messages
-import love.forte.simbot.message.doSafeCast
-import love.forte.simbot.message.toMessages
-import love.forte.simbot.tryToLong
-import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.contact.User
-import net.mamoe.mirai.message.data.*
+import love.forte.simbot.definition.User
+import love.forte.simbot.event.ChatRoomMessageEvent
+import love.forte.simbot.event.ContactMessageEvent
+import love.forte.simbot.event.MessageEvent
+import love.forte.simbot.message.*
+import net.mamoe.mirai.message.data.ForwardMessage
+import net.mamoe.mirai.message.data.ForwardMessageBuilder
+import net.mamoe.mirai.message.data.ForwardMessageDsl
+import net.mamoe.mirai.message.data.buildForwardMessage
+import net.mamoe.mirai.utils.MiraiExperimentalApi
+import java.util.concurrent.TimeUnit
+import net.mamoe.mirai.contact.Contact as OriginalMiraiContact
+import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
 
 /**
@@ -183,7 +190,7 @@ public interface MiraiForwardMessage : OriginalMiraiDirectlySimbotMessage<MiraiF
 
 @SerialName("mirai.forward")
 @Serializable
-private data class MiraiForwardMessageImpl(override val originalForwardMessage: ForwardMessage) : MiraiForwardMessage {
+internal data class MiraiForwardMessageImpl(override val originalForwardMessage: ForwardMessage) : MiraiForwardMessage {
     @Transient
     @kotlin.jvm.Transient
     override val nodeList: List<MiraiForwardMessage.Node> = originalForwardMessage.nodeList.map { it.asSimbot() }
@@ -193,7 +200,7 @@ private data class MiraiForwardMessageImpl(override val originalForwardMessage: 
 
 @SerialName("mirai.forwardNode")
 @Serializable
-private data class MiraiForwardMessageNodeImpl(override val originalNode: ForwardMessage.Node) :
+internal data class MiraiForwardMessageNodeImpl(override val originalNode: ForwardMessage.Node) :
     MiraiForwardMessage.Node {
     @Transient
     @kotlin.jvm.Transient
@@ -218,13 +225,16 @@ private data class MiraiForwardMessageNodeImpl(override val originalNode: Forwar
  * 而是仅作为一个 _预处理_ 类型存在，只有当进行真正发送的时候才会构建
  * [ForwardMessage].
  *
- * 当通过 [ForwardMessageBuilder] 构建转发消息的时候是需要提供 [Contact]
+ * 当通过 [ForwardMessageBuilder] 构建转发消息的时候是需要提供 [OriginalMiraiContact]
  * 对象的，[MiraiSendOnlyForwardMessage] 作为预处理类型则不会需要此参数。
  *
- * 通过 [MiraiForwardMessageBuilder] 构建。
+ * ## 构建
+ *
+ * 通过 [MiraiForwardMessageBuilder.build] 构建而得。
  *
  * ## 不可序列化
  *
+ * [MiraiSendOnlyForwardMessage] **不支持序列化**。
  *
  * @see MiraiForwardMessageBuilder
  *
@@ -232,58 +242,100 @@ private data class MiraiForwardMessageNodeImpl(override val originalNode: Forwar
 public class MiraiSendOnlyForwardMessage private constructor(
     private val displayStrategy: ForwardMessage.DisplayStrategy,
     private val nodes: List<ComputableForwardMessageNode>,
-) :
-    MiraiSendOnlyComputableMessage<MiraiSendOnlyForwardMessage> {
+) : MiraiSendOnlyComputableMessage<MiraiSendOnlyForwardMessage> {
     
     override val key: Message.Key<MiraiSendOnlyForwardMessage>
-        get() = TODO("Not yet implemented")
+        get() = Key
     
     override fun equals(other: Any?): Boolean {
-        TODO("Not yet implemented")
+        if (other === this) return true
+        if (other !is MiraiSendOnlyForwardMessage) return false
+        
+        return displayStrategy == other.displayStrategy && nodes == other.nodes
     }
     
     override fun hashCode(): Int {
-        return super.hashCode()
+        return displayStrategy.hashCode() * 31 + nodes.hashCode()
     }
     
-    override fun toString(): String {
-        TODO("Not yet implemented")
-    }
+    override fun toString(): String = "MiraiSendOnlyForwardMessage(displayStrategy=$displayStrategy, nodes=$nodes)"
     
-    override suspend fun originalMiraiMessage(contact: Contact): net.mamoe.mirai.message.data.Message {
+    @OptIn(MiraiExperimentalApi::class)
+    override suspend fun originalMiraiMessage(
+        contact: OriginalMiraiContact,
+        isDropAction: Boolean,
+    ): net.mamoe.mirai.message.data.Message {
         val miraiNodes = nodes.map { node -> node.toNode(contact) }
-        return RawForwardMessage(miraiNodes).render(displayStrategy)
+        
+        return buildForwardMessage(contact) {
+            displayStrategy = this@MiraiSendOnlyForwardMessage.displayStrategy
+            miraiNodes.forEach {
+                add(it)
+            }
+        }
+        
+        // return RawForwardMessage(miraiNodes).render(displayStrategy)
+    }
+    
+    public companion object Key : Message.Key<MiraiSendOnlyForwardMessage> {
+        override fun safeCast(value: Any): MiraiSendOnlyForwardMessage? = doSafeCast(value)
+        
+        internal fun create(
+            displayStrategy: ForwardMessage.DisplayStrategy,
+            nodes: List<ComputableForwardMessageNode>,
+        ): MiraiSendOnlyForwardMessage = MiraiSendOnlyForwardMessage(displayStrategy, nodes)
     }
 }
 
-
-@Serializable
-private sealed interface ComputableForwardMessageNode {
-    suspend fun toNode(contact: Contact): ForwardMessage.Node
+internal sealed class ComputableForwardMessageNode {
+    abstract suspend fun toNode(contact: OriginalMiraiContact): ForwardMessage.Node
 }
 
-@SerialName("DelegatedComputableForwardMessageNode")
-@Serializable
 private data class DelegatedComputableForwardMessageNode(private val node: ForwardMessage.Node) :
-    ComputableForwardMessageNode {
-    override suspend fun toNode(contact: Contact): ForwardMessage.Node {
+    ComputableForwardMessageNode() {
+    override suspend fun toNode(contact: OriginalMiraiContact): ForwardMessage.Node {
         return node
     }
 }
 
-@SerialName("SampleComputableForwardMessageNode")
-@Serializable
 private data class SampleComputableForwardMessageNode(
     private val senderId: Long,
     private val time: Int,
     private val senderName: String,
     private val messages: Messages,
-) : ComputableForwardMessageNode {
-    override suspend fun toNode(contact: Contact): ForwardMessage.Node {
-        val msg = messages.toOriginalMiraiMessage(contact)
-        val chain = if (msg !is MessageChain) msg.toMessageChain() else msg
+) : ComputableForwardMessageNode() {
+    override suspend fun toNode(contact: OriginalMiraiContact): ForwardMessage.Node {
+        val chain = messages.toOriginalMiraiMessageChain(contact, true)
         return ForwardMessage.Node(senderId, time, senderName, chain)
     }
+}
+
+private data class StandardComputableForwardMessageNode(
+    private val function: suspend (OriginalMiraiContact) -> ForwardMessage.Node,
+) : ComputableForwardMessageNode() {
+    override suspend fun toNode(contact: OriginalMiraiContact): ForwardMessage.Node = function(contact)
+    
+    
+    companion object {
+        inline fun calculateSender(
+            time: Int, messages: Messages,
+            crossinline senderCalculator: suspend (OriginalMiraiContact) -> Pair<Long, String>,
+        ): StandardComputableForwardMessageNode {
+            return StandardComputableForwardMessageNode { contact ->
+                val (senderId, senderName) = senderCalculator(contact)
+                val chain = messages.toOriginalMiraiMessageChain(contact, true)
+                ForwardMessage.Node(senderId, time, senderName, chain)
+            }
+        }
+    }
+}
+
+/**
+ * 通过 [MiraiForwardMessage] 构建一个仅用于发送的转发消息 [MiraiSendOnlyForwardMessage]。
+ *
+ */
+public inline fun buildMiraiForwardMessage(block: @ForwardMessageDsl MiraiForwardMessageBuilder.() -> Unit): MiraiSendOnlyForwardMessage {
+    return MiraiForwardMessageBuilder().also(block).build()
 }
 
 
@@ -293,7 +345,7 @@ private data class SampleComputableForwardMessageNode(
  *
  * 类似于 [ForwardMessageBuilder], 但是**有所简化**，且使用的为 simbot 中的实体对象。
  *
- * [MiraiForwardMessageBuilder] 屏蔽了构建 [ForwardMessageBuilder] 时所需要的 [Contact] 参数，
+ * [MiraiForwardMessageBuilder] 屏蔽了构建 [ForwardMessageBuilder] 时所需要的 [OriginalMiraiContact] 参数，
  * 但取而代之的，当你想要向转发消息中添加消息时，将不能直接使用 [Bot] 来拼接消息，而应该使用 [OrganizationBot]
  * 或其下其他衍生类型。
  *
@@ -301,13 +353,34 @@ private data class SampleComputableForwardMessageNode(
  * @see ForwardMessageBuilder
  */
 public class MiraiForwardMessageBuilder {
-    private val container: MutableList<ComputableForwardMessageNode> = mutableListOf()
+    private val nodes: MutableList<ComputableForwardMessageNode> = mutableListOf()
+    
+    private fun append(node: ComputableForwardMessageNode) {
+        nodes.add(node)
+    }
+    
     private fun append(node: ForwardMessage.Node) {
-        container.add(DelegatedComputableForwardMessageNode(node))
+        append(DelegatedComputableForwardMessageNode(node))
     }
     
     private fun append(senderId: Long, senderName: String, time: Int, messages: Messages) {
-        container.add(SampleComputableForwardMessageNode(senderId, time, senderName, messages))
+        append(SampleComputableForwardMessageNode(senderId, time, senderName, messages))
+    }
+    
+    private fun append(senderId: Long, senderName: String, time: Int, message: Message) {
+        append(senderId, senderName, time, message.asMessages())
+    }
+    
+    private fun append(block: suspend (OriginalMiraiContact) -> ForwardMessage.Node) {
+        append(StandardComputableForwardMessageNode(block))
+    }
+    
+    private inline fun append(
+        time: Int,
+        messages: Messages,
+        crossinline block: suspend (OriginalMiraiContact) -> Pair<Long, String>,
+    ) {
+        append(StandardComputableForwardMessageNode.calculateSender(time, messages, block))
     }
     
     /**
@@ -319,14 +392,25 @@ public class MiraiForwardMessageBuilder {
     
     
     /**
-     * 当前时间.
-     * 构建node时若不指定时间, 则会使用 [currentTime] 自增 1 的时间.
+     * 当前时间。
+     * 构建node时若不指定时间, 则会使用 [currentTime] 自增 1 的时间。
      *
-     * 类似于 [ForwardMessageBuilder.currentTime]。
+     * 类似于 [ForwardMessageBuilder.currentTime]，单位为秒。
      *
      */
-    public var currentTime: Int = (System.currentTimeMillis() / 1000).toInt()
+    public var currentTime: Int = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toInt()
+        set(value) {
+            field = value
+            currentTimestamp = Timestamp.bySecond(value.toLong())
+        }
     
+    
+    private var currentTimestamp: Timestamp = Timestamp.bySecond(currentTime.toLong())
+    
+    
+    private fun userCurrentTime(): Int = currentTime++
+    
+    // region 直接操作
     
     /**
      * 直接添加一个 [ForwardMessage.Node].
@@ -342,6 +426,9 @@ public class MiraiForwardMessageBuilder {
         append(node.originalNode)
     }
     
+    // endregion
+    
+    // region 基础属性
     
     /**
      * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
@@ -349,79 +436,257 @@ public class MiraiForwardMessageBuilder {
      * @param senderId 消息发送者的ID. 必须保证其结果可以转化为 [Long], 比如提供一个 [LongID].
      * @param senderName 发送者名称
      */
-    public fun add(senderId: ID, senderName: String, time: Timestamp, message: Message): MiraiForwardMessageBuilder =
-        apply {
-            append(
-                senderId.tryToLong(), senderName, time.second.toInt(), when (message) {
-                    is Message.Element<*> -> message.toMessages()
-                    is Messages -> message
-                }
-            )
-        }
-    
-    /**
-     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
-     *
-     * @param senderId 消息发送者的ID
-     * @param senderName 发送者名称
-     */
-    public fun add(senderId: Long, senderName: String, time: Timestamp, message: Message): MiraiForwardMessageBuilder =
-        apply {
-            append(
-                senderId, senderName, time.second.toInt(), when (message) {
-                    is Message.Element<*> -> message.toMessages()
-                    is Messages -> message
-                }
-            )
-        }
-    
-    
-    /**
-     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
-     *
-     * @param senderId 消息发送者的ID. 必须保证其结果可以转化为 [Long], 比如提供一个 [LongID].
-     * @param senderName 发送者名称
-     */
-    public fun add(senderId: ID, senderName: String, time: Int, message: Message): MiraiForwardMessageBuilder =
-        apply {
-            append(
-                senderId.tryToLong(), senderName, time, when (message) {
-                    is Message.Element<*> -> message.toMessages()
-                    is Messages -> message
-                }
-            )
-        }
-    
-    /**
-     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
-     *
-     * @param senderId 消息发送者的ID
-     * @param senderName 发送者名称
-     */
-    public fun add(senderId: Long, senderName: String, time: Int, message: Message): MiraiForwardMessageBuilder =
-        apply {
-            append(
-                senderId, senderName, time, when (message) {
-                    is Message.Element<*> -> message.toMessages()
-                    is Messages -> message
-                }
-            )
-        }
-    
-    
-    public fun build(): MiraiSendOnlyForwardMessage {
-        
-        TODO()
+    public fun add(
+        senderId: ID,
+        senderName: String,
+        time: Timestamp,
+        message: Message,
+    ): MiraiForwardMessageBuilder = apply {
+        append(senderId.tryToLong(), senderName, time.second.toInt(), message.asMessages())
     }
     
+    /**
+     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
+     *
+     * @param senderId 消息发送者的ID
+     * @param senderName 发送者名称
+     */
+    public fun add(
+        senderId: Long,
+        senderName: String,
+        time: Timestamp,
+        message: Message,
+    ): MiraiForwardMessageBuilder = apply {
+        append(senderId, senderName, time.second.toInt(), message.asMessages())
+        
+    }
+    
+    
+    /**
+     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
+     *
+     * @param senderId 消息发送者的ID. 必须保证其结果可以转化为 [Long], 比如提供一个 [LongID].
+     * @param senderName 发送者名称
+     * @param secondTimestamp 秒时间戳
+     */
+    @JvmOverloads
+    public fun add(
+        senderId: ID,
+        senderName: String,
+        message: Message,
+        secondTimestamp: Int = userCurrentTime(),
+    ): MiraiForwardMessageBuilder = apply {
+        append(senderId.tryToLong(), senderName, secondTimestamp, message.asMessages())
+    }
+    
+    /**
+     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
+     *
+     * @param senderId 消息发送者的ID
+     * @param senderName 发送者名称
+     * @param secondTimestamp 秒时间戳
+     */
+    @JvmOverloads
+    public fun add(
+        senderId: Long,
+        senderName: String,
+        message: Message,
+        secondTimestamp: Int = userCurrentTime(),
+    ): MiraiForwardMessageBuilder = apply {
+        append(senderId, senderName, secondTimestamp, message.asMessages())
+    }
+    
+    /**
+     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
+     *
+     * @param senderId 消息发送者的ID. 必须保证其结果可以转化为 [Long], 比如提供一个 [LongID].
+     * @param senderName 发送者名称
+     */
+    public fun add(
+        senderId: ID,
+        senderName: String,
+        time: Timestamp,
+        messageContent: MessageContent,
+    ): MiraiForwardMessageBuilder = add(senderId, senderName, time, messageContent.messages)
+    
+    /**
+     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
+     *
+     * @param senderId 消息发送者的ID
+     * @param senderName 发送者名称
+     */
+    public fun add(
+        senderId: Long,
+        senderName: String,
+        time: Timestamp,
+        messageContent: MessageContent,
+    ): MiraiForwardMessageBuilder = add(senderId, senderName, time, messageContent.messages)
+    
+    
+    /**
+     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
+     *
+     * @param senderId 消息发送者的ID. 必须保证其结果可以转化为 [Long], 比如提供一个 [LongID].
+     * @param senderName 发送者名称
+     * @param secondTimestamp 秒时间戳
+     */
+    @JvmOverloads
+    public fun add(
+        senderId: ID,
+        senderName: String,
+        messageContent: MessageContent,
+        secondTimestamp: Int = userCurrentTime(),
+    ): MiraiForwardMessageBuilder = add(senderId, senderName, messageContent.messages, secondTimestamp)
+    
+    /**
+     * 根据 [MiraiForwardMessage.Node] 中的最基本的属性添加内容。
+     *
+     * @param senderId 消息发送者的ID
+     * @param senderName 发送者名称
+     * @param secondTimestamp 秒时间戳
+     */
+    @JvmOverloads
+    public fun add(
+        senderId: Long,
+        senderName: String,
+        messageContent: MessageContent,
+        secondTimestamp: Int = userCurrentTime(),
+    ): MiraiForwardMessageBuilder = add(senderId, senderName, messageContent.messages, secondTimestamp)
+    
+    // endregion
+    
+    // region User&Bot
+    
+    /**
+     * 追加一个 [Bot] 说的话。
+     */
+    @JvmName("add")
+    @JvmOverloads
+    public fun Bot.says(
+        message: Message,
+        time: Int = userCurrentTime(),
+        name: String? = null,
+    ): MiraiForwardMessageBuilder = this@MiraiForwardMessageBuilder.apply {
+        val bot = this@says
+        
+        if (name != null) {
+            append(bot.id.tryToLong(), name, time, message)
+            return@apply
+        }
+        
+        if (bot is OrganizationBot) {
+            append { contact ->
+                val botAsMember = bot.asMember()
+                ForwardMessage.Node(
+                    botAsMember.id.tryToLong(),
+                    time,
+                    botAsMember.nickOrUsername,
+                    message.toOriginalMiraiMessageChain(contact, true)
+                )
+            }
+            return@apply
+        }
+        
+        if (bot !is MiraiBot) {
+            throw SimbotIllegalArgumentException("The type of bot only supports [MiraiBot]. but ${bot::class.simpleName} ($bot)")
+        }
+        
+        val originalBot = bot.originalBot
+        append(time, message.asMessages()) {
+            when {
+                it is OriginalMiraiGroup && it.bot.id == originalBot.id -> {
+                    val member = it.botAsMember
+                    member.id to member.nick
+                }
+                
+                else -> originalBot.id to originalBot.nick
+            }
+        }
+    }
+    
+    /**
+     * 追加一个 [Bot] 说的话。
+     */
+    @JvmName("add")
+    @JvmOverloads
+    public fun Bot.says(text: String, time: Int = userCurrentTime(), name: String? = null): MiraiForwardMessageBuilder =
+        says(text.toText(), time, name)
+    
+    /**
+     * 追加一个 [Contact] 说的话。
+     */
+    @JvmName("add")
+    @JvmOverloads
+    public fun Contact.says(
+        message: Message,
+        time: Int = userCurrentTime(),
+        name: String = when (val c = this@says) {
+            is Member -> c.nickOrUsername
+            else -> c.username
+        },
+    ): MiraiForwardMessageBuilder = this@MiraiForwardMessageBuilder.apply {
+        append(id.tryToLong(), name, time, message)
+    }
+    
+    /**
+     * 追加一个 [Contact] 说的话。
+     */
+    @JvmName("add")
+    @JvmOverloads
+    public fun Contact.says(
+        text: String,
+        time: Int = userCurrentTime(),
+        name: String = when (val c = this@says) {
+            is Member -> c.nickOrUsername
+            else -> c.username
+        },
+    ): MiraiForwardMessageBuilder = says(text.toText(), time, name)
+    
+    // endregion
+    
+    /**
+     * 将一个 [MessageEvent] 转化为一个消息节点。
+     */
+    private suspend fun addEvent(
+        messageEvent: MessageEvent, time: Int,
+    ): MiraiForwardMessageBuilder = apply {
+        val userId = messageEvent.id.tryToLong()
+        val username = when (messageEvent) {
+            is ChatRoomMessageEvent -> messageEvent.author().nickOrUsername
+            is ContactMessageEvent -> messageEvent.user().username
+            else -> throw SimbotIllegalArgumentException("not ChatRoomMessageEvent or ContactMessageEvent")
+        }
+        
+        append(userId, username, time, messageEvent.messageContent.messages)
+    }
+    
+    @JvmSynthetic
+    public suspend fun add(
+        messageEvent: ChatRoomMessageEvent,
+        time: Timestamp = messageEvent.timestamp,
+    ): MiraiForwardMessageBuilder =
+        addEvent(messageEvent, time.second.toInt())
+    
+    @JvmSynthetic
+    public suspend fun add(
+        messageEvent: ContactMessageEvent,
+        time: Timestamp = messageEvent.timestamp,
+    ): MiraiForwardMessageBuilder =
+        addEvent(messageEvent, time.second.toInt())
+    
+    
+    /**
+     * 将当前构建器中的信息整合转化为 [MiraiSendOnlyForwardMessage]。
+     */
+    public fun build(): MiraiSendOnlyForwardMessage {
+        return MiraiSendOnlyForwardMessage.create(displayStrategy, nodes.toList())
+    }
+    
+    
+    private fun Message.asMessages(): Messages = when (this) {
+        is Message.Element<*> -> toMessages()
+        is Messages -> this
+    }
 }
-
-
-/*
-        public val senderId: LongID
-        public val time: Timestamp
-        public val senderName: String get() = originalNode.senderName
-        public val messageContent: MessageContent
- */
 
 

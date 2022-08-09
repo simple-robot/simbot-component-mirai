@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 @file:JvmName("MiraiComponents")
@@ -33,6 +34,13 @@ import net.mamoe.mirai.utils.MiraiExperimentalApi
 
 /**
  * simbot对应的mirai组件。
+ *
+ * ## 实例化
+ *
+ * [MiraiComponent] 允许直接通过构造函数构建，但是这种行为不被建议。
+ * 除非你清楚这么做的意义与后果，否则你始终应当通过 [Factory] 向 [ApplicationBuilder]
+ * 中注册，而非直接通过构造函数。
+ *
  *
  * @see Factory
  */
@@ -116,20 +124,22 @@ public class MiraiComponent : Component {
         public val componentSpecialMessageSerializersModule: SerializersModule = SerializersModule {
             polymorphic(Message.Element::class) {
                 subclass(SimbotOriginalMiraiMessage.serializer())
-                
-                //// image
+    
+                //region image
                 polymorphic(MiraiImage::class) {
                     subclass(MiraiImageImpl.serializer())
                 }
                 subclass(MiraiImageImpl.serializer())
-                
-                //// audio
+                //endregion
+    
+                //region audio
                 polymorphic(MiraiAudio::class) {
                     subclass(MiraiAudioImpl.serializer())
                 }
                 subclass(MiraiAudioImpl.serializer())
-                
-                //// forward message
+                //endregion
+    
+                //region forward message
                 polymorphic(MiraiForwardMessage::class) {
                     subclass(MiraiForwardMessageImpl.serializer())
                 }
@@ -138,8 +148,8 @@ public class MiraiComponent : Component {
                 polymorphic(MiraiForwardMessage.Node::class) {
                     subclass(MiraiForwardMessageNodeImpl.serializer())
                 }
+                //endregion
                 
-                ////
                 @OptIn(MiraiExperimentalApi::class) subclass(MiraiShare.serializer())
                 subclass(MiraiQuoteReply.serializer())
                 subclass(MiraiMusicShare.serializer())

@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -64,12 +65,28 @@ public interface MiraiSendOnlySimbotMessage<E : MiraiSendOnlySimbotMessage<E>> :
  */
 public interface OriginalMiraiComputableSimbotMessage<E : OriginalMiraiComputableSimbotMessage<E>> :
     MiraiSimbotMessage<E> {
+    
+    /**
+     * 通过一个 [Contact] 计算得到一个具体的 [OriginalMiraiMessage]。
+     *
+     * @param isDropAction 当实现者的 [OriginalMiraiMessage] 不会返回一个具体的消息对象，而是进行一个操作后返回站位对象 [EmptySingleMessage] 的话，
+     * 则 [isDropAction] 代表为要求此消息不执行相应操作。例如对于 [MiraiNudge] 消息，其发送时不会得到真的"戳一戳消息"对象，而是**直接**发送戳一戳，
+     * 并返回 [EmptySingleMessage]。当 [isDropAction] 为true时，代表禁止其过程中发生的"直接发送戳一戳"的行为。
+     *
+     */
     @JvmSynthetic
-    public suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage
+    public suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean = false): OriginalMiraiMessage
+    
+    @Api4J
+    public fun getOriginalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage =
+        runInBlocking { originalMiraiMessage(contact, isDropAction) }
+    
     
     @Api4J
     public fun getOriginalMiraiMessage(contact: Contact): OriginalMiraiMessage =
-        runInBlocking { originalMiraiMessage(contact) }
+        runInBlocking { originalMiraiMessage(contact, false) }
+    
+    
 }
 
 /**
@@ -90,7 +107,7 @@ public interface OriginalMiraiDirectlySimbotMessage<E : OriginalMiraiComputableS
     
     
     @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
+    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
         return originalMiraiMessage
     }
     
@@ -153,15 +170,15 @@ public class SimbotOriginalMiraiMessage(
  * @see SimbotOriginalMiraiMessage
  * @see OriginalMiraiComputableSimbotMessage
  */
-public class SimpleMiraiSendOnlyComputableMessage(
-    private val factory: suspend (Contact) -> OriginalMiraiMessage,
+public class SimpleMiraiSendOnlyComputableMessage private constructor(
+    private val factory: suspend (Contact, Boolean) -> OriginalMiraiMessage,
 ) : MiraiSendOnlyComputableMessage<SimpleMiraiSendOnlyComputableMessage> {
     override val key: Message.Key<SimpleMiraiSendOnlyComputableMessage> get() = Key
     
     
     @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
-        return factory(contact)
+    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
+        return factory(contact, isDropAction)
     }
     
     
@@ -176,7 +193,22 @@ public class SimpleMiraiSendOnlyComputableMessage(
     
     public companion object Key : Message.Key<SimpleMiraiSendOnlyComputableMessage> {
         override fun safeCast(value: Any): SimpleMiraiSendOnlyComputableMessage? = doSafeCast(value)
+        
+        @JvmName("of")
+        @JvmStatic
+        public operator fun invoke(factory: suspend (Contact, Boolean) -> OriginalMiraiMessage): SimpleMiraiSendOnlyComputableMessage {
+            return SimpleMiraiSendOnlyComputableMessage(factory)
+        }
+        
+        @JvmName("of")
+        @JvmStatic
+        public operator fun invoke(factory: suspend (Contact) -> OriginalMiraiMessage): SimpleMiraiSendOnlyComputableMessage {
+            return SimpleMiraiSendOnlyComputableMessage { c, _ ->
+                factory(c)
+            }
+        }
     }
 }
+
 
 
