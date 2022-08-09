@@ -79,7 +79,7 @@ public class MiraiSendOnlyAudio(
      * @throws IllegalArgumentException 如果 [contact] 不支持音频上传
      */
     @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact, drop: Boolean): OriginalMiraiMessage {
+    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
         return if (contact is AudioSupported) {
             uploadAudioTo(contact)
         } else {
