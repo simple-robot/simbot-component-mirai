@@ -95,6 +95,7 @@ class DeviceInfoTest {
         val conf = MiraiBotVerifyInfoConfiguration(
             code = 123,
             password = "123222xxx",
+            passwordInfo = MiraiBotVerifyInfoConfiguration.PasswordInfo.Text(""),
             config = MiraiBotVerifyInfoConfiguration.Config(
                 simpleDeviceInfoJson = DeviceInfo.random().toSimple()
             )
