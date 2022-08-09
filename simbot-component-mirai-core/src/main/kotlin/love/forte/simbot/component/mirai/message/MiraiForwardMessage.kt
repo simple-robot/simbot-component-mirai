@@ -349,10 +349,50 @@ public inline fun buildMiraiForwardMessage(block: @ForwardMessageDsl MiraiForwar
  * 但取而代之的，当你想要向转发消息中添加消息时，将不能直接使用 [Bot] 来拼接消息，而应该使用 [OrganizationBot]
  * 或其下其他衍生类型。
  *
+ * 在 Kotlin 中，你可以直接使用顶层函数 [buildMiraiForwardMessage] 来构建。
+ * ```kotlin
+ * buildMiraiForwardMessage(displayStrategy = ...) {
+ *     add(114514, "用户名", "你好".toText(), Timestamp.now())
+ *     add(114514, "用户名", At(810.ID) + "你好".toText())
+ *
+ *     add(messageEvent)
+ *     add(messageEvent, 12345678)
+ *     add(messageEvent, Timestamp.now())
+ *
+ *     bot.says("最近如何".toText() + Face(5.ID))
+ *     user.says("感觉不错".toText())
+ *     // ....
+ * }
+ * ```
+ *
+ * 对于 Java 开发者，直接构建并使用 [MiraiForwardMessageBuilder] 即可。
+ *
+ * ```java
+ * MiraiForwardMessageBuilder builder = new MiraiForwardMessageBuilder();
+ * builder.add(123456, "forte", Text.of("早上好"));
+ * builder.add(bot)
+ *
+ * builder.add(event);
+ * builder.add(event.getBot(), Text.of("早上好"));
+ *
+ * // 在 Java 中，基本所有的API都叫 'add'。包括在Kotlin中被成为 'says' 的那些。
+ *
+ * MiraiSendOnlyForwardMessage message = builder.build();
+ *
+ * ```
+ *
+ *
  *
  * @see ForwardMessageBuilder
  */
-public class MiraiForwardMessageBuilder {
+public class MiraiForwardMessageBuilder(
+    /**
+     * mirai中合并转发卡片展示策略.
+     *
+     * @see ForwardMessage.DisplayStrategy
+     */
+    public var displayStrategy: ForwardMessage.DisplayStrategy = ForwardMessage.DisplayStrategy,
+) {
     private val nodes: MutableList<ComputableForwardMessageNode> = mutableListOf()
     
     private fun append(node: ComputableForwardMessageNode) {
@@ -384,31 +424,16 @@ public class MiraiForwardMessageBuilder {
     }
     
     /**
-     * mirai中合并转发卡片展示策略.
-     *
-     * @see ForwardMessage.DisplayStrategy
-     */
-    public var displayStrategy: ForwardMessage.DisplayStrategy = ForwardMessage.DisplayStrategy
-    
-    
-    /**
      * 当前时间。
-     * 构建node时若不指定时间, 则会使用 [currentTime] 自增 1 的时间。
+     * 构建node（追加消息节点时）时若不指定时间, 则会使用 [currentSecondTimestamp] 自增 1 的时间。
      *
      * 类似于 [ForwardMessageBuilder.currentTime]，单位为秒。
      *
      */
-    public var currentTime: Int = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toInt()
-        set(value) {
-            field = value
-            currentTimestamp = Timestamp.bySecond(value.toLong())
-        }
+    public var currentSecondTimestamp: Int = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()).toInt()
     
     
-    private var currentTimestamp: Timestamp = Timestamp.bySecond(currentTime.toLong())
-    
-    
-    private fun userCurrentTime(): Int = currentTime++
+    private fun userCurrentTime(): Int = currentSecondTimestamp++
     
     // region 直接操作
     
@@ -564,13 +589,13 @@ public class MiraiForwardMessageBuilder {
     @JvmOverloads
     public fun Bot.says(
         message: Message,
-        time: Int = userCurrentTime(),
+        secondTimestamp: Int = userCurrentTime(),
         name: String? = null,
     ): MiraiForwardMessageBuilder = this@MiraiForwardMessageBuilder.apply {
         val bot = this@says
         
         if (name != null) {
-            append(bot.id.tryToLong(), name, time, message)
+            append(bot.id.tryToLong(), name, secondTimestamp, message)
             return@apply
         }
         
@@ -579,7 +604,7 @@ public class MiraiForwardMessageBuilder {
                 val botAsMember = bot.asMember()
                 ForwardMessage.Node(
                     botAsMember.id.tryToLong(),
-                    time,
+                    secondTimestamp,
                     botAsMember.nickOrUsername,
                     message.toOriginalMiraiMessageChain(contact, true)
                 )
@@ -592,7 +617,7 @@ public class MiraiForwardMessageBuilder {
         }
         
         val originalBot = bot.originalBot
-        append(time, message.asMessages()) {
+        append(secondTimestamp, message.asMessages()) {
             when {
                 it is OriginalMiraiGroup && it.bot.id == originalBot.id -> {
                     val member = it.botAsMember
@@ -609,8 +634,12 @@ public class MiraiForwardMessageBuilder {
      */
     @JvmName("add")
     @JvmOverloads
-    public fun Bot.says(text: String, time: Int = userCurrentTime(), name: String? = null): MiraiForwardMessageBuilder =
-        says(text.toText(), time, name)
+    public fun Bot.says(
+        text: String,
+        secondTimestamp: Int = userCurrentTime(),
+        name: String? = null,
+    ): MiraiForwardMessageBuilder =
+        says(text.toText(), secondTimestamp, name)
     
     /**
      * 追加一个 [Contact] 说的话。
@@ -619,13 +648,13 @@ public class MiraiForwardMessageBuilder {
     @JvmOverloads
     public fun Contact.says(
         message: Message,
-        time: Int = userCurrentTime(),
+        secondTimestamp: Int = userCurrentTime(),
         name: String = when (val c = this@says) {
             is Member -> c.nickOrUsername
             else -> c.username
         },
     ): MiraiForwardMessageBuilder = this@MiraiForwardMessageBuilder.apply {
-        append(id.tryToLong(), name, time, message)
+        append(id.tryToLong(), name, secondTimestamp, message)
     }
     
     /**
@@ -635,44 +664,74 @@ public class MiraiForwardMessageBuilder {
     @JvmOverloads
     public fun Contact.says(
         text: String,
-        time: Int = userCurrentTime(),
+        secondTimestamp: Int = userCurrentTime(),
         name: String = when (val c = this@says) {
             is Member -> c.nickOrUsername
             else -> c.username
         },
-    ): MiraiForwardMessageBuilder = says(text.toText(), time, name)
+    ): MiraiForwardMessageBuilder = says(text.toText(), secondTimestamp, name)
     
     // endregion
     
+    // region MessageEvent
     /**
      * 将一个 [MessageEvent] 转化为一个消息节点。
      */
-    private suspend fun addEvent(
-        messageEvent: MessageEvent, time: Int,
+    private fun addEvent(
+        messageEvent: MessageEvent, secondTimestamp: Int,
     ): MiraiForwardMessageBuilder = apply {
-        val userId = messageEvent.id.tryToLong()
-        val username = when (messageEvent) {
-            is ChatRoomMessageEvent -> messageEvent.author().nickOrUsername
-            is ContactMessageEvent -> messageEvent.user().username
-            else -> throw SimbotIllegalArgumentException("not ChatRoomMessageEvent or ContactMessageEvent")
+        append { contact ->
+            val userId = messageEvent.id.tryToLong()
+            val username = when (messageEvent) {
+                is ChatRoomMessageEvent -> messageEvent.author().nickOrUsername
+                is ContactMessageEvent -> messageEvent.user().username
+                else -> throw SimbotIllegalArgumentException("not ChatRoomMessageEvent or ContactMessageEvent")
+            }
+            val chain = messageEvent.messageContent.messages.toOriginalMiraiMessageChain(contact, true)
+            ForwardMessage.Node(userId, secondTimestamp, username, chain)
         }
-        
-        append(userId, username, time, messageEvent.messageContent.messages)
     }
     
-    @JvmSynthetic
-    public suspend fun add(
+    /**
+     * 追加一个 [ChatRoomMessageEvent] 作为转发消息的元素。
+     */
+    @JvmOverloads
+    public fun add(
         messageEvent: ChatRoomMessageEvent,
         time: Timestamp = messageEvent.timestamp,
-    ): MiraiForwardMessageBuilder =
-        addEvent(messageEvent, time.second.toInt())
+    ): MiraiForwardMessageBuilder = add(messageEvent, time.second.toInt())
     
-    @JvmSynthetic
-    public suspend fun add(
+    /**
+     * 追加一个 [ContactMessageEvent] 作为转发消息的元素。
+     */
+    @JvmOverloads
+    public fun add(
         messageEvent: ContactMessageEvent,
         time: Timestamp = messageEvent.timestamp,
-    ): MiraiForwardMessageBuilder =
-        addEvent(messageEvent, time.second.toInt())
+    ): MiraiForwardMessageBuilder = add(messageEvent, time.second.toInt())
+    
+    /**
+     * 追加一个 [ChatRoomMessageEvent] 作为转发消息的元素。
+     *
+     * @param secondTimestamp 消息发送的秒时间戳
+     */
+    public fun add(
+        messageEvent: ChatRoomMessageEvent,
+        secondTimestamp: Int,
+    ): MiraiForwardMessageBuilder = addEvent(messageEvent, secondTimestamp)
+    
+    /**
+     * 追加一个 [ContactMessageEvent] 作为转发消息的元素。
+     *
+     * @param secondTimestamp 消息发送的秒时间戳
+     */
+    public fun add(
+        messageEvent: ContactMessageEvent,
+        secondTimestamp: Int,
+    ): MiraiForwardMessageBuilder = addEvent(messageEvent, secondTimestamp)
+    
+    
+    // endregion
     
     
     /**
