@@ -244,15 +244,16 @@ public sealed class PasswordInfo {
                 }
                 
                 val value =
-                    prop0?.let(System::getProperty)?.replaceCodeMark() ?: env0?.let(System::getenv)?.replaceCodeMark()
+                    prop0?.replaceCodeMark()?.let(System::getProperty)
+                        ?: env0?.replaceCodeMark()?.let(System::getenv)
                 
                 return value ?: throw NoSuchElementException(buildString {
                     if (prop0 != null) {
                         // 键为 [a] 的prop的值
-                        append("Value of prop with key [").append(prop0).append("]; ")
+                        append("value of [prop] with key [").append(prop0.replaceCodeMark()).append("]; ")
                     }
                     if (env0 != null) {
-                        append("Value of env with key [").append(env0).append("]; ")
+                        append("value of [env] with key [").append(env0.replaceCodeMark()).append("]; ")
                     }
                 })
             }
@@ -369,7 +370,7 @@ public data class MiraiBotVerifyInfoConfiguration(
     /**
      * 用户密码信息配置。
      */
-    val passwordInfo: PasswordInfo,
+    val passwordInfo: PasswordInfo? = null,
     
     /**
      * 必要属性之外的额外配置属性。

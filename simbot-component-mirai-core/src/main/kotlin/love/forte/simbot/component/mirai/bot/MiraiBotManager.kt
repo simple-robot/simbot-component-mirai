@@ -73,6 +73,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         compatibleCheck(configuration)
         
         when (val passwordInfo = configuration.passwordInfo) {
+            null -> throw NoSuchElementException("[passwordInfo] is required but it was missing.")
             is TextPasswordInfo -> {
                 return register(
                     code = configuration.code,
@@ -100,7 +101,9 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 if (logger.isDebugEnabled) password else "${password.firstOrNull() ?: "?"}*****${password.lastOrNull() ?: "?"}"
             throw SimbotIllegalStateException(
                 """
-                The configuration property [password] is deprecated. Maybe you should replace the property [password]
+                The configuration property [password] is deprecated.
+                
+                Maybe you should replace the property [password]:
                 
                 ```
                 {
@@ -122,6 +125,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 ```
                 
                 See [PasswordInfo] and [MiraiBotVerifyInfoConfiguration.passwordInfo] for more information.
+                
             """.trimIndent()
             )
         }
@@ -134,7 +138,9 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
             
             throw SimbotIllegalStateException(
                 """
-                The configuration property [passwordMD5] is deprecated. Maybe you should replace the property [passwordMD5]
+                The configuration property [passwordMD5] is deprecated.
+                
+                Maybe you should replace the property [passwordMD5]:
                 
                 ```
                 {
@@ -156,6 +162,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 ```
                 
                 See [PasswordInfo] and [MiraiBotVerifyInfoConfiguration.passwordInfo] for more information.
+                
             """.trimIndent()
             )
             
@@ -173,7 +180,9 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
             
             throw SimbotIllegalStateException(
                 """
-                The configuration property [passwordMD5Bytes] is deprecated. Maybe you should replace the property [passwordMD5Bytes]
+                The configuration property [passwordMD5Bytes] is deprecated.
+                
+                Maybe you should replace the property [passwordMD5Bytes]:
                 
                 ```
                 {
@@ -195,6 +204,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 ```
                 
                 See [PasswordInfo] and [MiraiBotVerifyInfoConfiguration.passwordInfo] for more information.
+                
             """.trimIndent()
             )
         }
