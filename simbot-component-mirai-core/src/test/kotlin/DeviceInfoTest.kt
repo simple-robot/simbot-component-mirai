@@ -21,6 +21,7 @@ import kotlinx.serialization.json.Json
 import love.forte.simbot.FragileSimbotApi
 import love.forte.simbot.component.mirai.SimpleDeviceInfo
 import love.forte.simbot.component.mirai.bot.MiraiBotVerifyInfoConfiguration
+import love.forte.simbot.component.mirai.bot.PasswordInfo
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.toSimple
 import net.mamoe.mirai.utils.DeviceInfo
@@ -44,7 +45,7 @@ import kotlin.test.Test
  */
 
 class DeviceInfoTest {
-
+    
     @OptIn(FragileSimbotApi::class)
     @Test
     fun jsonTest() {
@@ -53,13 +54,13 @@ class DeviceInfoTest {
             isLenient = true
             prettyPrint = true
         }
-
+        
         val info = DeviceInfo.random()
         val str = json.encodeToString(SimpleDeviceInfo.serializer(), info.toSimple())
-
+        
         println(str)
     }
-
+    
     /*
     {
         "display": "MIRAI.886953.001",
@@ -87,28 +88,28 @@ class DeviceInfoTest {
     }
 
      */
-
-
+    
+    
     @OptIn(FragileSimbotApi::class, InternalApi::class)
     @Test
     fun yamlTest() {
         val conf = MiraiBotVerifyInfoConfiguration(
             code = 123,
-            password = "123222xxx",
+            passwordInfo = PasswordInfo.Text("123456"),
             config = MiraiBotVerifyInfoConfiguration.Config(
                 simpleDeviceInfoJson = DeviceInfo.random().toSimple()
             )
         )
-
+        
         val yaml = Yaml(
             configuration = YamlConfiguration(
                 strictMode = false
             )
         )
-
+        
         val str = yaml.encodeToString(MiraiBotVerifyInfoConfiguration.serializer(), conf)
         println(str)
-
+        
     }
-
+    
 }
