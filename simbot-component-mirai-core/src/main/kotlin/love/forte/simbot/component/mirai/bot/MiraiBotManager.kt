@@ -25,18 +25,14 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import love.forte.simbot.Attribute
-import love.forte.simbot.Component
-import love.forte.simbot.NoSuchComponentException
+import love.forte.simbot.*
 import love.forte.simbot.application.ApplicationBuilder
 import love.forte.simbot.application.ApplicationConfiguration
 import love.forte.simbot.application.EventProviderAutoRegistrarFactory
 import love.forte.simbot.application.EventProviderFactory
-import love.forte.simbot.attribute
 import love.forte.simbot.bot.BotManager
 import love.forte.simbot.bot.BotVerifyInfo
 import love.forte.simbot.bot.ComponentMismatchException
-import love.forte.simbot.bot.VerifyFailureException
 import love.forte.simbot.component.mirai.MiraiBotConfiguration
 import love.forte.simbot.component.mirai.MiraiComponent
 import love.forte.simbot.component.mirai.internal.InternalApi
@@ -46,19 +42,6 @@ import net.mamoe.mirai.BotFactory
 import org.slf4j.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-
-
-private fun hex(hex: String): ByteArray {
-    val result = ByteArray(hex.length / 2)
-    for (idx in result.indices) {
-        val srcIdx = idx * 2
-        val high = hex[srcIdx].toString().toInt(16) shl 4
-        val low = hex[srcIdx + 1].toString().toInt(16)
-        result[idx] = (high or low).toByte()
-    }
-    
-    return result
-}
 
 
 /**
@@ -87,22 +70,136 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         
         val configuration = verifyInfo.decode(serializer)
         
+        compatibleCheck(configuration)
+        
+        when (val passwordInfo = configuration.passwordInfo) {
+            is TextPasswordInfo -> {
+                return register(
+                    code = configuration.code,
+                    password = passwordInfo.getPassword(configuration),
+                    configuration = configuration.simbotBotConfiguration,
+                )
+            }
+            
+            is Md5BytesPasswordInfo -> {
+                return register(
+                    code = configuration.code,
+                    passwordMD5 = passwordInfo.getPassword(configuration),
+                    configuration = configuration.simbotBotConfiguration,
+                )
+            }
+        }
+    }
+    
+    @Suppress("DEPRECATION")
+    @OptIn(InternalApi::class)
+    private fun compatibleCheck(configuration: MiraiBotVerifyInfoConfiguration) {
         val password = configuration.password
         if (password != null) {
-            return register(
-                configuration.code,
-                password = password,
-                configuration.simbotBotConfiguration,
+            val showPwd =
+                if (logger.isDebugEnabled) password else "${password.firstOrNull() ?: "?"}*****${password.lastOrNull() ?: "?"}"
+            throw SimbotIllegalStateException(
+                """
+                The configuration property [password] is deprecated. Maybe you should replace the property [password]
+                
+                ```
+                {
+                  "code": ${configuration.code},
+                  "password": "$showPwd"
+                }
+                ```
+                
+                to [passwordInfo]:
+                
+                ```
+                {
+                  "code": ${configuration.code},
+                  "passwordInfo": {
+                     "type": "${PasswordInfo.Text.TYPE}",
+                     "text": "$showPwd"
+                  }
+                }
+                ```
+                
+                See [PasswordInfo] and [MiraiBotVerifyInfoConfiguration.passwordInfo] for more information.
+            """.trimIndent()
             )
         }
-        val passwordMD5 = configuration.passwordMD5
-            ?: throw VerifyFailureException("One of the [password] or [passwordMD5] must exist")
         
-        return register(
-            configuration.code,
-            passwordMD5 = hex(passwordMD5),
-            configuration.simbotBotConfiguration,
-        )
+        
+        val passwordMD5 = configuration.passwordMD5
+        if (passwordMD5 != null) {
+            val showPwd =
+                if (logger.isDebugEnabled) passwordMD5 else "${passwordMD5.firstOrNull() ?: "?"}*****${passwordMD5.lastOrNull() ?: "?"}"
+            
+            throw SimbotIllegalStateException(
+                """
+                The configuration property [passwordMD5] is deprecated. Maybe you should replace the property [passwordMD5]
+                
+                ```
+                {
+                  "code": ${configuration.code},
+                  "passwordMD5": "$showPwd"
+                }
+                ```
+                
+                to [passwordInfo]:
+                
+                ```
+                {
+                  "code": ${configuration.code},
+                  "passwordInfo": {
+                     "type": "${PasswordInfo.Md5Text.TYPE}",
+                     "md5": "$showPwd"
+                  }
+                }
+                ```
+                
+                See [PasswordInfo] and [MiraiBotVerifyInfoConfiguration.passwordInfo] for more information.
+            """.trimIndent()
+            )
+            
+        }
+        
+        
+        val passwordMD5Bytes = configuration.passwordMD5Bytes
+        if (passwordMD5Bytes != null) {
+            val showPwd =
+                if (logger.isDebugEnabled) passwordMD5Bytes.joinToString(
+                    ", ",
+                    "[",
+                    "]"
+                ) else "[**, **, **]"
+            
+            throw SimbotIllegalStateException(
+                """
+                The configuration property [passwordMD5Bytes] is deprecated. Maybe you should replace the property [passwordMD5Bytes]
+                
+                ```
+                {
+                  "code": ${configuration.code},
+                  "passwordMD5Bytes": $showPwd
+                }
+                ```
+                
+                to [passwordInfo]:
+                
+                ```
+                {
+                  "code": ${configuration.code},
+                  "passwordInfo": {
+                     "type": "${PasswordInfo.Md5Bytes.TYPE}",
+                     "md5": $showPwd
+                  }
+                }
+                ```
+                
+                See [PasswordInfo] and [MiraiBotVerifyInfoConfiguration.passwordInfo] for more information.
+            """.trimIndent()
+            )
+        }
+        
+        
     }
     
     /**
@@ -383,7 +480,6 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
 @Deprecated("Use simbotApplication and install MiraiBotManager.")
 public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
     MiraiBotManager.newInstance(eventProcessor)
-
 
 
 /**
