@@ -76,14 +76,13 @@ public sealed class Md5BytesPasswordInfo : PasswordInfo() {
  * ### [md5密码][Md5BytesPasswordInfo]:
  *
  * - [md5字符串密码][PasswordInfo.Md5Text]
+ * - [环境变量md5字符串密码][PasswordInfo.EnvMd5Text]
  * - [md5字节组密码][PasswordInfo.Md5Bytes]
  *
  */
 @Serializable
 @OptIn(InternalApi::class)
 public sealed class PasswordInfo {
-    
-    
     /**
      * 明文密码类型。
      *
@@ -267,10 +266,19 @@ public sealed class PasswordInfo {
     
     /**
      * 通过环境变量来加载密码信息配置。加载的是明文密码配置。
-     * 明文密码配置中的要求与 [Text] 一致。
+     * 密码值的要求与 [Text] 一致。
      *
+     * ```json
+     * "passwordInfo": {
+     *    "type": "env_text",
+     *    "prop": "...",
+     *    "env": "..."
+     * }
+     * ```
      *
      * 更多信息参阅 [EnvPasswordInfo] 接口的描述。
+     *
+     *
      *
      * @see EnvPasswordInfo
      *
@@ -285,10 +293,43 @@ public sealed class PasswordInfo {
         override fun getPassword(configuration: MiraiBotVerifyInfoConfiguration): String = configuration.envValue
         
         public companion object {
-            public const val TYPE: String = "env_text"
+            public const val TYPE: String = "env_${Text.TYPE}"
         }
     }
     
+    
+    /**
+     * 通过环境变量来加载密码信息配置。加载的是Md5密码（字符串形式）配置。
+     * 密码值的要求与 [Md5Text] 一致。
+     *
+     * ```json
+     * "passwordInfo": {
+     *    "type": "env_md5_text",
+     *    "prop": "...",
+     *    "env": "..."
+     * }
+     * ```
+     *
+     * 更多信息参阅 [EnvPasswordInfo] 接口的描述。
+     *
+     * @see EnvPasswordInfo
+     *
+     */
+    @Serializable
+    @SerialName(EnvMd5Text.TYPE)
+    public data class EnvMd5Text(
+        override val prop: String? = null,
+        override val env: String? = null,
+    ) : Md5BytesPasswordInfo(), EnvPasswordInfo {
+        
+        override fun getPassword(configuration: MiraiBotVerifyInfoConfiguration): ByteArray {
+            return Md5Text(configuration.envValue).getPassword(configuration)
+        }
+        
+        public companion object {
+            public const val TYPE: String = "env_${Md5Text.TYPE}"
+        }
+    }
 }
 
 
