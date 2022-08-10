@@ -123,8 +123,8 @@ internal class MiraiBotImpl(
     
     internal fun groupMute(group: OriginalMiraiGroup, milli: Long): Job? {
         val code = group.id
-        if (milli < 0) return null
         group.settings.isMuteAll = true
+        if (milli <= 0) return null
         return groupMuteJobs.compute(code) { _, old ->
             old?.cancel(message = CANCEL_MUTE_MESSAGE)
             launch(groupMuteJob) {
@@ -158,7 +158,7 @@ internal class MiraiBotImpl(
     }
     
     internal fun groupUnmute(group: OriginalMiraiGroup): Boolean {
-        groupMuteJobs[group.id]?.cancel()
+        groupMuteJobs.remove(group.id)?.cancel()
         with(group.settings) {
             if (isMuteAll) {
                 isMuteAll = false
