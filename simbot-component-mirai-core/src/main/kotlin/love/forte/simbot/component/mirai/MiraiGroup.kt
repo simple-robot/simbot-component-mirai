@@ -21,6 +21,7 @@ import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.component.mirai.bot.MiraiGroupBot
 import love.forte.simbot.definition.*
 import love.forte.simbot.message.Message
@@ -33,9 +34,14 @@ import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
 /**
  * Simbot中针对于 [OriginalMiraiGroup] 的群类型实现。
+ *
+ * ## [DeleteSupport]
+ *
+ * [MiraiGroup] 实现 [DeleteSupport] 来允许对bot退群的行为进行描述。更多参考 [delete]。
+ *
  * @author ForteScarlet
  */
-public interface MiraiGroup : Group, MiraiChatroom {
+public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     override val originalContact: OriginalMiraiGroup
     
     override val bot: MiraiGroupBot
@@ -56,6 +62,21 @@ public interface MiraiGroup : Group, MiraiChatroom {
      * 获取群成员信息流。
      */
     override val members: Items<MiraiMember>
+    
+    
+    /**
+     * bot退群。
+     *
+     * 行为与 [OriginalMiraiGroup.quit] 一致：
+     * > 让机器人退出这个群。
+     *
+     * @return 退出成功时 `true`; 已经退出时 `false`
+     * @throws IllegalStateException 当bot为群主时
+     *
+     * @see OriginalMiraiGroup.quit
+     */
+    @JvmSynthetic
+    override suspend fun delete(): Boolean = originalContact.quit()
     
     
     /**
