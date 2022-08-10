@@ -87,7 +87,7 @@ internal class MiraiGroupImpl(
         get() = MemberRole.values().asList().asItems()
     
     override suspend fun mute(duration: Duration): Boolean {
-        return baseBot.groupMute(originalContact, duration) != null
+        return baseBot.groupMute(originalContact, duration.inWholeMilliseconds) != null
     }
     
     override suspend fun unmute(): Boolean {
