@@ -30,6 +30,7 @@ dependencies {
     
     compileOnly(libs.kotlinx.serialization.properties)
     compileOnly(libs.charleskorn.kaml)
+    compileOnly("com.github.Ricky12Awesome:json-schema-serialization:0.6.6")
     
     
     testImplementation(libs.kotlinx.serialization.properties)
