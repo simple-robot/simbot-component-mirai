@@ -686,7 +686,6 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                 val resourcePath = path.toString()
                 logger.debug("Find device info [{}] from resource", resourcePath)
                 classLoader.getResourceAsStream(resourcePath)?.bufferedReader()?.use { reader ->
-                    val text = reader.readText()
                     return json.decodeFromString(DeviceInfo.serializer(), path.readText())
                 } ?: apply {
                     logger.debug("Resource [{}] does not exist", resourcePath)
