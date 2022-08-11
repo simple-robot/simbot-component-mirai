@@ -247,7 +247,7 @@
                 },
                 "baseDir": {
                   "type": ["string", "null"],
-                  "default": "",
+                  "default": null,
                   "description": "寻找设备信息文件的基础目录"
                 }
               }

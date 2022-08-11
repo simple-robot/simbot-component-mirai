@@ -657,7 +657,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
      */
     @Serializable
     @SerialName(Auto.TYPE)
-    public data class Auto(public val baseDir: String = "") : DeviceInfoConfiguration() {
+    public data class Auto(public val baseDir: String? = null) : DeviceInfoConfiguration() {
         
         override fun invoke(bot: Bot): DeviceInfo {
             val code = bot.id.toString()
@@ -665,34 +665,38 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                 isLenient = true
                 ignoreUnknownKeys = true
             }
-            val formattedBaseDir = baseDir.replaceCodeMark(code)
-            val classLoader = currentClassLoader
-            val resolvedPaths = TARGETS.map { Path(formattedBaseDir, it.replaceCodeMark(code)) }
-            for (path in resolvedPaths) {
-                logger.debug("Find device info [{}] from local file", path)
-                // local file
-                if (path.exists()) {
-                    if (!path.isRegularFile()) {
-                        logger.debug("Path [{}] is exists, but is not a regular file.", path)
-                    } else {
-                        // read, and without try
-                        return json.decodeFromString(DeviceInfo.serializer(), path.readText())
-                    }
-                } else {
-                    logger.debug("Path [{}] does not exist", path)
-                }
-                
-                // resource
-                val resourcePath = path.toString()
-                logger.debug("Find device info [{}] from resource", resourcePath)
-                classLoader.getResourceAsStream(resourcePath)?.bufferedReader()?.use { reader ->
-                    return json.decodeFromString(DeviceInfo.serializer(), path.readText())
-                } ?: apply {
-                    logger.debug("Resource [{}] does not exist", resourcePath)
-                }
-            }
             
-            logger.debug("No device info file is found in target paths: {}. The device info will be generated using SimbotRandom.DEFAULT.", resolvedPaths)
+            if (baseDir != null) {
+                val formattedBaseDir = baseDir.replaceCodeMark(code)
+                val classLoader = currentClassLoader
+                val resolvedPaths = TARGETS.map { Path(formattedBaseDir, it.replaceCodeMark(code)) }
+                for (path in resolvedPaths) {
+                    logger.debug("Find device info [{}] from local file", path)
+                    // local file
+                    if (path.exists()) {
+                        if (!path.isRegularFile()) {
+                            logger.debug("Path [{}] is exists, but is not a regular file.", path)
+                        } else {
+                            // read, and without try
+                            return json.decodeFromString(DeviceInfo.serializer(), path.readText())
+                        }
+                    } else {
+                        logger.debug("Path [{}] does not exist", path)
+                    }
+        
+                    // resource
+                    val resourcePath = path.toString()
+                    logger.debug("Find device info [{}] from resource", resourcePath)
+                    classLoader.getResourceAsStream(resourcePath)?.bufferedReader()?.use { reader ->
+                        return json.decodeFromString(DeviceInfo.serializer(), path.readText())
+                    } ?: apply {
+                        logger.debug("Resource [{}] does not exist", resourcePath)
+                    }
+                }
+    
+                logger.debug("No device info file is found in target paths: {}. The device info will be generated using SimbotRandom.DEFAULT.", resolvedPaths)
+    
+            }
             
             return SimbotRandom.DEFAULT(bot)
             
