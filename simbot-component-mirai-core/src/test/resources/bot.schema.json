@@ -3,6 +3,11 @@
   "title": "Simbot中Mirai组件的bot配置文件架构",
   "type": "object",
   "properties": {
+    "component": {
+      "type": "string",
+      "const": "simbot.mirai",
+      "description": "所属组件ID"
+    },
     "code": {
       "type": "integer",
       "exclusiveMinimum": 0,
