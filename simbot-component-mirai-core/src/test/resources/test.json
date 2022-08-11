@@ -1,0 +1,13 @@
+{
+  "code": 123,
+  "passwordInfo": {
+    "type": "text",
+    "text": "a"
+  },
+  "config": {
+    "deviceInfo": {
+      "type": "resource",
+      "paths": ["a"]
+    }
+  }
+}
