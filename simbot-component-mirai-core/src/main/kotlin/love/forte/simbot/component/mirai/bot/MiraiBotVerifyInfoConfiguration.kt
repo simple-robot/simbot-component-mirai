@@ -44,9 +44,7 @@ import net.mamoe.mirai.utils.MiraiLogger
 import java.io.File
 import java.io.InputStream
 import java.nio.file.StandardOpenOption
-import kotlin.io.path.Path
-import kotlin.io.path.exists
-import kotlin.io.path.inputStream
+import kotlin.io.path.*
 import kotlin.random.Random
 
 
@@ -368,6 +366,9 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
         
         public companion object {
             public const val TYPE: String = "simbot_random"
+            
+            @JvmField
+            public val DEFAULT: SimbotRandom = SimbotRandom()
         }
     }
     
@@ -603,6 +604,117 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
     }
     
     
+    /**
+     * 自动寻找或配置deviceInfo。
+     *
+     * [Auto] 首先会像 [Resource] 一样，去寻找几个指定的资源文件：
+     * - `$BASE_DIR$device-$CODE$.json`
+     * - `$BASE_DIR$device.json`
+     *
+     * 其中，`$BASE_DIR$` 为配置属性 [baseDir]，默认为空，即根目录。
+     * 最终得到的路径会先尝试从本地文件中寻找，而后会尝试在资源目录中寻找。
+     *
+     * 寻找顺序为：
+     * 1. 本地文件: `$BASE_DIR$device-$CODE$.json`
+     * 2. 资源文件: `$BASE_DIR$device-$CODE$.json`
+     * 3. 本地文件: `$BASE_DIR$device.json`
+     * 4. 资源文件: `$BASE_DIR$device.json`
+     *
+     * 如下示例中，
+     *
+     * ```json
+     * {
+     *   "deviceInfo": {
+     *      "type": "auto",
+     *      "baseDir": "devices"
+     *   }
+     * }
+     * ```
+     *
+     * 假设当前bot.id为 123456，则最终寻找的目标路径为：
+     *
+     * - `devices/device-123456.json`
+     * - `devices/device.json`
+     *
+     *
+     * [baseDir] 允许使用 `$CODE$` 占位符进行替换，例如：
+     *
+     * ```json
+     * {
+     *   "deviceInfo": {
+     *      "type": "auto",
+     *      "baseDir": "devices-$CODE$"
+     *   }
+     * }
+     * ```
+     *
+     * 假设当前bot.id为 `123456`, 则上述配置中的的 `baseDir` 最终会被替换为 `devices-123456`，
+     * 并最终会去寻找如下目标：
+     * - `devices-123456/device-123456.json`
+     * - `devices-123456/device.json`
+     *
+     * 如果无法在上述内容中找到存在的资源，则 [Auto] 会采用与 [SimbotRandom] 一致的行为。
+     *
+     */
+    @Serializable
+    @SerialName(Auto.TYPE)
+    public data class Auto(public val baseDir: String = "") : DeviceInfoConfiguration() {
+        
+        override fun invoke(bot: Bot): DeviceInfo {
+            val code = bot.id.toString()
+            val json = Json {
+                isLenient = true
+                ignoreUnknownKeys = true
+            }
+            val formattedBaseDir = baseDir.replaceCodeMark(code)
+            val classLoader = currentClassLoader
+            val resolvedPaths = TARGETS.map { Path(formattedBaseDir, it.replaceCodeMark(code)) }
+            for (path in resolvedPaths) {
+                logger.debug("Find device info [{}] from local file", path)
+                // local file
+                if (path.exists()) {
+                    if (!path.isRegularFile()) {
+                        logger.debug("Path [{}] is exists, but is not a regular file.", path)
+                    } else {
+                        // read, and without try
+                        return json.decodeFromString(DeviceInfo.serializer(), path.readText())
+                    }
+                } else {
+                    logger.debug("Path [{}] does not exist", path)
+                }
+                
+                // resource
+                val resourcePath = path.toString()
+                logger.debug("Find device info [{}] from resource", resourcePath)
+                classLoader.getResourceAsStream(resourcePath)?.bufferedReader()?.use { reader ->
+                    val text = reader.readText()
+                    return json.decodeFromString(DeviceInfo.serializer(), path.readText())
+                } ?: apply {
+                    logger.debug("Resource [{}] does not exist", resourcePath)
+                }
+            }
+            
+            logger.debug("No device info file is found in target paths: {}. The device info will be generated using SimbotRandom.DEFAULT.", resolvedPaths)
+            
+            return SimbotRandom.DEFAULT(bot)
+            
+        }
+        
+        private inline val currentClassLoader: ClassLoader
+            get() = javaClass.classLoader
+                ?: Thread.currentThread().contextClassLoader ?: ClassLoader.getSystemClassLoader()
+        
+        public companion object {
+            private val logger = LoggerFactory.getLogger<Auto>()
+            private val TARGETS: Array<String> = arrayOf(
+                "device-$CODE_MARK.json",
+                "device.json"
+            )
+            public const val TYPE: String = "auto"
+        }
+    }
+    
+    
     public companion object {
         /**
          * 用于代表当前需要进行配置的bot的账号占位符。
@@ -667,14 +779,14 @@ public data class MiraiBotVerifyInfoConfiguration(
     public data class Config(
         /** mirai配置自定义deviceInfoSeed的时候使用的随机种子。默认为1. */
         val deviceInfoSeed: Long = DEFAULT_SIMBOT_MIRAI_DEVICE_INFO_SEED,
-        
+    
         /**
          * Mirai配置中的工作目录。
          *
          * @see BotConfiguration.workingDir
          */
         @Serializable(FileSerializer::class) val workingDir: File = BotConfiguration.Default.workingDir,
-        
+    
         /**
          * 同mirai原生配置 [BotConfiguration.heartbeatPeriodMillis]。
          */
@@ -687,32 +799,32 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 同mirai原生配置 [BotConfiguration.heartbeatTimeoutMillis]。
          */
         val heartbeatTimeoutMillis: Long = BotConfiguration.Default.heartbeatTimeoutMillis,
-        
-            /**
+    
+        /**
          * 同mirai原生配置 [BotConfiguration.heartbeatStrategy]。
          */
         @Serializable(HeartbeatStrategySerializer::class) val heartbeatStrategy: BotConfiguration.HeartbeatStrategy = BotConfiguration.Default.heartbeatStrategy,
-        
+    
         /**
          * 同mirai原生配置 [BotConfiguration.reconnectionRetryTimes]。
          */
         val reconnectionRetryTimes: Int = BotConfiguration.Default.reconnectionRetryTimes,
-        
+    
         /**
          * 同mirai原生配置 [BotConfiguration.autoReconnectOnForceOffline]。
          */
         val autoReconnectOnForceOffline: Boolean = BotConfiguration.Default.autoReconnectOnForceOffline,
-        
+    
         /**
          * 同mirai原生配置 [BotConfiguration.protocol]。
          */
         @Serializable(MiraiProtocolSerializer::class) val protocol: BotConfiguration.MiraiProtocol = BotConfiguration.Default.protocol,
-        
+    
         /**
          * 同mirai原生配置 [BotConfiguration.highwayUploadCoroutineCount]。
          */
         val highwayUploadCoroutineCount: Int = BotConfiguration.Default.highwayUploadCoroutineCount,
-        
+    
         /**
          * 如果是字符串，尝试解析为json
          * 否则视为文件路径。
@@ -721,27 +833,27 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 优先使用此属性。
          */
         val deviceInfoJson: DeviceInfo? = null,
-        
+    
         /**
          * 优先使用 [deviceInfo].
          */
         val simpleDeviceInfoJson: SimpleDeviceInfo? = null,
-        
+    
         /**
          * 加载的设备信息json文件的路径。
          * 如果是 `classpath:` 开头，则会优先尝试加载resource，
          * 否则优先视为文件路径加载。
          */
         val deviceInfoFile: String? = null,
-        
+    
         /**
          * 配置设备信息。
          *
          * @see DeviceInfoConfiguration
          */
         @SerialName("deviceInfo")
-        val deviceInfoConfiguration: DeviceInfoConfiguration = DeviceInfoConfiguration.SimbotRandom(),
-        
+        val deviceInfoConfiguration: DeviceInfoConfiguration = DeviceInfoConfiguration.Auto(),
+    
         /**
          * 是否不输出网络日志。当为true时等同于使用了 [BotConfiguration.noNetworkLog]
          */
@@ -754,12 +866,12 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 同原生配置 [BotConfiguration.isShowingVerboseEventLog]
          */
         val isShowingVerboseEventLog: Boolean = BotConfiguration.Default.isShowingVerboseEventLog,
-        
+    
         /**
          * 同原生配置 [BotConfiguration.cacheDir]
          */
         @Serializable(FileSerializer::class) val cacheDir: File = BotConfiguration.Default.cacheDir,
-        
+    
         /**
          *
          * json:
@@ -774,13 +886,13 @@ public data class MiraiBotVerifyInfoConfiguration(
          * ```
          */
         @SerialName("contactListCache") val contactListCacheConfiguration: ContactListCacheConfiguration = ContactListCacheConfiguration(),
-        
+    
         /**
          * 是否开启登录缓存。
          * @see BotConfiguration.loginCacheEnabled
          */
         val loginCacheEnabled: Boolean = BotConfiguration.Default.loginCacheEnabled,
-        
+    
         /**
          * 是否处理接受到的特殊换行符, 默认为 true
          * @see BotConfiguration.convertLineSeparator
@@ -799,7 +911,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          *
          */
         val recallMessageCacheStrategy: RecallMessageCacheStrategyType = RecallMessageCacheStrategyType.INVALID,
-        
+    
         ) {
         
         @Transient

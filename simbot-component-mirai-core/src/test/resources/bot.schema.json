@@ -1,5 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
+  "title": "Simbot中Mirai组件的bot配置文件架构",
   "type": "object",
   "properties": {
     "code": {
@@ -221,16 +222,31 @@
             "type": {
               "type": "string",
               "enum": [
+                "auto",
                 "simbot_random",
                 "random",
                 "resource",
                 "object",
                 "simple_object"
               ],
-              "default": "simbot_random"
+              "default": "auto"
             }
           },
           "anyOf": [
+            {
+              "type": "object",
+              "properties": {
+                "type": {
+                  "const": "auto",
+                  "description": "自动配置设备信息"
+                },
+                "baseDir": {
+                  "type": ["string", "null"],
+                  "default": "",
+                  "description": "寻找设备信息文件的基础目录"
+                }
+              }
+            },
             {
               "type": "object",
               "properties": {
