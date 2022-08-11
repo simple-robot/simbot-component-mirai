@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -18,7 +18,6 @@
 @file:OptIn(InternalApi::class)
 
 import com.github.ricky12awesome.jss.encodeToSchema
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import love.forte.simbot.component.mirai.bot.MiraiBotVerifyInfoConfiguration
 import love.forte.simbot.component.mirai.internal.InternalApi
@@ -40,18 +39,10 @@ import love.forte.simbot.component.mirai.internal.InternalApi
  *
  */
 
-@OptIn(ExperimentalSerializationApi::class)
-private val json = Json {
-    prettyPrint = true
-    isLenient = true
-    ignoreUnknownKeys = true
-    this.encodeDefaults = true
-    this.explicitNulls = true
-}
 
 fun main() {
     
-    val str = json.encodeToSchema(MiraiBotVerifyInfoConfiguration.serializer(), false)
+    val str = Json.encodeToSchema(MiraiBotVerifyInfoConfiguration.serializer(), false)
     
     println(str)
     

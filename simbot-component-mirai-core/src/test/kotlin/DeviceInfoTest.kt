@@ -21,7 +21,7 @@ import kotlinx.serialization.json.Json
 import love.forte.simbot.FragileSimbotApi
 import love.forte.simbot.component.mirai.SimpleDeviceInfo
 import love.forte.simbot.component.mirai.bot.MiraiBotVerifyInfoConfiguration
-import love.forte.simbot.component.mirai.bot.PasswordInfo
+import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.toSimple
 import net.mamoe.mirai.utils.DeviceInfo
@@ -95,7 +95,7 @@ class DeviceInfoTest {
     fun yamlTest() {
         val conf = MiraiBotVerifyInfoConfiguration(
             code = 123,
-            passwordInfo = PasswordInfo.Text("123456"),
+            passwordInfo = PasswordInfoConfiguration.Text("123456"),
             config = MiraiBotVerifyInfoConfiguration.Config(
                 simpleDeviceInfoJson = DeviceInfo.random().toSimple()
             )
