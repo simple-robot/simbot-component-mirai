@@ -1,13 +1,8 @@
 {
+  "component": "simbot.mirai",
   "code": 123,
   "passwordInfo": {
-    "type": "text",
-    "text": "a"
-  },
-  "config": {
-    "deviceInfo": {
-      "type": "resource",
-      "paths": ["a"]
-    }
+    "type": "md5_text",
+    "md5": ""
   }
 }
