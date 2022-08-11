@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.bot
@@ -411,7 +410,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
      * {
      *   "deviceInfo": {
      *      "type": "resource",
-     *      "path": "foo/bar/device.json"
+     *      "paths": ["foo/bar/device.json"]
      *   }
      * }
      * ```
@@ -422,11 +421,11 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
      * {
      *   "deviceInfo": {
      *      "type": "resource",
-     *      "path": "foo/bar/device-$CODE$.json"
+     *      "paths": ["foo/bar/device-$CODE$.json"]
      *   }
      * }
      * ```
-     * 当目标bot的id为 `123` 时, `path` 最终会变为 `"foo/bar/device-123.json"`
+     * 当目标bot的id为 `123` 时, `paths` 最终会变为 `["foo/bar/device-123.json"]`
      *
      * 其他细节参见 [paths] 属性说明。
      *
