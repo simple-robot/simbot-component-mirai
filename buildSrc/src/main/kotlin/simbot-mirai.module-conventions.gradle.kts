@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 plugins {
@@ -39,6 +38,8 @@ repositories {
 }
 
 dependencies {
+    compileOnly("org.jetbrains:annotations:23.0.0")
+    testImplementation("org.jetbrains:annotations:23.0.0")
     testImplementation(kotlin("test-junit5"))
 }
 
