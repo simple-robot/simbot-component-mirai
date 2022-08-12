@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -87,15 +86,15 @@ internal class MiraiBotManagerImpl(
     
     override fun register(
         code: Long,
-        passwordMD5: ByteArray,
+        password: ByteArray,
         configuration: MiraiBotConfiguration,
     ): MiraiBotImpl {
-        logger.debug("Register bot {} with password(MD5): <size {}>", code, passwordMD5.size)
+        logger.debug("Register bot {} with password(MD5): <size {}>", code, password.size)
         val botConfiguration = configuration.createBotConfiguration {
             it ?: createInitialBotConfiguration()
         }.apply { configurationContext() }
         return processMiraiBot(code, configuration) {
-            BotFactory.newBot(code, passwordMD5, botConfiguration)
+            BotFactory.newBot(code, password, botConfiguration)
         }.also { bot ->
             launch { pushRegisteredEvent(bot) }
         }

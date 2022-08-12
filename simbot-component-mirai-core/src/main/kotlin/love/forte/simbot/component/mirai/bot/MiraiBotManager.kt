@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.bot
@@ -71,9 +70,46 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         val configuration = verifyInfo.decode(serializer)
         
         compatibleCheck(configuration)
+        val passwordInfo = configuration.passwordInfo
+        @Suppress("DEPRECATION")
+        if (passwordInfo == null) {
+            val pwdMd5Bytes = configuration.passwordMD5Bytes
+            val pwdMd5Text = configuration.passwordMD5
+            val pwdText = configuration.password
+            // 兼容检测
+            when {
+                pwdMd5Bytes != null -> {
+                    logger.warn("The [passwordInfo] is null and [passwordMD5Bytes] is not null, will use the deprecated property [passwordMD5Bytes].")
+                    return register(
+                        code = configuration.code,
+                        password = pwdMd5Bytes,
+                        configuration = configuration.simbotBotConfiguration,
+                    )
+                }
+                
+                pwdMd5Text != null -> {
+                    logger.warn("The [passwordInfo] is null and [passwordMD5] is not null, will use the deprecated property [passwordMD5].")
+                    return register(
+                        code = configuration.code,
+                        password = PasswordInfoConfiguration.Md5Text(pwdMd5Text).getPassword(configuration),
+                        configuration = configuration.simbotBotConfiguration,
+                    )
+                }
+                
+                pwdText != null -> {
+                    logger.warn("The [passwordInfo] is null and [password] is not null, will use the deprecated property [password].")
+                    return register(
+                        code = configuration.code,
+                        password = pwdText,
+                        configuration = configuration.simbotBotConfiguration,
+                    )
+                }
+            }
+            
+            throw NoSuchElementException("[passwordInfo] is required but it was missing.")
+        }
         
-        when (val passwordInfo = configuration.passwordInfo) {
-            null -> throw NoSuchElementException("[passwordInfo] is required but it was missing.")
+        when (passwordInfo) {
             is TextPasswordInfoConfiguration -> {
                 return register(
                     code = configuration.code,
@@ -85,7 +121,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
             is Md5BytesPasswordInfoConfiguration -> {
                 return register(
                     code = configuration.code,
-                    passwordMD5 = passwordInfo.getPassword(configuration),
+                    password = passwordInfo.getPassword(configuration),
                     configuration = configuration.simbotBotConfiguration,
                 )
             }
@@ -99,7 +135,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         if (password != null) {
             val showPwd =
                 if (logger.isDebugEnabled) password else "${password.firstOrNull() ?: "?"}*****${password.lastOrNull() ?: "?"}"
-            throw SimbotIllegalStateException(
+            val warning = SimbotIllegalStateException(
                 """
                 The configuration property [password] is deprecated.
                 
@@ -128,6 +164,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 
             """.trimIndent()
             )
+            logger.error("The configuration property [password] is deprecated", warning)
         }
         
         
@@ -136,7 +173,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
             val showPwd =
                 if (logger.isDebugEnabled) passwordMD5 else "${passwordMD5.firstOrNull() ?: "?"}*****${passwordMD5.lastOrNull() ?: "?"}"
             
-            throw SimbotIllegalStateException(
+            val warning = SimbotIllegalStateException(
                 """
                 The configuration property [passwordMD5] is deprecated.
                 
@@ -165,7 +202,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 
             """.trimIndent()
             )
-            
+            logger.error("The configuration property [passwordMD5] is deprecated", warning)
         }
         
         
@@ -178,7 +215,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                     "]"
                 ) else "[**, **, **]"
             
-            throw SimbotIllegalStateException(
+            val warning = SimbotIllegalStateException(
                 """
                 The configuration property [passwordMD5Bytes] is deprecated.
                 
@@ -207,6 +244,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 
             """.trimIndent()
             )
+            logger.error("The configuration property [passwordMD5Bytes] is deprecated", warning)
         }
         
         
@@ -258,10 +296,10 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * 包括其中的设备信息配置、logger配置等。
      *
      * @param code 账号
-     * @param passwordMD5 密码的MD5字节数组
+     * @param password 密码的MD5字节数组
      * @param configuration simbot bot 配置
      */
-    public abstract fun register(code: Long, passwordMD5: ByteArray, configuration: MiraiBotConfiguration): MiraiBot
+    public abstract fun register(code: Long, password: ByteArray, configuration: MiraiBotConfiguration): MiraiBot
     
     
     /**
