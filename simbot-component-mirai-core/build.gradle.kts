@@ -35,7 +35,12 @@ dependencies {
     testImplementation(libs.kotlinx.serialization.properties)
     testImplementation(libs.charleskorn.kaml)
     testImplementation(V.Simbot.Core.notation)
+    //https://github.com/Ricky12Awesome/json-schema-serialization
+    testImplementation("com.github.Ricky12Awesome:json-schema-serialization:0.6.6")
 }
 
-
+repositories {
+    @Suppress("DEPRECATION")
+    jcenter()
+}
 

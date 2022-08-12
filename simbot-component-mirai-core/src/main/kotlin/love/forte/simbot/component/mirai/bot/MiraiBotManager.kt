@@ -74,7 +74,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         
         when (val passwordInfo = configuration.passwordInfo) {
             null -> throw NoSuchElementException("[passwordInfo] is required but it was missing.")
-            is TextPasswordInfo -> {
+            is TextPasswordInfoConfiguration -> {
                 return register(
                     code = configuration.code,
                     password = passwordInfo.getPassword(configuration),
@@ -82,7 +82,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 )
             }
             
-            is Md5BytesPasswordInfo -> {
+            is Md5BytesPasswordInfoConfiguration -> {
                 return register(
                     code = configuration.code,
                     passwordMD5 = passwordInfo.getPassword(configuration),
@@ -118,7 +118,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 {
                   "code": ${configuration.code},
                   "passwordInfo": {
-                     "type": "${PasswordInfo.Text.TYPE}",
+                     "type": "${PasswordInfoConfiguration.Text.TYPE}",
                      "text": "$showPwd"
                   }
                 }
@@ -155,7 +155,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 {
                   "code": ${configuration.code},
                   "passwordInfo": {
-                     "type": "${PasswordInfo.Md5Text.TYPE}",
+                     "type": "${PasswordInfoConfiguration.Md5Text.TYPE}",
                      "md5": "$showPwd"
                   }
                 }
@@ -197,7 +197,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 {
                   "code": ${configuration.code},
                   "passwordInfo": {
-                     "type": "${PasswordInfo.Md5Bytes.TYPE}",
+                     "type": "${PasswordInfoConfiguration.Md5Bytes.TYPE}",
                      "md5": $showPwd
                   }
                 }

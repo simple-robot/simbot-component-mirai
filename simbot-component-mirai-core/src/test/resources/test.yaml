@@ -1,0 +1,9 @@
+component: simbot.mirai
+code: 123
+passwordInfo:
+  type: env_md5_text
+  prop: ""
+
+config:
+  deviceInfo:
+    type: auto
