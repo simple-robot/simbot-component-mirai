@@ -18,9 +18,20 @@
 @file:OptIn(InternalApi::class)
 
 import com.github.ricky12awesome.jss.encodeToSchema
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.encoding.decodeStructure
 import kotlinx.serialization.json.Json
 import love.forte.simbot.component.mirai.bot.MiraiBotVerifyInfoConfiguration
+import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration
 import love.forte.simbot.component.mirai.internal.InternalApi
+import kotlin.test.Test
 
 /*
  *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>
@@ -46,6 +57,41 @@ class SerTest {
         println(str)
     }
     
+    @Test
+    fun serTest() {
+        val j1 = """{"pwd":  "literal value"}"""
+        val j2 = """{"pwd": {"type": "md5", "md5":  "md5 pwd value"}}"""
+        
+        println(Json.decodeFromString(Foo.serializer(), j1))
+        println(Json.decodeFromString(Foo.serializer(), j2))
+        
+    }
+    
     
 }
 
+@Serializable
+data class Foo(@Serializable(PwdSerializer::class) val pwd: PasswordInfoConfiguration)
+
+object PwdSerializer : KSerializer<PasswordInfoConfiguration> {
+    private fun a() {
+        val ser = PolymorphicSerializer(PasswordInfoConfiguration::class)
+        
+    }
+    private val serializer = PasswordInfoConfiguration.serializer()
+    private val stringValueDescriptor = PrimitiveSerialDescriptor("passwordLiteralValue", PrimitiveKind.STRING)
+    override fun deserialize(decoder: Decoder): PasswordInfoConfiguration {
+        decoder.decodeStructure(descriptor) {
+            println(this)
+        }
+        decoder.beginStructure(descriptor)
+        
+        return PasswordInfoConfiguration.Text("no")
+    }
+    
+    override val descriptor: SerialDescriptor = serializer.descriptor
+    
+    override fun serialize(encoder: Encoder, value: PasswordInfoConfiguration) {
+        serializer.serialize(encoder, value)
+    }
+}
