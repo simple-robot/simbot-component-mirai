@@ -234,6 +234,13 @@ public data class MiraiBotVerifyInfoConfiguration(
          *
          */
         var recallMessageCacheStrategy: RecallMessageCacheStrategyType = RecallMessageCacheStrategyType.INVALID,
+
+        /**
+         * 如果为 `true`, 则会使用 [BotConfiguration.disableAccountSecretes] 禁用 `account.secrets` 的保存。
+         *
+         * @see BotConfiguration.disableAccountSecretes
+         */
+        var accountSecrets: Boolean = false
         
         ) {
         
@@ -382,6 +389,11 @@ public data class MiraiBotVerifyInfoConfiguration(
                 it.contactListCache = contactListCacheConfiguration.contactListCache
                 it.loginCacheEnabled = loginCacheEnabled
                 it.convertLineSeparator = convertLineSeparator
+                
+                if (accountSecrets) {
+                    it.disableAccountSecretes()
+                }
+                
             }
         }
         

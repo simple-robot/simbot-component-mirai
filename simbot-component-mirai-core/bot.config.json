@@ -677,6 +677,11 @@
           ],
           "description": "消息撤回缓存策略",
           "default": "INVALID"
+        },
+        "accountSecrets": {
+          "type": "boolean",
+          "default": false,
+          "description": "是否禁用account.secrets"
         }
       }
     }

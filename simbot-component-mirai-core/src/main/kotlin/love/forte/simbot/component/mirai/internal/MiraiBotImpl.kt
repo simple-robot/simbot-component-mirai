@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -66,7 +65,6 @@ import net.mamoe.mirai.event.events.FriendRemarkChangeEvent as OriginalMiraiFrie
 import net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent as OriginalMiraiGroupAllowAnonymousChatEvent
 import net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent as OriginalMiraiGroupAllowConfessTalkEvent
 import net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent as OriginalMiraiGroupAllowMemberInviteEvent
-import net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent as OriginalMiraiGroupEntranceAnnouncementChangeEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessageEvent
 import net.mamoe.mirai.event.events.GroupMessagePostSendEvent as OriginalMiraiGroupMessagePostSendEvent
 import net.mamoe.mirai.event.events.GroupMuteAllEvent as OriginalMiraiGroupMuteAllEvent
@@ -415,10 +413,10 @@ private fun MiraiBotImpl.registerEvents() {
                     MiraiGroupNameChangeEventImpl(this@registerEvents, this)
                 }
             
-            is OriginalMiraiGroupEntranceAnnouncementChangeEvent ->
-                doHandler(this, MiraiGroupEntranceAnnouncementChangeEvent) {
-                    MiraiGroupEntranceAnnouncementChangeEventImpl(this@registerEvents, this)
-                }
+            // is OriginalMiraiGroupEntranceAnnouncementChangeEvent ->
+            //     doHandler(this, MiraiGroupEntranceAnnouncementChangeEvent) {
+            //         MiraiGroupEntranceAnnouncementChangeEventImpl(this@registerEvents, this)
+            //     }
             
             is OriginalMiraiGroupMuteAllEvent ->
                 doHandler(this, MiraiGroupMuteAllEvent) {

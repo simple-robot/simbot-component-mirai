@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 @file:JvmName("MiraiMessageParserUtil")
@@ -29,8 +28,8 @@ import love.forte.simbot.message.At
 import love.forte.simbot.message.Message
 import love.forte.simbot.tryToLong
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.message.data.EmptyMessageChain
 import net.mamoe.mirai.message.data.ForwardMessage
+import net.mamoe.mirai.message.data.emptyMessageChain
 import net.mamoe.mirai.message.data.toMessageChain
 import net.mamoe.mirai.message.data.toPlainText
 import net.mamoe.mirai.message.data.At as MiraiAtFunc
@@ -90,13 +89,13 @@ public suspend fun Message.toOriginalMiraiMessage(
 ): OriginalMiraiMessage {
     return when (this) {
         is OriginalMiraiDirectlySimbotMessage<*> -> originalMiraiMessage.takeIf { it !== EmptySingleMessage }
-            ?: EmptyMessageChain
+            ?: emptyMessageChain()
         
         is OriginalMiraiComputableSimbotMessage<*> -> originalMiraiMessage(
             contact,
             isDropAction
         ).takeIf { it !== EmptySingleMessage }
-            ?: EmptyMessageChain
+            ?: emptyMessageChain()
         
         else -> {
             val list = mutableListOf<OriginalMiraiMessage>()
@@ -109,7 +108,7 @@ public suspend fun Message.toOriginalMiraiMessage(
                 }
             }
             
-            if (list.isEmpty()) EmptyMessageChain else list.toMessageChain()
+            if (list.isEmpty()) emptyMessageChain() else list.toMessageChain()
         }
     }
 }
