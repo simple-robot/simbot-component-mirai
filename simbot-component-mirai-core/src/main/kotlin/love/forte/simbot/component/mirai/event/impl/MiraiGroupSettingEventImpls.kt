@@ -27,7 +27,6 @@ import net.mamoe.mirai.event.events.operatorOrBot
 import net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent as OriginalMiraiGroupAllowAnonymousChatEvent
 import net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent as OriginalMiraiGroupAllowConfessTalkEvent
 import net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent as OriginalMiraiGroupAllowMemberInviteEvent
-import net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent as OriginalMiraiGroupEntranceAnnouncementChangeEvent
 import net.mamoe.mirai.event.events.GroupMuteAllEvent as OriginalMiraiGroupMuteAllEvent
 import net.mamoe.mirai.event.events.GroupNameChangeEvent as OriginalMiraiGroupNameChangeEvent
 import net.mamoe.mirai.event.events.GroupSettingChangeEvent as OriginalMiraiGroupSettingChangeEvent
@@ -41,7 +40,7 @@ internal abstract class BaseMiraiGroupSettingEvent<T, E : OriginalMiraiGroupSett
     override val changedTime: Timestamp = Timestamp.now()
     override val before = originalEvent.origin
     override val after = originalEvent.new
-
+    
     override suspend fun source(): MiraiGroup = source
     override suspend fun before(): T = before
     override suspend fun after(): T = after
@@ -53,12 +52,16 @@ internal class MiraiGroupNameChangeEventImpl(
     nativeEvent: OriginalMiraiGroupNameChangeEvent,
 ) : BaseMiraiGroupSettingEvent<String, OriginalMiraiGroupNameChangeEvent>(bot, nativeEvent), MiraiGroupNameChangeEvent {
     override val operator = nativeEvent.operatorOrBot.asSimbot(bot, source)
-
+    
 }
 
+@Suppress("DEPRECATION")
 internal class MiraiGroupEntranceAnnouncementChangeEventImpl(
-    bot: MiraiBotImpl, nativeEvent: OriginalMiraiGroupEntranceAnnouncementChangeEvent,
-) : BaseMiraiGroupSettingEvent<String, OriginalMiraiGroupEntranceAnnouncementChangeEvent>(bot, nativeEvent),
+    bot: MiraiBotImpl, nativeEvent: net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent,
+) : BaseMiraiGroupSettingEvent<String, net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent>(
+    bot,
+    nativeEvent
+),
     MiraiGroupEntranceAnnouncementChangeEvent {
     override val operator = nativeEvent.operatorOrBot.asSimbot(bot, source)
 }
