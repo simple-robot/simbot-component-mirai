@@ -20,6 +20,7 @@ import com.charleskorn.kaml.YamlConfiguration
 import kotlinx.serialization.json.Json
 import love.forte.simbot.FragileSimbotApi
 import love.forte.simbot.component.mirai.SimpleDeviceInfo
+import love.forte.simbot.component.mirai.bot.DeviceInfoConfiguration
 import love.forte.simbot.component.mirai.bot.MiraiBotVerifyInfoConfiguration
 import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration
 import love.forte.simbot.component.mirai.internal.InternalApi
@@ -97,7 +98,7 @@ class DeviceInfoTest {
             code = 123,
             passwordInfo = PasswordInfoConfiguration.Text("123456"),
             config = MiraiBotVerifyInfoConfiguration.Config(
-                simpleDeviceInfoJson = DeviceInfo.random().toSimple()
+                deviceInfoConfiguration = DeviceInfoConfiguration.Auto()
             )
         )
         
