@@ -1,0 +1,14 @@
+{
+  "component": "simbot.mirai",
+  "code": 123,
+  "passwordInfo": {
+    "type": "text",
+    "text": ""
+  },
+  "config": {
+    "a": "b",
+    "deviceInfo": {
+      "type": "auto"
+    }
+  }
+}

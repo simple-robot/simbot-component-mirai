@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -29,7 +28,6 @@ import love.forte.simbot.message.doSafeCast
 import net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent as OriginalMiraiGroupAllowAnonymousChatEvent
 import net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent as OriginalMiraiGroupAllowConfessTalkEvent
 import net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent as OriginalMiraiGroupAllowMemberInviteEvent
-import net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent as OriginalMiraiGroupEntranceAnnouncementChangeEvent
 import net.mamoe.mirai.event.events.GroupMuteAllEvent as OriginalMiraiGroupMuteAllEvent
 import net.mamoe.mirai.event.events.GroupNameChangeEvent as OriginalMiraiGroupNameChangeEvent
 import net.mamoe.mirai.event.events.GroupSettingChangeEvent as OriginalMiraiGroupSettingChangeEvent
@@ -123,10 +121,11 @@ public interface MiraiGroupNameChangeEvent : MiraiGroupSettingEvent<String, Orig
 
 /**
  * 入群公告改变.
- * @see OriginalMiraiGroupEntranceAnnouncementChangeEvent
+ * @see net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent
  */
-public interface MiraiGroupEntranceAnnouncementChangeEvent :
-    MiraiGroupSettingEvent<String, OriginalMiraiGroupEntranceAnnouncementChangeEvent> {
+@Suppress("DEPRECATION")
+@Deprecated("This event (net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent) is not being triggered anymore.") public interface MiraiGroupEntranceAnnouncementChangeEvent :
+    MiraiGroupSettingEvent<String, net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent> {
 
     /**
      * 操作者。

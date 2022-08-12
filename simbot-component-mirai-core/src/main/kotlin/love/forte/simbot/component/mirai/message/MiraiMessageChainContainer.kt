@@ -15,32 +15,28 @@
  *
  */
 
+package love.forte.simbot.component.mirai.message
 
-plugins {
-    id("simbot-mirai.module-conventions")
-    id("simbot-mirai.maven-publish")
+import love.forte.simbot.component.mirai.event.MiraiReceivedMessageContent
+import love.forte.simbot.definition.Container
+import love.forte.simbot.message.MessageContent
+import net.mamoe.mirai.message.data.MessageChain
+
+/**
+ * 代表为一个能够得到 [mirai原生消息链][MessageChain] 的容器。
+ *
+ * 此容器的常见实现者有由mirai组件中的 [MessageContent] 类型对象实现，
+ * 例如 [MiraiReceivedMessageContent] 或 [MiraiMessageChainContent]。
+ *
+ *
+ * @author ForteScarlet
+ */
+public interface MiraiMessageChainContainer : Container {
+    
+    /**
+     * 得到当前容器中存在的原始的mirai消息链。
+     */
+    public val originalMessageChain: MessageChain
+    
+    
 }
-
-
-dependencies {
-    compileOnly(V.Simbot.Core.notation)
-    
-    api(libs.mirai)
-    api(libs.kotlinx.serialization.json)
-    
-    compileOnly(libs.kotlinx.serialization.properties)
-    compileOnly(libs.charleskorn.kaml)
-    
-    
-    testImplementation(libs.kotlinx.serialization.properties)
-    testImplementation(libs.charleskorn.kaml)
-    testImplementation(V.Simbot.Core.notation)
-    //https://github.com/Ricky12Awesome/json-schema-serialization
-    testImplementation("com.github.Ricky12Awesome:json-schema-serialization:0.6.6")
-}
-
-repositories {
-    @Suppress("DEPRECATION")
-    jcenter()
-}
-

@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -43,7 +42,6 @@ import net.mamoe.mirai.supervisorJob
 import net.mamoe.mirai.utils.MiraiExperimentalApi
 import org.slf4j.Logger
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.time.Duration
 import net.mamoe.mirai.Bot as OriginalMiraiBot
 import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
@@ -67,7 +65,6 @@ import net.mamoe.mirai.event.events.FriendRemarkChangeEvent as OriginalMiraiFrie
 import net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent as OriginalMiraiGroupAllowAnonymousChatEvent
 import net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent as OriginalMiraiGroupAllowConfessTalkEvent
 import net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent as OriginalMiraiGroupAllowMemberInviteEvent
-import net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent as OriginalMiraiGroupEntranceAnnouncementChangeEvent
 import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessageEvent
 import net.mamoe.mirai.event.events.GroupMessagePostSendEvent as OriginalMiraiGroupMessagePostSendEvent
 import net.mamoe.mirai.event.events.GroupMuteAllEvent as OriginalMiraiGroupMuteAllEvent
@@ -100,7 +97,7 @@ internal class MiraiBotImpl(
     override val manager: MiraiBotManagerImpl,
     override val eventProcessor: EventProcessor,
     override val component: Component,
-    configuration: MiraiBotConfiguration
+    configuration: MiraiBotConfiguration,
 ) : MiraiBot {
     override val logger: Logger = LoggerFactory.getLogger("love.forte.simbot.mirai.bot.${originalBot.id}")
     override val id: LongID = originalBot.id.ID
@@ -122,15 +119,15 @@ internal class MiraiBotImpl(
         }
     }
     
-    internal fun groupMute(group: OriginalMiraiGroup, duration: Duration): Job? {
+    internal fun groupMute(group: OriginalMiraiGroup, milli: Long): Job? {
         val code = group.id
-        if (duration < Duration.ZERO) return null
         group.settings.isMuteAll = true
+        if (milli <= 0) return null
         return groupMuteJobs.compute(code) { _, old ->
             old?.cancel(message = CANCEL_MUTE_MESSAGE)
             launch(groupMuteJob) {
                 runCatching {
-                    delay(duration)
+                    delay(milli)
                     group.settings.isMuteAll = false
                 }
             }
@@ -159,7 +156,7 @@ internal class MiraiBotImpl(
     }
     
     internal fun groupUnmute(group: OriginalMiraiGroup): Boolean {
-        groupMuteJobs[group.id]?.cancel()
+        groupMuteJobs.remove(group.id)?.cancel()
         with(group.settings) {
             if (isMuteAll) {
                 isMuteAll = false
@@ -244,10 +241,14 @@ internal class MiraiBotImpl(
             val cause = e.cause
             throw IllegalStateException("Bot login failed. cause: $cause", e)
         }
-        eventProcessor.pushIfProcessable(MiraiBotStartedEvent) {
-            MiraiBotStartedEventImpl(this)
-        }
         true
+    }.also {
+        launch {
+            val self = this@MiraiBotImpl
+            eventProcessor.pushIfProcessable(MiraiBotStartedEvent) {
+                MiraiBotStartedEventImpl(self)
+            }
+        }
     }
     
     override fun toString(): String {
@@ -325,7 +326,7 @@ private fun MiraiBotImpl.registerEvents() {
             // group message
             is OriginalMiraiGroupMessageEvent -> {
                 recallMessageCacheStrategy.cacheGroupMessageEvent(this@registerEvents, this)
-    
+                
                 doHandler(this, MiraiGroupMessageEvent) { MiraiGroupMessageEventImpl(this@registerEvents, this) }
             }
             // group temp message
@@ -336,11 +337,13 @@ private fun MiraiBotImpl.registerEvents() {
             // region Friend events
             is OriginalMiraiFriendRequestEvent ->
                 doHandler(this, MiraiFriendRequestEvent) { MiraiFriendRequestEventImpl(this@registerEvents, this) }
+            
             is OriginalMiraiFriendInputStatusChangedEvent ->
                 doHandler(
                     this,
                     MiraiFriendInputStatusChangedEvent
                 ) { MiraiFriendInputStatusChangedEventImpl(this@registerEvents, this) }
+            
             is OriginalMiraiFriendNickChangedEvent ->
                 doHandler(this, MiraiFriendNickChangedEvent) {
                     MiraiFriendNickChangedEventImpl(
@@ -348,6 +351,7 @@ private fun MiraiBotImpl.registerEvents() {
                         this
                     )
                 }
+            
             is OriginalMiraiFriendAvatarChangedEvent ->
                 doHandler(this, MiraiFriendAvatarChangedEvent) {
                     MiraiFriendAvatarChangedEventImpl(
@@ -355,10 +359,13 @@ private fun MiraiBotImpl.registerEvents() {
                         this
                     )
                 }
+            
             is OriginalMiraiFriendDecreaseEvent ->
                 doHandler(this, MiraiFriendDecreaseEvent) { MiraiFriendDecreaseEventImpl(this@registerEvents, this) }
+            
             is OriginalMiraiFriendAddEvent ->
                 doHandler(this, MiraiFriendIncreaseEvent) { MiraiFriendIncreaseEventImpl(this@registerEvents, this) }
+            
             is OriginalMiraiFriendRemarkChangeEvent ->
                 doHandler(this, MiraiFriendRemarkChangeEvent) {
                     MiraiFriendRemarkChangeEventImpl(
@@ -405,22 +412,27 @@ private fun MiraiBotImpl.registerEvents() {
                 doHandler(this, MiraiGroupNameChangeEvent) {
                     MiraiGroupNameChangeEventImpl(this@registerEvents, this)
                 }
-            is OriginalMiraiGroupEntranceAnnouncementChangeEvent ->
-                doHandler(this, MiraiGroupEntranceAnnouncementChangeEvent) {
-                    MiraiGroupEntranceAnnouncementChangeEventImpl(this@registerEvents, this)
-                }
+            
+            // is OriginalMiraiGroupEntranceAnnouncementChangeEvent ->
+            //     doHandler(this, MiraiGroupEntranceAnnouncementChangeEvent) {
+            //         MiraiGroupEntranceAnnouncementChangeEventImpl(this@registerEvents, this)
+            //     }
+            
             is OriginalMiraiGroupMuteAllEvent ->
                 doHandler(this, MiraiGroupMuteAllEvent) {
                     MiraiGroupMuteAllEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiGroupAllowAnonymousChatEvent ->
                 doHandler(this, MiraiGroupAllowAnonymousChatEvent) {
                     MiraiGroupAllowAnonymousChatEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiGroupAllowConfessTalkEvent ->
                 doHandler(this, MiraiGroupAllowConfessTalkEvent) {
                     MiraiGroupAllowConfessTalkEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiGroupAllowMemberInviteEvent ->
                 doHandler(this, MiraiGroupAllowMemberInviteEvent) {
                     MiraiGroupAllowMemberInviteEventImpl(this@registerEvents, this)
@@ -433,40 +445,49 @@ private fun MiraiBotImpl.registerEvents() {
                 doHandler(this, MiraiGroupTalkativeChangeEvent) {
                     MiraiGroupTalkativeChangeEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiMemberHonorChangeEvent ->
                 doHandler(this, MiraiMemberHonorChangeEvent) {
                     MiraiMemberHonorChangeEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiMemberUnmuteEvent ->
                 doHandler(this, MiraiMemberUnmuteEvent) {
                     MiraiMemberUnmuteEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiMemberMuteEvent ->
                 doHandler(this, MiraiMemberMuteEvent) {
                     MiraiMemberMuteEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiMemberPermissionChangeEvent ->
                 doHandler(this, MiraiMemberRoleChangeEvent) {
                     MiraiMemberRoleChangeEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiMemberSpecialTitleChangeEvent ->
                 doHandler(this, MiraiMemberSpecialTitleChangeEvent) {
                     MiraiMemberSpecialTitleChangeEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiMemberCardChangeEvent ->
                 doHandler(this, MiraiMemberCardChangeEvent) {
                     MiraiMemberCardChangeEventImpl(this@registerEvents, this)
                 }
+            
             is OriginalMiraiMemberJoinRequestEvent -> {
                 doHandler(this, MiraiMemberJoinRequestEvent) {
                     MiraiMemberJoinRequestEventImpl(this@registerEvents, this)
                 }
             }
+            
             is OriginalMiraiMemberLeaveEvent -> {
                 doHandler(this, MiraiMemberLeaveEvent) {
                     MiraiMemberLeaveEventImpl(this@registerEvents, this)
                 }
             }
+            
             is OriginalMiraiMemberJoinEvent -> {
                 doHandler(this, MiraiMemberJoinEvent) {
                     MiraiMemberJoinEventImpl(this@registerEvents, this)
@@ -514,6 +535,7 @@ private fun MiraiBotImpl.registerEvents() {
                                 )
                             }
                         }
+                        
                         is OriginalMiraiStranger -> {
                             eventProcessor.pushIfProcessable(MiraiStrangerNudgeEvent) {
                                 MiraiStrangerNudgeEventImpl(
@@ -523,6 +545,7 @@ private fun MiraiBotImpl.registerEvents() {
                                 )
                             }
                         }
+                        
                         is OriginalMiraiFriend -> {
                             eventProcessor.pushIfProcessable(MiraiFriendNudgeEvent) {
                                 MiraiFriendNudgeEventImpl(
@@ -532,6 +555,7 @@ private fun MiraiBotImpl.registerEvents() {
                                 )
                             }
                         }
+                        
                         is OriginalMiraiMember -> {
                             eventProcessor.pushIfProcessable(MiraiMemberNudgeEvent) {
                                 MiraiMemberNudgeEventImpl(
@@ -552,6 +576,7 @@ private fun MiraiBotImpl.registerEvents() {
                         doHandler(this, MiraiGroupMessageRecallEvent) {
                             MiraiGroupMessageRecallEventImpl(this@registerEvents, this)
                         }
+                    
                     is MessageRecallEvent.FriendRecall ->
                         doHandler(this, MiraiFriendMessageRecallEvent) {
                             MiraiFriendMessageRecallEventImpl(this@registerEvents, this)

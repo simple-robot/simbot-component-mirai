@@ -17,18 +17,16 @@
 
 package love.forte.simbot.component.mirai.internal
 
-import love.forte.simbot.Api4J
-import love.forte.simbot.ID
-import love.forte.simbot.LongID
+import love.forte.simbot.*
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.internal.MiraiGroupBotImpl.Companion.getGroupBot
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
-import love.forte.simbot.tryToLong
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.asItems
 import love.forte.simbot.utils.item.map
 import net.mamoe.mirai.contact.getMember
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
@@ -87,10 +85,30 @@ internal class MiraiGroupImpl(
         get() = MemberRole.values().asList().asItems()
     
     override suspend fun mute(duration: Duration): Boolean {
-        return baseBot.groupMute(originalContact, duration) != null
+        baseBot.groupMute(originalContact, duration.inWholeMilliseconds)
+        return true
+    }
+    
+    override fun muteBlocking(duration: JavaDuration): Boolean {
+        baseBot.groupMute(originalContact, duration.toMillis())
+        return true
+    }
+    
+    override fun muteBlocking(time: Long, timeUnit: TimeUnit): Boolean {
+        baseBot.groupMute(originalContact, timeUnit.toMillis(time))
+        return true
+    }
+    
+    override fun muteBlocking(): Boolean {
+        baseBot.groupMute(originalContact, 0)
+        return true
     }
     
     override suspend fun unmute(): Boolean {
+        return baseBot.groupUnmute(originalContact)
+    }
+    
+    override fun unmuteBlocking(): Boolean {
         return baseBot.groupUnmute(originalContact)
     }
 }

@@ -17,25 +17,29 @@
 
 package love.forte.simbot.component.mirai
 
-import love.forte.simbot.Api4J
-import love.forte.simbot.ID
-import love.forte.simbot.LongID
-import love.forte.simbot.Timestamp
+import love.forte.simbot.*
+import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.component.mirai.bot.MiraiGroupBot
 import love.forte.simbot.definition.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.runInBlocking
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
 
 /**
  * Simbot中针对于 [OriginalMiraiGroup] 的群类型实现。
+ *
+ * ## [DeleteSupport]
+ *
+ * [MiraiGroup] 实现 [DeleteSupport] 来允许对bot退群的行为进行描述。更多参考 [delete]。
+ *
  * @author ForteScarlet
  */
-public interface MiraiGroup : Group, MiraiChatroom {
+public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     override val originalContact: OriginalMiraiGroup
     
     override val bot: MiraiGroupBot
@@ -59,20 +63,73 @@ public interface MiraiGroup : Group, MiraiChatroom {
     
     
     /**
+     * bot退群。
+     *
+     * 行为与 [OriginalMiraiGroup.quit] 一致：
+     * > 让机器人退出这个群。
+     *
+     * @return 退出成功时 `true`; 已经退出时 `false`
+     * @throws IllegalStateException 当bot为群主时
+     *
+     * @see OriginalMiraiGroup.quit
+     */
+    @JvmSynthetic
+    override suspend fun delete(): Boolean = originalContact.quit()
+    
+    
+    /**
      * 尝试禁言这个群。(即开启全群禁言。)
      *
-     * 如果使用了有效的 [duration] 参数，则会在 bot 内开启一个伴随 bot 的作用域而存在的延时任务，
+     * 如果使用了有效的 [duration] 参数 (大于0)，则会在 bot 内开启一个伴随 bot 的作用域而存在的延时任务，
      * 提供基于内存的群禁言周期功能实现。
+     *
+     * 当 [duration] 的毫秒值小于等于0时（[Duration.ZERO]），代表无限期禁言。
      *
      */
     @JvmSynthetic
     override suspend fun mute(duration: Duration): Boolean
     
     /**
+     * 尝试禁言这个群。(即开启全群禁言。)
+     *
+     * 如果使用了有效的 [duration] 参数(大于0)，则会在 bot 内开启一个伴随 bot 的作用域而存在的延时任务，
+     * 提供基于内存的群禁言周期功能实现。
+     *
+     * 当 [duration] 的毫秒值小于等于0时（[Duration.ZERO]），代表无限期禁言。
+     *
+     */
+    @OptIn(Api4J::class)
+    override fun muteBlocking(duration: JavaDuration): Boolean
+    
+    /**
+     * 尝试禁言这个群。(即开启全群禁言。)
+     *
+     * 如果使用了有效的 [time] 参数(大于0)，则会在 bot 内开启一个伴随 bot 的作用域而存在的延时任务，
+     * 提供基于内存的群禁言周期功能实现。
+     *
+     * 当 [time] 的毫秒值小于等于0时（[Duration.ZERO]），代表无限期禁言。
+     */
+    @OptIn(Api4J::class)
+    override fun muteBlocking(time: Long, timeUnit: TimeUnit): Boolean
+    
+    /**
+     * 尝试禁言这个群。(即开启全群禁言。)
+     */
+    @OptIn(Api4J::class)
+    override fun muteBlocking(): Boolean
+    
+    
+    /**
      * 取消全群禁言。[unmute] 的同时会取消此群涉及到的由 [mute] 构建出来的延时任务。
      */
     @JvmSynthetic
     override suspend fun unmute(): Boolean
+    
+    /**
+     * 取消全群禁言。[unmute] 的同时会取消此群涉及到的由 [mute] 构建出来的延时任务。
+     */
+    @OptIn(Api4J::class)
+    override fun unmuteBlocking(): Boolean
     
     @JvmSynthetic
     override suspend fun member(id: ID): MiraiMember?
@@ -88,9 +145,6 @@ public interface MiraiGroup : Group, MiraiChatroom {
      */
     @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-    
-    
-    //// Impl
     
     
     /**
@@ -127,9 +181,7 @@ public interface MiraiGroup : Group, MiraiChatroom {
      *
      * @see MemberRole
      */
-    @OptIn(Api4J::class)
-    override val roles: Items<MemberRole> // = Stream.of(*MemberRole.values())
-    
+    override val roles: Items<MemberRole>
     override val icon: String get() = originalContact.avatarUrl
     override val name: String get() = originalContact.name
     override val createTime: Timestamp get() = Timestamp.NotSupport

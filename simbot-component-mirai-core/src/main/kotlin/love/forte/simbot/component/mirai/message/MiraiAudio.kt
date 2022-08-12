@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -78,7 +79,7 @@ public class MiraiSendOnlyAudio(
      * @throws IllegalArgumentException 如果 [contact] 不支持音频上传
      */
     @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage {
+    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
         return if (contact is AudioSupported) {
             uploadAudioTo(contact)
         } else {
@@ -127,7 +128,7 @@ public class MiraiSendOnlyAudio(
  * @see OriginalMiraiAudio
  * @see MiraiAudio.asSimbot
  */
-public interface MiraiAudio : OriginalMiraiComputableSimbotMessage<MiraiAudio> {
+public interface MiraiAudio : OriginalMiraiDirectlySimbotMessage<MiraiAudio> {
     
     /**
      * Mirai的原生 [OriginalMiraiAudio] 对象实例。
@@ -141,8 +142,8 @@ public interface MiraiAudio : OriginalMiraiComputableSimbotMessage<MiraiAudio> {
     public val codec: AudioCodec get() = originalAudio.codec
     public val extraData: ByteArray? get() = originalAudio.extraData
     
-    @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage = originalAudio
+    override val originalMiraiMessage: OriginalMiraiAudio
+        get() = originalAudio
     
     public companion object Key : Message.Key<MiraiAudio> {
         

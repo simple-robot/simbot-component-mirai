@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 plugins {
@@ -29,9 +28,8 @@ dependencies {
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.charleskorn.kaml)
     
-    testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
-    testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
-    testImplementation("love.forte.simbot.boot:simboot-core:${P.Simbot.VERSION}")
+    // testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
+    // testImplementation("love.forte.simbot.boot:simboot-core:${P.Simbot.VERSION}")
     testImplementation("love.forte.simbot.boot:simboot-core-spring-boot-starter:${P.Simbot.VERSION}")
     testImplementation(libs.spring.boot.test)
     testImplementation(libs.spring.boot.web)
