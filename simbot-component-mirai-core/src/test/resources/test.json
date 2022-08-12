@@ -2,7 +2,13 @@
   "component": "simbot.mirai",
   "code": 123,
   "passwordInfo": {
-    "type": "md5_text",
-    "md5": ""
+    "type": "text",
+    "text": ""
+  },
+  "config": {
+    "a": "b",
+    "deviceInfo": {
+      "type": "auto"
+    }
   }
 }

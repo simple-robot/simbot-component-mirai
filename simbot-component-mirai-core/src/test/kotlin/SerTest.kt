@@ -39,11 +39,13 @@ import love.forte.simbot.component.mirai.internal.InternalApi
  *
  */
 
-
-fun main() {
+class SerTest {
     
-    val str = Json.encodeToSchema(MiraiBotVerifyInfoConfiguration.serializer(), false)
+    fun schema() {
+        val str = Json.encodeToSchema(MiraiBotVerifyInfoConfiguration.serializer(), false)
+        println(str)
+    }
     
-    println(str)
     
 }
+

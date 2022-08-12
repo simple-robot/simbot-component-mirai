@@ -12,6 +12,7 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
+ *
  */
 
 package love.forte.simbot.component.mirai.bot
@@ -683,7 +684,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                     } else {
                         logger.debug("Path [{}] does not exist", path)
                     }
-        
+                    
                     // resource
                     val resourcePath = path.toString()
                     logger.debug("Find device info [{}] from resource", resourcePath)
@@ -693,9 +694,12 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                         logger.debug("Resource [{}] does not exist", resourcePath)
                     }
                 }
-    
-                logger.debug("No device info file is found in target paths: {}. The device info will be generated using SimbotRandom.DEFAULT.", resolvedPaths)
-    
+                
+                logger.debug(
+                    "No device info file is found in target paths: {}. The device info will be generated using SimbotRandom.DEFAULT.",
+                    resolvedPaths
+                )
+                
             }
             
             return SimbotRandom.DEFAULT(bot)
@@ -781,14 +785,14 @@ public data class MiraiBotVerifyInfoConfiguration(
     public data class Config(
         /** mirai配置自定义deviceInfoSeed的时候使用的随机种子。默认为1. */
         val deviceInfoSeed: Long = DEFAULT_SIMBOT_MIRAI_DEVICE_INFO_SEED,
-    
+        
         /**
          * Mirai配置中的工作目录。
          *
          * @see BotConfiguration.workingDir
          */
         @Serializable(FileSerializer::class) val workingDir: File = BotConfiguration.Default.workingDir,
-    
+        
         /**
          * 同mirai原生配置 [BotConfiguration.heartbeatPeriodMillis]。
          */
@@ -801,32 +805,32 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 同mirai原生配置 [BotConfiguration.heartbeatTimeoutMillis]。
          */
         val heartbeatTimeoutMillis: Long = BotConfiguration.Default.heartbeatTimeoutMillis,
-    
+        
         /**
          * 同mirai原生配置 [BotConfiguration.heartbeatStrategy]。
          */
         @Serializable(HeartbeatStrategySerializer::class) val heartbeatStrategy: BotConfiguration.HeartbeatStrategy = BotConfiguration.Default.heartbeatStrategy,
-    
+        
         /**
          * 同mirai原生配置 [BotConfiguration.reconnectionRetryTimes]。
          */
         val reconnectionRetryTimes: Int = BotConfiguration.Default.reconnectionRetryTimes,
-    
+        
         /**
          * 同mirai原生配置 [BotConfiguration.autoReconnectOnForceOffline]。
          */
         val autoReconnectOnForceOffline: Boolean = BotConfiguration.Default.autoReconnectOnForceOffline,
-    
+        
         /**
          * 同mirai原生配置 [BotConfiguration.protocol]。
          */
         @Serializable(MiraiProtocolSerializer::class) val protocol: BotConfiguration.MiraiProtocol = BotConfiguration.Default.protocol,
-    
+        
         /**
          * 同mirai原生配置 [BotConfiguration.highwayUploadCoroutineCount]。
          */
         val highwayUploadCoroutineCount: Int = BotConfiguration.Default.highwayUploadCoroutineCount,
-    
+        
         /**
          * 如果是字符串，尝试解析为json
          * 否则视为文件路径。
@@ -835,19 +839,19 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 优先使用此属性。
          */
         val deviceInfoJson: DeviceInfo? = null,
-    
+        
         /**
          * 优先使用 [deviceInfo].
          */
         val simpleDeviceInfoJson: SimpleDeviceInfo? = null,
-    
+        
         /**
          * 加载的设备信息json文件的路径。
          * 如果是 `classpath:` 开头，则会优先尝试加载resource，
          * 否则优先视为文件路径加载。
          */
         val deviceInfoFile: String? = null,
-    
+        
         /**
          * 配置设备信息。
          *
@@ -855,7 +859,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          */
         @SerialName("deviceInfo")
         val deviceInfoConfiguration: DeviceInfoConfiguration = DeviceInfoConfiguration.Auto(),
-    
+        
         /**
          * 是否不输出网络日志。当为true时等同于使用了 [BotConfiguration.noNetworkLog]
          */
@@ -868,12 +872,12 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 同原生配置 [BotConfiguration.isShowingVerboseEventLog]
          */
         val isShowingVerboseEventLog: Boolean = BotConfiguration.Default.isShowingVerboseEventLog,
-    
+        
         /**
          * 同原生配置 [BotConfiguration.cacheDir]
          */
         @Serializable(FileSerializer::class) val cacheDir: File = BotConfiguration.Default.cacheDir,
-    
+        
         /**
          *
          * json:
@@ -888,13 +892,13 @@ public data class MiraiBotVerifyInfoConfiguration(
          * ```
          */
         @SerialName("contactListCache") val contactListCacheConfiguration: ContactListCacheConfiguration = ContactListCacheConfiguration(),
-    
+        
         /**
          * 是否开启登录缓存。
          * @see BotConfiguration.loginCacheEnabled
          */
         val loginCacheEnabled: Boolean = BotConfiguration.Default.loginCacheEnabled,
-    
+        
         /**
          * 是否处理接受到的特殊换行符, 默认为 true
          * @see BotConfiguration.convertLineSeparator
@@ -913,7 +917,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          *
          */
         val recallMessageCacheStrategy: RecallMessageCacheStrategyType = RecallMessageCacheStrategyType.INVALID,
-    
+        
         ) {
         
         @Transient

@@ -2,6 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "title": "Simbot中Mirai组件的bot配置文件架构",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "component": {
       "type": "string",
@@ -54,6 +55,7 @@
       "anyOf": [
         {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "type": {
               "const": "text"
@@ -69,6 +71,7 @@
         },
         {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "type": {
               "const": "env_text"
@@ -91,6 +94,7 @@
         },
         {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "type": {
               "const": "md5_text"
@@ -106,6 +110,7 @@
         },
         {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "type": {
               "const": "md5_bytes"
@@ -124,6 +129,7 @@
         },
         {
           "type": "object",
+          "additionalProperties": false,
           "properties": {
             "type": {
               "const": "env_md5_text"
@@ -179,7 +185,11 @@
         },
         "heartbeatStrategy": {
           "type": "string",
-          "enum": ["STAT_HB", "REGISTER", "NONE"],
+          "enum": [
+            "STAT_HB",
+            "REGISTER",
+            "NONE"
+          ],
           "description": "心跳策略",
           "default": "STAT_HB"
         },
@@ -240,13 +250,17 @@
           "anyOf": [
             {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "type": {
                   "const": "auto",
                   "description": "自动配置设备信息"
                 },
                 "baseDir": {
-                  "type": ["string", "null"],
+                  "type": [
+                    "string",
+                    "null"
+                  ],
                   "default": null,
                   "description": "寻找设备信息文件的基础目录"
                 }
@@ -254,6 +268,7 @@
             },
             {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "type": {
                   "const": "simbot_random",
@@ -268,12 +283,16 @@
             },
             {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "type": {
                   "const": "random"
                 },
                 "seed": {
-                  "type": ["integer", "null"],
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
                   "description": "随机种子",
                   "default": null
                 }
@@ -281,6 +300,7 @@
             },
             {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "type": {
                   "const": "resource",
@@ -302,6 +322,7 @@
             },
             {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "type": {
                   "const": "object",
@@ -479,6 +500,7 @@
             },
             {
               "type": "object",
+              "additionalProperties": false,
               "properties": {
                 "type": {
                   "const": "simple_object",
@@ -612,7 +634,9 @@
           "default": false
         },
         "cacheDir": {
-          "type": "string"
+          "type": "string",
+          "description": "mirai缓存目录",
+          "default": "cache"
         },
         "contactListCache": {
           "type": "object",
@@ -647,7 +671,10 @@
         },
         "recallMessageCacheStrategy": {
           "type": "string",
-          "enum": ["INVALID", "MEMORY_LRU"],
+          "enum": [
+            "INVALID",
+            "MEMORY_LRU"
+          ],
           "description": "消息撤回缓存策略",
           "default": "INVALID"
         }
@@ -656,7 +683,8 @@
   },
   "required": [
     "code",
-    "passwordInfo"
+    "passwordInfo",
+    "component"
   ],
   "definitions": {}
 }
