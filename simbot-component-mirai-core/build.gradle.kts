@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 
@@ -33,6 +32,7 @@ dependencies {
     
     
     testImplementation(libs.kotlinx.serialization.properties)
+    testImplementation(libs.kotlinx.serialization.hocon)
     testImplementation(libs.charleskorn.kaml)
     testImplementation(V.Simbot.Core.notation)
     //https://github.com/Ricky12Awesome/json-schema-serialization

@@ -155,11 +155,13 @@ public data class MiraiBotVerifyInfoConfiguration(
          *
          * 优先使用此属性。
          */
+        @Deprecated("Use deviceInfoConfiguration")
         var deviceInfoJson: DeviceInfo? = null,
         
         /**
          * 优先使用 [deviceInfo].
          */
+        @Deprecated("Use deviceInfoConfiguration")
         var simpleDeviceInfoJson: SimpleDeviceInfo? = null,
         
         /**
@@ -167,6 +169,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 如果是 `classpath:` 开头，则会优先尝试加载resource，
          * 否则优先视为文件路径加载。
          */
+        @Deprecated("Use deviceInfoConfiguration")
         var deviceInfoFile: String? = null,
         
         /**
@@ -175,7 +178,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          * @see DeviceInfoConfiguration
          */
         @SerialName("deviceInfo")
-        var deviceInfoConfiguration: DeviceInfoConfiguration = DeviceInfoConfiguration.Auto(),
+        var deviceInfoConfiguration: DeviceInfoConfiguration? = DeviceInfoConfiguration.Auto(),
         
         /**
          * 是否不输出网络日志。当为true时等同于使用了 [BotConfiguration.noNetworkLog]
@@ -245,10 +248,11 @@ public data class MiraiBotVerifyInfoConfiguration(
         ) {
         
         @Transient
-        private val deviceInfo: (Bot) -> DeviceInfo = deviceInfoConfiguration.also {
+        private val deviceInfo: ((Bot) -> DeviceInfo)? = deviceInfoConfiguration.also {
             deviceInfoCompatibleCheck()
         }
-        
+    
+        @Suppress("DEPRECATION")
         private fun deviceInfoCompatibleCheck() {
             // deviceInfoJson
             if (deviceInfoJson != null) {
@@ -286,7 +290,7 @@ public data class MiraiBotVerifyInfoConfiguration(
                 )
                 log.error("Deprecated config property", warning)
             }
-            
+    
             // simpleDeviceInfoJson
             if (simpleDeviceInfoJson != null) {
                 val illegalProp = "simpleDeviceInfoJson"
