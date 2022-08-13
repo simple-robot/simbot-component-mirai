@@ -612,6 +612,26 @@
               "required": [
                 "object"
               ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "const": "file_based",
+                  "description": "读取使用本地配置文件"
+                },
+                "file": {
+                  "type": "string",
+                  "default": "device.json",
+                  "description": "设备配置文件"
+                },
+                "fromResource": {
+                  "type": ["string", "null"],
+                  "default": null,
+                  "description": "file备选资源文件"
+                }
+              }
             }
           ],
           "required": [

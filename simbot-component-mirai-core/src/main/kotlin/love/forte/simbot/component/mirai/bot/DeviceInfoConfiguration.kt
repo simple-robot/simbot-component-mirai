@@ -31,7 +31,10 @@ import love.forte.simbot.component.mirai.bot.DeviceInfoConfiguration.Resource.Co
 import love.forte.simbot.component.mirai.simbotMiraiDeviceInfo
 import love.forte.simbot.component.mirai.toDeviceInfo
 import net.mamoe.mirai.Bot
+import net.mamoe.mirai.utils.BotConfiguration
 import net.mamoe.mirai.utils.DeviceInfo
+import net.mamoe.mirai.utils.DeviceInfo.Companion.loadAsDeviceInfo
+import java.io.File
 import java.io.InputStream
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.*
@@ -158,6 +161,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
             Simbot.require(paths.isNotEmpty()) { "[deviceInfo.path] must not be empty." }
         }
         
+        
         override fun invoke(bot: Bot): DeviceInfo {
             val json = Json {
                 isLenient = true
@@ -173,50 +177,50 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
             throw NoSuchElementException("valid deviceInfo resource path in $resolvedPath")
         }
         
-        private fun readStream(path: String): InputStream? {
-            return when {
-                path.startsWith(LOCAL_FILE_PREFIX) -> {
-                    readLocalFile(path.substringAfter(LOCAL_FILE_PREFIX))
-                }
-                
-                path.startsWith(CLASSPATH_PREFIX) -> {
-                    readResource(path.substringAfter(CLASSPATH_PREFIX))
-                }
-                
-                path.startsWith(MULTI_CLASSPATH_PREFIX) -> {
-                    readResourceMulti(path.substringAfter(MULTI_CLASSPATH_PREFIX))
-                }
-                
-                else -> {
-                    readLocalFile(path) ?: readResource(path)
-                }
-            }
-        }
-        
-        private fun readLocalFile(filePath: String): InputStream? {
-            val path = Path(filePath)
-            if (!path.exists()) return null
-            
-            return path.inputStream(StandardOpenOption.READ).buffered()
-        }
-        
-        private fun readResource(resourcePath: String): InputStream? {
-            return currentLoader.getResourceAsStream(resourcePath)?.buffered()
-        }
-        
-        private fun readResourceMulti(resourcePath: String): InputStream? {
-            val resources = currentLoader.getResources(resourcePath)
-            
-            if (!resources.hasMoreElements()) return null
-            return resources.nextElement().openStream().buffered()
-        }
-        
-        private val currentLoader: ClassLoader
-            get() = javaClass.classLoader ?: Thread.currentThread().contextClassLoader
-            ?: ClassLoader.getSystemClassLoader()
-        
         
         public companion object {
+            internal fun readStream(path: String): InputStream? {
+                return when {
+                    path.startsWith(LOCAL_FILE_PREFIX) -> {
+                        readLocalFile(path.substringAfter(LOCAL_FILE_PREFIX))
+                    }
+                    
+                    path.startsWith(CLASSPATH_PREFIX) -> {
+                        readResource(path.substringAfter(CLASSPATH_PREFIX))
+                    }
+                    
+                    path.startsWith(MULTI_CLASSPATH_PREFIX) -> {
+                        readResourceMulti(path.substringAfter(MULTI_CLASSPATH_PREFIX))
+                    }
+                    
+                    else -> {
+                        readLocalFile(path) ?: readResource(path)
+                    }
+                }
+            }
+            
+            private fun readLocalFile(filePath: String): InputStream? {
+                val path = Path(filePath)
+                if (!path.exists()) return null
+                
+                return path.inputStream(StandardOpenOption.READ).buffered()
+            }
+            
+            private fun readResource(resourcePath: String): InputStream? {
+                return currentLoader.getResourceAsStream(resourcePath)?.buffered()
+            }
+            
+            private fun readResourceMulti(resourcePath: String): InputStream? {
+                val resources = currentLoader.getResources(resourcePath)
+                
+                if (!resources.hasMoreElements()) return null
+                return resources.nextElement().openStream().buffered()
+            }
+            
+            private val currentLoader: ClassLoader
+                get() = Resource::class.java.classLoader ?: Thread.currentThread().contextClassLoader
+                ?: ClassLoader.getSystemClassLoader()
+            
             public const val TYPE: String = "resource"
             
             /**
@@ -236,6 +240,90 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
         }
     }
     
+    /**
+     * 通过指定的本地文件来记录设备信息。
+     * ```json
+     * {
+     *   "type": "file_based",
+     *   "file": "device.json",
+     *   "fromResource": null
+     * }
+     * ```
+     *
+     * 与 [Resource] 不同的是，[FileBased] 是基于 [DeviceInfo.loadAsDeviceInfo] 的，
+     * 其最终结果与行为会类似于使用 [BotConfiguration.fileBasedDeviceInfo]。
+     *
+     * 与 [Resource] 不同，[FileBased] **仅支持** 本地文件，且所需要读取的设备信息文件的格式也与
+     * [DeviceInfo] 存在些许不同，它们是存在"版本号"的信息格式，因此 [FileBased] 的所需格式与 [Resource]
+     * 的所需格式可能并不通用。
+     *
+     * 好吧，骗你的。[FileBased] 虽然"仅支持"本地文件，但是它提供了一个可选参数 [fromResource]
+     * 来允许在读取文件之前进行检测：当 [file] 处的文件不存在时，会尝试从资源路径中的 [fromResource]
+     * 文件复制到 [file] 处。
+     * 如果此行为尝试失败，则会输出警告日志，但不会终止流程。
+     *
+     *
+     * 与 [BotConfiguration.fileBasedDeviceInfo] 不同的是，[FileBased] 的属性 [file]
+     * **不会** 被限制在 [BotConfiguration.workingDir] 中，而是**直接使用**。
+     *
+     * [file] 和 [fromResource] 支持占位符替换，例如：
+     *
+     * ```json
+     * {
+     *   "type": "file_based",
+     *   "file": "$CODE$-device.json",
+     *   "fromResource": "$CODE$-device.json",
+     * }
+     * ```
+     *
+     * @see Resource
+     */
+    @Serializable
+    @SerialName(FileBased.TYPE)
+    public data class FileBased(
+        /**
+         * 配置文件路径。默认为 `device.json`。
+         */
+        public val file: String = DEFAULT_FILE,
+        /**
+         * 当 [file] 处文件不存在时，尝试进行复制
+         */
+        public val fromResource: String? = null,
+    ) : DeviceInfoConfiguration() {
+        
+        override fun invoke(bot: Bot): DeviceInfo {
+            val code = bot.id.toString()
+            val targetFile = File(file.replaceCodeMark(code))
+            val targetFromResource = fromResource?.replaceCodeMark(code)
+            try {
+                if (targetFromResource != null && (!targetFile.exists() && targetFile.length() <= 0L)) {
+                    // file not exist, try copy from resource
+                    val loader = javaClass.classLoader ?: Thread.currentThread().contextClassLoader
+                    ?: ClassLoader.getSystemClassLoader()
+                    loader.getResourceAsStream(targetFromResource)?.buffered()?.use { resource ->
+                        targetFile.outputStream().use(resource::copyTo)
+                    } ?: logger.warn("The file at [{}] is suspected to be null or non-existent, but unable to find resource at [{}]. The copy behavior will not be executed", file, fromResource)
+                }
+            } catch (anyEx: Throwable) {
+                logger.warn(
+                    "Unable to copy resource [{}] to target file [{}] when configuring bot {}",
+                    targetFromResource,
+                    file,
+                    bot.id.toString(),
+                    anyEx
+                )
+            }
+            
+            return targetFile.loadAsDeviceInfo()
+        }
+        
+        public companion object {
+            private val logger = LoggerFactory.getLogger<FileBased>()
+            public const val TYPE: String = "file_based"
+            public const val DEFAULT_FILE: String = "device.json"
+        }
+        
+    }
     
     // deviceInfo json object
     
@@ -467,6 +555,14 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
          */
         @JvmStatic
         public fun resource(vararg paths: String): Resource = Resource(paths.toList())
+        
+        
+        /**
+         * 得到一个 [FileBased]。
+         */
+        @JvmStatic
+        @JvmOverloads
+        public fun fileBased(file: String = FileBased.DEFAULT_FILE, fromResource: String? = null): FileBased = FileBased(file, fromResource)
         
         /**
          * 得到一个 [JsonObj]
