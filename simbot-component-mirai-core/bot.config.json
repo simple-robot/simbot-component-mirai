@@ -241,6 +241,7 @@
                 "simbot_random",
                 "random",
                 "resource",
+                "file_based",
                 "object",
                 "simple_object"
               ],
