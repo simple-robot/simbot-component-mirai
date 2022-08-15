@@ -363,7 +363,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     /**
      * 修改当前成员的管理员职位。
      *
-     * Kotlin see also: [appoint], [removalFromOffice]。
+     * Kotlin see also: [appoint], [dismiss]。
      *
      * @see NormalMember.modifyAdmin
      * @param operator 如果为 `true` 则为任命，否则为撤职。
@@ -441,6 +441,6 @@ public suspend inline fun MiraiMember.appoint() {
  * @throws UnsupportedOperationException see [MiraiMember.modifyAdmin]
  * @throws PermissionDeniedException see [NormalMember.modifyAdmin]
  */
-public suspend inline fun MiraiMember.removalFromOffice() {
+public suspend inline fun MiraiMember.dismiss() {
     modifyAdmin(false)
 }
