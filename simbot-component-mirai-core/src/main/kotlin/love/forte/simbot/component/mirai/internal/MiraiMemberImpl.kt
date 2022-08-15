@@ -17,15 +17,19 @@
 package love.forte.simbot.component.mirai.internal
 
 import love.forte.simbot.ID
+import love.forte.simbot.JavaDuration
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.action.SendSupport
-import love.forte.simbot.component.mirai.*
+import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
+import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
-import love.forte.simbot.utils.item.Items
-import love.forte.simbot.utils.item.Items.Companion.items
 import net.mamoe.mirai.contact.NormalMember
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.ZERO
+import kotlin.time.Duration.Companion.seconds
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 
 
@@ -50,19 +54,28 @@ internal class MiraiMemberImpl(
         else -> null
     }
     
+    override val muteTimeRemainingSeconds: Int = when (val member = originalContact) {
+        is NormalMember -> member.muteTimeRemaining
+        else -> 0
+    }
+    override val muteTimeRemaining: Duration =
+        if (muteTimeRemainingSeconds == 0) ZERO else muteTimeRemainingSeconds.seconds
+    
+    override val muteTimeRemainingDuration: JavaDuration =
+        if (muteTimeRemainingSeconds == 0) JavaDuration.ZERO else JavaDuration.ofSeconds(muteTimeRemainingSeconds.toLong())
+    
     override val group: MiraiGroupImpl = initGroup ?: originalContact.group.asSimbot(bot)
-    override val roles: Items<MemberRole> = items(originalContact.simbotRole)
     
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
         val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
         return SimbotMiraiMessageReceiptImpl(originalContact.sendMessage(text))
     }
-
-
+    
+    
     override suspend fun kick(message: String, block: Boolean): Boolean {
         val contact = originalContact
         if (contact is NormalMember) {
@@ -71,9 +84,8 @@ internal class MiraiMemberImpl(
         }
         return false
     }
-
+    
 }
-
 
 
 internal fun OriginalMiraiMember.asSimbot(bot: MiraiBotImpl): MiraiMemberImpl =
