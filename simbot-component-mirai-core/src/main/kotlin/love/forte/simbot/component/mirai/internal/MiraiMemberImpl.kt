@@ -16,17 +16,16 @@
 
 package love.forte.simbot.component.mirai.internal
 
-import love.forte.simbot.ID
-import love.forte.simbot.JavaDuration
-import love.forte.simbot.LongID
-import love.forte.simbot.Timestamp
+import love.forte.simbot.*
 import love.forte.simbot.action.SendSupport
 import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
+import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.NormalMember
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.ZERO
 import kotlin.time.Duration.Companion.seconds
@@ -75,7 +74,6 @@ internal class MiraiMemberImpl(
         return SimbotMiraiMessageReceiptImpl(originalContact.sendMessage(text))
     }
     
-    
     override suspend fun kick(message: String, block: Boolean): Boolean {
         val contact = originalContact
         if (contact is NormalMember) {
@@ -83,6 +81,35 @@ internal class MiraiMemberImpl(
             return true
         }
         return false
+    }
+    
+    private suspend fun mute0(second: Int): Boolean {
+        val s = if (second == 0) 1 else second
+        return if (s > 0) {
+            originalContact.mute(s)
+            true
+        } else {
+            false
+        }
+    }
+    
+    override suspend fun mute(duration: Duration): Boolean {
+        return mute0(duration.inWholeSeconds.toInt())
+    }
+    
+    @Api4J
+    override fun muteBlocking(): Boolean {
+        return runInBlocking { mute0(1) }
+    }
+    
+    @Api4J
+    override fun muteBlocking(time: Long, timeUnit: TimeUnit): Boolean {
+        return runInBlocking { mute0(timeUnit.toSeconds(time).toInt()) }
+    }
+    
+    @Api4J
+    override fun muteBlocking(duration: JavaDuration): Boolean {
+        return runInBlocking { mute0(duration.seconds.toInt()) }
     }
     
 }
