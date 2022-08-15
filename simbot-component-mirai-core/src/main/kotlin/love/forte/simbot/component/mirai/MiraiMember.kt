@@ -17,6 +17,7 @@
 package love.forte.simbot.component.mirai
 
 import love.forte.simbot.Api4J
+import love.forte.simbot.JavaDuration
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.action.DeleteSupport
@@ -26,6 +27,7 @@ import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.AnonymousMember
 import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.contact.PermissionDeniedException
 import kotlin.time.Duration
@@ -37,7 +39,7 @@ import net.mamoe.mirai.contact.NormalMember as OriginalMiraiNormalMember
  * 一个由simbot包装为 [GroupMember] 的 [OriginalMiraiMember] 对象。
  *
  * ### [DeleteSupport]
- * 一个 mirai 的群成员是 [支持删除][DeleteSupport] 操作的. [delete] 行为相当于 [踢出][net.mamoe.mirai.contact.NormalMember.kick] 操作。
+ * 一个 mirai 的群成员是 [支持删除][DeleteSupport] 操作的, [delete] 行为相当于 [踢出][net.mamoe.mirai.contact.NormalMember.kick] 操作。
  *
  * 当 [originalContact] 的类型不是 [OriginalMiraiNormalMember] 的时候，[delete] 行为将会无效。
  *
@@ -50,6 +52,22 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     
     override val bot: MiraiBot
     override val id: LongID
+    
+    /**
+     * 用于判断当前 [MiraiMember] 中所代表的 [originalContact] 是否为一个匿名成员。
+     * 可以通过 [isAnonymous] 来提前规避可能会因为是匿名而导致的异常，例如 [nickname] 的 setter。
+     *
+     * ```kotlin
+     * // safely
+     * if (!member.isAnonymous) {
+     *    member.nickname = "new_nick"
+     * }
+     * ```
+     *
+     * @see isNotAnonymous
+     * @return 如果 [MiraiMember.originalContact] 是匿名成员
+     */
+    public val isAnonymous: Boolean get() = originalContact is AnonymousMember
     
     /**
      * 当前群成员在此群中的昵称（或者为名片）。
@@ -90,11 +108,34 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
                 is OriginalMiraiNormalMember -> {
                     member.specialTitle = value
                 }
-        
+                
                 else -> throw UnsupportedOperationException("member $originalContact type is not NormalMember")
             }
         }
     
+    
+    
+    /**
+     * 被禁言的剩余时间（秒）。如果未被禁言、或者 [originalContact] 为匿名成员而无法得到时间，则得到 `0`。
+     */
+    public val muteTimeRemainingSeconds: Int
+    
+    
+    /**
+     * 被禁言的剩余时间。如果未被禁言、或者 [originalContact] 为匿名成员而无法得到时间，则得到 [Duration.ZERO]。
+     */
+    @get:JvmSynthetic
+    public val muteTimeRemaining: Duration
+    
+    /**
+     * 被禁言的剩余时间。如果未被禁言、或者 [originalContact] 为匿名成员而无法得到时间，则得到 [Duration][java.time.Duration.ZERO]。
+     */
+    public val muteTimeRemainingDuration: JavaDuration
+    
+    /**
+     * 判断当前成员是否处于禁言状态。
+     */
+    public val isMuted: Boolean get() = muteTimeRemainingSeconds > 0
     
     /**
      * 群成员入群时间。
@@ -257,14 +298,39 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     }
     
     /**
-     * 当前成员角色所属角色。通常内部只有一个元素。
+     * 当前成员所述角色。
      */
-    override val roles: Items<MemberRole>
+    public val role: MemberRole get() = originalContact.simbotRole
+    
+    /**
+     * 当前成员角色所属角色。通常内部只有一个元素: [role]。
+     */
+    override val roles: Items<MemberRole> get() = Items.items(role)
     
     
     //// Impl
     
-
+    
     override val avatar: String get() = originalContact.avatarUrl
     override val username: String get() = originalContact.nick
 }
+
+
+/**
+ * [MiraiMember.isAnonymous] 取反。
+ *
+ * ```kotlin
+ * // safely
+ * if (member.isNotAnonymous) {
+ *    member.nickname = "new_nick"
+ * }
+ * ```
+ * @return 如果 [MiraiMember.originalContact] 不是匿名成员
+ */
+public inline val MiraiMember.isNotAnonymous: Boolean get() = !isAnonymous
+
+
+/**
+ * [MiraiMember.isMuted] 取反。
+ */
+public inline val MiraiMember.isNotMuted: Boolean get() = !isMuted
