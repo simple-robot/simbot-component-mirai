@@ -360,6 +360,41 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
         return true
     }
     
+    /**
+     * 修改当前成员的管理员职位。
+     *
+     * Kotlin see also: [appoint], [removalFromOffice]。
+     *
+     * @see NormalMember.modifyAdmin
+     * @param operator 如果为 `true` 则为任命，否则为撤职。
+     * @throws UnsupportedOperationException 如果当前成员为 [匿名成员][isAnonymous]
+     * @throws PermissionDeniedException see [NormalMember.modifyAdmin]
+     *
+     */
+    @JvmSynthetic
+    public suspend fun modifyAdmin(operator: Boolean) {
+        val member = originalContact as? NormalMember
+            ?: throw UnsupportedOperationException("member $originalContact type is not NormalMember")
+        member.modifyAdmin(operator)
+    }
+    
+    /**
+     * 修改当前成员的管理员职位。
+     *
+     * @see NormalMember.modifyAdmin
+     * @param operator 如果为 `true` 则为任命，否则为撤职。
+     * @throws UnsupportedOperationException 如果当前成员为 [匿名成员][isAnonymous]
+     * @throws PermissionDeniedException see [NormalMember.modifyAdmin]
+     *
+     */
+    @Api4J
+    public fun modifyAdminBlocking(operator: Boolean) {
+        val member = originalContact as? NormalMember
+            ?: throw UnsupportedOperationException("member $originalContact type is not NormalMember")
+        runInBlocking { member.modifyAdmin(operator) }
+    }
+    
+    
 }
 
 
@@ -381,3 +416,31 @@ public inline val MiraiMember.isNotAnonymous: Boolean get() = !isAnonymous
  * [MiraiMember.isMuted] 取反。
  */
 public inline val MiraiMember.isNotMuted: Boolean get() = !isMuted
+
+/**
+ * 任命当前成员为管理员。
+ * 同下：
+ * ```kotlin
+ * member.modifyAdmin(true)
+ * ```
+ * @see MiraiMember.modifyAdmin
+ * @throws UnsupportedOperationException see [MiraiMember.modifyAdmin]
+ * @throws PermissionDeniedException see [NormalMember.modifyAdmin]
+ */
+public suspend inline fun MiraiMember.appoint() {
+    modifyAdmin(true)
+}
+
+/**
+ * 将当前成员撤职（如果是管理员的话）。
+ * 同下：
+ * ```kotlin
+ * member.modifyAdmin(false)
+ * ```
+ * @see MiraiMember.modifyAdmin
+ * @throws UnsupportedOperationException see [MiraiMember.modifyAdmin]
+ * @throws PermissionDeniedException see [NormalMember.modifyAdmin]
+ */
+public suspend inline fun MiraiMember.removalFromOffice() {
+    modifyAdmin(false)
+}
