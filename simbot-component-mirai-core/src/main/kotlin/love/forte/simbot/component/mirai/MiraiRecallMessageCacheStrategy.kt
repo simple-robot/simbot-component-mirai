@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -33,9 +32,15 @@ import net.mamoe.mirai.message.data.MessageChain
  *
  * [MiraiRecallMessageCacheStrategy] 中的缓存函数 (`onXxxMessageEvent`)
  * 都将直接操作Mirai的事件对象，这些事件会发生在simbot事件被真正触发之前。
- * 消息缓存的处理应当是迅速的，否则这回严重影响到正常事件的处理。
+ * 消息缓存的处理应当是迅速的，否则这会严重影响到正常事件的处理。
  *
- * @see InvalidMiraiRecallMessageCacheStrategy
+ * ## 标准实现
+ *
+ * [MiraiRecallMessageCacheStrategy] 提供了一些可供选择的 [默认标准实现][StandardMiraiRecallMessageCacheStrategy]，
+ * 它们可以满足大多数情况下的基本策略需求:
+ * - [InvalidMiraiRecallMessageCacheStrategy]
+ * - [MemoryLruMiraiRecallMessageCacheStrategy]
+ *
  *
  * @author ForteScarlet
  */
