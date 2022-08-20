@@ -17,6 +17,7 @@
 import kotlinx.serialization.json.Json
 import love.forte.simbot.component.mirai.bot.DeviceInfoConfiguration
 import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration
+import love.forte.simbot.component.mirai.bot.RecallMessageCacheStrategyConfiguration
 import love.forte.simbot.utils.md5
 import love.forte.simbot.utils.toHex
 import org.intellij.lang.annotations.Language
@@ -106,10 +107,33 @@ class BotVerifyInfoConfigurationTest {
         }
         
         decodeTest("DeviceInfoConfiguration.resource(\"foo\", \"bar\")") {
-            DeviceInfoConfiguration.resource("foo", "bar") == decodeFromJson(
+            DeviceInfoConfiguration.resource("foo", "bar").also(::println) == decodeFromJson(
                 """{"type": "${DeviceInfoConfiguration.Resource.TYPE}", "paths": ["foo", "bar"]}"""
             )
         }
     }
+    
+    @Test
+    fun recallMessageCacheStrategyConfigurationSerializerTest() {
+        fun decodeFromJson(@Language("json") json: String): RecallMessageCacheStrategyConfiguration {
+            return Json.decodeFromString(RecallMessageCacheStrategyConfiguration.serializer(), json)
+        }
+        
+        decodeTest("""RecallMessageCacheStrategyConfiguration.Invalid""") {
+            RecallMessageCacheStrategyConfiguration.Invalid == decodeFromJson(
+                """{"type": "invalid"}"""
+            )
+        }
+        
+        decodeTest("""RecallMessageCacheStrategyConfiguration.MemoryLru""") {
+            RecallMessageCacheStrategyConfiguration.MemoryLru(
+                loadFactor = 0.766F,
+                groupMaxSize = 1536
+            ).also(::println) == decodeFromJson(
+                """{"type": "memory_lru", "loadFactor": 0.766, "groupMaxSize": 1536}"""
+            )
+        }
+    }
+    
 }
 

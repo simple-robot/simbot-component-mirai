@@ -60,8 +60,8 @@ public sealed class RecallMessageCacheStrategyConfiguration {
      * ```json
      * {
      *    "type": "memory_lru",
-     *    "groupMaxSize": 767,
-     *    "friendMaxSize": 95
+     *    "groupMaxSize": 1536,
+     *    "friendMaxSize": 96
      * }
      * ```
      */
@@ -70,6 +70,7 @@ public sealed class RecallMessageCacheStrategyConfiguration {
     public data class MemoryLru(
         public val groupMaxSize: Int = MemoryLruMiraiRecallMessageCacheStrategy.DEFAULT_GROUP_MAX_SIZE,
         public val friendMaxSize: Int = MemoryLruMiraiRecallMessageCacheStrategy.DEFAULT_FRIEND_MAX_SIZE,
+        public val loadFactor: Float = MemoryLruMiraiRecallMessageCacheStrategy.DEFAULT_LOAD_FACTOR
     ) : RecallMessageCacheStrategyConfiguration() {
         
         override fun recallMessageCacheStrategy(config: MiraiBotVerifyInfoConfiguration): MiraiRecallMessageCacheStrategy {

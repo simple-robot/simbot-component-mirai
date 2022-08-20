@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -87,10 +86,17 @@ public object InvalidMiraiRecallMessageCacheStrategy : StandardMiraiRecallMessag
  *
  */
 public class MemoryLruMiraiRecallMessageCacheStrategy(
-    private val groupMaxSize: Int = DEFAULT_GROUP_MAX_SIZE,
-    private val friendMaxSize: Int = DEFAULT_FRIEND_MAX_SIZE,
+    groupMaxSize: Int = DEFAULT_GROUP_MAX_SIZE,
+    friendMaxSize: Int = DEFAULT_FRIEND_MAX_SIZE,
+    private val loadFactor: Float = DEFAULT_LOAD_FACTOR,
 ) : StandardMiraiRecallMessageCacheStrategy {
     private val caches = ConcurrentHashMap<Long, BotCacheSegment>()
+    private val groupInitSize = mapInitSize(groupMaxSize)
+    private val friendInitSize = mapInitSize(friendMaxSize)
+    
+    private fun createSimpleLruMap(maxSize: Int): SimpleLruMap<String, MessageChain> {
+        return SimpleLruMap(maxSize, maxSize, loadFactor)
+    }
     
     private fun MiraiBot.getCacheSegment(): BotCacheSegment {
         return caches.computeIfAbsent(id.value) { BotCacheSegment(ConcurrentHashMap(), ConcurrentHashMap()) }
@@ -98,13 +104,13 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
     
     private fun MiraiBot.getGroupCacheSegment(groupId: Long): CacheSegment {
         return getCacheSegment().groupCache.computeIfAbsent(groupId) {
-            CacheSegment(ReentrantReadWriteLock(), SimpleLruMap(mapInitSize(groupMaxSize), groupMaxSize))
+            CacheSegment(ReentrantReadWriteLock(), createSimpleLruMap(groupInitSize))
         }
     }
     
     private fun MiraiBot.getFriendCacheSegment(friendId: Long): CacheSegment {
         return getCacheSegment().friendCache.computeIfAbsent(friendId) {
-            CacheSegment(ReentrantReadWriteLock(), SimpleLruMap(mapInitSize(friendMaxSize), friendMaxSize))
+            CacheSegment(ReentrantReadWriteLock(), createSimpleLruMap(friendInitSize))
         }
     }
     
@@ -166,10 +172,17 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
     }
     
     
-    private class SimpleLruMap<K, V>(initialCapacity: Int, private val maxSize: Int) :
-        LinkedHashMap<K, V>(initialCapacity, 0.75F, true) {
+    private class SimpleLruMap<K, V>(
+        initialCapacity: Int,
+        private val maxSize: Int,
+        loadFactor: Float = DEFAULT_LOAD_FACTOR,
+    ) :
+        LinkedHashMap<K, V>(initialCapacity, loadFactor, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?): Boolean {
             return size >= maxSize
+        }
+        
+        companion object {
         }
     }
     
@@ -213,15 +226,24 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
         }
     
     private fun mapInitSize(maxSize: Int): Int {
-        return ((maxSize / 0.75F) + 1).toInt()
+        val value = (maxSize / 0.75F).toInt()
+        return if (isTableSize(value)) value else value + 1
+    }
+    
+    private fun isTableSize(cap: Int): Boolean {
+        var n = cap - 1
+        n = n or (n ushr 1)
+        n = n or (n ushr 2)
+        n = n or (n ushr 4)
+        n = n or (n ushr 8)
+        n = n or (n ushr 16)
+        return (n + 1) == cap
     }
     
     public companion object {
-        private const val BASE_DEFAULT_GROUP_MAX_SIZE: Int = 1024
-        private const val BASE_DEFAULT_FRIEND_MAX_SIZE: Int = 128
-        
-        public const val DEFAULT_GROUP_MAX_SIZE: Int = (BASE_DEFAULT_GROUP_MAX_SIZE * 0.75F).toInt() - 1
-        public const val DEFAULT_FRIEND_MAX_SIZE: Int = (BASE_DEFAULT_FRIEND_MAX_SIZE * 0.75F).toInt() - 1
+        public const val DEFAULT_GROUP_MAX_SIZE: Int = 1536
+        public const val DEFAULT_FRIEND_MAX_SIZE: Int = 96
+        public const val DEFAULT_LOAD_FACTOR: Float = 0.75F
     }
 }
 
