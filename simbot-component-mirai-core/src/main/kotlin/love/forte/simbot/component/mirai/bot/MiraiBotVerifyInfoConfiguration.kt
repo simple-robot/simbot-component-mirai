@@ -561,8 +561,6 @@ public data class MiraiBotVerifyInfoConfiguration(
     
     public val simbotBotConfiguration: MiraiBotConfiguration
         get() {
-            
-            
             return MiraiBotConfiguration(
                 recallMessageCacheStrategy
             ).apply {

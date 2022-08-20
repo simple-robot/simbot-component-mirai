@@ -68,6 +68,10 @@ public sealed class RecallMessageCacheStrategyConfiguration {
      *    "friendMaxSize": 96
      * }
      * ```
+     *
+     * @property groupMaxSize 缓存消息的最大上限, 会根据 [loadFactor] 计算为最终的初始化容量
+     * @property friendMaxSize 缓存好友消息的最大上限, 会根据 [loadFactor] 计算为最终的初始化容量
+     * @property loadFactor 内部哈希表所使用的负载因子
      */
     @Serializable
     @SerialName(MemoryLru.TYPE)
@@ -86,4 +90,32 @@ public sealed class RecallMessageCacheStrategyConfiguration {
         }
     }
     
+    
+    public companion object {
+    
+        /**
+         * 得到 [Invalid]。
+         *
+         */
+        @JvmStatic
+        public fun invalid(): RecallMessageCacheStrategyConfiguration = Invalid
+    
+    
+        /**
+         * 得到 [MemoryLru]。
+         *
+         * @param groupMaxSize 缓存消息的最大上限, 会根据 [loadFactor] 计算为最终的初始化容量
+         * @param friendMaxSize 缓存好友消息的最大上限, 会根据 [loadFactor] 计算为最终的初始化容量
+         * @param loadFactor 内部哈希表所使用的负载因子
+         *
+         */
+        @JvmStatic
+        @JvmOverloads
+        public fun memoryLru(
+            groupMaxSize: Int = MemoryLruMiraiRecallMessageCacheStrategy.DEFAULT_GROUP_MAX_SIZE,
+            friendMaxSize: Int = MemoryLruMiraiRecallMessageCacheStrategy.DEFAULT_FRIEND_MAX_SIZE,
+            loadFactor: Float = MemoryLruMiraiRecallMessageCacheStrategy.DEFAULT_LOAD_FACTOR,
+        ): RecallMessageCacheStrategyConfiguration = MemoryLru(groupMaxSize, friendMaxSize, loadFactor)
+    
+    }
 }

@@ -120,13 +120,13 @@ class BotVerifyInfoConfigurationTest {
         }
         
         decodeTest("""RecallMessageCacheStrategyConfiguration.Invalid""") {
-            RecallMessageCacheStrategyConfiguration.Invalid == decodeFromJson(
+            RecallMessageCacheStrategyConfiguration.invalid() == decodeFromJson(
                 """{"type": "invalid"}"""
             )
         }
         
         decodeTest("""RecallMessageCacheStrategyConfiguration.MemoryLru""") {
-            RecallMessageCacheStrategyConfiguration.MemoryLru(
+            RecallMessageCacheStrategyConfiguration.memoryLru(
                 loadFactor = 0.766F,
                 groupMaxSize = 1536
             ).also(::println) == decodeFromJson(

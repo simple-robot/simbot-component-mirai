@@ -84,15 +84,19 @@ public object InvalidMiraiRecallMessageCacheStrategy : StandardMiraiRecallMessag
  * 缓存会区分bot和群id/好友id。因此不同bot下不同的群/好友之间的缓存数量上限是分开计算的。
  * 默认情况下，单个群/好友的消息缓存上限分别为 [DEFAULT_GROUP_MAX_SIZE] 和 [DEFAULT_FRIEND_MAX_SIZE]。
  *
+ *
  */
 public class MemoryLruMiraiRecallMessageCacheStrategy(
+    /** 缓存消息的最大上限，会根据 [loadFactor] 计算为最终的初始化容量 */
     groupMaxSize: Int = DEFAULT_GROUP_MAX_SIZE,
+    /** 缓存好友消息的最大上限，会根据 [loadFactor] 计算为最终的初始化容量 */
     friendMaxSize: Int = DEFAULT_FRIEND_MAX_SIZE,
+    /** 内部哈希表所使用的负载因子 */
     private val loadFactor: Float = DEFAULT_LOAD_FACTOR,
 ) : StandardMiraiRecallMessageCacheStrategy {
     private val caches = ConcurrentHashMap<Long, BotCacheSegment>()
-    private val groupInitSize = mapInitSize(groupMaxSize)
-    private val friendInitSize = mapInitSize(friendMaxSize)
+    private val groupInitSize = mapInitSize(groupMaxSize, loadFactor)
+    private val friendInitSize = mapInitSize(friendMaxSize, loadFactor)
     
     private fun createSimpleLruMap(maxSize: Int): SimpleLruMap<String, MessageChain> {
         return SimpleLruMap(maxSize, maxSize, loadFactor)
@@ -225,8 +229,8 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
             }
         }
     
-    private fun mapInitSize(maxSize: Int): Int {
-        val value = (maxSize / 0.75F).toInt()
+    private fun mapInitSize(maxSize: Int, loadFactor: Float): Int {
+        val value = (maxSize / loadFactor).toInt()
         return if (isTableSize(value)) value else value + 1
     }
     
