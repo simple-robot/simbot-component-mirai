@@ -237,17 +237,19 @@ public data class MiraiBotVerifyInfoConfiguration(
         var recallMessageCacheStrategy: RecallMessageCacheStrategyType? = null,
         
         /**
-         * 消息撤回缓存策略，默认使用 [RecallMessageCacheStrategyConfiguration.Invalid]
+         * 消息撤回缓存策略，默认使用 [不缓存][RecallMessageCacheStrategyConfiguration.Invalid] 策略。
          *
          * ```json
          * {
-         *   "type": "invalid"
+         *   "recallMessageCacheStrategyConfig": {
+         *      "type": "invalid"
+         *   }
          * }
          * ```
          *
          * @see RecallMessageCacheStrategyConfiguration
          */
-        var recallMessageCacheStrategyConfig: RecallMessageCacheStrategyConfiguration = RecallMessageCacheStrategyConfiguration.Invalid,
+        var recallMessageCacheStrategyConfig: RecallMessageCacheStrategyConfiguration = RecallMessageCacheStrategyConfiguration.invalid(),
         
         /**
          * 如果为 `true`, 则会使用 [BotConfiguration.disableAccountSecretes] 禁用 `account.secrets` 的保存。
