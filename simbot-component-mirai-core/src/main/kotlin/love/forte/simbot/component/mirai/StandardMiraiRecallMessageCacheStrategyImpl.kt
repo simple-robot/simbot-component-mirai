@@ -46,10 +46,10 @@ public interface StandardMiraiRecallMessageCacheStrategy : MiraiRecallMessageCac
 /**
  * [MiraiRecallMessageCacheStrategy] 的最简实现，无效的缓存策略，即**不进行缓存**。
  *
- * [InvalidMiraiRecallMessageCacheStrategy] 是处理最快的缓存策略，
+ * [InvalidMiraiRecallMessageCacheStrategy] 理所当然的是处理最快的缓存策略，
  * 但使用后无法再从撤回事件中得到 [撤回的消息内容][love.forte.simbot.component.mirai.event.MiraiMessageRecallEvent.messages]。
  *
- * [InvalidMiraiRecallMessageCacheStrategy] 将是 [MiraiBotConfiguration] 的默认策略。
+ * [InvalidMiraiRecallMessageCacheStrategy] 是 [MiraiBotConfiguration.recallCacheStrategy] 的默认策略。
  *
  */
 public object InvalidMiraiRecallMessageCacheStrategy : StandardMiraiRecallMessageCacheStrategy {
@@ -149,13 +149,18 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
     }
     
     override fun invokeOnBotCompletion(bot: MiraiBot, cause: Throwable?) {
-        caches.clear()
+        caches.remove(bot.id.value)?.clear()
     }
     
     private data class BotCacheSegment(
         val groupCache: ConcurrentHashMap<Long, CacheSegment>,
         val friendCache: ConcurrentHashMap<Long, CacheSegment>,
-    )
+    ) {
+        fun clear() {
+            groupCache.clear()
+            friendCache.clear()
+        }
+    }
     
     
     private data class CacheSegment(
