@@ -29,6 +29,10 @@ import love.forte.simbot.component.mirai.internal.InternalApi
 @Serializable
 @OptIn(InternalApi::class)
 public sealed class RecallMessageCacheStrategyConfiguration {
+    /*
+        希望提供更多配置类型？协助我们 --> https://github.com/simple-robot/simbot-component-mirai/pulls
+       
+     */
     /**
      * 提供 [MiraiBotVerifyInfoConfiguration] 信息，计算并得到一个缓存策略 [MiraiRecallMessageCacheStrategy]。
      */
