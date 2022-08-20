@@ -24,6 +24,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import love.forte.simbot.FragileSimbotApi
 import love.forte.simbot.LoggerFactory
+import love.forte.simbot.SimbotIllegalArgumentException
 import love.forte.simbot.SimbotIllegalStateException
 import love.forte.simbot.bot.BotVerifyInfo
 import love.forte.simbot.component.mirai.*
@@ -63,7 +64,7 @@ public data class MiraiBotVerifyInfoConfiguration(
     /**
      * 必要属性之外的额外配置属性。
      */
-    var config: Config = Config()
+    var config: Config = Config(),
 ) {
     @OptIn(ExperimentalSerializationApi::class)
     @EncodeDefault
@@ -227,23 +228,33 @@ public data class MiraiBotVerifyInfoConfiguration(
         
         ///////////// simbot config
         /**
-         * 消息撤回缓存策略。默认为 [RecallMessageCacheStrategyType.INVALID]。
+         * Deprecated: 使用 [recallMessageCacheStrategyConfig] 来得到对未来更好的扩展性和更丰富的可配置性。
+         *
+         * @see recallMessageCacheStrategyConfig
+         * @suppress Use [recallMessageCacheStrategyConfig] plz.
+         */
+        @Deprecated("Use 'recallMessageCacheStrategyConfig'")
+        var recallMessageCacheStrategy: RecallMessageCacheStrategyType? = null,
+        
+        /**
+         * 消息撤回缓存策略，默认使用 [RecallMessageCacheStrategyConfiguration.Invalid]
          *
          * ```json
          * {
-         *   "recallMessageCacheStrategy": "INVALID"
+         *   "type": "invalid"
          * }
          * ```
          *
+         * @see RecallMessageCacheStrategyConfiguration
          */
-        var recallMessageCacheStrategy: RecallMessageCacheStrategyType = RecallMessageCacheStrategyType.INVALID,
-
+        var recallMessageCacheStrategyConfig: RecallMessageCacheStrategyConfiguration = RecallMessageCacheStrategyConfiguration.Invalid,
+        
         /**
          * 如果为 `true`, 则会使用 [BotConfiguration.disableAccountSecretes] 禁用 `account.secrets` 的保存。
          *
          * @see BotConfiguration.disableAccountSecretes
          */
-        var accountSecrets: Boolean = false
+        var accountSecrets: Boolean = false,
         
         ) {
         
@@ -251,7 +262,7 @@ public data class MiraiBotVerifyInfoConfiguration(
         private val deviceInfo: ((Bot) -> DeviceInfo)? = deviceInfoConfiguration.also {
             deviceInfoCompatibleCheck()
         }
-    
+        
         @Suppress("DEPRECATION")
         private fun deviceInfoCompatibleCheck() {
             // deviceInfoJson
@@ -290,7 +301,7 @@ public data class MiraiBotVerifyInfoConfiguration(
                 )
                 log.error("Deprecated config property", warning)
             }
-    
+            
             // simpleDeviceInfoJson
             if (simpleDeviceInfoJson != null) {
                 val illegalProp = "simpleDeviceInfoJson"
@@ -517,7 +528,7 @@ public data class MiraiBotVerifyInfoConfiguration(
             @JvmField
             @Deprecated("Unused")
             public val DEFAULT: ContactListCacheConfiguration = ContactListCacheConfiguration()
-    
+            
             /**
              * 构建一个 [ContactListCacheConfiguration] 实例。
              *
@@ -551,8 +562,9 @@ public data class MiraiBotVerifyInfoConfiguration(
     public val simbotBotConfiguration: MiraiBotConfiguration
         get() {
             
+            
             return MiraiBotConfiguration(
-                config.recallMessageCacheStrategy.strategy(),
+                recallMessageCacheStrategy
             ).apply {
                 botConfiguration {
                     miraiBotConfiguration(this)
@@ -561,10 +573,68 @@ public data class MiraiBotVerifyInfoConfiguration(
         }
     
     
+    @Suppress("DEPRECATION")
+    private val recallMessageCacheStrategy: MiraiRecallMessageCacheStrategy
+        get() {
+            val deprecatedConfig = config.recallMessageCacheStrategy
+            if (deprecatedConfig != null) {
+                val toTypeName: String = when (deprecatedConfig) {
+                    RecallMessageCacheStrategyType.INVALID -> {
+                        RecallMessageCacheStrategyConfiguration.Invalid.TYPE
+                    }
+                    RecallMessageCacheStrategyType.MEMORY_LRU -> {
+                        RecallMessageCacheStrategyConfiguration.MemoryLru.TYPE
+                    }
+                }
+                val err = SimbotIllegalArgumentException(
+                    """
+                    The configuration property [recallMessageCacheStrategy] is deprecated.
+                    
+                    Maybe you should replace the property [recallMessageCacheStrategy]:
+                
+                    ```
+                    {
+                      "code": $code,
+                      "passwordInfo": { ... },
+                      "config": {
+                          "recallMessageCacheStrategy": "${deprecatedConfig.name}"
+                      }
+                    }
+                    ```
+                    
+                    to [recallMessageCacheStrategyConfig]:
+                    
+                    ```
+                    {
+                      "code": $code,
+                      "passwordInfo": { ... },
+                      "config": {
+                          "recallMessageCacheStrategyConfig": {
+                              "type": "$toTypeName"
+                          }
+                      }
+                    }
+                    ```
+                
+                    See [RecallMessageCacheStrategyConfiguration] and [MiraiBotVerifyInfoConfiguration.Config.recallMessageCacheStrategyConfig] for more information.
+                    
+                """.trimIndent()
+                )
+                // warn
+                logger.warn("The property [recallMessageCacheStrategy] is deprecated", err)
+                return deprecatedConfig.strategy()
+            }
+            
+            return config.recallMessageCacheStrategyConfig.recallMessageCacheStrategy(this)
+        }
+    
+    public companion object {
+        private val logger = LoggerFactory.getLogger<MiraiBotVerifyInfoConfiguration>()
+    }
 }
 
 
-//region Serializers
+// region Serializers
 
 /**
  * 文件路径序列化器。
@@ -599,7 +669,7 @@ internal class RecallMessageCacheStrategyTypeSerializer :
         "RecallMessageCacheStrategyType", MiraiBotVerifyInfoConfiguration.RecallMessageCacheStrategyType::valueOf
     )
 
-//endregion
+// endregion
 
 
 public fun interface BuilderFunction<T> {
