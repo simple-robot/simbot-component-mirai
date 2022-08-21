@@ -165,7 +165,7 @@ class BotVerifyInfoConfigurationTest {
 }
 
 
-class TestCustomProperties : CustomPropertiesMiraiRecallMessageCacheStrategy() {
+private class TestCustomProperties : CustomPropertiesMiraiRecallMessageCacheStrategy() {
     override fun cacheGroupMessageEvent(bot: MiraiBot, event: GroupMessageEvent) {
         TODO("Not yet implemented")
     }
