@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.GroupInfoContainer
@@ -38,37 +38,29 @@ import net.mamoe.mirai.event.events.GroupMessagePostSendEvent as OriginalMiraiGr
 public interface MiraiGroupMessagePostSendEvent :
     MiraiMessagePostSendEvent<OriginalMiraiGroup, OriginalMiraiGroupMessagePostSendEvent>,
     GroupInfoContainer, MessageEvent {
-
+    
     override val bot: MiraiBot
     override val messageContent: MiraiReceivedMessageContent
-
+    
+    
     /**
      * 发送目标群对象。
      */
-    @OptIn(Api4J::class)
-    override val group: MiraiGroup
-
-    /**
-     * 发送目标群对象。
-     */
-    override suspend fun group(): MiraiGroup = group
-
-
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun group(): MiraiGroup
+    
+    
     /**
      * 所有 `post send` 相关事件的源头均来自于[bot]自身。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiBot
-
-
-    /**
-     * 所有 `post send` 相关事件的源头均来自于[bot]自身。
-     */
-    override suspend fun source(): MiraiBot
-
-
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun source(): MiraiBot = bot
+    
+    
     override val key: Event.Key<out MiraiGroupMessagePostSendEvent> get() = Key
-
+    
     public companion object Key : BaseEventKey<MiraiGroupMessagePostSendEvent>(
         "mirai.group_message_post_send_event", MiraiMessagePostSendEvent, MessageEvent
     ) {
