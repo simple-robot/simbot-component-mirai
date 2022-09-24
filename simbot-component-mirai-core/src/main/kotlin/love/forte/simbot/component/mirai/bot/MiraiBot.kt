@@ -121,8 +121,8 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     /**
      * 获取指定的好友。在mirai中，好友的获取不是挂起的，因此可以安全的使用 [getFriend]
      */
-    @JvmAsync(baseName = "getFriend", suffix = "")
-    @JvmBlocking(baseName = "getFriend")
+    @JvmBlocking(baseName = "getFriend", suffix = "")
+    @JvmAsync(baseName = "getFriend")
     override suspend fun friend(id: ID): MiraiFriend?
     // endregion
     
@@ -142,8 +142,8 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      *
      * @see OriginalMiraiBot.getStranger
      */
-    @JvmAsync(baseName = "getStranger", suffix = "")
-    @JvmBlocking(baseName = "getStranger")
+    @JvmBlocking(baseName = "getStranger", suffix = "")
+    @JvmAsync(baseName = "getStranger")
     public suspend fun stranger(id: ID): MiraiStranger?
     // endregion
     
@@ -168,8 +168,8 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      * 不会寻找 [群成员][MiraiMember].
      *
      */
-    @JvmAsync(baseName = "getContact", suffix = "")
-    @JvmBlocking(baseName = "getContact")
+    @JvmBlocking(baseName = "getContact", suffix = "")
+    @JvmAsync(baseName = "getContact")
     override suspend fun contact(id: ID): MiraiContact?
     // endregion
     
@@ -188,8 +188,8 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      * mirai的群组获取没有真正的挂起，因此可以安全的使用 [getGroup].
      * @see getGroup
      */
-    @JvmAsync(baseName = "getGroup", suffix = "")
-    @JvmBlocking(baseName = "getGroup")
+    @JvmBlocking(baseName = "getGroup", suffix = "")
+    @JvmAsync(baseName = "getGroup")
     override suspend fun group(id: ID): MiraiGroup?
     // endregion
     

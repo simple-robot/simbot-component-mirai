@@ -23,8 +23,8 @@ repositories {
     gradlePluginPortal()
 }
 
-val kotlinVersion = "1.6.21"
-val dokkaPluginVersion = "1.6.21"
+val kotlinVersion = "1.7.10"
+val dokkaPluginVersion = "1.7.10"
 
 dependencies {
     // kotlin("jvm") apply false
