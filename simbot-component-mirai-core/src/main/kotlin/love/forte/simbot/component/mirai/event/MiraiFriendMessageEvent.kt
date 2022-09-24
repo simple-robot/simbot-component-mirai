@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.action.SendSupport
 import love.forte.simbot.component.mirai.MiraiFriend
@@ -46,64 +46,50 @@ public interface MiraiFriendMessageEvent :
     MiraiFriendEvent<OriginalMiraiFriendMessageEvent>,
     FriendMessageEvent, ReplySupport, SendSupport {
     override val key: Event.Key<MiraiFriendMessageEvent> get() = Key
-
-
-    @OptIn(Api4J::class)
-    override val user: MiraiFriend
-
-    @JvmSynthetic
-    override suspend fun user(): MiraiFriend
-
-    @OptIn(Api4J::class)
-    override val source: MiraiFriend
-
-
-    @JvmSynthetic
-    override suspend fun source(): MiraiFriend
-
-    //region send api
-    @JvmSynthetic
+    
+    /**
+     * 涉及到的好友，同 [friend]。
+     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun user(): MiraiFriend = friend()
+    
+    /**
+     * 涉及到的好友，同 [friend]。
+     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun source(): MiraiFriend = friend()
+    
+    // region send api
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-    @JvmSynthetic
+    
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-
-    @JvmSynthetic
+    
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-    //endregion
-
-
-    //region reply api
-    @JvmSynthetic
+    // endregion
+    
+    
+    // region reply api
+    @JvmAsync
+    @JvmBlocking
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-    @JvmSynthetic
+    
+    @JvmAsync
+    @JvmBlocking
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-
-    @JvmSynthetic
+    
+    @JvmAsync
+    @JvmBlocking
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-    //endregion
-
+    // endregion
+    
     public companion object Key :
         BaseEventKey<MiraiFriendMessageEvent>(
             "mirai.friend_message",
@@ -121,66 +107,47 @@ public interface MiraiStrangerMessageEvent :
     MiraiSimbotContactMessageEvent<OriginalMiraiStrangerMessageEvent>,
     ContactMessageEvent, ReplySupport, SendSupport {
     override val key: Event.Key<MiraiStrangerMessageEvent> get() = Key
-
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(Api4J::class)
-    override val user: MiraiStranger
-
-    @JvmSynthetic
+    
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun user(): MiraiStranger
-
-
-    @OptIn(Api4J::class)
-    override val source: MiraiStranger
-
-    @JvmSynthetic
-    override suspend fun source(): MiraiStranger
-
-
-
-    //region reply api
-    @JvmSynthetic
+    
+    
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun source(): MiraiStranger = user()
+    
+    
+    // region reply api
+    @JvmAsync
+    @JvmBlocking
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-    @JvmSynthetic
+    
+    @JvmAsync
+    @JvmBlocking
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-    @JvmSynthetic
+    
+    @JvmAsync
+    @JvmBlocking
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-    //endregion
-
-
-    //region send api
-    @JvmSynthetic
+    // endregion
+    
+    
+    // region send api
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-    @JvmSynthetic
+    
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-
-    @JvmSynthetic
+    
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-    //endregion
-
-
+    // endregion
+    
+    
     public companion object Key :
         BaseEventKey<MiraiStrangerMessageEvent>(
             "mirai.stranger_message",
