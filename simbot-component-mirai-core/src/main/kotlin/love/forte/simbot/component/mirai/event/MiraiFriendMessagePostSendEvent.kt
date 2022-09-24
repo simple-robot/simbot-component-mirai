@@ -51,15 +51,15 @@ public interface MiraiFriendMessagePostSendEvent :
     /**
      * 发送目标好友对象。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun friend(): MiraiFriend
 
     /**
      * 所有 `post send` 相关事件的源头均来自bot自身。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun source(): MiraiBot = bot
 
 
