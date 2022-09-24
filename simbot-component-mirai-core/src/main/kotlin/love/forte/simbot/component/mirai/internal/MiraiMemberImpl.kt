@@ -18,6 +18,7 @@ package love.forte.simbot.component.mirai.internal
 
 import love.forte.simbot.*
 import love.forte.simbot.action.SendSupport
+import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
@@ -27,8 +28,6 @@ import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.NormalMember
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.ZERO
-import kotlin.time.Duration.Companion.seconds
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 
 
@@ -57,13 +56,10 @@ internal class MiraiMemberImpl(
         is NormalMember -> member.muteTimeRemaining
         else -> 0
     }
-    override val muteTimeRemaining: Duration =
-        if (muteTimeRemainingSeconds == 0) ZERO else muteTimeRemainingSeconds.seconds
     
-    override val muteTimeRemainingDuration: JavaDuration =
-        if (muteTimeRemainingSeconds == 0) JavaDuration.ZERO else JavaDuration.ofSeconds(muteTimeRemainingSeconds.toLong())
+    private val _group: MiraiGroupImpl = initGroup ?: originalContact.group.asSimbot(bot)
     
-    override val group: MiraiGroupImpl = initGroup ?: originalContact.group.asSimbot(bot)
+    override suspend fun group(): MiraiGroup = _group
     
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
         val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
@@ -97,14 +93,13 @@ internal class MiraiMemberImpl(
         return mute0(duration.inWholeSeconds.toInt())
     }
     
-    @Api4J
-    override fun muteBlocking(): Boolean {
-        return runInBlocking { mute0(1) }
+    override suspend fun mute(time: Long, timeUnit: TimeUnit): Boolean {
+        return mute0(timeUnit.toSeconds(time).toInt())
     }
     
     @Api4J
-    override fun muteBlocking(time: Long, timeUnit: TimeUnit): Boolean {
-        return runInBlocking { mute0(timeUnit.toSeconds(time).toInt()) }
+    override fun muteBlocking(): Boolean {
+        return runInBlocking { mute0(60) }
     }
     
     @Api4J

@@ -48,7 +48,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      * 群主信息。
      */
     @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun owner(): MiraiMember
     
     /**
@@ -118,7 +118,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      * 根据ID获取指定成员信息。
      */
     @JvmBlocking(baseName = "getMember", suffix = "")
-    @JvmAsync(baseName = "getMember", suffix = "")
+    @JvmAsync(baseName = "getMember")
     override suspend fun member(id: ID): MiraiMember?
     
     /**

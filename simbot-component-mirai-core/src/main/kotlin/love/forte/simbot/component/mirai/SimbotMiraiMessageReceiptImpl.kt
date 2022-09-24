@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.CharSequenceID
 import love.forte.simbot.ID
 import love.forte.simbot.action.DeleteSupport
@@ -26,7 +26,6 @@ import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
-import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.MessageReceipt as OriginalMiraiMessageReceipt
@@ -37,37 +36,14 @@ import net.mamoe.mirai.message.MessageReceipt as OriginalMiraiMessageReceipt
  *
  *
  */
+@JvmAsync
+@JvmBlocking
 public interface SimbotMiraiMessageReceipt<out C : Contact> : MessageReceipt, DeleteSupport, ReplySupport {
     public val receipt: OriginalMiraiMessageReceipt<C>
-    
-    @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact>
-    
-    @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact>
-    
-    @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact>
-    
-    @JvmSynthetic
     override suspend fun delete(): Boolean
-    
-    //// Impl
-    
-    @Api4J
-    override fun deleteBlocking(): Boolean = runInBlocking { delete() }
-    
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<Contact> = runInBlocking { reply(text) }
-    
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<Contact> = runInBlocking { reply(message) }
-    
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<Contact> =
-        runInBlocking { reply(message) }
-    
-    
 }
 
 
@@ -86,13 +62,11 @@ internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
     /**
      * 删除/撤回这条消息.
      */
-    @JvmSynthetic
     override suspend fun delete(): Boolean {
         receipt.recall()
         return true
     }
     
-    @JvmSynthetic
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val sendMessage = message.toOriginalMiraiMessage(receipt.target)
@@ -100,14 +74,12 @@ internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
     
-    @JvmSynthetic
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val newReceipt = receipt.target.sendMessage(quote + text.toPlainText())
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
     
-    @JvmSynthetic
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val sendMessage = message.messages.toOriginalMiraiMessage(receipt.target)
@@ -160,8 +132,7 @@ public inline fun ID.buildMessageSource(andThen: MessageSourceBuilder.() -> Unit
     // kind
     val kind = MessageSourceKind.values()[(elements[4].toInt())]
     
-    return MessageSourceBuilder().id(*ids.toList().toIntArray())
-        .internalId(*internalIds.toList().toIntArray())
+    return MessageSourceBuilder().id(*ids.toList().toIntArray()).internalId(*internalIds.toList().toIntArray())
         .time(time).apply(andThen).build(botId, kind)
     
 }
