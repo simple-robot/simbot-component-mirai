@@ -16,10 +16,8 @@
 
 package love.forte.simbot.component.mirai.event.impl
 
-import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
-import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
 import love.forte.simbot.component.mirai.event.MiraiMemberMessageEvent
@@ -32,7 +30,6 @@ import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.randomID
-import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 
 
@@ -42,64 +39,36 @@ import net.mamoe.mirai.contact.Member as OriginalMiraiMember
  */
 internal class MiraiMemberMessageEventImpl(
     override val bot: MiraiBotImpl,
-    override val originalEvent: OriginalMiraiGroupTempMessageEvent
+    override val originalEvent: OriginalMiraiGroupTempMessageEvent,
 ) : MiraiMemberMessageEvent {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.bySecond(originalEvent.time.toLong())
-    override val user: MiraiMember = originalEvent.sender.asSimbot(bot)
     override val messageContent: MiraiReceivedMessageContent = originalEvent.toSimbotMessageContent()
-
-    override val source: MiraiMember get() = user
-
-    override suspend fun user() = user
-    override suspend fun source() = source
-
-    //region reply api
+    private val _user = originalEvent.sender.asSimbot(bot)
+    
+    override suspend fun user() = _user
+    
+    // region reply api
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
         val miraiMessage = message.toOriginalMiraiMessage(originalEvent.sender)
         val receipt = originalEvent.sender.sendMessage(miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> {
         val receipt = originalEvent.sender.sendMessage(text)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
-
-    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-            = reply(message.messages)
-
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-            = runInBlocking { reply(text) }
-
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-            = runInBlocking { reply(message) }
-
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-            = runInBlocking { reply(message) }
-    //endregion
-
-    //region send api
+    
+    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
+        reply(message.messages)
+    // endregion
+    
+    // region send api
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> = reply(message)
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> = reply(text)
-
-    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-            = send(message.messages)
-
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-            = runInBlocking { send(text) }
-
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-            = runInBlocking { send(message) }
-
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-            = runInBlocking { send(message) }
-    //endregion
+    
+    override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
+        send(message.messages)
+    // endregion
 }
