@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.bot.MiraiBot
@@ -37,52 +37,33 @@ import net.mamoe.mirai.event.events.GroupTempMessagePostSendEvent as OriginalMir
  *
  * @author ForteScarlet
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiGroupTempMessagePostSendEvent :
     MiraiMessagePostSendEvent<OriginalMiraiMember, OriginalMiraiGroupTempMessagePostSendEvent>,
     GroupInfoContainer, MemberInfoContainer, MessageEvent {
-
+    
     override val bot: MiraiBot
     override val messageContent: MiraiReceivedMessageContent
-
+    
     /**
      * 发送目标群成员所属群对象。
      */
-    @OptIn(Api4J::class)
-    override val group: MiraiGroup
-
-    /**
-     * 发送目标群成员所属群对象。
-     */
-    @JvmSynthetic
     override suspend fun group(): MiraiGroup
-
+    
     /**
      * 发送目标群成员对象。
      */
-    @OptIn(Api4J::class)
-    override val member: MiraiMember
-
-    /**
-     * 发送目标群成员对象。
-     */
-    @JvmSynthetic
     override suspend fun member(): MiraiMember
-
+    
     /**
-     * 所有 `post send` 相关事件的源头均来自于bot自身。
+     * 所有 `post send` 相关事件的源头均来自bot自身。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiBot
-
-    /**
-     * 所有 `post send` 相关事件的源头均来自于bot自身。
-     */
-    @JvmSynthetic
-    override suspend fun source(): MiraiBot
-
-
+    override suspend fun source(): MiraiBot = bot
+    
+    
     override val key: Event.Key<out MiraiGroupTempMessagePostSendEvent> get() = Key
-
+    
     public companion object Key : BaseEventKey<MiraiGroupTempMessagePostSendEvent>(
         "mirai.group_temp_message_post_send_event", MiraiMessagePostSendEvent, MessageEvent
     ) {
