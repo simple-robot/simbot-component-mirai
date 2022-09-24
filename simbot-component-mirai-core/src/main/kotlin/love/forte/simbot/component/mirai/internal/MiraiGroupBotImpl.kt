@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -29,14 +28,12 @@ import net.mamoe.mirai.contact.NormalMember
 internal class MiraiGroupBotImpl(
     private val baseBot: MiraiBotImpl,
     override val originalBotMember: NormalMember,
-    initGroup: MiraiGroupImpl
+    initGroup: MiraiGroupImpl,
 ) : MiraiGroupBot, MiraiBot by baseBot {
     
     private val member = originalBotMember.asSimbot(baseBot, initGroup)
     
     override suspend fun asMember(): MiraiMember = member
-    
-    override fun toMember(): MiraiMember = member
     
     override fun toString(): String {
         return "MiraiGroupMemberBotImpl(baseBot=$baseBot, member=$member)"
@@ -58,7 +55,7 @@ internal class MiraiGroupBotImpl(
             val originalBotMember = originalContact.botAsMember
             return MiraiGroupBotImpl(bot, originalBotMember, this)
         }
-    
+        
     }
 }
 
