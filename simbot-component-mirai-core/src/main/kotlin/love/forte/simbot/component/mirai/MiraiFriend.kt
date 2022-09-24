@@ -12,19 +12,18 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.LongID
 import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
-import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
 
 
@@ -47,71 +46,43 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
      */
     override val originalContact: OriginalMiraiFriend
     
+    // region send support
+    
     /**
      * 向此好友发送消息。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     
     /**
      * 向此好友发送消息。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     
-    //// Impl
-    
-    // region send support
     /**
      * 向此好友发送消息。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         send(message.messages)
     
-    /**
-     * 向此好友发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
-        runInBlocking { send(text) }
-    
-    /**
-     * 向此好友发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
-        runInBlocking { send(message) }
-    
-    /**
-     * 向此好友发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
-        runInBlocking { send(message) }
     // endregion
     
     /**
      * 同 [net.mamoe.mirai.contact.Friend.delete], 删除当前好友。
      *
      * @see net.mamoe.mirai.contact.Friend.delete
-     * @return true.
+     * @return always true.
      */
+    @JvmSynthetic
     override suspend fun delete(): Boolean {
         originalContact.delete()
         return true
     }
-    
-    /**
-     * 同 [net.mamoe.mirai.contact.Friend.delete], 删除当前好友。
-     *
-     * @see net.mamoe.mirai.contact.Friend.delete
-     * @see delete
-     * @return true.
-     */
-    @Api4J
-    override fun deleteBlocking(): Boolean = runInBlocking { delete() }
-    
     
     /**
      * 头像信息。

@@ -18,6 +18,7 @@
 plugins {
     id("simbot-mirai.module-conventions")
     id("simbot-mirai.maven-publish")
+    id("simbot.suspend-transform-configure")
 }
 
 
