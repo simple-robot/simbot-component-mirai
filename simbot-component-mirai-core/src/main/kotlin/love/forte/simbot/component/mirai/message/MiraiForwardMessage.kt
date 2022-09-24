@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -45,7 +44,7 @@ import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 /**
  * 对一个 [ForwardMessage] 的直接包装, 并提供此类型的属性代理。
  */
-public interface MiraiForwardMessage : OriginalMiraiDirectlySimbotMessage<MiraiForwardMessage> {
+public interface MiraiForwardMessage : OriginalMiraiDirectlySimbotMessage<ForwardMessage, MiraiForwardMessage> {
     
     /**
      * 得到当前消息中包装的 [ForwardMessage] 类型。
@@ -260,6 +259,7 @@ public class MiraiSendOnlyForwardMessage private constructor(
     
     override fun toString(): String = "MiraiSendOnlyForwardMessage(displayStrategy=$displayStrategy, nodes=$nodes)"
     
+    @JvmSynthetic
     @OptIn(MiraiExperimentalApi::class)
     override suspend fun originalMiraiMessage(
         contact: OriginalMiraiContact,

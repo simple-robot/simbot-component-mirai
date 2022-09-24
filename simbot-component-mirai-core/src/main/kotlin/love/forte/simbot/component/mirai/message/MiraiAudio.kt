@@ -12,13 +12,14 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.SimbotIllegalArgumentException
 import love.forte.simbot.component.mirai.MiraiContact
 import love.forte.simbot.component.mirai.MiraiContactContainer
@@ -33,13 +34,12 @@ import net.mamoe.mirai.message.data.AudioCodec
 import net.mamoe.mirai.message.data.OfflineAudio
 import net.mamoe.mirai.utils.ExternalResource.Companion.toExternalResource
 import net.mamoe.mirai.message.data.Audio as OriginalMiraiAudio
-import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
 
 /**
  * 一个在simbot中仅用于发送的 _语音_ 消息对象。
  *
  * [MiraiSendOnlyAudio] 构建时不会产生任何挂起、网络交互等行为，
- * 其只是一种 _预处理_ 对象，只有在被真正发送时才会进行上传。
+ * 其只是一种 _预处理_ 对象，只有在真正发送时才会进行上传。
  *
  *
  * [MiraiSendOnlyAudio] 可以重复使用，但是**每次发送**都会产生数据流读取和上传的行为。
@@ -65,6 +65,8 @@ public class MiraiSendOnlyAudio(
     
     override fun hashCode(): Int = resource.hashCode()
     
+    
+    
     private suspend fun uploadAudioTo(originalAudioSupported: AudioSupported): OfflineAudio {
         return resource.openStream().use {
             it.toExternalResource().use { external ->
@@ -78,8 +80,9 @@ public class MiraiSendOnlyAudio(
      *
      * @throws IllegalArgumentException 如果 [contact] 不支持音频上传
      */
-    @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
+    @JvmBlocking(baseName = "getOriginalMiraiMessage", suffix = "")
+    @JvmAsync(baseName = "getOriginalMiraiMessage")
+    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OfflineAudio {
         return if (contact is AudioSupported) {
             uploadAudioTo(contact)
         } else {
@@ -87,12 +90,22 @@ public class MiraiSendOnlyAudio(
         }
     }
     
+    /**
+     * 根据联系目标得到发送用的消息对象。
+     *
+     * @throws IllegalArgumentException 如果 [contact] 不支持音频上传
+     */
+    @JvmBlocking(baseName = "getOriginalMiraiMessage", suffix = "")
+    @JvmAsync(baseName = "getOriginalMiraiMessage")
+    override suspend fun originalMiraiMessage(contact: Contact): OfflineAudio = originalMiraiMessage(contact, false)
     
     /**
      * 直接提供一个mirai原生的 [AudioSupported] 对象，上传并得到上传结果 [MiraiAudio].
      *
      * @return 音频上传结果。
      */
+    @JvmAsync
+    @JvmBlocking
     public suspend fun uploadTo(originalAudioSupported: AudioSupported): MiraiAudio {
         return uploadAudioTo(originalAudioSupported).asSimbot()
     }
@@ -105,6 +118,8 @@ public class MiraiSendOnlyAudio(
      *
      * @return 音频上传结果。
      */
+    @JvmAsync
+    @JvmBlocking
     public suspend fun uploadTo(miraiContact: MiraiContactContainer): MiraiAudio {
         val original = miraiContact.originalContact
         if (original !is AudioSupported) {
@@ -128,7 +143,7 @@ public class MiraiSendOnlyAudio(
  * @see OriginalMiraiAudio
  * @see MiraiAudio.asSimbot
  */
-public interface MiraiAudio : OriginalMiraiDirectlySimbotMessage<MiraiAudio> {
+public interface MiraiAudio : OriginalMiraiDirectlySimbotMessage<OriginalMiraiAudio, MiraiAudio> {
     
     /**
      * Mirai的原生 [OriginalMiraiAudio] 对象实例。
@@ -142,6 +157,9 @@ public interface MiraiAudio : OriginalMiraiDirectlySimbotMessage<MiraiAudio> {
     public val codec: AudioCodec get() = originalAudio.codec
     public val extraData: ByteArray? get() = originalAudio.extraData
     
+    /**
+     * 同 [originalAudio]
+     */
     override val originalMiraiMessage: OriginalMiraiAudio
         get() = originalAudio
     

@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -20,7 +19,6 @@ package love.forte.simbot.component.mirai.message
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
-import love.forte.simbot.Api4J
 import love.forte.simbot.CharSequenceID
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.bot.MiraiBot
@@ -29,7 +27,6 @@ import love.forte.simbot.message.Message
 import love.forte.simbot.message.doSafeCast
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.Resource.Companion.toResource
-import love.forte.simbot.utils.runInBlocking
 import love.forte.simbot.utils.runWithInterruptible
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
@@ -61,13 +58,9 @@ public interface MiraiSendOnlyImage :
     /**
      * 图片发送所使用的资源对象。
      */
+    @JvmSynthetic
     override suspend fun resource(): Resource
     
-    /**
-     * 图片发送所使用的资源对象。
-     */
-    @OptIn(Api4J::class)
-    public override val resource: Resource
     
     /**
      * 是否作为一个闪照。
@@ -95,34 +88,32 @@ public interface MiraiSendOnlyImage :
 @SerialName("mirai.sendOnlyImage")
 @Serializable
 internal class MiraiSendOnlyImageImpl(
-    override val resource: Resource,
+    private val originalResource: Resource,
     override val isFlash: Boolean,
 ) : MiraiSendOnlyImage {
     
     @Transient
-    override val id: ID = resource.name.ID
+    override val id: ID = originalResource.name.ID
     
-    @JvmSynthetic
-    override suspend fun resource(): Resource = resource
+    override suspend fun resource(): Resource = originalResource
     override val key: Message.Key<MiraiSendOnlyImage>
         get() = MiraiSendOnlyImage.Key
     
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is MiraiSendOnlyImageImpl) return false
-        return resource === other.resource
+        return originalResource === other.originalResource
     }
     
     /**
      * 返回值只可能是 [OriginalMiraiFlashImage] 或 [OriginalMiraiImage].
      */
-    @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
-        return resource.uploadToImage(contact, isFlash)
+        return originalResource.uploadToImage(contact, isFlash)
     }
     
-    override fun toString(): String = resource.toString()
-    override fun hashCode(): Int = resource.hashCode()
+    override fun toString(): String = originalResource.toString()
+    override fun hashCode(): Int = originalResource.hashCode()
     
     companion object {
         // private val ID = "".ID
@@ -145,13 +136,19 @@ internal suspend fun Resource.uploadToImage(contact: Contact, isFlash: Boolean):
  *
  */
 public interface MiraiImage :
-    MiraiSimbotMessage<MiraiImage>,
+    OriginalMiraiDirectlySimbotMessage<OriginalMiraiImage, MiraiImage>,
     Image<MiraiImage> {
     
     /**
      * 得到Mirai的原生图片类型 [OriginalMiraiImage].
      */
     public val originalImage: OriginalMiraiImage
+    
+    /**
+     * 得到Mirai的原生图片类型 [OriginalMiraiImage]。同 [originalImage]。
+     */
+    override val originalMiraiMessage: OriginalMiraiImage
+        get() = originalImage
     
     /**
      * 此图片是否为一个 `闪照`。
@@ -199,13 +196,6 @@ public interface MiraiImage :
     override suspend fun resource(): Resource {
         return URL(originalImage.queryUrl()).toResource()
     }
-    
-    
-    /**
-     * 通过 [queryUrl] 查询并得到 [Resource] 对象。
-     */
-    @Api4J
-    override val resource: Resource get() = runInBlocking { resource() }
     
     
     public companion object Key : Message.Key<MiraiImage> {
