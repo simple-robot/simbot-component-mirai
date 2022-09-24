@@ -628,7 +628,6 @@ public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMembe
     /**
      * 入群的成员。同 [member]。
      */
-    @JvmSynthetic
     override suspend fun after(): MiraiMember = member()
     
     

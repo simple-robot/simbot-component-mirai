@@ -12,15 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
-import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
-import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
 import love.forte.simbot.component.mirai.event.MiraiGroupMessageEvent
@@ -34,7 +31,6 @@ import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.randomID
-import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.message.data.MessageSource.Key.recall
 import net.mamoe.mirai.message.data.QuoteReply
 import net.mamoe.mirai.message.data.toPlainText
@@ -46,25 +42,19 @@ import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessa
  */
 internal data class MiraiGroupMessageEventImpl(
     override val bot: MiraiBotImpl,
-    override val originalEvent: OriginalMiraiGroupMessageEvent
+    override val originalEvent: OriginalMiraiGroupMessageEvent,
 ) : MiraiGroupMessageEvent {
     override val id: ID = randomID()
+    override val timestamp: Timestamp = Timestamp.bySecond(originalEvent.time.toLong())
     override val messageContent: MiraiReceivedMessageContent = originalEvent.toSimbotMessageContent()
-    override val author: MiraiMemberImpl = originalEvent.sender.asSimbot(bot)
-    override val group: MiraiGroupImpl = originalEvent.group.asSimbot(bot)
-
-
-    override val organization: MiraiGroup get() = group
-    override val source: MiraiGroup get() = group
-
-
-    override suspend fun author() = author
-    override suspend fun group() = group
-    override suspend fun organization() = organization
-    override suspend fun source() = source
-
+    private val _author: MiraiMemberImpl = originalEvent.sender.asSimbot(bot)
+    private val _group: MiraiGroupImpl = originalEvent.group.asSimbot(bot)
+    
+    override suspend fun author() = _author
+    override suspend fun group() = _group
+    
     //// api
-
+    
     override suspend fun recall(): Boolean {
         return try {
             messageContent.messageSourceOrNull?.recall() ?: return false
@@ -73,66 +63,40 @@ internal data class MiraiGroupMessageEventImpl(
             false
         }
     }
-
-
-    //region reply api
+    
+    
+    // region reply api
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
         val miraiMessage = message.toOriginalMiraiMessage(originalEvent.group)
         val receipt = originalEvent.group.sendMessage(QuoteReply(originalEvent.source) + miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
         val receipt = originalEvent.group.sendMessage(QuoteReply(originalEvent.source) + text.toPlainText())
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         reply(message.messages)
-
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { reply(text) }
-
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { reply(message) }
-
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { reply(message) }
-    //endregion
-
-
-    //region send api
+    // endregion
+    
+    
+    // region send api
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
         val miraiMessage = message.toOriginalMiraiMessage(originalEvent.group)
         val receipt = originalEvent.group.sendMessage(miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
         val receipt = originalEvent.group.sendMessage(text)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         send(message.messages)
-
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { send(text) }
-
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { send(message) }
-
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { send(message) }
-    //endregion
-
-
-    override val timestamp: Timestamp = Timestamp.bySecond(originalEvent.time.toLong())
-
+    // endregion
+    
+    
 }
