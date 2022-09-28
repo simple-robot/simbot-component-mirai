@@ -34,14 +34,11 @@ import love.forte.plugin.suspendtrans.SuspendTransformConfiguration
 
 plugins {
     id("love.forte.plugin.suspend-transform")
-    
 }
 
 suspendTransform {
     includeRuntime = false
     jvm {
-        // jvmBlockingMarkAnnotation.functionInheritable = true
-        // jvmAsyncMarkAnnotation.functionInheritable = true
         // api and annotation comes from simbot-api
         val api4JIncludeAnnotation = SuspendTransformConfiguration.IncludeAnnotation("love.forte.simbot.Api4J")
         syntheticBlockingFunctionIncludeAnnotations = listOf(api4JIncludeAnnotation)
