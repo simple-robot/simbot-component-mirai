@@ -12,24 +12,19 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
-import kotlinx.coroutines.launch
-import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.MiraiFriend
-import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
 import love.forte.simbot.component.mirai.internal.MiraiFriendImpl
 import love.forte.simbot.component.mirai.internal.asSimbot
 import love.forte.simbot.event.RequestEvent
 import love.forte.simbot.randomID
-import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.event.events.FriendAddEvent as OriginalMiraiFriendAddEvent
 import net.mamoe.mirai.event.events.FriendAvatarChangedEvent as OriginalMiraiFriendAvatarChangedEvent
 import net.mamoe.mirai.event.events.FriendDeleteEvent as OriginalMiraiFriendDeleteEvent
@@ -47,12 +42,11 @@ internal abstract class BaseMiraiFriendEventImpl<E : OriginalMiraiFriendEvent>(
     final override val originalEvent: E,
 ) : MiraiFriendEvent<E> {
     override val id: ID = randomID()
-    override val friend: MiraiFriendImpl = originalEvent.friend.asSimbot(bot)
-    override val user: MiraiFriend get() = friend
+    private val _friend: MiraiFriendImpl = originalEvent.friend.asSimbot(bot)
+    
     override val timestamp: Timestamp = Timestamp.now()
-
-    override suspend fun friend(): MiraiFriend = friend
-    override suspend fun user(): MiraiFriend = friend
+    
+    override suspend fun friend(): MiraiFriend = _friend
 }
 
 
@@ -61,49 +55,30 @@ internal class MiraiFriendRequestEventImpl(
     override val originalEvent: OriginalMiraiNewFriendRequestEvent,
 ) : MiraiFriendRequestEvent {
     override val id: ID = originalEvent.eventId.ID
-    override val friend: RequestFriendInfo = originalEvent.toRequestUserInfo()
+    private val _friend: RequestFriendInfo = originalEvent.toRequestUserInfo()
     override val timestamp: Timestamp = Timestamp.now()
     override val type: RequestEvent.Type get() = RequestEvent.Type.APPLICATION
     override val message: String = originalEvent.message
-
-    override val requester: RequestFriendInfo = originalEvent.toRequestUserInfo()
-    override val user: RequestFriendInfo get() = requester
-
-    override suspend fun requester(): RequestFriendInfo = requester
-    override suspend fun friend(): RequestFriendInfo = friend
-
+    
+    override suspend fun friend(): RequestFriendInfo = _friend
+    
     // api
-
+    
     override suspend fun accept(): Boolean {
         originalEvent.accept()
         return true
     }
-
+    
     override suspend fun reject(block: Boolean): Boolean {
         originalEvent.reject(block)
         return true
     }
-
-    @Api4J
-    override fun rejectBlocking(block: Boolean): Boolean {
-        return runInBlocking { reject(block) }
-    }
-
-    @Api4J
-    override fun rejectAsync(block: Boolean) {
-        bot.launch { reject(block) }
-    }
-
-    override suspend fun reject(): Boolean = reject(false)
 }
 
 
 private fun OriginalMiraiNewFriendRequestEvent.toRequestUserInfo(): RequestFriendInfo {
     return RequestFriendInfo(
-        fromId = fromId,
-        fromGroupId = fromGroupId,
-        fromGroupName = this.fromGroup?.name,
-        fromNick = fromNick
+        fromId = fromId, fromGroupId = fromGroupId, fromGroupName = this.fromGroup?.name, fromNick = fromNick
     )
 }
 
@@ -113,17 +88,11 @@ internal class MiraiFriendInputStatusChangedEventImpl(
     nativeEvent: OriginalMiraiFriendInputStatusChangedEvent,
 ) : MiraiFriendInputStatusChangedEvent,
     BaseMiraiFriendEventImpl<OriginalMiraiFriendInputStatusChangedEvent>(bot, nativeEvent) {
-    override val after: Boolean = nativeEvent.inputting
-    override val before: Boolean get() = !after
+    private val inputting = nativeEvent.inputting
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp = Timestamp.now()
-    override val source: MiraiFriend get() = friend
-
-    override suspend fun after(): Boolean = after
-
-    override suspend fun before(): Boolean = before
-
-    override suspend fun source(): MiraiFriend = source
+    override suspend fun after(): Boolean = inputting
+    override suspend fun before(): Boolean = !inputting
 }
 
 internal class MiraiFriendNickChangedEventImpl(
@@ -132,18 +101,11 @@ internal class MiraiFriendNickChangedEventImpl(
 ) : MiraiFriendNickChangedEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val friend = originalEvent.friend.asSimbot(bot)
-    override val before: String = originalEvent.from
-    override val after: String = originalEvent.to
-    override val user: MiraiFriend get() = friend
-    override val source: MiraiFriend get() = friend
-
-    override suspend fun user(): MiraiFriend = user
-    override suspend fun friend(): MiraiFriend = friend
-    override suspend fun after(): String = after
-    override suspend fun before(): String = before
-    override suspend fun source(): MiraiFriend = source
-
+    private val _friend = originalEvent.friend.asSimbot(bot)
+    
+    override suspend fun friend(): MiraiFriend = _friend
+    override suspend fun before(): String = originalEvent.from
+    override suspend fun after(): String = originalEvent.to
 }
 
 internal class MiraiFriendAvatarChangedEventImpl(
@@ -152,16 +114,10 @@ internal class MiraiFriendAvatarChangedEventImpl(
 ) : MiraiFriendAvatarChangedEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val friend = originalEvent.friend.asSimbot(bot)
-    override val user: MiraiFriend get() = friend
-    override val after: String = originalEvent.friend.avatarUrl
-    override val source: MiraiFriend get() = friend
-
-
-    override suspend fun user(): MiraiFriend = user
-    override suspend fun friend(): MiraiFriend = friend
-    override suspend fun after(): String = after
-    override suspend fun source(): MiraiFriend = source
+    private val _friend = originalEvent.friend.asSimbot(bot)
+    
+    override suspend fun friend(): MiraiFriend = _friend
+    override suspend fun after(): String = originalEvent.friend.avatarUrl
 }
 
 internal class MiraiFriendDecreaseEventImpl(
@@ -170,19 +126,9 @@ internal class MiraiFriendDecreaseEventImpl(
 ) : MiraiFriendDecreaseEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val friend = originalEvent.friend.asSimbot(bot)
-
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(Api4J::class)
-    override val user: MiraiFriend get() = friend
-    override val source: MiraiBot get() = bot
-    override val before: MiraiFriend get() = friend
-
-
-    override suspend fun user(): MiraiFriend = user
-    override suspend fun source(): MiraiBot = source
-    override suspend fun before(): MiraiFriend = before
-    override suspend fun friend(): MiraiFriend = friend
+    private val _friend = originalEvent.friend.asSimbot(bot)
+    
+    override suspend fun friend(): MiraiFriend = _friend
 }
 
 internal class MiraiFriendIncreaseEventImpl(
@@ -191,18 +137,9 @@ internal class MiraiFriendIncreaseEventImpl(
 ) : MiraiFriendIncreaseEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val friend = originalEvent.friend.asSimbot(bot)
-
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(Api4J::class)
-    override val user: MiraiFriend get() = friend
-    override val source: MiraiBot get() = bot
-    override val after: MiraiFriend get() = friend
-
-    override suspend fun user(): MiraiFriend = user
-    override suspend fun source(): MiraiBot = source
-    override suspend fun after(): MiraiFriend = after
-    override suspend fun friend(): MiraiFriend = friend
+    private val _friend = originalEvent.friend.asSimbot(bot)
+    
+    override suspend fun friend(): MiraiFriend = _friend
 }
 
 internal class MiraiFriendRemarkChangeEventImpl(
@@ -211,16 +148,9 @@ internal class MiraiFriendRemarkChangeEventImpl(
 ) : MiraiFriendRemarkChangeEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val friend = originalEvent.friend.asSimbot(bot)
-    override val before: String = originalEvent.oldRemark
-    override val after: String = originalEvent.newRemark
-
-    override val user: MiraiFriend get() = friend
-    override val source: MiraiFriend get() = friend
-
-    override suspend fun user(): MiraiFriend = user
-    override suspend fun friend(): MiraiFriend = friend
-    override suspend fun after(): String = after
-    override suspend fun before(): String = before
-    override suspend fun source(): MiraiFriend = source
+    private val _friend = originalEvent.friend.asSimbot(bot)
+    
+    override suspend fun friend(): MiraiFriend = _friend
+    override suspend fun before(): String = originalEvent.oldRemark
+    override suspend fun after(): String = originalEvent.newRemark
 }

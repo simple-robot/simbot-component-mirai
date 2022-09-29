@@ -24,7 +24,7 @@ package love.forte.simbot.component.mirai
  */
 public abstract class CustomPropertiesMiraiRecallMessageCacheStrategy : MiraiRecallMessageCacheStrategy {
     /**
-     * 等待初始化的属性表。[properties] 在默认情况下不应该在初始化阶段使用，且应当在当前类被实例化后迫切的进行初始化。
+     * 等待初始化的属性表。[properties] 在默认情况下不应该在初始化阶段使用，且应当在当前类被实例化后迫切地进行初始化。
      */
     public open lateinit var properties: Map<String, String>
     

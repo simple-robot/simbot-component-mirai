@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.MiraiStranger
@@ -38,44 +38,31 @@ import net.mamoe.mirai.event.events.StrangerMessagePostSendEvent as OriginalMira
  *
  * @author ForteScarlet
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiStrangerMessagePostSendEvent :
     MiraiMessagePostSendEvent<OriginalMiraiStranger, OriginalMiraiStrangerMessagePostSendEvent>,
     UserInfoContainer, MessageEvent, RemoteMessageContainer {
-
+    
     override val bot: MiraiBot
     override val id: ID
     override val timestamp: Timestamp
     override val messageContent: MiraiReceivedMessageContent
     override val originalEvent: OriginalMiraiStrangerMessagePostSendEvent
-
+    
     /**
      * 发送目标陌生人对象。
      */
-    @OptIn(Api4J::class)
-    override val user: MiraiStranger
-
-
-    // Impl
+    override suspend fun user(): MiraiStranger
+    
     /**
-     * 发送目标陌生人对象。
-     */
-    override suspend fun user(): MiraiStranger = user
-
-    /**
-     * 所有 `post send` 相关事件的源头均来自于bot自身。
-     */
-    @OptIn(Api4J::class)
-    override val source: MiraiBot
-        get() = bot
-
-    /**
-     * 所有 `post send` 相关事件的源头均来自于bot自身。
+     * 所有 `post send` 相关事件的源头均来自bot自身。
      */
     override suspend fun source(): MiraiBot = bot
-
-
+    
+    
     override val key: Event.Key<out MiraiStrangerMessagePostSendEvent> get() = Key
-
+    
     public companion object Key : BaseEventKey<MiraiStrangerMessagePostSendEvent>(
         "mirai.stranger_message_post_send_event", MiraiMessagePostSendEvent, MessageEvent
     ) {

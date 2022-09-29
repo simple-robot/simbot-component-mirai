@@ -12,12 +12,10 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
-import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.MiraiStranger
@@ -32,7 +30,6 @@ import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.randomID
-import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
 import net.mamoe.mirai.event.events.StrangerMessageEvent as OriginalMiraiStrangerMessageEvent
 
@@ -46,62 +43,33 @@ internal data class MiraiStrangerMessageEventImpl(
     override val originalEvent: OriginalMiraiStrangerMessageEvent,
 ) : MiraiStrangerMessageEvent {
     override val id: ID = randomID()
-
+    
     override val timestamp: Timestamp = Timestamp.Companion.bySecond(originalEvent.time.toLong())
-    override val user: MiraiStranger = originalEvent.stranger.asSimbot(bot)
+    private val _user: MiraiStranger = originalEvent.stranger.asSimbot(bot)
     override val messageContent: MiraiReceivedMessageContent = originalEvent.toSimbotMessageContent()
-    override val source: MiraiStranger get() = user
-
-    override suspend fun user(): MiraiStranger = user
-    override suspend fun source(): MiraiStranger = source
-
-
-    //region reply api
+    
+    override suspend fun user(): MiraiStranger = _user
+    
+    
+    // region reply api
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger> {
         val miraiMessage = message.toOriginalMiraiMessage(originalEvent.stranger)
         val receipt = originalEvent.stranger.sendMessage(miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger> {
         return SimbotMiraiMessageReceiptImpl(originalEvent.stranger.sendMessage(text))
     }
-
-    @JvmSynthetic
+    
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         reply(message.messages)
-
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
-        runInBlocking { send(text) }
-
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
-        runInBlocking { send(message) }
-
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
-        runInBlocking { send(message) }
-    //endregion
-
-    //region send api
+    // endregion
+    
+    // region send api
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger> = reply(message)
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger> = reply(text)
-
-    @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
         send(message.messages)
-
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
-        runInBlocking { send(text) }
-
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
-        runInBlocking { send(message) }
-
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger> =
-        runInBlocking { send(message) }
-    //endregion
+    // endregion
 }

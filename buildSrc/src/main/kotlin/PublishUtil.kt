@@ -12,10 +12,8 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
-import gradle.kotlin.dsl.accessors._ef8df8565a6e8c0564755ef1bcb196f5.sourceSets
 import org.gradle.api.Project
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
@@ -75,7 +73,6 @@ fun Project.configurePublishing(artifactId: String) {
     }
     // val sourcesJar = tasks["sourcesJar"]
     val javadocJar = tasks.register("javadocJar", Jar::class) {
-        @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
         archiveClassifier.set("javadoc")
     }
     

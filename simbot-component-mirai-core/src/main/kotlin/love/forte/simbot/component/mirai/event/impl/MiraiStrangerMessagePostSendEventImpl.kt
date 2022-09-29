@@ -18,6 +18,7 @@ package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.MiraiStranger
 import love.forte.simbot.component.mirai.event.MiraiReceivedMessageContent
 import love.forte.simbot.component.mirai.event.MiraiStrangerMessagePostSendEvent
 import love.forte.simbot.component.mirai.event.toSimbotMessageContent
@@ -33,14 +34,14 @@ import net.mamoe.mirai.event.events.StrangerMessagePostSendEvent as OriginalMira
  */
 internal class MiraiStrangerMessagePostSendEventImpl(
     override val bot: MiraiBotImpl,
-    override val originalEvent: OriginalMiraiStrangerMessagePostSendEvent
+    override val originalEvent: OriginalMiraiStrangerMessagePostSendEvent,
 ) : MiraiStrangerMessagePostSendEvent {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
-    override val messageContent: MiraiReceivedMessageContent = originalEvent.message.toSimbotMessageContent(originalEvent.source)
-    override val user = originalEvent.target.asSimbot(bot)
-
-
-
-
+    override val messageContent: MiraiReceivedMessageContent =
+        originalEvent.message.toSimbotMessageContent(originalEvent.source)
+    private val _user = originalEvent.target.asSimbot(bot)
+    
+    override suspend fun user(): MiraiStranger = _user
+    
 }

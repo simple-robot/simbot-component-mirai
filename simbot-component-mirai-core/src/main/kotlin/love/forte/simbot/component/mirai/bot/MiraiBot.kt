@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.bot
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.bot.*
@@ -121,19 +121,12 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     /**
      * 获取指定的好友。在mirai中，好友的获取不是挂起的，因此可以安全的使用 [getFriend]
      */
-    @OptIn(Api4J::class)
-    override fun getFriend(id: ID): MiraiFriend?
-    
-    
-    /**
-     * 获取指定的好友。在mirai中，好友的获取不是挂起的，因此可以安全的使用 [getFriend]
-     */
-    @JvmSynthetic
-    override suspend fun friend(id: ID): MiraiFriend? = getFriend(id)
-    
+    @JvmBlocking(baseName = "getFriend", suffix = "")
+    @JvmAsync(baseName = "getFriend")
+    override suspend fun friend(id: ID): MiraiFriend?
     // endregion
     
-    // region contacts api
+    // region strangers api
     /**
      * 陌生人数据序列。
      *
@@ -149,16 +142,9 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      *
      * @see OriginalMiraiBot.getStranger
      */
-    @JvmSynthetic
-    public suspend fun stranger(id: ID): MiraiStranger? = getStranger(id)
-    
-    
-    /**
-     * 根据唯一标识获取一个陌生人。
-     *
-     * @see OriginalMiraiBot.getStranger
-     */
-    public fun getStranger(id: ID): MiraiStranger?
+    @JvmBlocking(baseName = "getStranger", suffix = "")
+    @JvmAsync(baseName = "getStranger")
+    public suspend fun stranger(id: ID): MiraiStranger?
     // endregion
     
     // region contacts api
@@ -182,20 +168,9 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      * 不会寻找 [群成员][MiraiMember].
      *
      */
-    @JvmSynthetic
-    override suspend fun contact(id: ID): MiraiContact? = getContact(id)
-    
-    /**
-     * 尝试获取一个联系人。
-     *
-     * 会优先尝试获取一个 [好友][MiraiFriend]，当没找到的时候会尝试寻找一个符合条件的 [陌生人][MiraiStranger]。
-     * 找不到符合条件的目标时返回 `null`。
-     *
-     * 不会寻找 [群成员][MiraiMember].
-     *
-     */
-    @OptIn(Api4J::class)
-    override fun getContact(id: ID): MiraiContact?
+    @JvmBlocking(baseName = "getContact", suffix = "")
+    @JvmAsync(baseName = "getContact")
+    override suspend fun contact(id: ID): MiraiContact?
     // endregion
     
     
@@ -211,22 +186,15 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     /**
      * 获取指定的群.
      * mirai的群组获取没有真正的挂起，因此可以安全的使用 [getGroup].
-     */
-    @OptIn(Api4J::class)
-    override fun getGroup(id: ID): MiraiGroup?
-    
-    /**
-     * 获取指定的群.
-     * mirai的群组获取没有真正的挂起，因此可以安全的使用 [getGroup].
      * @see getGroup
      */
-    @JvmSynthetic
-    override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
+    @JvmBlocking(baseName = "getGroup", suffix = "")
+    @JvmAsync(baseName = "getGroup")
+    override suspend fun group(id: ID): MiraiGroup?
     // endregion
     
     
     // region guild apis
-    
     @Deprecated(
         "Channel related APIs are not supported",
         ReplaceWith("emptyItems()", "love.forte.simbot.utils.item.Items.Companion.emptyItems")
@@ -234,14 +202,10 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     override val guilds: Items<Guild>
         get() = emptyItems()
     
+    
     @Deprecated("Channel related APIs are not supported", ReplaceWith("null"))
     @JvmSynthetic
     override suspend fun guild(id: ID): Guild? = null
-    
-    @OptIn(Api4J::class)
-    @Deprecated("Channel related APIs are not supported", ReplaceWith("null"))
-    override fun getGuild(id: ID): Guild? = null
-    
     // endregion
     
     // region image api
@@ -287,7 +251,8 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     /**
      * @see idImage
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun resolveImage(id: ID): MiraiImage = idImage(id, false)
     
     /**
@@ -297,22 +262,6 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
         id: ID,
         flash: Boolean,
         builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {},
-    ): MiraiImage = idImage(id, flash, builderAction)
-    
-    /**
-     * @see idImage
-     */
-    @OptIn(Api4J::class)
-    override fun resolveImageBlocking(id: ID): MiraiImage = idImage(id, false)
-    
-    
-    /**
-     * @see idImage
-     */
-    public fun resolveImageBlocking(
-        id: ID,
-        flash: Boolean,
-        builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit,
     ): MiraiImage = idImage(id, flash, builderAction)
     // endregion
     
@@ -350,14 +299,8 @@ public interface MiraiGroupBot : MiraiBot, GroupBot {
      * 当前bot在指定群中所扮演的成员实例。
      *
      */
-    @JvmSynthetic
+    @JvmBlocking(baseName = "toMember", suffix = "")
+    @JvmAsync(baseName = "toMember")
     override suspend fun asMember(): MiraiMember
-    
-    /**
-     * 当前bot在指定群中所扮演的成员实例。
-     *
-     */
-    @OptIn(Api4J::class)
-    override fun toMember(): MiraiMember
 }
 

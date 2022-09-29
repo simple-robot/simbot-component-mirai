@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.action.SendSupport
 import love.forte.simbot.component.mirai.MiraiMember
@@ -47,121 +47,80 @@ public typealias OriginalMiraiGroupTempMessageEvent = OriginalMiraiGroupTempMess
 public interface MiraiMemberMessageEvent
     : MiraiSimbotContactMessageEvent<OriginalMiraiGroupTempMessageEvent>,
     ContactMessageEvent, ReplySupport, SendSupport {
-
+    
     override val bot: MiraiBot
-
+    
     /**
      * 发送消息的群成员。
      */
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(Api4J::class)
-    override val user: MiraiMember
-
-    /**
-     * 发送消息的群成员。
-     */
-    @JvmSynthetic
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun user(): MiraiMember
-
+    
+    
     /**
-     * 发送消息的群成员。
+     * 发送消息的群成员。同 [user]。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiMember
-
-    /**
-     * 发送消息的群成员。
-     */
-    @JvmSynthetic
-    override suspend fun source(): MiraiMember
-
-
-
-    //region reply api
-
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun source(): MiraiMember = user()
+    
+    
+    // region reply api
+    
     /**
      * 回复此群成员的消息。效果等同于 [send].
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
+    
     /**
      * 回复此群成员的消息。效果等同于 [send].
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
+    
     /**
      * 回复此群成员的消息。效果等同于 [send].
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
-    /**
-     * 回复此群成员的消息。效果等同于 [send].
-     */
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
-    /**
-     * 回复此群成员的消息。效果等同于 [send].
-     */
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
-    /**
-     * 回复此群成员的消息。效果等同于 [send].
-     */
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-    //endregion
-
-    //region send api
+    // endregion
+    
+    // region send api
     /**
      * 向此群成员发送消息。效果等同于 [reply].
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
+    
     /**
      * 向此群成员发送消息。效果等同于 [reply].
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
-
+    
+    
     /**
      * 向此群成员发送消息。效果等同于 [reply].
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
-    /**
-     * 向此群成员发送消息。效果等同于 [reply].
-     */
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
-    /**
-     * 向此群成员发送消息。效果等同于 [reply].
-     */
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-
-    /**
-     * 向此群成员发送消息。效果等同于 [reply].
-     */
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
-    //endregion
-
+    // endregion
+    
     override val key: Event.Key<MiraiMemberMessageEvent> get() = Key
-
+    
     public companion object Key : BaseEventKey<MiraiMemberMessageEvent>(
         "mirai.group_temp_message",
         MiraiSimbotContactMessageEvent, ContactMessageEvent
     ) {
         override fun safeCast(value: Any): MiraiMemberMessageEvent? = doSafeCast(value)
     }
-
+    
 }

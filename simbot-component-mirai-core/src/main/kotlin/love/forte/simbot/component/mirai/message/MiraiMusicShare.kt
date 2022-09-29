@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -43,12 +42,12 @@ import kotlin.reflect.*
 public data class MiraiMusicShare(
     override val originalMiraiMessage: MusicShare
 ) : MiraiSendOnlySimbotMessage<MiraiMusicShare>,
-    OriginalMiraiDirectlySimbotMessage<MiraiMusicShare> {
+    OriginalMiraiDirectlySimbotMessage<MusicShare, MiraiMusicShare> {
 
     override val key: Message.Key<MiraiMusicShare> get() = Key
 
     /**
-     * 参数完全来自于 [MusicShare] 的 **主构造**，具体使用请参考 [MusicShare].
+     * 参数完全来自 [MusicShare] 的 **主构造**，具体使用请参考 [MusicShare].
      *
      *
      * @param kind 音乐应用类型
@@ -73,7 +72,7 @@ public data class MiraiMusicShare(
     )
 
     /**
-     * 参数完全来自于 [MusicShare] 构造，具体使用请参考 [MusicShare].
+     * 参数完全来自 [MusicShare] 构造，具体使用请参考 [MusicShare].
      *
      *
      * @param kind 音乐应用类型

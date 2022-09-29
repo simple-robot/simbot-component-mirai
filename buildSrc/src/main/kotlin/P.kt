@@ -31,11 +31,10 @@ sealed class P : SimbotProject() {
         }
         
         const val GROUP = "love.forte.simbot"
-        const val BOOT_GROUP = "love.forte.simbot.boot"
-        
+    
         val version = Version(
             "3", 0, 0,
-            status = VersionStatus.beta(null, null, "-RC.2"),
+            status = VersionStatus.beta(2, null, null),
             isSnapshot = isSnapshot()
         )
         

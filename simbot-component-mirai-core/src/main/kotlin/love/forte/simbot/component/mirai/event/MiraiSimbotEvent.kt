@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.MiraiContact
 import love.forte.simbot.component.mirai.MiraiGroup
@@ -120,11 +120,12 @@ public interface MiraiSimbotContactMessageEvent<E : OriginalMiraiMessageEvent> :
      */
     override val bot: MiraiBot
     
-    @OptIn(Api4J::class)
-    override val user: MiraiContact
-    
-    @JvmSynthetic
-    override suspend fun user(): MiraiContact = user
+    /**
+     * 此事件中涉及到的用户。
+     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun user(): MiraiContact
     
     override val messageContent: MiraiReceivedMessageContent
     
@@ -147,7 +148,11 @@ public interface MiraiSimbotUserMessageEvent<E : OriginalMiraiMessageEvent> :
      */
     override val bot: MiraiBot
     
-    @JvmSynthetic
+    /**
+     * 事件中涉及的用户。
+     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun user(): MiraiContact
     
     override val messageContent: MiraiReceivedMessageContent
@@ -172,17 +177,19 @@ public interface MiraiSimbotGroupMessageEvent<E : OriginalMiraiMessageEvent> :
      */
     override val bot: MiraiBot
     
-    @JvmSynthetic
+    /**
+     * 此消息事件的发送人。
+     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun author(): MiraiMember
     
-    @OptIn(Api4J::class)
-    override val author: MiraiMember
-    
-    @JvmSynthetic
+    /**
+     * 此事件发生的群。
+     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun source(): MiraiGroup
-    
-    @OptIn(Api4J::class)
-    override val source: MiraiGroup
     
     
     override val messageContent: MiraiReceivedMessageContent

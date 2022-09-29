@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.Contact
 import love.forte.simbot.definition.Stranger
@@ -31,6 +31,8 @@ import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
  * Mirai的陌生人对象实例。
  * @author ForteScarlet
  */
+@JvmAsync
+@JvmBlocking
 public interface MiraiStranger : Contact, Stranger, MiraiContact {
     
     override val bot: MiraiBot
@@ -46,36 +48,15 @@ public interface MiraiStranger : Contact, Stranger, MiraiContact {
     /**
      * 向此人发送消息。
      */
-    @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     
     /**
      * 向此人发送消息。
      */
-    @JvmSynthetic
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     
     /**
      * 向此人发送消息。
      */
-    @JvmSynthetic
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-    
-    /**
-     * 向此人发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-    
-    /**
-     * 向此人发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
-    
-    /**
-     * 向此人发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
 }

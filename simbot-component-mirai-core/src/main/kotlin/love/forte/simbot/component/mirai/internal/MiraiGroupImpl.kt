@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
@@ -38,7 +37,7 @@ import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 internal class MiraiGroupImpl(
     private val baseBot: MiraiBotImpl,
     override val originalContact: OriginalMiraiGroup,
-    private val initOwner: MiraiMemberImpl? = null,
+    initOwner: MiraiMemberImpl? = null,
 ) : MiraiGroup {
     private lateinit var memberBot: MiraiGroupBotImpl
     
@@ -70,12 +69,11 @@ internal class MiraiGroupImpl(
         return originalContact.getMember(id.tryToLong())?.asSimbot(baseBot, this)
     }
     
-    @OptIn(Api4J::class)
-    override val owner: MiraiMemberImpl
-        get() = initOwner ?: originalContact.owner.asSimbot(baseBot, this)
+    private val _owner = initOwner ?: originalContact.owner.asSimbot(baseBot, this)
     
+    override suspend fun owner(): MiraiMember = _owner
     
-    override val ownerId: LongID get() = owner.id
+    override val ownerId: LongID get() = _owner.id
     
     override val members: Items<MiraiMember>
         get() = originalContact.members.asItems().map { it.asSimbot(baseBot) }
@@ -89,16 +87,18 @@ internal class MiraiGroupImpl(
         return true
     }
     
+    override suspend fun mute(time: Long, timeUnit: TimeUnit): Boolean {
+        baseBot.groupMute(originalContact,timeUnit.toMillis(time))
+        return true
+    }
+    
+    @Api4J
     override fun muteBlocking(duration: JavaDuration): Boolean {
         baseBot.groupMute(originalContact, duration.toMillis())
         return true
     }
     
-    override fun muteBlocking(time: Long, timeUnit: TimeUnit): Boolean {
-        baseBot.groupMute(originalContact, timeUnit.toMillis(time))
-        return true
-    }
-    
+    @Api4J
     override fun muteBlocking(): Boolean {
         baseBot.groupMute(originalContact, 0)
         return true
@@ -108,9 +108,6 @@ internal class MiraiGroupImpl(
         return baseBot.groupUnmute(originalContact)
     }
     
-    override fun unmuteBlocking(): Boolean {
-        return baseBot.groupUnmute(originalContact)
-    }
 }
 
 

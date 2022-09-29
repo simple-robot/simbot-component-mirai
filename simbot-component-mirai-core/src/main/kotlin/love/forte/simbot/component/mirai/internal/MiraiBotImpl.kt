@@ -171,7 +171,7 @@ internal class MiraiBotImpl(
     override val strangers: Items<MiraiStranger>
         get() = originalBot.strangers.asItems().map { it.asSimbot(this) }
     
-    override fun getStranger(id: ID): MiraiStranger? {
+    override suspend fun stranger(id: ID): MiraiStranger? {
         return originalBot.getStranger(id.tryToLong())?.asSimbot(this)
     }
     
@@ -179,7 +179,7 @@ internal class MiraiBotImpl(
         get() = originalBot.friends.asItems().map { it.asSimbot(this) }
     
     
-    override fun getFriend(id: ID): MiraiFriend? =
+    override suspend fun friend(id: ID): MiraiFriend? =
         originalBot.getFriend(id.tryToLong())?.asSimbot(this)
     
     
@@ -194,7 +194,7 @@ internal class MiraiBotImpl(
             }
         }
     
-    override fun getContact(id: ID): MiraiContact? {
+    override suspend fun contact(id: ID): MiraiContact? {
         val number = id.tryToLong()
         return originalBot.getFriend(number)?.asSimbot(this)
             ?: originalBot.getStranger(number)?.asSimbot(this)
@@ -203,10 +203,8 @@ internal class MiraiBotImpl(
     override val groups: Items<MiraiGroup>
         get() = originalBot.groups.asItems().map { it.asSimbot(this) }
     
-    override fun getGroup(id: ID): MiraiGroup? =
+    override suspend fun group(id: ID): MiraiGroup? =
         originalBot.getGroup(id.tryToLong())?.asSimbot(this)
-    
-    override suspend fun group(id: ID): MiraiGroup? = getGroup(id)
     
     override fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage {
         return MiraiSendOnlyImage.of(resource, flash)

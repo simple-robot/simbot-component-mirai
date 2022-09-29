@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.component.mirai.MemberRole
 import love.forte.simbot.component.mirai.MiraiGroup
@@ -49,58 +49,32 @@ import net.mamoe.mirai.event.events.MemberUnmuteEvent as OriginalMiraiMemberUnmu
  * 参考 `net.mamoe.mirai.event.events.group.kt` 下各事件定义。
  */
 @BaseEvent
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiGroupMemberEvent<E : OriginalMiraiGroupMemberEvent> : MiraiSimbotBotEvent<E>, GroupEvent,
     MemberEvent {
     override val bot: MiraiBot
-
+    
     /**
      * 群成员。
      */
-    @OptIn(Api4J::class)
-    override val member: MiraiMember
-
-    /**
-     * 群成员。
-     */
-    @JvmSynthetic
     override suspend fun member(): MiraiMember
-
+    
     /**
      * 所在群。
      */
-    @OptIn(Api4J::class)
-    override val group: MiraiGroup
-
-    /**
-     * 所在群。
-     */
-    @JvmSynthetic
     override suspend fun group(): MiraiGroup
-
+    
     /**
      * 群成员。同 [member]。
      */
-    @OptIn(Api4J::class)
-    override val user: MiraiMember
-
-    /**
-     * 群成员。同 [member]。
-     */
-    @JvmSynthetic
-    override suspend fun user(): MiraiMember
-
+    override suspend fun user(): MiraiMember = member()
+    
     /**
      * 所在群。同 [group]。
      */
-    @OptIn(Api4J::class)
-    override val organization: MiraiGroup
-
-    /**
-     * 所在群。同 [group]。
-     */
-    @JvmSynthetic
-    override suspend fun organization(): MiraiGroup
-
+    override suspend fun organization(): MiraiGroup = group()
+    
     public companion object Key :
         BaseEventKey<MiraiGroupMemberEvent<*>>("mirai.group_member", MiraiSimbotBotEvent, GroupEvent, MemberEvent) {
         override fun safeCast(value: Any): MiraiGroupMemberEvent<*>? = doSafeCast(value)
@@ -113,116 +87,60 @@ public interface MiraiGroupMemberEvent<E : OriginalMiraiGroupMemberEvent> : Mira
  * @see OriginalMiraiGroupTalkativeChangeEvent
  * @see MemberChangedEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiGroupTalkativeChangeEvent : MiraiSimbotBotEvent<OriginalMiraiGroupTalkativeChangeEvent>,
     MemberChangedEvent, GroupEvent {
-
+    
     override val bot: MiraiBot
-
+    
     /**
      * 涉及群成员。同 [变更后成员][after]。
      */
-    @OptIn(Api4J::class)
-    override val member: MiraiMember
-
-    /**
-     * 涉及群成员。同 [变更后成员][after]。
-     */
-    @JvmSynthetic
     override suspend fun member(): MiraiMember
-
+    
     /**
      * 涉及群成员。同 [变更后成员][after]。
      */
-    @OptIn(Api4J::class)
-    override val user: MiraiMember
-
-    /**
-     * 涉及群成员。同 [变更后成员][after]。
-     */
-    @JvmSynthetic
     override suspend fun user(): MiraiMember
-
-
-
+    
     /**
      * 所在群。
      */
-    @OptIn(Api4J::class)
-    override val group: MiraiGroup
-
-    /**
-     * 所在群。
-     */
-    @JvmSynthetic
     override suspend fun group(): MiraiGroup
-
+    
     /**
      * 上一任龙王
      */
-    @OptIn(Api4J::class)
-    override val before: MiraiMember
-
-    /**
-     * 上一任龙王
-     */
-    @JvmSynthetic
     override suspend fun before(): MiraiMember
-
+    
     /**
      * 现任龙王
      */
-    @OptIn(Api4J::class)
-    override val after: MiraiMember
-
-    /**
-     * 现任龙王
-     */
-    @JvmSynthetic
     override suspend fun after(): MiraiMember
-
-
+    
+    
     /**
-     * 所在群。
+     * 所在群。同 [group]。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiGroup
-
+    override suspend fun source(): MiraiGroup = group()
+    
     /**
-     * 所在群。
+     * 所在群。同 [group]。
      */
-    @JvmSynthetic
-    override suspend fun source(): MiraiGroup
-
-    /**
-     * 所在群。
-     */
-    @OptIn(Api4J::class)
-    override val organization: MiraiGroup
-
-    /**
-     * 所在群。
-     */
-    @JvmSynthetic
-    override suspend fun organization(): MiraiGroup
-
+    override suspend fun organization(): MiraiGroup = group()
+    
     /**
      * 没有“操作者”, 始终为null
      */
-    @OptIn(Api4J::class)
-    override val operator: MiraiMember? get() = null
-
-    /**
-     * 没有“操作者”, 始终为null
-     */
-    @JvmSynthetic
     override suspend fun operator(): MiraiMember? = null
-
-
+    
+    
     override val key: Event.Key<MiraiGroupTalkativeChangeEvent> get() = Key
-
-    public companion object Key : BaseEventKey<MiraiGroupTalkativeChangeEvent>("mirai.group_talkative_change",
-        MiraiSimbotBotEvent,
-        MemberChangedEvent) {
+    
+    public companion object Key : BaseEventKey<MiraiGroupTalkativeChangeEvent>(
+        "mirai.group_talkative_change", MiraiSimbotBotEvent, MemberChangedEvent
+    ) {
         override fun safeCast(value: Any): MiraiGroupTalkativeChangeEvent? = doSafeCast(value)
     }
 }
@@ -235,60 +153,40 @@ public interface MiraiGroupTalkativeChangeEvent : MiraiSimbotBotEvent<OriginalMi
  *
  * @see OriginalMiraiMemberHonorChangeEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 @MiraiExperimentalApi
 public interface MiraiMemberHonorChangeEvent : MiraiGroupMemberEvent<OriginalMiraiMemberHonorChangeEvent>,
     ChangedEvent {
     override val bot: MiraiBot
-
+    
     /**
      * 群荣誉信息
      */
     public val honorType: GroupHonorType
-
+    
     /**
      * 变更前荣耀，如果此值不为null，则 [after] 为null，代表为失去此荣耀。
      */
-    @OptIn(Api4J::class)
-    override val before: GroupHonorType?
-
-    /**
-     * 变更前荣耀，如果此值不为null，则 [after] 为null，代表为失去此荣耀。
-     */
-    @JvmSynthetic
-    override suspend fun before(): GroupHonorType? = before
-
-
+    override suspend fun before(): GroupHonorType?
+    
     /**
      * 变更后荣誉。如果此值不为null，则 [before] 为null，代表为得到此荣耀。
      */
-    @OptIn(Api4J::class)
-    override val after: GroupHonorType?
-
+    override suspend fun after(): GroupHonorType?
+    
     /**
-     * 变更后荣誉。如果此值不为null，则 [before] 为null，代表为得到此荣耀。
+     * 涉及的群成员。同 [member]。
      */
-    @JvmSynthetic
-    override suspend fun after(): GroupHonorType? = after
-
-    /**
-     * 涉及的群成员。
-     */
-    @OptIn(Api4J::class)
-    override val source: MiraiMember
-
-    /**
-     * 涉及的群成员。
-     */
-    @JvmSynthetic
-    override suspend fun source(): MiraiMember
-
+    override suspend fun source(): MiraiMember = member()
+    
     override val key: Event.Key<out MiraiMemberHonorChangeEvent> get() = Key
-
+    
     public companion object Key :
         BaseEventKey<MiraiMemberHonorChangeEvent>("mirai.member_honor_change", MiraiGroupMemberEvent, ChangedEvent) {
         override fun safeCast(value: Any): MiraiMemberHonorChangeEvent? = doSafeCast(value)
     }
-
+    
 }
 
 /**
@@ -299,67 +197,47 @@ public interface MiraiMemberHonorChangeEvent : MiraiGroupMemberEvent<OriginalMir
  * @see MiraiMemberUnmuteEvent
  * @see MiraiMemberMuteEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiMemberMuteRelateEvent<E : OriginalMiraiGroupMemberEvent> : MiraiGroupMemberEvent<E>,
     ChangedEvent {
     override val bot: MiraiBot
-
+    
     /**
      * 变更前是否为禁言。与 [after] 互为反。
      */
-    @OptIn(Api4J::class)
-    override val before: Boolean
-
-    /**
-     * 变更前是否为禁言。与 [after] 互为反。
-     */
-    @JvmSynthetic
     override suspend fun before(): Boolean
-
-
+    
     /**
-     * 变更后是否为禁言。与 [after] 互为反。
+     * 变更前是否为禁言。与 [before] 互为反。
      */
-    @OptIn(Api4J::class)
-    override val after: Boolean
-
-    /**
-     * 变更前是否为禁言。与 [after] 互为反。
-     */
-    @JvmSynthetic
     override suspend fun after(): Boolean
-
+    
     /**
-     * 涉及的群成员。
+     * 涉及的群成员。同 [member]。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiMember
-
-    /**
-     * 涉及的群成员。
-     */
-    @JvmSynthetic
-    override suspend fun source(): MiraiMember
-
+    override suspend fun source(): MiraiMember = member()
+    
     /**
      * 剩余禁言时间的时长。
      */
     @get:JvmSynthetic
     public val duration: Duration
-
+    
     /**
      * 剩余禁言时间的时长，单位为秒。
      * @see duration
      */
     public val durationSeconds: Int
-
+    
     /**
      * 此事件代表的是否为群成员被禁言了。与 [after] 的值一致。
      */
-    public val isMute: Boolean get() = after
-
-
+    public val isMute: Boolean
+    
+    
     override val key: Event.Key<out MiraiMemberMuteRelateEvent<*>>
-
+    
     public companion object Key :
         BaseEventKey<MiraiMemberMuteRelateEvent<*>>("mirai.member_mute_relate", MiraiGroupMemberEvent, ChangedEvent) {
         override fun safeCast(value: Any): MiraiMemberMuteRelateEvent<*>? = doSafeCast(value)
@@ -377,38 +255,45 @@ public interface MiraiMemberMuteRelateEvent<E : OriginalMiraiGroupMemberEvent> :
  * @see OriginalMiraiMemberUnmuteEvent
  * @see MiraiBotUnmuteEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiMemberUnmuteEvent : MiraiMemberMuteRelateEvent<OriginalMiraiMemberUnmuteEvent> {
     override val bot: MiraiBot
-
+    
     /**
      * 剩余禁言事件。始终为 `0`。
      */
     @get:JvmSynthetic
     override val duration: Duration get() = 0.seconds
-
+    
     /**
      * 剩余禁言事件。始终为 `0`。
      */
     override val durationSeconds: Int get() = 0
-
-
-    override val before: Boolean get() = true
-
-    @JvmSynthetic
-    override suspend fun before(): Boolean = before
-
-    override val after: Boolean get() = false
-
-    @JvmSynthetic
-    override suspend fun after(): Boolean = after
-
+    
+    /**
+     * 始终为 [isMute] 的反值。
+     */
+    override suspend fun before(): Boolean = !isMute
+    
+    /**
+     * 是否被禁言。同 [isMute]。
+     */
+    override suspend fun after(): Boolean = isMute
+    
+    /**
+     * 是否被禁言。
+     */
+    override val isMute: Boolean
+        get() = false
+    
     override val key: Event.Key<MiraiMemberUnmuteEvent> get() = Key
-
+    
     public companion object Key :
         BaseEventKey<MiraiMemberUnmuteEvent>("mirai.member_unmute", MiraiMemberMuteRelateEvent) {
         override fun safeCast(value: Any): MiraiMemberUnmuteEvent? = doSafeCast(value)
     }
-
+    
 }
 
 /**
@@ -419,42 +304,49 @@ public interface MiraiMemberUnmuteEvent : MiraiMemberMuteRelateEvent<OriginalMir
  *
  * @see OriginalMiraiMemberMuteEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiMemberMuteEvent : MiraiMemberMuteRelateEvent<OriginalMiraiMemberMuteEvent> {
     override val bot: MiraiBot
-
+    
     /**
      * 剩余禁言时间。
      */
     @get:JvmSynthetic
     override val duration: Duration
-
+    
     /**
      * 剩余禁言时间。
      */
     override val durationSeconds: Int
-
+    
     /**
      * 操作人可能会是bot自己。
      */
     public val operator: MiraiMember
-
-    override val before: Boolean get() = false
-
-    @JvmSynthetic
-    override suspend fun before(): Boolean = before
-
-    override val after: Boolean get() = true
-
-    @JvmSynthetic
-    override suspend fun after(): Boolean = after
-
-
+    
+    /**
+     * 始终为 [isMute] 的反值。
+     */
+    override suspend fun before(): Boolean = !isMute
+    
+    /**
+     * 是否被禁言。同 [isMute]。
+     */
+    override suspend fun after(): Boolean = isMute
+    
+    /**
+     * 是否被禁言。
+     */
+    override val isMute: Boolean
+        get() = true
+    
     override val key: Event.Key<MiraiMemberMuteEvent> get() = Key
-
+    
     public companion object Key : BaseEventKey<MiraiMemberMuteEvent>("mirai.member_mute", MiraiMemberMuteRelateEvent) {
         override fun safeCast(value: Any): MiraiMemberMuteEvent? = doSafeCast(value)
     }
-
+    
 }
 
 /**
@@ -465,51 +357,31 @@ public interface MiraiMemberMuteEvent : MiraiMemberMuteRelateEvent<OriginalMirai
  * @see OriginalMiraiMemberPermissionChangeEvent
  * @see MiraiBotGroupRoleChangeEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiMemberRoleChangeEvent : MiraiGroupMemberEvent<OriginalMiraiMemberPermissionChangeEvent>,
     ChangedEvent {
-
+    
     override val bot: MiraiBot
-
+    
     /**
      * 变更前的权限。
      */
-    @OptIn(Api4J::class)
-    override val before: MemberRole
-
-    /**
-     * 变更前的权限。
-     */
-    @JvmSynthetic
     override suspend fun before(): MemberRole
-
-
+    
     /**
      * 变更后的权限。
      */
-    @OptIn(Api4J::class)
-    override val after: MemberRole
-
-    /**
-     * 变更后的权限。
-     */
-    @JvmSynthetic
     override suspend fun after(): MemberRole
-
+    
     /**
-     * 变更的成员。同 [user]、[member]。
+     * 变更的成员。同 [member]。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiMember
-
-    /**
-     * 变更的成员。同 [user]、[member]。
-     */
-    @JvmSynthetic
-    override suspend fun source(): MiraiMember
-
-
+    override suspend fun source(): MiraiMember = member()
+    
+    
     override val key: Event.Key<MiraiMemberRoleChangeEvent> get() = Key
-
+    
     public companion object Key :
         BaseEventKey<MiraiMemberRoleChangeEvent>("mirai.member_role_change", MiraiGroupMemberEvent, ChangedEvent) {
         override fun safeCast(value: Any): MiraiMemberRoleChangeEvent? = doSafeCast(value)
@@ -523,57 +395,39 @@ public interface MiraiMemberRoleChangeEvent : MiraiGroupMemberEvent<OriginalMira
  *
  * @see OriginalMiraiMemberSpecialTitleChangeEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiMemberSpecialTitleChangeEvent : MiraiGroupMemberEvent<OriginalMiraiMemberSpecialTitleChangeEvent>,
     ChangedEvent {
     override val bot: MiraiBot
-
+    
     /**
      * 变更前头衔。
      */
-    @OptIn(Api4J::class)
-    override val before: String
-
-    /**
-     * 变更前头衔。
-     */
-    @JvmSynthetic
     override suspend fun before(): String
-
+    
+    
     /**
      * 变更后头衔。
      */
-    @OptIn(Api4J::class)
-    override val after: String
-
-    /**
-     * 变更后头衔。
-     */
-    @JvmSynthetic
     override suspend fun after(): String
-
+    
     /**
      * 操作人, 为群主操作.
      */
     public val operator: MiraiMember
-
+    
     /**
-     * 被修改头衔的成员。同 [member]、[user]。
+     * 被修改头衔的成员。同 [member]。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiMember
-
-    /**
-     * 被修改头衔的成员。同 [member]、[user]。
-     */
-    @JvmSynthetic
-    override suspend fun source(): MiraiMember
-
-
+    override suspend fun source(): MiraiMember = member()
+    
+    
     override val key: Event.Key<MiraiMemberSpecialTitleChangeEvent> get() = Key
-
-    public companion object Key : BaseEventKey<MiraiMemberSpecialTitleChangeEvent>("mirai.member_special_title_change",
-        MiraiGroupMemberEvent,
-        ChangedEvent) {
+    
+    public companion object Key : BaseEventKey<MiraiMemberSpecialTitleChangeEvent>(
+        "mirai.member_special_title_change", MiraiGroupMemberEvent, ChangedEvent
+    ) {
         override fun safeCast(value: Any): MiraiMemberSpecialTitleChangeEvent? = doSafeCast(value)
     }
 }
@@ -582,49 +436,31 @@ public interface MiraiMemberSpecialTitleChangeEvent : MiraiGroupMemberEvent<Orig
  * 成员群名片改动. 此事件广播前修改就已经完成.
  *
  * > 由于服务器并不会告知名片变动, 此事件只能由 mirai 在发现变动时才广播. 不要依赖于这个事件.
+ *
  * @see OriginalMiraiMemberCardChangeEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiMemberCardChangeEvent : MiraiGroupMemberEvent<OriginalMiraiMemberCardChangeEvent>, ChangedEvent {
     override val bot: MiraiBot
-
+    
     /**
      * 变更前名片。
      */
-    @OptIn(Api4J::class)
-    override val before: String
-
-    /**
-     * 变更前名片。
-     */
-    @JvmSynthetic
     override suspend fun before(): String
-
+    
     /**
      * 变更后名片。
      */
-    @OptIn(Api4J::class)
-    override val after: String
-
-    /**
-     * 变更后名片。
-     */
-    @JvmSynthetic
     override suspend fun after(): String
-
+    
     /**
-     * 变更名片的用户。同 [member]、[user]。
+     * 变更名片的用户。同 [member]。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiMember
-
-    /**
-     * 变更名片的用户。同 [member]、[user]。
-     */
-    @JvmSynthetic
-    override suspend fun source(): MiraiMember
-
+    override suspend fun source(): MiraiMember = member()
+    
     override val key: Event.Key<MiraiMemberCardChangeEvent> get() = Key
-
+    
     public companion object Key :
         BaseEventKey<MiraiMemberCardChangeEvent>("mirai.member_card_change", MiraiGroupMemberEvent, ChangedEvent) {
         override fun safeCast(value: Any): MiraiMemberCardChangeEvent? = doSafeCast(value)
@@ -638,130 +474,90 @@ public interface MiraiMemberCardChangeEvent : MiraiGroupMemberEvent<OriginalMira
 public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMiraiMemberJoinRequestEvent>,
     GroupJoinRequestEvent {
     override val bot: MiraiBot
-
+    
     /**
      * 申请附言。
      */
     override val message: String
-
+    
+    
     /**
      * 涉及群。
      */
-    @OptIn(Api4J::class)
-    override val group: GroupInfo
-
-    /**
-     * 涉及群。
-     */
-    @JvmSynthetic
-    override suspend fun group(): GroupInfo = group
-
-
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun group(): GroupInfo
+    
+    
     /**
      * 邀请者信息。[inviter] 中的信息不保证是完全的。
      *
      * @see RequestMemberInviterInfo
      */
-    override val inviter: RequestMemberInviterInfo?
-
-    @JvmSynthetic
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun inviter(): RequestMemberInviterInfo?
-
+    
     /**
      * 申请者信息。
      */
-    @OptIn(Api4J::class)
-    override val requester: RequestMemberInfo
-
-
-    /**
-     * 申请者信息。
-     */
-    @JvmSynthetic
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun requester(): RequestMemberInfo
-
-
+    
+    
     /**
-     * 申请者信息。
+     * 申请者信息。同 [requester]。
      */
-    @OptIn(Api4J::class)
-    override val user: RequestMemberInfo
-
-    /**
-     * 申请者信息。
-     */
-    @JvmSynthetic
-    override suspend fun user(): RequestMemberInfo
-
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun user(): RequestMemberInfo = requester()
+    
     /** 接受申请 */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     @OptIn(ExperimentalSimbotApi::class)
     override suspend fun accept(): Boolean
-
-
+    
+    
     /** 拒绝申请 */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     @OptIn(ExperimentalSimbotApi::class)
     override suspend fun reject(): Boolean
-
+    
+    /**
+     * 拒绝申请。
+     * @param blockList 添加到黑名单
+     */
+    @JvmBlocking
+    @JvmAsync
+    public suspend fun reject(blockList: Boolean): Boolean = reject(blockList, "")
+    
+    
+    /**
+     * 拒绝申请。
+     * @param message 拒绝原因
+     */
+    @JvmBlocking
+    @JvmAsync
+    public suspend fun reject(message: String): Boolean = reject(blockList = false, message)
+    
     /**
      * 拒绝申请。
      * @param blockList 添加到黑名单
      * @param message 拒绝原因
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     public suspend fun reject(blockList: Boolean, message: String): Boolean
-
-    /**
-     * 拒绝申请。
-     * @param blockList 添加到黑名单
-     * @param message 拒绝原因
-     */
-    @Api4J
-    public fun rejectBlocking(blockList: Boolean, message: String): Boolean
-
-    /**
-     * 拒绝申请。
-     * @param blockList 添加到黑名单
-     */
-    @Api4J
-    public fun rejectBlocking(blockList: Boolean): Boolean
-
-    /**
-     * 拒绝申请。
-     * @param message 拒绝原因
-     */
-    @Api4J
-    public fun rejectBlocking(message: String): Boolean
-
-    /**
-     * 拒绝申请。
-     * @param blockList 添加到黑名单
-     * @param message 拒绝原因
-     */
-    @Api4J
-    public fun rejectAsync(blockList: Boolean, message: String)
-
-    /**
-     * 拒绝申请。
-     * @param blockList 添加到黑名单
-     */
-    @Api4J
-    public fun rejectAsync(blockList: Boolean)
-
-    /**
-     * 拒绝申请。
-     * @param message 拒绝原因
-     */
-    @Api4J
-    public fun rejectAsync(message: String)
-
-
+    
+    
     override val key: Event.Key<MiraiMemberJoinRequestEvent> get() = Key
-
-    public companion object Key : BaseEventKey<MiraiMemberJoinRequestEvent>("mirai.member_join_request",
-        MiraiSimbotBotEvent,
-        GroupJoinRequestEvent) {
+    
+    public companion object Key : BaseEventKey<MiraiMemberJoinRequestEvent>(
+        "mirai.member_join_request", MiraiSimbotBotEvent, GroupJoinRequestEvent
+    ) {
         override fun safeCast(value: Any): MiraiMemberJoinRequestEvent? = doSafeCast(value)
     }
 }
@@ -771,50 +567,29 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
  *
  * @see OriginalMiraiMemberLeaveEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemberLeaveEvent>, MemberDecreaseEvent {
     override val bot: MiraiBot
-
-
+    
     /**
-     * 涉及群。同 [group]、[organization]。
+     * 涉及群。同 [group]。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiGroup
-
+    override suspend fun source(): MiraiGroup = group()
+    
     /**
-     * 涉及群。同 [group]、[organization]。
+     * 离开的成员。同 [member]。
      */
-    @JvmSynthetic
-    override suspend fun source(): MiraiGroup
-
+    override suspend fun before(): MiraiMember = member()
+    
     /**
-     * 离开的成员。同 [user]、[member]。
+     * 操作者。如果是成员自己退出，则不存在操作者。
      */
-    @OptIn(Api4J::class)
-    override val before: MiraiMember
-
-    /**
-     * 离开的成员。同 [user]、[member]。
-     */
-    @JvmSynthetic
-    override suspend fun before(): MiraiMember
-
-
-    /**
-     * 操作者。如果是成员自己退出，则 [operator] === [member]
-     */
-    @OptIn(Api4J::class)
-    override val operator: MiraiMember
-
-    /**
-     * 操作者。如果是成员自己退出，则 [operator] === [member]
-     */
-    @JvmSynthetic
-    override suspend fun operator(): MiraiMember
-
-
+    override suspend fun operator(): MiraiMember?
+    
+    
     override val key: Event.Key<MiraiMemberLeaveEvent> get() = Key
-
+    
     public companion object Key :
         BaseEventKey<MiraiMemberLeaveEvent>("mirai.member_leave", MiraiGroupMemberEvent, MemberDecreaseEvent) {
         override fun safeCast(value: Any): MiraiMemberLeaveEvent? = doSafeCast(value)
@@ -826,57 +601,38 @@ public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemb
  *
  * @see OriginalMiraiMemberJoinEvent
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMemberJoinEvent>, MemberIncreaseEvent {
     override val bot: MiraiBot
-
+    
     /**
      * 如果成员是被某个人邀请进入、不需要验证并且支持获取邀请者的情况下，
      * [inviter] 不为null。
      */
     public val inviter: MiraiMember?
-
-
+    
+    
     /**
      * 无法得知操作者，始终为null。
      * 如果你希望得到 "邀请者"，参考 [inviter].
      */
-    @OptIn(Api4J::class)
-    override val operator: MiraiMember? get() = null
-
-    /**
-     * 无法得知操作者，始终为null。
-     * 如果你希望得到 "邀请者"，参考 [inviter].
-     */
-    @JvmSynthetic
     override suspend fun operator(): MiraiMember? = null
-
+    
+    
     /**
-     * 涉及群。同 [group]、[organization]。
+     * 涉及群。同 [group]。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiGroup
-
+    override suspend fun source(): MiraiGroup = group()
+    
     /**
-     * 涉及群。同 [group]、[organization]。
+     * 入群的成员。同 [member]。
      */
-    @JvmSynthetic
-    override suspend fun source(): MiraiGroup
-
-    /**
-     * 入群的成员。同 [user]、[member]。
-     */
-    @OptIn(Api4J::class)
-    override val after: MiraiMember
-
-    /**
-     * 入群的成员。同 [user]、[member]。
-     */
-    @JvmSynthetic
-    override suspend fun after(): MiraiMember
-
-
+    override suspend fun after(): MiraiMember = member()
+    
+    
     override val key: Event.Key<MiraiMemberJoinEvent> get() = Key
-
+    
     public companion object Key :
         BaseEventKey<MiraiMemberJoinEvent>("mirai.member_join", MiraiGroupMemberEvent, MemberIncreaseEvent) {
         override fun safeCast(value: Any): MiraiMemberJoinEvent? = doSafeCast(value)
