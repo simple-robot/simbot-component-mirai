@@ -16,13 +16,10 @@
 
 package love.forte.simbot.component.mirai.event.impl
 
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.action.ActionType
-import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
@@ -56,16 +53,11 @@ internal abstract class BaseMiraiGroupMemberEvent<E : OriginalMiraiGroupMemberEv
 ) : MiraiGroupMemberEvent<E> {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
-    final override val group = originalEvent.group.asSimbot(bot)
-    override val member = originalEvent.member.asSimbot(bot, group)
-
-    override val user get() = member
-    override val organization get() = group
-
-    override suspend fun member() = member
-    override suspend fun group() = group
-    override suspend fun user() = user
-    override suspend fun organization() = organization
+    protected val groupInternal = originalEvent.group.asSimbot(bot)
+    protected val memberInternal = originalEvent.member.asSimbot(bot, groupInternal)
+    
+    override suspend fun member() = memberInternal
+    override suspend fun group() = groupInternal
 }
 
 
@@ -75,23 +67,16 @@ internal class MiraiGroupTalkativeChangeEventImpl(
 ) : MiraiGroupTalkativeChangeEvent {
     override val id: ID = randomID()
     override val changedTime: Timestamp = Timestamp.now()
-    override val group = originalEvent.group.asSimbot(bot)
-    override val before = originalEvent.previous.asSimbot(bot, group)
-    override val after = originalEvent.now.asSimbot(bot, group)
-
-
-    override val member get() = after
-    override val user get() = after
-    override val source get() = group
-    override val organization get() = group
-
-    override suspend fun member() = member
-    override suspend fun user() = user
-    override suspend fun group() = group
-    override suspend fun before() = before
-    override suspend fun after() = after
-    override suspend fun source() = source
-    override suspend fun organization() = organization
+    private val _group = originalEvent.group.asSimbot(bot)
+    private val _before = originalEvent.previous.asSimbot(bot, _group)
+    private val _after = originalEvent.now.asSimbot(bot, _group)
+    
+    override suspend fun group() = _group
+    override suspend fun before() = _before
+    override suspend fun after() = _after
+    
+    override suspend fun member() = after()
+    override suspend fun user() = after()
 }
 
 @OptIn(MiraiExperimentalApi::class)
@@ -102,13 +87,14 @@ internal class MiraiMemberHonorChangeEventImpl(
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
     override val honorType: GroupHonorType = nativeEvent.honorType
-    override val after: GroupHonorType? =
-        if (nativeEvent is OriginalMiraiMemberHonorChangeEvent.Achieve) honorType else null
-    override val before: GroupHonorType? =
+    private val _before: GroupHonorType? =
         if (nativeEvent is OriginalMiraiMemberHonorChangeEvent.Lose) honorType else null
-
-    override val source get() = member
-    override suspend fun source() = source
+    private val _after: GroupHonorType? =
+        if (nativeEvent is OriginalMiraiMemberHonorChangeEvent.Achieve) honorType else null
+    
+    override suspend fun before(): GroupHonorType? = _before
+    
+    override suspend fun after(): GroupHonorType? = _after
 }
 
 
@@ -118,8 +104,6 @@ internal class MiraiMemberUnmuteEventImpl(
 ) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberUnmuteEvent>(bot, nativeEvent), MiraiMemberUnmuteEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
-    override val source get() = member
-    override suspend fun source() = source
 }
 
 internal class MiraiMemberMuteEventImpl(
@@ -130,9 +114,7 @@ internal class MiraiMemberMuteEventImpl(
     override val timestamp: Timestamp get() = changedTime
     override val durationSeconds: Int = nativeEvent.durationSeconds
     override val duration: Duration get() = durationSeconds.seconds
-    override val operator = nativeEvent.operatorOrBot.asSimbot(bot, group)
-    override val source get() = member
-    override suspend fun source() = source
+    override val operator = nativeEvent.operatorOrBot.asSimbot(bot, groupInternal)
 }
 
 internal class MiraiMemberRoleChangeEventImpl(
@@ -142,13 +124,11 @@ internal class MiraiMemberRoleChangeEventImpl(
     MiraiMemberRoleChangeEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
-    override val before = nativeEvent.origin.simbotRole
-    override val after = nativeEvent.new.simbotRole
-    override val source get() = member
-
-    override suspend fun before() = before
-    override suspend fun after() = after
-    override suspend fun source() = source
+    private val _before = nativeEvent.origin.simbotRole
+    private val _after = nativeEvent.new.simbotRole
+    
+    override suspend fun before() = _before
+    override suspend fun after() = _after
 }
 
 internal class MiraiMemberSpecialTitleChangeEventImpl(
@@ -158,22 +138,21 @@ internal class MiraiMemberSpecialTitleChangeEventImpl(
     MiraiMemberSpecialTitleChangeEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
-    override val before: String = nativeEvent.origin
-    override val after: String = nativeEvent.new
-
+    private val _before: String = nativeEvent.origin
+    private val _after: String = nativeEvent.new
+    
+    
     /**
      * 操作人. 可能是群主. 可能与 [member] 引用相同, 此时为群员自己修改.
      * 可能是机器人的操作.
      */
     override val operator: MiraiMember = when {
-        nativeEvent.operator === nativeEvent.member -> member
-        else -> nativeEvent.operatorOrBot.asSimbot(bot, group)
+        nativeEvent.operator === nativeEvent.member -> memberInternal
+        else -> nativeEvent.operatorOrBot.asSimbot(bot, groupInternal)
     }
-    override val source get() = member
-
-    override suspend fun before() = before
-    override suspend fun after() = after
-    override suspend fun source() = source
+    
+    override suspend fun before() = _before
+    override suspend fun after() = _after
 }
 
 internal class MiraiMemberCardChangeEventImpl(
@@ -182,13 +161,11 @@ internal class MiraiMemberCardChangeEventImpl(
 ) : BaseMiraiGroupMemberEvent<OriginalMiraiMemberCardChangeEvent>(bot, nativeEvent), MiraiMemberCardChangeEvent {
     override val changedTime: Timestamp = Timestamp.now()
     override val timestamp: Timestamp get() = changedTime
-    override val before: String = nativeEvent.origin
-    override val after: String = nativeEvent.new
-    override val source: MiraiMember get() = member
-
-    override suspend fun before() = before
-    override suspend fun after() = after
-    override suspend fun source() = source
+    private val _before: String = nativeEvent.origin
+    private val _after: String = nativeEvent.new
+    
+    override suspend fun before() = _before
+    override suspend fun after() = _after
 }
 
 internal class MiraiMemberJoinRequestEventImpl(
@@ -200,28 +177,28 @@ internal class MiraiMemberJoinRequestEventImpl(
     override val type: RequestEvent.Type =
         if (originalEvent.invitorId == null) RequestEvent.Type.APPLICATION
         else RequestEvent.Type.INVITATION
-
-    override val group = originalEvent.group?.asSimbot(bot)
+    
+    private val _group = originalEvent.group?.asSimbot(bot)
         ?: GroupInfoImpl(originalEvent.groupId, originalEvent.groupName)
-
-    override val inviter: RequestMemberInviterInfo? = originalEvent.invitorId?.let { id ->
+    
+    private val _inviter: RequestMemberInviterInfo? = originalEvent.invitorId?.let { id ->
         RequestMemberInviterInfo(id.ID, originalEvent.invitor?.let { m ->
-            if (group is MiraiGroupImpl) m.asSimbot(bot, group) else m.asSimbot(bot)
+            if (_group is MiraiGroupImpl) m.asSimbot(bot, _group) else m.asSimbot(bot)
         })
     }
     override val message: String = originalEvent.message
-    override val requester: RequestMemberInfo = RequestMemberInfo(
+    
+    private val _requester: RequestMemberInfo = RequestMemberInfo(
         originalEvent.fromId.ID, originalEvent.groupId,
         originalEvent.groupName, originalEvent.fromNick
     )
-
-    override val user: RequestMemberInfo get() = requester
-
-    override suspend fun inviter() = inviter
-    override suspend fun requester() = requester
-    override suspend fun user() = user
-
-
+    
+    
+    override suspend fun inviter() = _inviter
+    override suspend fun requester() = _requester
+    override suspend fun group(): GroupInfo = _group
+    
+    
     private data class GroupInfoImpl(
         val groupId: Long,
         override val name: String,
@@ -234,68 +211,32 @@ internal class MiraiMemberJoinRequestEventImpl(
             get() = "https://p.qlogo.cn/gh/$groupId/$groupId/640"
         override val maximumMember: Int get() = -1
         override val ownerId: ID get() = EMPTY_ID
-
+        
         private companion object {
             private val EMPTY_ID = "".ID
         }
     }
-
-
-    //region 处理API
-    //region 接受申请
+    
+    
     /** 接受申请 */
     @JvmSynthetic
     override suspend fun accept(): Boolean {
         originalEvent.accept()
         return true
     }
-
-    //endregion
-
-    //region 拒绝申请
+    
     /** 拒绝申请 */
-    @JvmSynthetic
     override suspend fun reject(): Boolean = reject(false, "")
-
+    
     /**
      * 拒绝申请。
      * @param blockList 添加到黑名单
      * @param message 拒绝原因
      */
-    @JvmSynthetic
     override suspend fun reject(blockList: Boolean, message: String): Boolean {
         originalEvent.reject(blockList, message)
         return true
     }
-
-    @Api4J
-    override fun rejectBlocking(blockList: Boolean, message: String): Boolean =
-        runBlocking { reject(blockList, message) }
-
-    @Api4J
-    override fun rejectBlocking(blockList: Boolean): Boolean = runBlocking { reject(blockList, "") }
-
-    @Api4J
-    override fun rejectBlocking(message: String): Boolean = runBlocking { reject(false, "") }
-
-    @Api4J
-    override fun rejectAsync(blockList: Boolean, message: String) {
-        bot.launch { reject(blockList, message) }
-    }
-
-    @Api4J
-    override fun rejectAsync(blockList: Boolean) {
-        bot.launch { reject(blockList, "") }
-    }
-
-    @Api4J
-    override fun rejectAsync(message: String) {
-        bot.launch { reject(false, "") }
-    }
-    //endregion
-    //endregion
-
-
 }
 
 
@@ -307,21 +248,12 @@ internal class MiraiMemberLeaveEventImpl(
     override val timestamp: Timestamp get() = changedTime
     override val actionType: ActionType =
         if (nativeEvent is OriginalMiraiMemberLeaveEvent.Kick) ActionType.PASSIVE else ActionType.PROACTIVE
-
+    
     @OptIn(Api4J::class)
-    @Suppress("UnnecessaryOptInAnnotation")
     override val operator: MiraiMember =
-        if (nativeEvent is OriginalMiraiMemberLeaveEvent.Kick) nativeEvent.operatorOrBot.asSimbot(bot, group)
-        else member
-
-    override val source: MiraiGroup get() = group
-
-    @OptIn(Api4J::class)
-    @Suppress("UnnecessaryOptInAnnotation")
-    override val before: MiraiMember get() = member
-
-    override suspend fun source() = source
-    override suspend fun before() = before
+        if (nativeEvent is OriginalMiraiMemberLeaveEvent.Kick) nativeEvent.operatorOrBot.asSimbot(bot, groupInternal)
+        else memberInternal
+    
     override suspend fun operator() = operator
 }
 
@@ -334,15 +266,9 @@ internal class MiraiMemberJoinEventImpl(
     override val actionType: ActionType =
         if (nativeEvent is OriginalMiraiMemberJoinEvent.Invite) ActionType.PASSIVE else ActionType.PROACTIVE
     override val inviter: MiraiMember? =
-        if (nativeEvent is OriginalMiraiMemberJoinEvent.Invite) nativeEvent.invitor.asSimbot(bot, group) else null
-
-
-    override val source: MiraiGroup get() = group
-
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(Api4J::class)
-    override val after: MiraiMember get() = member
-
-    override suspend fun source() = source
-    override suspend fun after() = after
+        if (nativeEvent is OriginalMiraiMemberJoinEvent.Invite) nativeEvent.invitor.asSimbot(
+            bot,
+            groupInternal
+        ) else null
+    
 }

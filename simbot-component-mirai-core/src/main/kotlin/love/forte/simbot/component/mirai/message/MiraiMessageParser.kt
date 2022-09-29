@@ -18,7 +18,6 @@
 
 package love.forte.simbot.component.mirai.message
 
-import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
@@ -88,7 +87,7 @@ public suspend fun Message.toOriginalMiraiMessage(
     isDropAction: Boolean = false,
 ): OriginalMiraiMessage {
     return when (this) {
-        is OriginalMiraiDirectlySimbotMessage<*> -> originalMiraiMessage.takeIf { it !== EmptySingleMessage }
+        is OriginalMiraiDirectlySimbotMessage<*, *> -> originalMiraiMessage.takeIf { it !== EmptySingleMessage }
             ?: emptyMessageChain()
         
         is OriginalMiraiComputableSimbotMessage<*> -> originalMiraiMessage(
@@ -194,16 +193,13 @@ private object StandardParser : MiraiMessageParser {
 }
 
 
-@OptIn(Api4J::class)
 private suspend fun Image<*>.toMirai(contact: Contact): OriginalMiraiMessage {
-    
     val image: OriginalMiraiMessage = when (this) {
         is MiraiImage -> originalImage
-        is ResourceImage -> resource.uploadToImage(contact, false)
+        is ResourceImage -> resource().uploadToImage(contact, false)
         is MiraiSendOnlyImage -> originalMiraiMessage(contact)
         else -> resource().uploadToImage(contact, false)
     }
-    
     
     return image
 }

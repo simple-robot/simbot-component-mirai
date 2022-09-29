@@ -12,16 +12,15 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.component.mirai.MiraiFriend
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
-import love.forte.simbot.definition.Friend
 import love.forte.simbot.event.BaseEventKey
 import love.forte.simbot.event.Event
 import love.forte.simbot.event.FriendEvent
@@ -56,19 +55,20 @@ public sealed class MiraiMessageRecallEvent<E : MessageRecallEvent> : MiraiSimbo
 /**
  * Mirai的好友消息撤回事件。
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public abstract class MiraiFriendMessageRecallEvent : MiraiMessageRecallEvent<MessageRecallEvent.FriendRecall>(),
     FriendEvent {
     
-    @OptIn(Api4J::class)
-    abstract override val friend: MiraiFriend
+    /**
+     * 事件涉及的好友。
+     */
+    abstract override suspend fun friend(): MiraiFriend
     
-    override suspend fun friend(): MiraiFriend = friend
-    
-    @OptIn(Api4J::class)
-    override val user: Friend
-        get() = friend
-    
-    override suspend fun user(): Friend = friend
+    /**
+     * 事件涉及的好友。同 [friend]。
+     */
+    override suspend fun user(): MiraiFriend = friend()
     
     override val key: Event.Key<out MiraiFriendMessageRecallEvent>
         get() = Key
@@ -83,6 +83,8 @@ public abstract class MiraiFriendMessageRecallEvent : MiraiMessageRecallEvent<Me
 /**
  * Mirai的群消息撤回事件。
  */
+@JvmBlocking(asProperty = true, suffix = "")
+@JvmAsync(asProperty = true)
 public abstract class MiraiGroupMessageRecallEvent : MiraiMessageRecallEvent<MessageRecallEvent.GroupRecall>(),
     GroupEvent {
     
@@ -96,15 +98,15 @@ public abstract class MiraiGroupMessageRecallEvent : MiraiMessageRecallEvent<Mes
      */
     public abstract val operator: MiraiMember?
     
-    @OptIn(Api4J::class)
-    abstract override val group: MiraiGroup
+    /**
+     * 事件涉及的群。
+     */
+    abstract override suspend fun group(): MiraiGroup
     
-    @OptIn(Api4J::class)
-    override val organization: MiraiGroup get() = group
-    
-    override suspend fun group(): MiraiGroup = group
-    
-    override suspend fun organization(): MiraiGroup = group
+    /**
+     * 事件涉及的群。同 [group]。
+     */
+    override suspend fun organization(): MiraiGroup = group()
     
     override val key: Event.Key<out MiraiGroupMessageRecallEvent>
         get() = Key

@@ -9,6 +9,7 @@
     "a": "b",
     "deviceInfo": {
       "type": "auto"
-    }
+    },
+    "recallMessageCacheStrategy": "INVALID"
   }
 }

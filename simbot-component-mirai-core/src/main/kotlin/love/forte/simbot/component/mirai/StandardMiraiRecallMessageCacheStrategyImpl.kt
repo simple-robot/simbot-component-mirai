@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -47,10 +46,10 @@ public interface StandardMiraiRecallMessageCacheStrategy : MiraiRecallMessageCac
 /**
  * [MiraiRecallMessageCacheStrategy] 的最简实现，无效的缓存策略，即**不进行缓存**。
  *
- * [InvalidMiraiRecallMessageCacheStrategy] 是处理最快的缓存策略，
+ * [InvalidMiraiRecallMessageCacheStrategy] 理所当然的是处理最快的缓存策略，
  * 但使用后无法再从撤回事件中得到 [撤回的消息内容][love.forte.simbot.component.mirai.event.MiraiMessageRecallEvent.messages]。
  *
- * [InvalidMiraiRecallMessageCacheStrategy] 将是 [MiraiBotConfiguration] 的默认策略。
+ * [InvalidMiraiRecallMessageCacheStrategy] 是 [MiraiBotConfiguration.recallCacheStrategy] 的默认策略。
  *
  */
 public object InvalidMiraiRecallMessageCacheStrategy : StandardMiraiRecallMessageCacheStrategy {
@@ -85,12 +84,23 @@ public object InvalidMiraiRecallMessageCacheStrategy : StandardMiraiRecallMessag
  * 缓存会区分bot和群id/好友id。因此不同bot下不同的群/好友之间的缓存数量上限是分开计算的。
  * 默认情况下，单个群/好友的消息缓存上限分别为 [DEFAULT_GROUP_MAX_SIZE] 和 [DEFAULT_FRIEND_MAX_SIZE]。
  *
+ *
  */
 public class MemoryLruMiraiRecallMessageCacheStrategy(
-    private val groupMaxSize: Int = DEFAULT_GROUP_MAX_SIZE,
-    private val friendMaxSize: Int = DEFAULT_FRIEND_MAX_SIZE,
+    /** 缓存消息的最大上限，会根据 [loadFactor] 计算为最终的初始化容量 */
+    groupMaxSize: Int = DEFAULT_GROUP_MAX_SIZE,
+    /** 缓存好友消息的最大上限，会根据 [loadFactor] 计算为最终的初始化容量 */
+    friendMaxSize: Int = DEFAULT_FRIEND_MAX_SIZE,
+    /** 内部哈希表所使用的负载因子 */
+    private val loadFactor: Float = DEFAULT_LOAD_FACTOR,
 ) : StandardMiraiRecallMessageCacheStrategy {
     private val caches = ConcurrentHashMap<Long, BotCacheSegment>()
+    private val groupInitSize = mapInitSize(groupMaxSize, loadFactor)
+    private val friendInitSize = mapInitSize(friendMaxSize, loadFactor)
+    
+    private fun createSimpleLruMap(maxSize: Int): SimpleLruMap<String, MessageChain> {
+        return SimpleLruMap(maxSize, maxSize, loadFactor)
+    }
     
     private fun MiraiBot.getCacheSegment(): BotCacheSegment {
         return caches.computeIfAbsent(id.value) { BotCacheSegment(ConcurrentHashMap(), ConcurrentHashMap()) }
@@ -98,13 +108,13 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
     
     private fun MiraiBot.getGroupCacheSegment(groupId: Long): CacheSegment {
         return getCacheSegment().groupCache.computeIfAbsent(groupId) {
-            CacheSegment(ReentrantReadWriteLock(), SimpleLruMap(mapInitSize(groupMaxSize), groupMaxSize))
+            CacheSegment(ReentrantReadWriteLock(), createSimpleLruMap(groupInitSize))
         }
     }
     
     private fun MiraiBot.getFriendCacheSegment(friendId: Long): CacheSegment {
         return getCacheSegment().friendCache.computeIfAbsent(friendId) {
-            CacheSegment(ReentrantReadWriteLock(), SimpleLruMap(mapInitSize(friendMaxSize), friendMaxSize))
+            CacheSegment(ReentrantReadWriteLock(), createSimpleLruMap(friendInitSize))
         }
     }
     
@@ -139,13 +149,18 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
     }
     
     override fun invokeOnBotCompletion(bot: MiraiBot, cause: Throwable?) {
-        caches.clear()
+        caches.remove(bot.id.value)?.clear()
     }
     
     private data class BotCacheSegment(
         val groupCache: ConcurrentHashMap<Long, CacheSegment>,
         val friendCache: ConcurrentHashMap<Long, CacheSegment>,
-    )
+    ) {
+        fun clear() {
+            groupCache.clear()
+            friendCache.clear()
+        }
+    }
     
     
     private data class CacheSegment(
@@ -166,10 +181,17 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
     }
     
     
-    private class SimpleLruMap<K, V>(initialCapacity: Int, private val maxSize: Int) :
-        LinkedHashMap<K, V>(initialCapacity, 0.75F, true) {
+    private class SimpleLruMap<K, V>(
+        initialCapacity: Int,
+        private val maxSize: Int,
+        loadFactor: Float = DEFAULT_LOAD_FACTOR,
+    ) :
+        LinkedHashMap<K, V>(initialCapacity, loadFactor, true) {
         override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>?): Boolean {
             return size >= maxSize
+        }
+        
+        companion object {
         }
     }
     
@@ -212,16 +234,25 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
             }
         }
     
-    private fun mapInitSize(maxSize: Int): Int {
-        return ((maxSize / 0.75F) + 1).toInt()
+    private fun mapInitSize(maxSize: Int, loadFactor: Float): Int {
+        val value = (maxSize / loadFactor).toInt()
+        return if (isTableSize(value)) value else value + 1
+    }
+    
+    private fun isTableSize(cap: Int): Boolean {
+        var n = cap - 1
+        n = n or (n ushr 1)
+        n = n or (n ushr 2)
+        n = n or (n ushr 4)
+        n = n or (n ushr 8)
+        n = n or (n ushr 16)
+        return (n + 1) == cap
     }
     
     public companion object {
-        private const val BASE_DEFAULT_GROUP_MAX_SIZE: Int = 1024
-        private const val BASE_DEFAULT_FRIEND_MAX_SIZE: Int = 128
-        
-        public const val DEFAULT_GROUP_MAX_SIZE: Int = (BASE_DEFAULT_GROUP_MAX_SIZE * 0.75F).toInt() - 1
-        public const val DEFAULT_FRIEND_MAX_SIZE: Int = (BASE_DEFAULT_FRIEND_MAX_SIZE * 0.75F).toInt() - 1
+        public const val DEFAULT_GROUP_MAX_SIZE: Int = 1536
+        public const val DEFAULT_FRIEND_MAX_SIZE: Int = 96
+        public const val DEFAULT_LOAD_FACTOR: Float = 0.75F
     }
 }
 

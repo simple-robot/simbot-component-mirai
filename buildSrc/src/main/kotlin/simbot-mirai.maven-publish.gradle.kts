@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 import util.checkPublishConfigurable
@@ -59,13 +58,13 @@ if (isPublishConfigurable) {
                 groupId = project.group.toString()
                 artifactId = project.name
                 version = project.version.toString()
-                description = project.description?.toString() ?: P.ComponentMirai.DESCRIPTION
+                description = project.description ?: P.ComponentMirai.DESCRIPTION
                 
                 pom {
                     show()
                     
                     name.set("${project.group}:${project.name}")
-                    description.set(project.description?.toString() ?: P.ComponentMirai.DESCRIPTION)
+                    description.set(project.description ?: P.ComponentMirai.DESCRIPTION)
                     url.set("https://github.com/simple-robot/simbot-component-mirai")
                     licenses {
                         license {
@@ -96,19 +95,21 @@ if (isPublishConfigurable) {
         }
     }
     
-    signing {
-        val keyId = System.getenv("GPG_KEY_ID")
-        val secretKey = System.getenv("GPG_SECRET_KEY")
-        val password = System.getenv("GPG_PASSWORD")
+    val keyId = System.getenv("GPG_KEY_ID")
+    val secretKey = System.getenv("GPG_SECRET_KEY")
+    val password = System.getenv("GPG_PASSWORD")
+    if (keyId != null) {
+        signing {
+            setRequired {
+                !project.version.toString().endsWith("SNAPSHOT")
+            }
         
-        setRequired {
-            !project.version.toString().endsWith("SNAPSHOT")
+            useInMemoryPgpKeys(keyId, secretKey, password)
+        
+            sign(publishing.publications)
         }
-        
-        useInMemoryPgpKeys(keyId, secretKey, password)
-        
-        sign(publishing.publications["miraiDist"])
     }
+    
     
     
     println("[publishing-configure] - [$name] configured.")

@@ -12,14 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
-import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.component.mirai.event.InvitorUserInfo
 import love.forte.simbot.component.mirai.event.MiraiBotInvitedJoinGroupRequestEvent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
@@ -36,28 +34,24 @@ internal class MiraiBotInvitedJoinGroupRequestEventImpl(
 ) : MiraiBotInvitedJoinGroupRequestEvent {
     override val id: ID = originalEvent.eventId.ID
     override val timestamp: Timestamp = Timestamp.now()
-    override val group: GroupInfo = InvitedJoinGroupInfo(originalEvent.groupId, originalEvent.groupName)
-    override val inviter: InvitorUserInfo = InvitorUserInfo(
+    private val _group: GroupInfo = InvitedJoinGroupInfo(originalEvent.groupId, originalEvent.groupName)
+    private val _inviter: InvitorUserInfo = InvitorUserInfo(
         originalEvent.invitor,
         originalEvent.invitorId,
         originalEvent.invitorNick
     )
-
-    override val requester: MiraiBot get() = bot
-    override val user: InvitorUserInfo get() = inviter
-    override suspend fun group(): GroupInfo = group
-    override suspend fun inviter(): InvitorUserInfo = inviter
-    override suspend fun requester(): MiraiBot = requester
-    override suspend fun user(): InvitorUserInfo = user
-
+    
+    override suspend fun group(): GroupInfo = _group
+    override suspend fun inviter(): InvitorUserInfo = _inviter
+    
     //// api
-
-
+    
+    
     override suspend fun accept(): Boolean {
         originalEvent.accept()
         return true
     }
-
+    
     /**
      * 拒绝即代表忽略。
      *
@@ -67,8 +61,8 @@ internal class MiraiBotInvitedJoinGroupRequestEventImpl(
         originalEvent.ignore()
         return true
     }
-
-
+    
+    
 }
 
 private data class InvitedJoinGroupInfo(private val groupId: Long, private val groupName: String) : GroupInfo {
@@ -81,7 +75,7 @@ private data class InvitedJoinGroupInfo(private val groupId: Long, private val g
     override val maximumMember: Int get() = -1
     override val name: String get() = groupName
     override val ownerId: ID get() = emptyID
-
+    
     companion object {
         private val emptyID = "".ID
     }

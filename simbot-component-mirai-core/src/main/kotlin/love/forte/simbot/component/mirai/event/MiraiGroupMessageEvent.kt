@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.action.SendSupport
 import love.forte.simbot.component.mirai.MiraiGroup
@@ -50,57 +50,35 @@ public interface MiraiGroupMessageEvent :
      * 收到的消息本体。
      */
     override val messageContent: MiraiReceivedMessageContent
-
-
-    /**
-     * 此消息的发送者。
-     */
-    @Suppress("UnnecessaryOptInAnnotation")
-    @OptIn(Api4J::class)
-    override val author: MiraiMember
-
+    
 
     /**
      * 此消息的发送者。
      */
-    @JvmSynthetic
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun author(): MiraiMember
 
     /**
      * 收到消息的群。
      */
-    @OptIn(Api4J::class)
-    override val group: MiraiGroup
-
-    /**
-     * 收到消息的群。
-     */
-    @JvmSynthetic
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun group(): MiraiGroup
+    
+    /**
+     * 收到消息的群。同 [group].
+     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun organization(): MiraiGroup = group()
 
     /**
      * 收到消息的群。同 [group].
      */
-    @OptIn(Api4J::class)
-    override val organization: MiraiGroup
-
-    /**
-     * 收到消息的群。同 [group].
-     */
-    @JvmSynthetic
-    override suspend fun organization(): MiraiGroup
-
-    /**
-     * 收到消息的群。同 [group].
-     */
-    @OptIn(Api4J::class)
-    override val source: MiraiGroup
-
-    /**
-     * 收到消息的群。同 [group].
-     */
-    @JvmSynthetic
-    override suspend fun source(): MiraiGroup
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun source(): MiraiGroup = group()
 
     //// api
 
@@ -111,87 +89,55 @@ public interface MiraiGroupMessageEvent :
      *
      * @see net.mamoe.mirai.message.data.MessageSource.recall
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     public suspend fun recall(): Boolean
 
 
-    //region reply api
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
 
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-
-    /**
-     * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
-     */
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-
-    /**
-     * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
-     */
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-
-    /**
-     * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
-     */
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-    //endregion
 
 
     //region send api
     /**
      * 向此事件的群发送消息。
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
     /**
      * 向此事件的群发送消息。
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-
-
+    
     /**
      * 向此事件的群发送消息。
      */
-    @JvmSynthetic
+    @JvmBlocking
+    @JvmAsync
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-
-    /**
-     * 向此事件的群发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-
-    /**
-     * 向此事件的群发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-
-    /**
-     * 向此事件的群发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
     //endregion
 
     override val key: Event.Key<MiraiGroupMessageEvent> get() = Key

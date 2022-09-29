@@ -12,16 +12,17 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
 
-import kotlinx.serialization.*
-import love.forte.simbot.message.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import love.forte.simbot.message.Message
-import net.mamoe.mirai.message.data.*
-import net.mamoe.mirai.utils.*
+import love.forte.simbot.message.doSafeCast
+import net.mamoe.mirai.message.data.RichMessage
+import net.mamoe.mirai.message.data.ServiceMessage
+import net.mamoe.mirai.utils.MiraiExperimentalApi
 
 /**
  * mirai的(链接)分享模板实例。
@@ -44,7 +45,7 @@ public data class MiraiShare @JvmOverloads constructor(
     private val content: String? = null,
     private val coverUrl: String? = null
 ) : MiraiSendOnlySimbotMessage<MiraiShare>,
-    OriginalMiraiDirectlySimbotMessage<MiraiShare> {
+    OriginalMiraiDirectlySimbotMessage<ServiceMessage, MiraiShare> {
 
     override val originalMiraiMessage: ServiceMessage = RichMessage.share(
         url, title, content, coverUrl

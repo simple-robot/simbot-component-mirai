@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
@@ -20,6 +19,7 @@ package love.forte.simbot.component.mirai.event.impl
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.MiraiFriend
+import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.event.MiraiFriendMessageRecallEvent
 import love.forte.simbot.component.mirai.event.MiraiGroupMessageRecallEvent
 import love.forte.simbot.component.mirai.internal.MiraiBotImpl
@@ -38,10 +38,12 @@ internal class MiraiFriendMessageRecallEventImpl(
 ) : MiraiFriendMessageRecallEvent() {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
-    override val friend: MiraiFriend = originalEvent.author.asSimbot(bot)
+    private val _friend: MiraiFriend = originalEvent.author.asSimbot(bot)
     
     override val messages: Messages? =
         bot.recallMessageCacheStrategy.getFriendMessageCache(bot, originalEvent)?.toSimbot()
+    
+    override suspend fun friend(): MiraiFriend = _friend
 }
 
 internal class MiraiGroupMessageRecallEventImpl(
@@ -50,12 +52,15 @@ internal class MiraiGroupMessageRecallEventImpl(
 ) : MiraiGroupMessageRecallEvent() {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.now()
-    override val group: MiraiGroupImpl = originalEvent.group.asSimbot(bot)
-    override val author: MiraiMemberImpl = originalEvent.author.asSimbot(bot, group)
-    override val operator: MiraiMemberImpl? = originalEvent.operator?.asSimbot(bot, group)
+    private val _group: MiraiGroupImpl = originalEvent.group.asSimbot(bot)
+    override val author: MiraiMemberImpl = originalEvent.author.asSimbot(bot, _group)
+    override val operator: MiraiMemberImpl? = originalEvent.operator?.asSimbot(bot, _group)
     
     override val messages: Messages? =
         bot.recallMessageCacheStrategy.getGroupMessageCache(bot, originalEvent)?.toSimbot()
+    
+    override suspend fun group(): MiraiGroup = _group
+    
 }
 
 

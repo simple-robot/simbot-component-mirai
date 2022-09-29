@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
@@ -40,82 +39,45 @@ import net.mamoe.mirai.event.events.FriendMessageEvent as OriginalMiraiFriendMes
 
 internal class MiraiFriendMessageEventImpl(
     override val bot: MiraiBotImpl,
-    override val originalEvent: OriginalMiraiFriendMessageEvent
+    override val originalEvent: OriginalMiraiFriendMessageEvent,
 ) : MiraiFriendMessageEvent {
     override val id: ID = randomID()
     override val timestamp: Timestamp = Timestamp.byInstant(Instant.ofEpochSecond(originalEvent.time.toLong()))
     override val messageContent: MiraiReceivedMessageContent = originalEvent.toSimbotMessageContent()
+    
     @Suppress("UnnecessaryOptInAnnotation")
     @OptIn(Api4J::class)
-    override val friend = originalEvent.friend.asSimbot(bot)
-    override val source: MiraiFriend get() = friend
-    override val user: MiraiFriend get() = friend
-
-
-    @JvmSynthetic
-    override suspend fun user(): MiraiFriend = friend
-
-    @JvmSynthetic
-    override suspend fun source(): MiraiFriend = friend
-
-    @JvmSynthetic
-    override suspend fun friend(): MiraiFriend = friend
-
-
-
-
-    //region send api
+    private val _friend = originalEvent.friend.asSimbot(bot)
+    
+    override suspend fun friend(): MiraiFriend = _friend
+    
+    
+    // region send api
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> = reply(message)
-
+    
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> = reply(text)
-
-
+    
+    
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         send(message.messages)
-
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
-        runInBlocking { send(text) }
-
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
-        runInBlocking { send(message) }
-
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
-        runInBlocking { send(message) }
-    //endregion
-
-
-    //region reply api
-
-
+    // endregion
+    
+    
+    // region reply api
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
         val miraiMessage = message.toOriginalMiraiMessage(originalEvent.friend)
         val receipt = originalEvent.friend.sendMessage(miraiMessage)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
         val receipt = originalEvent.friend.sendMessage(text)
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         runInBlocking { reply(message.messages) }
-
-    @Api4J
-    override fun replyBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
-        runInBlocking { reply(text) }
-
-    @Api4J
-    override fun replyBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
-        runInBlocking { reply(message) }
-
-    @Api4J
-    override fun replyBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
-        runInBlocking { reply(message) }
-    //endregion
-
-
+    // endregion
+    
+    
 }

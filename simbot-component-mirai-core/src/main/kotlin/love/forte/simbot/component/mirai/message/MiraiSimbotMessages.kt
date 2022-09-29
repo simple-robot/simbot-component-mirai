@@ -12,16 +12,15 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.message.*
-import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
 import net.mamoe.mirai.message.data.SingleMessage as OriginalMiraiSingleMessage
@@ -69,23 +68,23 @@ public interface OriginalMiraiComputableSimbotMessage<E : OriginalMiraiComputabl
     /**
      * 通过一个 [Contact] 计算得到一个具体的 [OriginalMiraiMessage]。
      *
-     * @param isDropAction 当实现者的 [OriginalMiraiMessage] 不会返回一个具体的消息对象，而是进行一个操作后返回站位对象 [EmptySingleMessage] 的话，
+     * @param isDropAction 当实现者的 [OriginalMiraiMessage] 不会返回一个具体的消息对象，而是进行一个操作后返回占位对象 [EmptySingleMessage] 的话，
      * 则 [isDropAction] 代表为要求此消息不执行相应操作。例如对于 [MiraiNudge] 消息，其发送时不会得到真的"戳一戳消息"对象，而是**直接**发送戳一戳，
      * 并返回 [EmptySingleMessage]。当 [isDropAction] 为true时，代表禁止其过程中发生的"直接发送戳一戳"的行为。
      *
      */
-    @JvmSynthetic
-    public suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean = false): OriginalMiraiMessage
+    @JvmBlocking(baseName = "getOriginalMiraiMessage", suffix = "")
+    @JvmAsync(baseName = "getOriginalMiraiMessage")
+    public suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage
     
-    @Api4J
-    public fun getOriginalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage =
-        runInBlocking { originalMiraiMessage(contact, isDropAction) }
-    
-    
-    @Api4J
-    public fun getOriginalMiraiMessage(contact: Contact): OriginalMiraiMessage =
-        runInBlocking { originalMiraiMessage(contact, false) }
-    
+    /**
+     * 通过一个 [Contact] 计算得到一个具体的 [OriginalMiraiMessage]。
+     *
+     */
+    @JvmBlocking(baseName = "getOriginalMiraiMessage", suffix = "")
+    @JvmAsync(baseName = "getOriginalMiraiMessage")
+    public suspend fun originalMiraiMessage(contact: Contact): OriginalMiraiMessage =
+        originalMiraiMessage(contact = contact, isDropAction = false)
     
 }
 
@@ -98,23 +97,29 @@ public interface OriginalMiraiComputableSimbotMessage<E : OriginalMiraiComputabl
  * @see SimbotOriginalMiraiMessage
  * @see OriginalMiraiComputableSimbotMessage
  */
-public interface OriginalMiraiDirectlySimbotMessage<E : OriginalMiraiComputableSimbotMessage<E>> :
+public interface OriginalMiraiDirectlySimbotMessage<out M : OriginalMiraiMessage, E : OriginalMiraiComputableSimbotMessage<E>> :
     OriginalMiraiComputableSimbotMessage<E> {
     /**
      * 不需要通过 [Contact] 计算 [originalMiraiMessage] 而直接获取 [OriginalMiraiMessage] 对象。
      */
-    public val originalMiraiMessage: OriginalMiraiMessage
+    public val originalMiraiMessage: M
+    
+    /**
+     * 直接得到 [originalMiraiMessage], 不会使用 [contact] 和 [isDropAction]。
+     *
+     */
+    @JvmBlocking(baseName = "getOriginalMiraiMessage", suffix = "")
+    @JvmAsync(baseName = "getOriginalMiraiMessage")
+    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): M = originalMiraiMessage
     
     
-    @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
-        return originalMiraiMessage
-    }
-    
-    @OptIn(Api4J::class)
-    override fun getOriginalMiraiMessage(contact: Contact): net.mamoe.mirai.message.data.Message {
-        return originalMiraiMessage
-    }
+    /**
+     * 直接得到 [originalMiraiMessage], 不会使用 [contact]。
+     *
+     */
+    @JvmBlocking(baseName = "getOriginalMiraiMessage", suffix = "")
+    @JvmAsync(baseName = "getOriginalMiraiMessage")
+    override suspend fun originalMiraiMessage(contact: Contact): M = originalMiraiMessage
 }
 
 /**
@@ -138,8 +143,9 @@ public interface MiraiSendOnlyComputableMessage<E : MiraiSendOnlyComputableMessa
 @Serializable
 public class SimbotOriginalMiraiMessage(
     override val originalMiraiMessage: OriginalMiraiSingleMessage,
-) : OriginalMiraiDirectlySimbotMessage<SimbotOriginalMiraiMessage> {
+) : OriginalMiraiDirectlySimbotMessage<OriginalMiraiSingleMessage, SimbotOriginalMiraiMessage> {
     override val key: Message.Key<SimbotOriginalMiraiMessage> get() = Key
+    
     
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
@@ -175,7 +181,9 @@ public class SimpleMiraiSendOnlyComputableMessage private constructor(
 ) : MiraiSendOnlyComputableMessage<SimpleMiraiSendOnlyComputableMessage> {
     override val key: Message.Key<SimpleMiraiSendOnlyComputableMessage> get() = Key
     
-    
+    /**
+     * 通过提供的 [factory] 计算并得到结果。
+     */
     @JvmSynthetic
     override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
         return factory(contact, isDropAction)

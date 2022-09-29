@@ -15,10 +15,17 @@
  */
 
 import kotlinx.serialization.json.Json
+import love.forte.simbot.component.mirai.CustomPropertiesMiraiRecallMessageCacheStrategy
 import love.forte.simbot.component.mirai.bot.DeviceInfoConfiguration
+import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration
+import love.forte.simbot.component.mirai.bot.RecallMessageCacheStrategyConfiguration
 import love.forte.simbot.utils.md5
 import love.forte.simbot.utils.toHex
+import net.mamoe.mirai.event.events.FriendMessageEvent
+import net.mamoe.mirai.event.events.GroupMessageEvent
+import net.mamoe.mirai.event.events.MessageRecallEvent
+import net.mamoe.mirai.message.data.MessageChain
 import org.intellij.lang.annotations.Language
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -106,10 +113,76 @@ class BotVerifyInfoConfigurationTest {
         }
         
         decodeTest("DeviceInfoConfiguration.resource(\"foo\", \"bar\")") {
-            DeviceInfoConfiguration.resource("foo", "bar") == decodeFromJson(
+            DeviceInfoConfiguration.resource("foo", "bar").also(::println) == decodeFromJson(
                 """{"type": "${DeviceInfoConfiguration.Resource.TYPE}", "paths": ["foo", "bar"]}"""
             )
         }
     }
+    
+    @Test
+    fun recallMessageCacheStrategyConfigurationSerializerTest() {
+        fun decodeFromJson(@Language("json") json: String): RecallMessageCacheStrategyConfiguration {
+            return Json.decodeFromString(RecallMessageCacheStrategyConfiguration.serializer(), json)
+        }
+        
+        decodeTest("""RecallMessageCacheStrategyConfiguration.Invalid""") {
+            RecallMessageCacheStrategyConfiguration.invalid() == decodeFromJson(
+                """{"type": "invalid"}"""
+            )
+        }
+        
+        decodeTest("""RecallMessageCacheStrategyConfiguration.MemoryLru""") {
+            RecallMessageCacheStrategyConfiguration.memoryLru(
+                loadFactor = 0.766F,
+                groupMaxSize = 1536
+            ).also(::println) == decodeFromJson(
+                """{"type": "memory_lru", "loadFactor": 0.766, "groupMaxSize": 1536}"""
+            )
+        }
+        
+        
+        decodeTest("""RecallMessageCacheStrategyConfiguration.CustomProperties""") {
+            RecallMessageCacheStrategyConfiguration.customProperties(
+                className = "TestCustomProperties",
+                properties = mapOf("foo" to "foo", "tar" to "bar")
+            ).also(::println) == decodeFromJson(
+                """
+                    {
+                      "type": "custom_properties",
+                      "className": "TestCustomProperties",
+                      "properties": {
+                        "foo": "foo",
+                        "tar": "bar"
+                      }
+                    }
+                """.trimIndent()
+            )
+        }
+        
+        
+    }
+    
 }
 
+
+private class TestCustomProperties : CustomPropertiesMiraiRecallMessageCacheStrategy() {
+    override fun cacheGroupMessageEvent(bot: MiraiBot, event: GroupMessageEvent) {
+        TODO("Not yet implemented")
+    }
+    
+    override fun cacheFriendMessageEvent(bot: MiraiBot, event: FriendMessageEvent) {
+        TODO("Not yet implemented")
+    }
+    
+    override fun getGroupMessageCache(bot: MiraiBot, event: MessageRecallEvent.GroupRecall): MessageChain? {
+        TODO("Not yet implemented")
+    }
+    
+    override fun getFriendMessageCache(bot: MiraiBot, event: MessageRecallEvent.FriendRecall): MessageChain? {
+        TODO("Not yet implemented")
+    }
+    
+    override fun invokeOnBotCompletion(bot: MiraiBot, cause: Throwable?) {
+        TODO("Not yet implemented")
+    }
+}

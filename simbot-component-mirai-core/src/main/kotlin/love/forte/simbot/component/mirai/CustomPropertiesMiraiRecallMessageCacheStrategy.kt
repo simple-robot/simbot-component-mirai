@@ -14,34 +14,19 @@
  *
  */
 
+package love.forte.simbot.component.mirai
 
-plugins {
-    id("simbot-mirai.module-conventions")
-    id("simbot-mirai.maven-publish")
-    id("simbot.suspend-transform-configure")
+
+/**
+ * 可得到部分自定义配置属性的 [MiraiRecallMessageCacheStrategy] 实现。
+ *
+ * @author ForteScarlet
+ */
+public abstract class CustomPropertiesMiraiRecallMessageCacheStrategy : MiraiRecallMessageCacheStrategy {
+    /**
+     * 等待初始化的属性表。[properties] 在默认情况下不应该在初始化阶段使用，且应当在当前类被实例化后迫切地进行初始化。
+     */
+    public open lateinit var properties: Map<String, String>
+    
+    
 }
-
-
-dependencies {
-    compileOnly(V.Simbot.Core.notation)
-    
-    api(libs.mirai)
-    api(libs.kotlinx.serialization.json)
-    
-    compileOnly(libs.kotlinx.serialization.properties)
-    compileOnly(libs.charleskorn.kaml)
-    
-    
-    testImplementation(libs.kotlinx.serialization.properties)
-    testImplementation(libs.kotlinx.serialization.hocon)
-    testImplementation(libs.charleskorn.kaml)
-    testImplementation(V.Simbot.Core.notation)
-    //https://github.com/Ricky12Awesome/json-schema-serialization
-    testImplementation("com.github.Ricky12Awesome:json-schema-serialization:0.6.6")
-}
-
-repositories {
-    @Suppress("DEPRECATION")
-    jcenter()
-}
-

@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
@@ -24,7 +23,6 @@ import love.forte.simbot.ID
 import love.forte.simbot.component.mirai.buildMessageSource
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.doSafeCast
-import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.MessageSource
 import net.mamoe.mirai.message.data.QuoteReply
 
@@ -44,7 +42,7 @@ import net.mamoe.mirai.message.data.QuoteReply
 @Serializable
 public class MiraiQuoteReply(
     private val source: MessageSource, // = id.buildMessageSource()
-) : OriginalMiraiComputableSimbotMessage<MiraiQuoteReply> {
+) : OriginalMiraiDirectlySimbotMessage<QuoteReply, MiraiQuoteReply> {
     public constructor(id: ID) : this(id.buildMessageSource())
     
     @Suppress("MemberVisibilityCanBePrivate")
@@ -60,18 +58,13 @@ public class MiraiQuoteReply(
         return other.source == source
     }
     
-    override fun toString(): String = "MiraiQuoteReply(source=$source)"
-    override fun hashCode(): Int = source.hashCode()
+    override fun toString(): String = "MiraiQuoteReply(quoteReply=$quoteReply)"
+    override fun hashCode(): Int = quoteReply.hashCode()
     
     @Suppress("MemberVisibilityCanBePrivate")
-    public val originalMiraiMessage: QuoteReply
+    override val originalMiraiMessage: QuoteReply
         get() = quoteReply
     
-    /**
-     * @see originalMiraiMessage
-     */
-    @JvmSynthetic
-    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): QuoteReply = quoteReply
     
     public companion object Key : Message.Key<MiraiQuoteReply> {
         override fun safeCast(value: Any): MiraiQuoteReply? = doSafeCast(value)

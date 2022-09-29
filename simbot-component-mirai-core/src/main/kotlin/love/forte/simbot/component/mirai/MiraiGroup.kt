@@ -12,11 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.*
 import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.component.mirai.bot.MiraiGroupBot
@@ -24,8 +25,6 @@ import love.forte.simbot.definition.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.utils.item.Items
-import love.forte.simbot.utils.runInBlocking
-import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
@@ -46,10 +45,11 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     override val id: LongID
     
     /**
-     * 群主。
+     * 群主信息。
      */
-    @OptIn(Api4J::class)
-    override val owner: MiraiMember
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun owner(): MiraiMember
     
     /**
      * 群主ID。
@@ -98,24 +98,13 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      * 当 [duration] 的毫秒值小于等于0时（[Duration.ZERO]），代表无限期禁言。
      *
      */
-    @OptIn(Api4J::class)
+    @Api4J
     override fun muteBlocking(duration: JavaDuration): Boolean
     
     /**
      * 尝试禁言这个群。(即开启全群禁言。)
-     *
-     * 如果使用了有效的 [time] 参数(大于0)，则会在 bot 内开启一个伴随 bot 的作用域而存在的延时任务，
-     * 提供基于内存的群禁言周期功能实现。
-     *
-     * 当 [time] 的毫秒值小于等于0时（[Duration.ZERO]），代表无限期禁言。
      */
-    @OptIn(Api4J::class)
-    override fun muteBlocking(time: Long, timeUnit: TimeUnit): Boolean
-    
-    /**
-     * 尝试禁言这个群。(即开启全群禁言。)
-     */
-    @OptIn(Api4J::class)
+    @Api4J
     override fun muteBlocking(): Boolean
     
     
@@ -126,54 +115,34 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     override suspend fun unmute(): Boolean
     
     /**
-     * 取消全群禁言。[unmute] 的同时会取消此群涉及到的由 [mute] 构建出来的延时任务。
+     * 根据ID获取指定成员信息。
      */
-    @OptIn(Api4J::class)
-    override fun unmuteBlocking(): Boolean
-    
-    @JvmSynthetic
+    @JvmBlocking(baseName = "getMember", suffix = "")
+    @JvmAsync(baseName = "getMember")
     override suspend fun member(id: ID): MiraiMember?
     
     /**
      * 向群内发送消息。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
     
     /**
      * 向群内发送消息。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
     
     
     /**
      * 向群内发送消息。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         send(message.messages)
-    
-    /**
-     * 向群内发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { send(text) }
-    
-    /**
-     * 向群内发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { send(message) }
-    
-    /**
-     * 向群内发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
-        runInBlocking { send(message) }
     
     
     /**
@@ -191,30 +160,10 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     
     
     /**
-     * 群主信息。
-     */
-    @JvmSynthetic
-    override suspend fun owner(): MiraiMember = owner
-    
-    
-    /**
-     * 根据ID寻找对应群成员。
-     */
-    @OptIn(Api4J::class)
-    override fun getMember(id: ID): MiraiMember? = runInBlocking { member(id) }
-    
-    
-    /**
-     * 群没有“上层”概念。始终得到null。
+     * 群没有“上层”概念, 始终得到null。
      */
     @JvmSynthetic
     override suspend fun previous(): Organization? = null
     
-    /**
-     * 群没有“上层”概念。始终得到null。
-     */
-    @Api4J
-    override val previous: Organization?
-        get() = null
 }
 

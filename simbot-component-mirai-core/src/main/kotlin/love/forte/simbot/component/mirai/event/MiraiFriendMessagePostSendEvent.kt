@@ -12,12 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.Api4J
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.component.mirai.MiraiFriend
@@ -47,28 +47,20 @@ public interface MiraiFriendMessagePostSendEvent :
     override val timestamp: Timestamp
     override val messageContent: MiraiReceivedMessageContent
     override val originalEvent: OriginalMiraiFriendMessagePostSendEvent
-
+    
     /**
      * 发送目标好友对象。
      */
-    @OptIn(Api4J::class)
-    override val friend: MiraiFriend
-
-    /**
-     * 发送目标好友对象。
-     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
     override suspend fun friend(): MiraiFriend
 
     /**
-     * 所有 `post send` 相关事件的源头均来自于bot自身。
+     * 所有 `post send` 相关事件的源头均来自bot自身。
      */
-    @OptIn(Api4J::class)
-    override val source: MiraiBot
-
-    /**
-     * 所有 `post send` 相关事件的源头均来自于bot自身。
-     */
-    override suspend fun source(): MiraiBot
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun source(): MiraiBot = bot
 
 
 

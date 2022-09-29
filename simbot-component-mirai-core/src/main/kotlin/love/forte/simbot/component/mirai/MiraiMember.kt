@@ -16,7 +16,10 @@
 
 package love.forte.simbot.component.mirai
 
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.Api4J
+import love.forte.simbot.JavaDuration
 import love.forte.simbot.LongID
 import love.forte.simbot.Timestamp
 import love.forte.simbot.action.DeleteSupport
@@ -25,10 +28,12 @@ import love.forte.simbot.definition.GroupMember
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.utils.item.Items
-import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.AnonymousMember
 import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.contact.PermissionDeniedException
+import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 import net.mamoe.mirai.contact.NormalMember as OriginalMiraiNormalMember
 
@@ -37,7 +42,7 @@ import net.mamoe.mirai.contact.NormalMember as OriginalMiraiNormalMember
  * 一个由simbot包装为 [GroupMember] 的 [OriginalMiraiMember] 对象。
  *
  * ### [DeleteSupport]
- * 一个 mirai 的群成员是 [支持删除][DeleteSupport] 操作的. [delete] 行为相当于 [踢出][net.mamoe.mirai.contact.NormalMember.kick] 操作。
+ * 一个 mirai 的群成员是 [支持删除][DeleteSupport] 操作的, [delete] 行为相当于 [踢出][net.mamoe.mirai.contact.NormalMember.kick] 操作。
  *
  * 当 [originalContact] 的类型不是 [OriginalMiraiNormalMember] 的时候，[delete] 行为将会无效。
  *
@@ -50,6 +55,27 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     
     override val bot: MiraiBot
     override val id: LongID
+    
+    /**
+     * 获取此成员用户名
+     */
+    override val username: String get() = originalContact.nick
+    
+    /**
+     * 用于判断当前 [MiraiMember] 中所代表的 [originalContact] 是否为一个匿名成员。
+     * 可以通过 [isAnonymous] 来提前规避可能会因为是匿名而导致的异常，例如 [nickname] 的 setter。
+     *
+     * ```kotlin
+     * // safely
+     * if (!member.isAnonymous) {
+     *    member.nickname = "new_nick"
+     * }
+     * ```
+     *
+     * @see isNotAnonymous
+     * @return 如果 [MiraiMember.originalContact] 是匿名成员
+     */
+    public val isAnonymous: Boolean get() = originalContact is AnonymousMember
     
     /**
      * 当前群成员在此群中的昵称（或者为名片）。
@@ -90,11 +116,37 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
                 is OriginalMiraiNormalMember -> {
                     member.specialTitle = value
                 }
-        
+                
                 else -> throw UnsupportedOperationException("member $originalContact type is not NormalMember")
             }
         }
     
+    
+    /**
+     * 被禁言的剩余时间（秒）。如果未被禁言、或者 [originalContact] 为匿名成员而无法得到时间，则得到 `0`。
+     */
+    public val muteTimeRemainingSeconds: Int
+    
+    /**
+     * 被禁言的剩余时间。如果未被禁言、或者 [originalContact] 为匿名成员而无法得到时间，则得到 [Duration.ZERO]。
+     */
+    @get:JvmSynthetic
+    public val muteTimeRemaining: Duration
+        get() = if (muteTimeRemainingSeconds == 0) Duration.ZERO
+        else muteTimeRemainingSeconds.seconds
+    
+    
+    /**
+     * 被禁言的剩余时间。如果未被禁言、或者 [originalContact] 为匿名成员而无法得到时间，则得到 [Duration.ZERO][java.time.Duration.ZERO]。
+     */
+    public val muteTimeRemainingDuration: JavaDuration
+        get() = if (muteTimeRemainingSeconds == 0) JavaDuration.ZERO
+        else JavaDuration.ofSeconds(muteTimeRemainingSeconds.toLong())
+    
+    /**
+     * 判断当前成员是否处于禁言状态。
+     */
+    public val isMuted: Boolean get() = muteTimeRemainingSeconds > 0
     
     /**
      * 群成员入群时间。
@@ -106,7 +158,6 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      */
     override val joinTime: Timestamp
     
-    
     /**
      * 最后发言时间。
      *
@@ -117,55 +168,58 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      */
     public val lastSpeakTime: Timestamp?
     
+    /**
+     * 当前成员所述角色。
+     */
+    public val role: MemberRole get() = originalContact.simbotRole
     
-    @OptIn(Api4J::class)
-    override val group: MiraiGroup
+    /**
+     * 当前成员角色所属角色。通常内部只有一个元素: [role]。
+     */
+    override val roles: Items<MemberRole> get() = Items.items(role)
+    
+    /**
+     * 获取此成员头像
+     */
+    override val avatar: String get() = originalContact.avatarUrl
+    
+    
+    /**
+     * 得到此成员所属群。
+     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun group(): MiraiGroup
+    
+    /**
+     * 得到此成员所属群。
+     */
+    @JvmBlocking(asProperty = true, suffix = "")
+    @JvmAsync(asProperty = true)
+    override suspend fun organization(): MiraiGroup = group()
     
     /**
      * 向此群成员发送消息。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
     /**
      * 向此群成员发送消息。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
     
-    //// Impl
-    
-    
-    // region send support
     /**
      * 向此群成员发送消息。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
         send(message.messages)
-    
-    /**
-     * 向此群成员发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
-        runInBlocking { send(text) }
-    
-    /**
-     * 向此群成员发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
-        runInBlocking { send(message) }
-    
-    /**
-     * 向此群成员发送消息。
-     */
-    @Api4J
-    override fun sendBlocking(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
-        runInBlocking { send(message) }
-    // endregion
     
     
     /**
@@ -176,7 +230,8 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
      * @return 是否为普通成员且踢出执行成功。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     public suspend fun kick(message: String, block: Boolean): Boolean
     
     /**
@@ -186,29 +241,9 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
      * @return 是否为普通成员且踢出执行成功。
      */
-    @JvmSynthetic
+    @JvmAsync
+    @JvmBlocking
     public suspend fun kick(message: String): Boolean = kick("", false)
-    
-    /**
-     * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
-     *
-     * @param message 踢出时提供的消息。可能无实际意义。
-     * @param block 是否踢出后加入黑名单。
-     * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
-     * @return 是否为普通成员且踢出执行成功。
-     */
-    @Api4J
-    public fun kickBlocking(message: String, block: Boolean): Boolean = runInBlocking { kick(message, block) }
-    
-    /**
-     * 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
-     *
-     * @param message 踢出时提供的消息。可能无实际意义。
-     * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
-     * @return 是否为普通成员且踢出执行成功。
-     */
-    @Api4J
-    public fun kickBlocking(message: String): Boolean = runInBlocking { kick(message) }
     
     /**
      * 同 [kick], 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
@@ -218,37 +253,46 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     @JvmSynthetic
     override suspend fun delete(): Boolean = kick("")
     
+    
     /**
-     * 同 [kick], 如果当前群成员为普通群成员，则尝试踢出。否则将会返回 false。
+     * 尝试禁言此成员。
      *
-     * @see kick
+     * @param duration 禁言时间。如果不提供或者提供值**等于0秒**（second == 0）则默认为最小时间：1分钟。
+     * @return 当 [duration] 的秒值**小于0**（second < 0）时得到false，否则为true。
+     */
+    @JvmSynthetic
+    override suspend fun mute(duration: Duration): Boolean
+    
+    /**
+     * 尝试禁言此成员1分钟。
      */
     @Api4J
-    override fun deleteBlocking(): Boolean = runInBlocking { kick("") }
+    override fun muteBlocking(): Boolean
     
+    /**
+     * 尝试禁言此成员。
+     *
+     * @param duration 禁言时间。如果不提供或者提供值**等于0秒**（second == 0）则默认为最小时间：1分钟。
+     * @return 当 [duration] 的秒值**小于0**（second < 0）时得到false，否则为true。
+     */
+    @Api4J
+    override fun muteBlocking(duration: JavaDuration): Boolean
     
+    /**
+     * 尝试禁言此成员。
+     *
+     * @param time 禁言时间。如果不提供值**等于0秒**（second == 0）则默认为最小时间：1分钟。
+     * @param timeUnit 禁言时间单位。
+     * @return 当 [time] 的秒值**小于0**（second < 0）时得到false，否则为true。
+     */
     @JvmSynthetic
-    override suspend fun group(): MiraiGroup = group
+    override suspend fun mute(time: Long, timeUnit: TimeUnit): Boolean
     
-    @JvmSynthetic
-    override suspend fun organization(): MiraiGroup = group
-    
-    @OptIn(Api4J::class)
-    override val organization: MiraiGroup
-        get() = group
-    
-    
-    @JvmSynthetic
-    override suspend fun mute(duration: Duration): Boolean {
-        val second = duration.inWholeSeconds.toInt()
-        return if (second > 0) {
-            originalContact.mute(duration.inWholeSeconds.toInt())
-            true
-        } else {
-            false
-        }
-    }
-    
+    /**
+     * 取消当前成员的禁言。
+     *
+     * @return 如果当前成员为匿名成员则得到false，否则为true。
+     */
     @JvmSynthetic
     override suspend fun unmute(): Boolean {
         val normalMember = originalContact as? NormalMember ?: return false
@@ -256,15 +300,73 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
         return true
     }
     
+    
     /**
-     * 当前成员角色所属角色。通常内部只有一个元素。
+     * 修改当前成员的管理员职位。
+     *
+     * Kotlin see also: [appoint], [dismiss]。
+     *
+     * @see NormalMember.modifyAdmin
+     * @param operator 如果为 `true` 则为任命，否则为撤职。
+     * @throws UnsupportedOperationException 如果当前成员为 [匿名成员][isAnonymous]
+     * @throws PermissionDeniedException see [NormalMember.modifyAdmin]
+     *
      */
-    override val roles: Items<MemberRole>
+    @JvmAsync
+    @JvmBlocking
+    public suspend fun modifyAdmin(operator: Boolean) {
+        val member = originalContact as? NormalMember
+            ?: throw UnsupportedOperationException("member $originalContact type is not NormalMember")
+        member.modifyAdmin(operator)
+    }
     
     
-    //// Impl
-    
+}
 
-    override val avatar: String get() = originalContact.avatarUrl
-    override val username: String get() = originalContact.nick
+
+/**
+ * [MiraiMember.isAnonymous] 取反。
+ *
+ * ```kotlin
+ * // safely
+ * if (member.isNotAnonymous) {
+ *    member.nickname = "new_nick"
+ * }
+ * ```
+ * @return 如果 [MiraiMember.originalContact] 不是匿名成员
+ */
+public inline val MiraiMember.isNotAnonymous: Boolean get() = !isAnonymous
+
+
+/**
+ * [MiraiMember.isMuted] 取反。
+ */
+public inline val MiraiMember.isNotMuted: Boolean get() = !isMuted
+
+/**
+ * 任命当前成员为管理员。
+ * 同下：
+ * ```kotlin
+ * member.modifyAdmin(true)
+ * ```
+ * @see MiraiMember.modifyAdmin
+ * @throws UnsupportedOperationException see [MiraiMember.modifyAdmin]
+ * @throws PermissionDeniedException see [NormalMember.modifyAdmin]
+ */
+public suspend inline fun MiraiMember.appoint() {
+    modifyAdmin(true)
+}
+
+/**
+ * 将当前成员撤职（如果是管理员的话）。
+ * 同下：
+ * ```kotlin
+ * member.modifyAdmin(false)
+ * ```
+ * @see MiraiMember.modifyAdmin
+ * @throws UnsupportedOperationException see [MiraiMember.modifyAdmin]
+ * @throws PermissionDeniedException see [NormalMember.modifyAdmin]
+ */
+public suspend inline fun MiraiMember.dismiss() {
+    modifyAdmin(false)
 }

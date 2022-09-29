@@ -241,6 +241,7 @@
                 "simbot_random",
                 "random",
                 "resource",
+                "file_based",
                 "object",
                 "simple_object"
               ],
@@ -612,6 +613,26 @@
               "required": [
                 "object"
               ]
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "const": "file_based",
+                  "description": "读取使用本地配置文件"
+                },
+                "file": {
+                  "type": "string",
+                  "default": "device.json",
+                  "description": "设备配置文件"
+                },
+                "fromResource": {
+                  "type": ["string", "null"],
+                  "default": null,
+                  "description": "file备选资源文件"
+                }
+              }
             }
           ],
           "required": [
@@ -675,8 +696,78 @@
             "INVALID",
             "MEMORY_LRU"
           ],
+          "deprecationMessage": "已弃用，请使用'recallMessageCacheStrategyConfig'",
           "description": "消息撤回缓存策略",
           "default": "INVALID"
+        },
+        "recallMessageCacheStrategyConfig": {
+          "description": "消息撤回缓存策略配置",
+          "required": ["type"],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "invalid",
+                "memory_lru",
+                "custom_properties"
+              ],
+              "default": "invalid"
+            }
+          },
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "const": "invalid"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "const": "memory_lru"
+                },
+                "groupMaxSize": {
+                  "description": "缓存群消息的最大上限",
+                  "minimum": 0,
+                  "maximum": 1431655765,
+                  "default": 1536
+                },
+                "friendMaxSize":{
+                  "description": "缓存好友消息的最大上限",
+                  "minimum": 0,
+                  "maximum": 1431655765,
+                  "default": 96
+                },
+                "loadFactor": {
+                  "description": "哈希表所使用的负载因子",
+                  "minimum": 0,
+                  "default": 0.75
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "type": {
+                  "const": "custom_properties"
+                },
+                "className": {
+                  "type": "string"
+                },
+                "properties": {
+                  "type": "object",
+                  "additionalProperties": true
+                }
+              },
+              "required": ["className"]
+            }
+          ]
         },
         "accountSecrets": {
           "type": "boolean",
