@@ -34,7 +34,7 @@ sealed class P : SimbotProject() {
     
         val version = Version(
             "3", 0, 0,
-            status = VersionStatus.beta(2, null, null),
+            status = VersionStatus.beta(3, null, null),
             isSnapshot = isSnapshot()
         )
         
