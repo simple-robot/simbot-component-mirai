@@ -54,7 +54,7 @@ sealed class P : SimbotProject() {
         val version = Version(
             major = "${Simbot.version.major}.${Simbot.version.minor}",
             minor = 0, patch = 0,
-            status = VersionStatus.beta(null, null, "-M3"),
+            status = VersionStatus.beta(1, null, null),
             isSnapshot = isSnapshot
         )
         const val GROUP = "${Simbot.GROUP}.component"
