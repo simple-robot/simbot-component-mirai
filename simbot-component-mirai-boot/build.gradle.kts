@@ -23,14 +23,14 @@ dependencies {
     api(project(":simbot-component-mirai-core")) {
         exclude("love.forte.simbot")
     }
-    compileOnly("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
+    compileOnly("love.forte.simbot.boot:simboot-api:${libs.versions.simbot.get()}")
     
     testImplementation(libs.kotlinx.serialization.json)
     testImplementation(libs.charleskorn.kaml)
     
     // testImplementation("love.forte.simbot.boot:simboot-api:${P.Simbot.VERSION}")
     // testImplementation("love.forte.simbot.boot:simboot-core:${P.Simbot.VERSION}")
-    testImplementation("love.forte.simbot.boot:simboot-core-spring-boot-starter:${P.Simbot.VERSION}")
+    testImplementation("love.forte.simbot.boot:simboot-core-spring-boot-starter:${libs.versions.simbot.get()}")
     testImplementation(libs.spring.boot.test)
     testImplementation(libs.spring.boot.web)
 
