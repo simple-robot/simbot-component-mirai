@@ -21,7 +21,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import love.forte.simbot.FragileSimbotApi
-import love.forte.simbot.LoggerFactory
 import love.forte.simbot.Simbot
 import love.forte.simbot.component.mirai.DEFAULT_SIMBOT_MIRAI_DEVICE_INFO_SEED
 import love.forte.simbot.component.mirai.SimpleDeviceInfo
@@ -30,6 +29,8 @@ import love.forte.simbot.component.mirai.bot.DeviceInfoConfiguration.Resource.Co
 import love.forte.simbot.component.mirai.bot.DeviceInfoConfiguration.Resource.Companion.MULTI_CLASSPATH_PREFIX
 import love.forte.simbot.component.mirai.simbotMiraiDeviceInfo
 import love.forte.simbot.component.mirai.toDeviceInfo
+import love.forte.simbot.logger.LoggerFactory
+import love.forte.simbot.logger.logger
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.utils.BotConfiguration
 import net.mamoe.mirai.utils.DeviceInfo
@@ -318,7 +319,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
         }
         
         public companion object {
-            private val logger = LoggerFactory.getLogger<FileBased>()
+            private val logger = LoggerFactory.logger<FileBased>()
             public const val TYPE: String = "file_based"
             public const val DEFAULT_FILE: String = "device.json"
         }
@@ -499,7 +500,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                 ?: Thread.currentThread().contextClassLoader ?: ClassLoader.getSystemClassLoader()
         
         public companion object {
-            private val logger = LoggerFactory.getLogger<Auto>()
+            private val logger = LoggerFactory.logger<Auto>()
             private val TARGETS: Array<String> = arrayOf(
                 "device-$CODE_MARK.json",
                 "device.json"

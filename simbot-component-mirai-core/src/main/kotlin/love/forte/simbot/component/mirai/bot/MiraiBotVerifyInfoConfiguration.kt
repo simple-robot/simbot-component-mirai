@@ -23,12 +23,13 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import love.forte.simbot.FragileSimbotApi
-import love.forte.simbot.LoggerFactory
 import love.forte.simbot.SimbotIllegalArgumentException
 import love.forte.simbot.SimbotIllegalStateException
 import love.forte.simbot.bot.BotVerifyInfo
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.internal.InternalApi
+import love.forte.simbot.logger.LoggerFactory
+import love.forte.simbot.logger.logger
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.utils.BotConfiguration
 import net.mamoe.mirai.utils.DeviceInfo
@@ -429,7 +430,7 @@ public data class MiraiBotVerifyInfoConfiguration(
         
         
         public companion object {
-            private val log = LoggerFactory.getLogger<Config>()
+            private val log = LoggerFactory.logger<Config>()
             
             @JvmField
             @Deprecated("Unused")
@@ -629,7 +630,7 @@ public data class MiraiBotVerifyInfoConfiguration(
         }
     
     public companion object {
-        private val logger = LoggerFactory.getLogger<MiraiBotVerifyInfoConfiguration>()
+        private val logger = LoggerFactory.logger<MiraiBotVerifyInfoConfiguration>()
     }
 }
 
