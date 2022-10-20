@@ -23,7 +23,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import love.forte.simbot.ID
-import love.forte.simbot.LoggerFactory
 import love.forte.simbot.SimbotIllegalArgumentException
 import love.forte.simbot.component.mirai.ID
 import love.forte.simbot.component.mirai.extra.catcode.AppJsonCatCodeSerializer.encoder
@@ -32,6 +31,7 @@ import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.*
 import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
 import love.forte.simbot.literal
+import love.forte.simbot.logger.LoggerFactory
 import love.forte.simbot.message.At
 import love.forte.simbot.message.AtAll
 import love.forte.simbot.message.Face

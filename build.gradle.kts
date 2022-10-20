@@ -41,7 +41,7 @@ tasks.create("createChangelog") {
         val file = File(changelogDir, "$version.md")
         if (!file.exists()) {
             file.createNewFile()
-            val coreVersion = P.Simbot.version.fullVersion(false)
+            val coreVersion = libs.versions.simbot.get() // P.Simbot.version.fullVersion(false)
             val miraiVersion = libs.mirai.get().versionConstraint.requiredVersion // V.Mirai.VERSION
             val autoGenerateText = """
                 > 对应核心版本: [**v$coreVersion**](https://github.com/ForteScarlet/simpler-robot/releases/tag/v$coreVersion)

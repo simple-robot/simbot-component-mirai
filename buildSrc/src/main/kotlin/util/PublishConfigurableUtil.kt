@@ -12,17 +12,18 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package util
+
+import isSnapshot
 
 data class PublishConfigurableResult(
     val isSnapshotOnly: Boolean,
     val isReleaseOnly: Boolean,
     val isPublishConfigurable: Boolean = when {
-        isSnapshotOnly -> P.Simbot.isSnapshot
-        isReleaseOnly -> !P.Simbot.isSnapshot
+        isSnapshotOnly -> isSnapshot()
+        isReleaseOnly -> !isSnapshot()
         else -> true
     }
 )

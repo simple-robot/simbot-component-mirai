@@ -31,6 +31,7 @@ import love.forte.simbot.component.mirai.util.LRUCacheMap
 import love.forte.simbot.event.Event
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
+import love.forte.simbot.logger.LoggerFactory
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.asItems

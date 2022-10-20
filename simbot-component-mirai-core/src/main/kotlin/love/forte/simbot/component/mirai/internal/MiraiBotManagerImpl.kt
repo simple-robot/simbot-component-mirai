@@ -18,7 +18,6 @@ package love.forte.simbot.component.mirai.internal
 
 import kotlinx.coroutines.*
 import love.forte.simbot.ID
-import love.forte.simbot.LoggerFactory
 import love.forte.simbot.bot.BotAlreadyRegisteredException
 import love.forte.simbot.component.mirai.MiraiBotConfiguration
 import love.forte.simbot.component.mirai.MiraiComponent
@@ -31,6 +30,7 @@ import love.forte.simbot.component.mirai.simbotMiraiDeviceInfo
 import love.forte.simbot.event.EventProcessingResult
 import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
+import love.forte.simbot.logger.LoggerFactory
 import love.forte.simbot.tryToLong
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.supervisorJob

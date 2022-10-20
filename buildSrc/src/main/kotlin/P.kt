@@ -25,39 +25,15 @@ abstract class SimbotProject {
  */
 @Suppress("MemberVisibilityCanBePrivate")
 sealed class P : SimbotProject() {
-    object Simbot {
-        init {
-            println("System.getProperty(\"isSnapshot\"): ${System.getProperty("isSnapshot")}")
-        }
-        
-        const val GROUP = "love.forte.simbot"
-    
-        val version = Version(
-            "3", 0, 0,
-            status = VersionStatus.beta(2, null, null),
-            isSnapshot = isSnapshot()
-        )
-        
-        val isSnapshot: Boolean get() = version.isSnapshot
-        
-        val VERSION: String get() = version.fullVersion(true)
-        
-    }
-    
-    object Simboot {
-        const val GROUP = "love.forte.simbot.boot"
-        val VERSION: String get() = Simbot.VERSION
-    }
-    
     object ComponentMirai {
-        val isSnapshot get() = Simbot.isSnapshot
+        val isSnapshot get() = isSnapshot()
         val version = Version(
-            major = "${Simbot.version.major}.${Simbot.version.minor}",
+            major = "3.0",
             minor = 0, patch = 0,
-            status = VersionStatus.beta(null, null, "-M3"),
+            status = VersionStatus.beta(1, null, null),
             isSnapshot = isSnapshot
         )
-        const val GROUP = "${Simbot.GROUP}.component"
+        const val GROUP = "love.forte.simbot.component"
         const val DESCRIPTION = "Simple Robot框架下针对Mirai框架的组件实现"
         val VERSION: String get() = version.fullVersion(true)
         
@@ -67,7 +43,7 @@ sealed class P : SimbotProject() {
 }
 
 
-private fun isSnapshot(): Boolean {
+fun isSnapshot(): Boolean {
     println("property: ${System.getProperty("simbot.snapshot")}")
     println("env: ${System.getenv(Env.IS_SNAPSHOT)}")
     

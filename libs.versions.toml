@@ -3,8 +3,14 @@ kotlinx-coroutines = "1.6.4"
 kotlinx-serialization = "1.4.0"
 spring-boot = "2.7.2"
 openjdk-jmh = "1.35"
+simbot = "3.0.0-beta.3"
 
 [libraries]
+
+# simbot
+simbot-api = { group = "love.forte.simbot", name = "simbot-api", version.ref = "simbot" }
+simbot-core = { group = "love.forte.simbot", name = "simbot-core", version.ref = "simbot" }
+simbot-logger = { group = "love.forte.simbot", name = "simbot-logger", version.ref = "simbot" }
 
 # mirai
 mirai = "net.mamoe:mirai-core:2.12.1"
