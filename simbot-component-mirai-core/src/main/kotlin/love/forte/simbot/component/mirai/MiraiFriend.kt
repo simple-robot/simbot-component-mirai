@@ -88,7 +88,21 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
      * 头像信息。
      */
     override val avatar: String get() = originalContact.avatarUrl
+    
+    /**
+     * 好友用户名
+     * @see OriginalMiraiFriend.nick
+     */
     override val username: String get() = originalContact.nick
-    override val remark: String? get() = originalContact.remark.takeIf { it.isNotEmpty() }
+    
+    /**
+     * 好友备注信息
+     * @see OriginalMiraiFriend.remark
+     */
+    override var remark: String?
+        get() = originalContact.remark.takeIf { it.isNotEmpty() }
+        set(value) {
+            originalContact.remark = value ?: ""
+        }
 }
 
