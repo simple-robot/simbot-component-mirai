@@ -13,7 +13,7 @@ simbot-core = { group = "love.forte.simbot", name = "simbot-core", version.ref =
 simbot-logger = { group = "love.forte.simbot", name = "simbot-logger", version.ref = "simbot" }
 
 # mirai
-mirai = "net.mamoe:mirai-core:2.12.1"
+mirai = "net.mamoe:mirai-core:2.13.0-RC2"
 
 # kotlinx-serialization
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
