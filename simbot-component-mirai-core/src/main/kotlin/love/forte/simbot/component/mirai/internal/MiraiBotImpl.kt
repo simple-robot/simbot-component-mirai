@@ -22,6 +22,7 @@ import kotlinx.coroutines.sync.withLock
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.bot.MiraiBot
+import love.forte.simbot.component.mirai.bot.MiraiFriendCategories
 import love.forte.simbot.component.mirai.event.*
 import love.forte.simbot.component.mirai.event.impl.*
 import love.forte.simbot.component.mirai.message.MiraiImage
@@ -37,6 +38,8 @@ import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.asItems
 import love.forte.simbot.utils.item.effectedSequenceItems
 import love.forte.simbot.utils.item.map
+import net.mamoe.mirai.contact.friendgroup.FriendGroup
+import net.mamoe.mirai.contact.friendgroup.FriendGroups
 import net.mamoe.mirai.event.events.MessageRecallEvent
 import net.mamoe.mirai.event.events.NudgeEvent
 import net.mamoe.mirai.supervisorJob
@@ -104,6 +107,8 @@ internal class MiraiBotImpl(
     override val id: LongID = originalBot.id.ID
     
     internal val recallMessageCacheStrategy: MiraiRecallMessageCacheStrategy = configuration.recallCacheStrategy
+    
+    override val friendCategories: MiraiFriendCategories by lazy { MiraiFriendCategoriesImpl(this) }
     
     override fun isMe(id: ID): Boolean {
         return when (id) {
@@ -612,3 +617,30 @@ private suspend inline fun <reified E : OriginalMiraiEvent, reified SE : MiraiSi
     }
 }
 
+
+internal class MiraiFriendCategoriesImpl(
+    val bot: MiraiBotImpl,
+) : MiraiFriendCategories {
+    override val originalFriendGroups: FriendGroups
+        get() = bot.originalBot.friendGroups
+    
+    override val default: MiraiFriendCategory
+        get() = originalFriendGroups.default.toSimbot()
+    
+    override suspend fun create(name: String): MiraiFriendCategory {
+        return originalFriendGroups.create(name).toSimbot()
+    }
+    
+    override fun get(id: Int): MiraiFriendCategory? {
+        return originalFriendGroups[id]?.toSimbot()
+    }
+    
+    override fun iterator(): Iterator<MiraiFriendCategory> {
+        // ?
+        return originalFriendGroups.asCollection().map { it.toSimbot() }.iterator()
+    }
+    
+    private fun FriendGroup.toSimbot(): MiraiFriendCategoryImpl {
+        return MiraiFriendCategoryImpl(bot, this)
+    }
+}

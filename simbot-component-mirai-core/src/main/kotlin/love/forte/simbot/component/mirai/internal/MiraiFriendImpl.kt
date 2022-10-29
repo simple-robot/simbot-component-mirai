@@ -12,17 +12,20 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.internal
 
+import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.ID
+import love.forte.simbot.IntID
 import love.forte.simbot.component.mirai.MiraiFriend
+import love.forte.simbot.component.mirai.MiraiFriendCategory
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
+import net.mamoe.mirai.contact.friendgroup.FriendGroup
 import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
 
 
@@ -32,16 +35,24 @@ import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
  */
 internal class MiraiFriendImpl(
     override val bot: MiraiBotImpl,
-    override val originalContact: OriginalMiraiFriend
+    override val originalContact: OriginalMiraiFriend,
 ) : MiraiFriend {
-
+    
     override val id = originalContact.id.ID
-
+    
+    @Volatile
+    private var _category: MiraiFriendCategory? = null
+    
+    override val category: MiraiFriendCategory
+        get() = _category ?: synchronized(this) {
+            _category ?: MiraiFriendCategoryImpl(bot, originalContact.friendGroup).also { _category = it }
+        }
+    
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
         val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-
+    
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
         return SimbotMiraiMessageReceiptImpl(originalContact.sendMessage(text))
     }
@@ -49,3 +60,16 @@ internal class MiraiFriendImpl(
 
 internal fun OriginalMiraiFriend.asSimbot(bot: MiraiBotImpl): MiraiFriendImpl =
     bot.computeFriend(this) { MiraiFriendImpl(bot, this) }
+
+
+internal class MiraiFriendCategoryImpl(
+    val bot: MiraiBotImpl,
+    override val originalFriendGroup: FriendGroup,
+) : MiraiFriendCategory {
+    override val id: IntID = originalFriendGroup.id.ID
+    
+    @ExperimentalSimbotApi
+    override val friends: Collection<MiraiFriend> by lazy {
+        originalFriendGroup.friends.map { MiraiFriendImpl(bot, it) }
+    }
+}

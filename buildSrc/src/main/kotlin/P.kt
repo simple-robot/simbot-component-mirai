@@ -19,6 +19,8 @@ abstract class SimbotProject {
     abstract val version: String
 }
 
+const val SIMBOT_VERSION = "3.0.0-M1"
+const val SIMBOT_CORE = "love.forte.simbot:simbot-core:$SIMBOT_VERSION"
 
 /**
  * Project versions.
@@ -30,7 +32,7 @@ sealed class P : SimbotProject() {
         val version = Version(
             major = "3.0",
             minor = 0, patch = 0,
-            status = VersionStatus.beta(1, null, null),
+            status = VersionStatus.beta(2, null, null),
             isSnapshot = isSnapshot
         )
         const val GROUP = "love.forte.simbot.component"

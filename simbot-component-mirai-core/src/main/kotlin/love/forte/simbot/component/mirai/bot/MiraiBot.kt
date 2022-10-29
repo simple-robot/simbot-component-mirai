@@ -18,8 +18,7 @@ package love.forte.simbot.component.mirai.bot
 
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
-import love.forte.simbot.ID
-import love.forte.simbot.LongID
+import love.forte.simbot.*
 import love.forte.simbot.bot.*
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.MiraiImage
@@ -34,6 +33,7 @@ import love.forte.simbot.resources.Resource
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.emptyItems
 import net.mamoe.mirai.contact.NormalMember
+import net.mamoe.mirai.contact.friendgroup.FriendGroups
 import net.mamoe.mirai.supervisorJob
 import org.slf4j.Logger
 import kotlin.coroutines.CoroutineContext
@@ -67,6 +67,12 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      * @see OriginalMiraiBot
      */
     public val originalBot: OriginalMiraiBot
+    
+    /**
+     * 全部的好友分组。
+     * @see OriginalMiraiBot.friendGroups
+     */
+    public val friendCategories: MiraiFriendCategories
     
     /**
      * bot的id。
@@ -304,3 +310,67 @@ public interface MiraiGroupBot : MiraiBot, GroupBot {
     override suspend fun asMember(): MiraiMember
 }
 
+
+/**
+ * bot中的所有好友信息列表（管理器）
+ *
+ * @see OriginalMiraiBot.friendGroups
+ * @see MiraiFriendCategory
+ * @see MiraiBot.friendCategories
+ */
+public interface MiraiFriendCategories : Iterable<MiraiFriendCategory> {
+    
+    /**
+     * Mirai原生的好友分组列表对象。
+     *
+     * @see FriendGroups
+     */
+    public val originalFriendGroups: FriendGroups
+    
+    /**
+     * 得到ID为 `0` 的默认好友分组。
+     *
+     * @see FriendGroups
+     */
+    public val default: MiraiFriendCategory
+    
+    /**
+     * 新建一个好友分组.
+     *
+     * @see FriendGroups.create
+     */
+    @JvmAsync
+    @JvmBlocking
+    public suspend fun create(name: String): MiraiFriendCategory
+    
+    /**
+     * 获取指定 ID 的好友分组, 不存在时返回 `null`
+     *
+     * @see FriendGroups.get
+     * @throws NumberFormatException 当 [id] 内容无法转化为 [Int] 类型时
+     */
+    public operator fun get(id: ID): MiraiFriendCategory? {
+        val idNumber = when (id) {
+            is IntID -> id.number
+            is NumericalID<*> -> id.toInt()
+            else -> id.literal.toInt()
+        }
+        
+        return get(idNumber)
+    }
+
+    /**
+     * 获取指定 ID 的好友分组, 不存在时返回 `null`
+     *
+     * @see FriendGroups.get
+     */
+    public operator fun get(id: Int): MiraiFriendCategory?
+    
+    /**
+     * 获取当前分组下所有的分组。
+     *
+     * 通过 [FriendGroups.asCollection] 的结果转化而来，但是 [iterator]
+     * 的返回结果是不可变的一次性产物，与 [FriendGroups.asCollection] 不同。
+     */
+    override fun iterator(): Iterator<MiraiFriendCategory>
+}
