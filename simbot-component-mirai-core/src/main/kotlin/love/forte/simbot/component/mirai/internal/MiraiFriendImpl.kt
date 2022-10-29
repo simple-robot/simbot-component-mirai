@@ -45,7 +45,7 @@ internal class MiraiFriendImpl(
     
     override val category: MiraiFriendCategory
         get() = _category ?: synchronized(this) {
-            _category ?: MiraiFriendCategoryImpl(this).also { _category = it }
+            _category ?: MiraiFriendCategoryImpl(bot, originalContact.friendGroup).also { _category = it }
         }
     
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
@@ -63,13 +63,13 @@ internal fun OriginalMiraiFriend.asSimbot(bot: MiraiBotImpl): MiraiFriendImpl =
 
 
 internal class MiraiFriendCategoryImpl(
-    val friend: MiraiFriendImpl,
+    val bot: MiraiBotImpl,
+    override val originalFriendGroup: FriendGroup,
 ) : MiraiFriendCategory {
-    override val originalFriendGroup: FriendGroup = friend.originalContact.friendGroup
     override val id: IntID = originalFriendGroup.id.ID
     
     @ExperimentalSimbotApi
     override val friends: Collection<MiraiFriend> by lazy {
-        originalFriendGroup.friends.map { MiraiFriendImpl(friend.bot, it) }
+        originalFriendGroup.friends.map { MiraiFriendImpl(bot, it) }
     }
 }
