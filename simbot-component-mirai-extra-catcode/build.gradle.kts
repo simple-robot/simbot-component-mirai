@@ -25,7 +25,7 @@ dependencies {
     api(project(":simbot-component-mirai-core"))
     api("love.forte:catcode:1.0.0-BETA.1")
     
-    compileOnly(libs.simbot.core)
-    testImplementation(libs.simbot.core)
+    compileOnly(SIMBOT_CORE)
+    testImplementation(SIMBOT_CORE)
 }
 
