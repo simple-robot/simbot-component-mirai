@@ -18,12 +18,15 @@ package love.forte.simbot.component.mirai
 
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
+import love.forte.simbot.ExperimentalSimbotApi
+import love.forte.simbot.IntID
 import love.forte.simbot.LongID
 import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
+import net.mamoe.mirai.contact.friendgroup.FriendGroup
 import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
 
 
@@ -96,6 +99,13 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
     override val username: String get() = originalContact.nick
     
     /**
+     * 好友的分组信息。
+     *
+     * @see OriginalMiraiFriend.friendGroup
+     */
+    override val category: MiraiFriendCategory
+    
+    /**
      * 好友备注信息
      * @see OriginalMiraiFriend.remark
      */
@@ -106,3 +116,80 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
         }
 }
 
+/**
+ * mirai中的好友分组信息
+ *
+ */
+public interface MiraiFriendCategory : Category, DeleteSupport {
+    /**
+     * 获取mirai原生的 [好友分组][FriendGroup]。
+     */
+    public val originalFriendGroup: FriendGroup
+    
+    /**
+     * 分组ID
+     * @see FriendGroup.id
+     */
+    override val id: IntID
+    
+    /**
+     * 分组名
+     * @see FriendGroup.name
+     */
+    override val name: String get() = originalFriendGroup.name
+    
+    /**
+     * 分组内好友数量
+     *
+     * @see FriendGroup.count
+     */
+    public val count: Int get() = originalFriendGroup.count
+    
+    /**
+     * 属于本分组的好友集合。
+     *
+     * @see FriendGroup.friends
+     */
+    @ExperimentalSimbotApi
+    public val friends: Collection<MiraiFriend>
+    
+    /**
+     * 修改分组名称。
+     * @see FriendGroup.renameTo
+     */
+    @JvmBlocking
+    @JvmAsync
+    public suspend fun renameTo(newName: String): Boolean {
+        return originalFriendGroup.renameTo(newName)
+    }
+    
+    /**
+     * 把一名好友移动至本分组内.
+     * @see FriendGroup.moveIn
+     */
+    @JvmBlocking
+    @JvmAsync
+    public suspend fun moveIn(friend: MiraiFriend): Boolean {
+        return originalFriendGroup.moveIn(friend.originalContact)
+    }
+    
+    /**
+     * 把一名好友移动至本分组内.
+     * @see FriendGroup.moveIn
+     */
+    @JvmBlocking
+    @JvmAsync
+    public suspend fun moveIn(friend: OriginalMiraiFriend): Boolean {
+        return originalFriendGroup.moveIn(friend)
+    }
+    
+    /**
+     * 删除本分组.
+     * @see FriendGroup.delete
+     */
+    @JvmSynthetic
+    override suspend fun delete(): Boolean {
+        return originalFriendGroup.delete()
+    }
+    
+}
