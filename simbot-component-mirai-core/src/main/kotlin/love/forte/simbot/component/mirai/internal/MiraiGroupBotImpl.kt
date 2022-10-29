@@ -21,6 +21,7 @@ import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.bot.MiraiBotManager
+import love.forte.simbot.component.mirai.bot.MiraiFriendCategories
 import love.forte.simbot.component.mirai.bot.MiraiGroupBot
 import love.forte.simbot.component.mirai.message.MiraiImage
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
@@ -41,6 +42,8 @@ internal class MiraiGroupBotImpl(
     override val originalBotMember: NormalMember,
     initGroup: MiraiGroupImpl,
 ) : MiraiGroupBot {
+    override val friendCategories: MiraiFriendCategories
+        get() = baseBot.friendCategories
     
     private val member = originalBotMember.asSimbot(baseBot, initGroup)
     
