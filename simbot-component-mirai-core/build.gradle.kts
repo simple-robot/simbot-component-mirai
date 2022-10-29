@@ -23,7 +23,7 @@ plugins {
 
 
 dependencies {
-    compileOnly(libs.simbot.core)
+    compileOnly(SIMBOT_CORE)
     
     api(libs.mirai)
     api(libs.kotlinx.serialization.json)
@@ -35,7 +35,7 @@ dependencies {
     testImplementation(libs.kotlinx.serialization.properties)
     testImplementation(libs.kotlinx.serialization.hocon)
     testImplementation(libs.charleskorn.kaml)
-    testImplementation(libs.simbot.core)
+    testImplementation(SIMBOT_CORE)
     //https://github.com/Ricky12Awesome/json-schema-serialization
     testImplementation("com.github.Ricky12Awesome:json-schema-serialization:0.6.6")
 }
