@@ -21,6 +21,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.Api4J
 import love.forte.simbot.utils.runInBlocking
+import net.mamoe.mirai.contact.active.ActiveChart
 import net.mamoe.mirai.contact.active.ActiveRecord
 import net.mamoe.mirai.contact.active.GroupActive
 import java.util.stream.Stream
@@ -145,4 +146,15 @@ public interface MiraiGroupActive {
         originalGroupActive.setTemperatureTitles(newValue)
     }
     
+    /**
+     * 刷新成员活跃度 （[MiraiMember.active]） 中的属性, 具体说明请参考 [GroupActive.refresh]。
+     * @see GroupActive.refresh
+     */
+    public suspend fun refresh()
+    
+    /**
+     * 获取活跃度图表数据, 直接得到原生的mirai类型 [ActiveChart]。
+     * @see GroupActive.queryChart
+     */
+    public suspend fun queryChart(): ActiveChart
 }
