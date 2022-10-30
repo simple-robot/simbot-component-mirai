@@ -24,6 +24,7 @@ import love.forte.simbot.message.Message
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.asItems
 import love.forte.simbot.utils.item.map
+import net.mamoe.mirai.contact.active.GroupActive
 import net.mamoe.mirai.contact.getMember
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
@@ -55,6 +56,11 @@ internal class MiraiGroupImpl(
     
     override val id: LongID = originalContact.id.ID
     
+    private var _active: MiraiGroupActive? = null
+    
+    override val active: MiraiGroupActive
+        // Don't care about concurrency
+        get() = _active ?: MiraiGroupActiveImpl(originalContact.active).also { _active = it }
     
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
         val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
@@ -110,6 +116,22 @@ internal class MiraiGroupImpl(
     
 }
 
+internal class MiraiGroupActiveImpl(override val originalGroupActive: GroupActive) : MiraiGroupActive {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        
+        other as MiraiGroupActiveImpl
+        
+        if (originalGroupActive != other.originalGroupActive) return false
+        
+        return true
+    }
+    
+    override fun hashCode(): Int {
+        return originalGroupActive.hashCode()
+    }
+}
 
 internal fun OriginalMiraiGroup.asSimbot(bot: MiraiBotImpl): MiraiGroupImpl =
     bot.computeGroup(this) { MiraiGroupImpl(bot, this) }

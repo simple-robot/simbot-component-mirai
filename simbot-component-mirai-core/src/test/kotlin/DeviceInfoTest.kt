@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 import com.charleskorn.kaml.Yaml
@@ -55,7 +54,6 @@ class DeviceInfoTest {
             isLenient = true
             prettyPrint = true
         }
-        
         val info = DeviceInfo.random()
         val str = json.encodeToString(SimpleDeviceInfo.serializer(), info.toSimple())
         

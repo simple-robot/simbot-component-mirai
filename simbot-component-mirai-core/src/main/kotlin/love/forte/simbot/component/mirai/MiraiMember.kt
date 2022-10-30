@@ -183,6 +183,11 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      */
     override val avatar: String get() = originalContact.avatarUrl
     
+    /**
+     * 得到 [MiraiMemberActive]。
+     * @see MiraiMemberActive
+     */
+    public val active: MiraiMemberActive
     
     /**
      * 得到此成员所属群。

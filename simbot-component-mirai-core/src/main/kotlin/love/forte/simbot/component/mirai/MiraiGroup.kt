@@ -61,6 +61,11 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     override val members: Items<MiraiMember>
     
+    /**
+     * 获取群活跃度信息。
+     * @see OriginalMiraiGroup.active
+     */
+    public val active: MiraiGroupActive
     
     /**
      * bot退群。
