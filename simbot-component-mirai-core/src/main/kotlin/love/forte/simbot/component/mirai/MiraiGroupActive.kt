@@ -150,11 +150,13 @@ public interface MiraiGroupActive {
      * 刷新成员活跃度 （[MiraiMember.active]） 中的属性, 具体说明请参考 [GroupActive.refresh]。
      * @see GroupActive.refresh
      */
-    public suspend fun refresh()
+    public suspend fun refresh() {
+        originalGroupActive.refresh()
+    }
     
     /**
      * 获取活跃度图表数据, 直接得到原生的mirai类型 [ActiveChart]。
      * @see GroupActive.queryChart
      */
-    public suspend fun queryChart(): ActiveChart
+    public suspend fun queryChart(): ActiveChart = originalGroupActive.queryChart()
 }
