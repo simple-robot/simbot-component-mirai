@@ -18,14 +18,12 @@ package love.forte.simbot.component.mirai.internal
 
 import love.forte.simbot.*
 import love.forte.simbot.action.SendSupport
-import love.forte.simbot.component.mirai.MiraiGroup
-import love.forte.simbot.component.mirai.MiraiMember
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
 import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.NormalMember
+import net.mamoe.mirai.contact.active.MemberActive
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
@@ -56,6 +54,11 @@ internal class MiraiMemberImpl(
         is NormalMember -> member.muteTimeRemaining
         else -> 0
     }
+    
+    private var _active: MiraiMemberActive? = null
+    override val active: MiraiMemberActive
+        // Don't care about concurrency
+        get() = _active ?: MiraiMemberActiveImpl(originalContact.active).also { _active = it }
     
     private val _group: MiraiGroupImpl = initGroup ?: originalContact.group.asSimbot(bot)
     
@@ -109,6 +112,23 @@ internal class MiraiMemberImpl(
     
 }
 
+internal class MiraiMemberActiveImpl(override val originalMemberActive: MemberActive) : MiraiMemberActive {
+    
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        
+        other as MiraiMemberActiveImpl
+        
+        if (originalMemberActive != other.originalMemberActive) return false
+        
+        return true
+    }
+    
+    override fun hashCode(): Int {
+        return originalMemberActive.hashCode()
+    }
+}
 
 internal fun OriginalMiraiMember.asSimbot(bot: MiraiBotImpl): MiraiMemberImpl =
     bot.computeMember(this) { MiraiMemberImpl(bot, this) }
