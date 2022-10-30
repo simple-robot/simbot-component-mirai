@@ -18,10 +18,12 @@ package love.forte.simbot.component.mirai.bot
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 import love.forte.simbot.FragileSimbotApi
 import love.forte.simbot.Simbot
+import love.forte.simbot.SimbotIllegalStateException
 import love.forte.simbot.component.mirai.DEFAULT_SIMBOT_MIRAI_DEVICE_INFO_SEED
 import love.forte.simbot.component.mirai.SimpleDeviceInfo
 import love.forte.simbot.component.mirai.bot.DeviceInfoConfiguration.Resource.Companion.CLASSPATH_PREFIX
@@ -119,6 +121,9 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
      *   }
      * }
      * ```
+     *
+     * 此方案所使用的 `.json` 文件内容应是直接对 [DeviceInfo] 进行反序列化
+     * 的结果，其可能也许会与 [FileBased] 方案的结果略有不同。
      *
      * ## 占位符替换
      * [paths] 属性支持占位符替换。参考 [CODE_MARK]，例如：
@@ -254,7 +259,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
      * 与 [Resource] 不同的是，[FileBased] 是基于 [DeviceInfo.loadAsDeviceInfo] 的，
      * 其最终结果与行为会类似于使用 [BotConfiguration.fileBasedDeviceInfo]。
      *
-     * 与 [Resource] 不同，[FileBased] **仅支持** 本地文件，且所需要读取的设备信息文件的格式也与
+     *[FileBased] **仅支持** 本地文件，且所需要读取的设备信息文件的格式也与
      * [DeviceInfo] 存在些许不同，它们是存在"版本号"的信息格式，因此 [FileBased] 的所需格式与 [Resource]
      * 的所需格式可能并不通用。
      *
@@ -303,7 +308,11 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                     ?: ClassLoader.getSystemClassLoader()
                     loader.getResourceAsStream(targetFromResource)?.buffered()?.use { resource ->
                         targetFile.outputStream().use(resource::copyTo)
-                    } ?: logger.warn("The file at [{}] is suspected to be null or non-existent, but unable to find resource at [{}]. The copy behavior will not be executed", file, fromResource)
+                    } ?: logger.warn(
+                        "The file at [{}] is suspected to be null or non-existent, but unable to find resource at [{}]. The copy behavior will not be executed",
+                        file,
+                        fromResource
+                    )
                 }
             } catch (anyEx: Throwable) {
                 logger.warn(
@@ -442,12 +451,22 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
      * - `devices-123456/device-123456.json`
      * - `devices-123456/device.json`
      *
-     * 如果无法在上述内容中找到存在的资源，则 [Auto] 会采用与 [SimbotRandom] 一致的行为。
+     * [Auto.baseDir] 扫描时，解析的**本地文件**格式会优先尝试直接通过 [DeviceInfo] 进行反序列化，
+     * 如果失败则会尝试通过 [DeviceInfo.loadAsDeviceInfo] 进行。
+     * 而对于 **资源文件** 则只会尝试通过 [DeviceInfo] 反序列化进行加载。
+     *
+     * 如果无法在上述内容中找到存在的资源，则 [Auto] 会采用 [FileBased] 的行为。
      *
      */
     @Serializable
     @SerialName(Auto.TYPE)
-    public data class Auto(public val baseDir: String? = null) : DeviceInfoConfiguration() {
+    public data class Auto(
+        public val baseDir: String? = null,
+        /**
+         * 当 [baseDir] 中没有配置内容或无法寻找到目标结果时，通过 [FileBased] 进行加载的文件名。
+         */
+        public val fileBasedFilename: String = "device.json",
+    ) : DeviceInfoConfiguration() {
         
         override fun invoke(bot: Bot): DeviceInfo {
             val code = bot.id.toString()
@@ -461,37 +480,75 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                 val classLoader = currentClassLoader
                 val resolvedPaths = TARGETS.map { Path(formattedBaseDir, it.replaceCodeMark(code)) }
                 for (path in resolvedPaths) {
-                    logger.debug("Find device info [{}] from local file", path)
+                    logger.debug("Finding device info [{}] from local file", path)
                     // local file
                     if (path.exists()) {
-                        if (!path.isRegularFile()) {
-                            logger.debug("Path [{}] is exists, but is not a regular file.", path)
-                        } else {
-                            // read, and without try
-                            return json.decodeFromString(DeviceInfo.serializer(), path.readText())
+                        when {
+                            !path.isRegularFile() -> {
+                                logger.warn(
+                                    "Device info path [{}] for bot(code={}) is exists, but is not a regular file.",
+                                    path,
+                                    code
+                                )
+                            }
+                            
+                            !path.isReadable() -> {
+                                logger.warn(
+                                    "Device info path [{}] for bot(code={}) is exists, but is not readable.",
+                                    path,
+                                    code
+                                )
+                            }
+                            
+                            else -> {
+                                // read.
+                                return try {
+                                    json.decodeFromString(DeviceInfo.serializer(), path.readText())
+                                } catch (decodeException: SerializationException) {
+                                    logger.debug(
+                                        "Device info path [{}] for bot(code={}) direct deserialization fails: [{}], try loading via loadAsDeviceInfo",
+                                        path,
+                                        code,
+                                        decodeException.localizedMessage
+                                    )
+                                    try {
+                                        path.toFile().loadAsDeviceInfo()
+                                    } catch (le: Throwable) {
+                                        throw SimbotIllegalStateException("Cannot load device info form path $path").also {
+                                            it.addSuppressed(decodeException)
+                                            it.addSuppressed(le)
+                                        }
+                                    }
+                                    
+                                }
+                            }
                         }
                     } else {
-                        logger.debug("Path [{}] does not exist", path)
+                        logger.debug("No device info found on path {}", path)
                     }
                     
                     // resource
                     val resourcePath = path.toString()
-                    logger.debug("Find device info [{}] from resource", resourcePath)
+                    logger.debug("Finding device info [{}] from resource", resourcePath)
                     classLoader.getResourceAsStream(resourcePath)?.bufferedReader()?.use { reader ->
-                        return json.decodeFromString(DeviceInfo.serializer(), reader.readText())
+                        try {
+                            json.decodeFromString(DeviceInfo.serializer(), reader.readText())
+                        } catch (e: Throwable) {
+                            throw SimbotIllegalStateException("Cannot load device info form resource $resourcePath", e)
+                        }
                     } ?: apply {
-                        logger.debug("Resource [{}] does not exist", resourcePath)
+                        logger.debug("No device info found on resource {}", resourcePath)
                     }
                 }
                 
                 logger.debug(
-                    "No device info file is found in target paths: {}. The device info will be generated using SimbotRandom.DEFAULT.",
+                    "No device info file found in target paths: {}. The device info will be generated (or load) using FileBased(file=$fileBasedFilename).",
                     resolvedPaths
                 )
                 
             }
             
-            return SimbotRandom.DEFAULT(bot)
+            return fileBased(fileBasedFilename)(bot)
             
         }
         
@@ -563,7 +620,8 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
          */
         @JvmStatic
         @JvmOverloads
-        public fun fileBased(file: String = FileBased.DEFAULT_FILE, fromResource: String? = null): FileBased = FileBased(file, fromResource)
+        public fun fileBased(file: String = FileBased.DEFAULT_FILE, fromResource: String? = null): FileBased =
+            FileBased(file, fromResource)
         
         /**
          * 得到一个 [JsonObj]
