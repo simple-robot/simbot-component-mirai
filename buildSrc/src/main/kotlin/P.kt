@@ -32,7 +32,7 @@ sealed class P : SimbotProject() {
         val version = Version(
             major = "3.0",
             minor = 0, patch = 0,
-            status = VersionStatus.beta(3, null, null),
+            status = VersionStatus.beta(4, null, null),
             isSnapshot = isSnapshot
         )
         const val GROUP = "love.forte.simbot.component"

@@ -36,6 +36,11 @@ dependencies {
     testImplementation(libs.kotlinx.serialization.hocon)
     testImplementation(libs.charleskorn.kaml)
     testImplementation(SIMBOT_CORE)
+    val log4j2Version = "2.9.1"
+    testImplementation("org.apache.logging.log4j", "log4j-api", log4j2Version)
+    testImplementation("org.apache.logging.log4j", "log4j-core", log4j2Version)
+    testImplementation("org.apache.logging.log4j", "log4j-slf4j-impl", log4j2Version)
+    
     //https://github.com/Ricky12Awesome/json-schema-serialization
     testImplementation("com.github.Ricky12Awesome:json-schema-serialization:0.6.6")
 }
