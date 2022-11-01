@@ -23,7 +23,7 @@
 <br>
 <br>
 
-此为 [simbot3](https://github.com/ForteScarlet/simpler-robot/tree/v3-dev) 下基于simbot标准API对 [mirai](https://github.com/mamoe/mirai) 的组件支持。
+此为 [simbot3](https://github.com/simple-robot/simpler-robot) 下基于simbot标准API对 [mirai](https://github.com/mamoe/mirai) 的组件支持。
 
 更多详情请参考 [simbot3文档](https://www.yuque.com/simpler-robot/simpler-robot-doc/mudleb)
 
@@ -34,6 +34,95 @@
 
 ### 快速开始
 参考文档的 [《快速开始》](https://www.yuque.com/simpler-robot/simpler-robot-doc/fvdmq1)
+
+### 使用
+
+注：mirai组件仅编译时依赖 [simbot](https://github.com/simple-robot/simpler-robot) 核心库，因此你必须引入一个具体的核心库版本。
+
+**gradle kotlin dsl**
+
+```kotlin
+implementation("love.forte.simbot:simbot-core:$SIMBOT_VERSION")
+implementation("love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION")
+```
+**gradle groovy dsl**
+
+```groovy
+implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION'
+implementation 'love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION'
+```
+
+**maven**
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>love.forte.simbot.boot</groupId>
+        <artifactId>simboot-core-spring-boot-starter</artifactId>
+        <version>${simbot.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>love.forte.simbot.component</groupId>
+        <artifactId>simbot-component-mirai-core</artifactId>
+        <version>${simbot.mirai.version}</version>
+    </dependency>
+</dependencies>
+```
+
+### 变更mirai版本
+
+有些时候，mirai组件的更新速度可能无法赶上 [mirai](https://github.com/mamoe/mirai) 的版本发布，此时你可以自行更替mirai版本。
+
+**gradle kotlin dsl**
+
+```kotlin
+implementation("love.forte.simbot:simbot-core:$SIMBOT_VERSION")
+implementation("love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION") {
+    exclude("net.mamoe", "mirai-core-jvm")
+}
+// 自行引入
+implementation("net.mamoe:mirai-core-jvm:$MIRAI_VERSION")
+```
+**gradle groovy dsl**
+
+```groovy
+implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION'
+implementation 'love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION' {
+    exclude group: 'net.mamoe', module: 'mirai-core-jvm'
+}
+
+// 自行引入
+implementation 'net.mamoe:mirai-core-jvm:$MIRAI_VERSION'
+```
+
+**maven**
+```xml
+<dependencies>
+    <dependency>
+        <groupId>love.forte.simbot.boot</groupId>
+        <artifactId>simboot-core-spring-boot-starter</artifactId>
+        <version>${simbot.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>love.forte.simbot.component</groupId>
+        <artifactId>simbot-component-mirai-core</artifactId>
+        <version>${simbot.mirai.version}</version>
+        <exclusions>
+            <exclusion>
+                <groupId>net.mamoe</groupId>
+                <artifactId>mirai-core-jvm</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+
+    <!-- 自行引入 -->
+    <dependency>
+        <groupId>net.mamoe</groupId>
+        <artifactId>mirai-core-jvm</artifactId>
+        <version>${mirai.version}</version>
+    </dependency>
+</dependencies>
+```
 
 
 ### 走马观花
