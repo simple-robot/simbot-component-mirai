@@ -38,12 +38,25 @@ import net.mamoe.mirai.message.MessageReceipt as OriginalMiraiMessageReceipt
  */
 @JvmAsync
 @JvmBlocking
-public interface SimbotMiraiMessageReceipt<out C : Contact> : MessageReceipt, DeleteSupport, ReplySupport {
-    public val receipt: OriginalMiraiMessageReceipt<C>
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact>
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact>
-    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact>
-    override suspend fun delete(): Boolean
+public abstract class SimbotMiraiMessageReceipt<out C : Contact> : SingleMessageReceipt(), DeleteSupport, ReplySupport {
+    public abstract val receipt: OriginalMiraiMessageReceipt<C>
+    /*
+        '回执'并没有 Reply 的语义，将会择期取消对 ReplySupport 的实现。
+     */
+    
+    @Deprecated("Will remove.")
+    abstract override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact>
+    
+    @Deprecated("Will remove.")
+    abstract override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact>
+    
+    @Deprecated("Will remove.")
+    abstract override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact>
+    
+    /**
+     * 删除/撤回这条消息.
+     */
+    abstract override suspend fun delete(): Boolean
 }
 
 
@@ -55,7 +68,7 @@ public interface SimbotMiraiMessageReceipt<out C : Contact> : MessageReceipt, De
  */
 internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
     override val receipt: OriginalMiraiMessageReceipt<C>,
-) : SimbotMiraiMessageReceipt<C> {
+) : SimbotMiraiMessageReceipt<C>() {
     override val id: ID = receipt.source.ID
     override val isSuccess: Boolean get() = true
     
@@ -67,6 +80,7 @@ internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
         return true
     }
     
+    @Deprecated("Will remove.")
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val sendMessage = message.toOriginalMiraiMessage(receipt.target)
@@ -74,12 +88,14 @@ internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
     
+    @Deprecated("Will remove.")
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val newReceipt = receipt.target.sendMessage(quote + text.toPlainText())
         return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
     
+    @Deprecated("Will remove.")
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact> {
         val quote = receipt.quote()
         val sendMessage = message.messages.toOriginalMiraiMessage(receipt.target)
