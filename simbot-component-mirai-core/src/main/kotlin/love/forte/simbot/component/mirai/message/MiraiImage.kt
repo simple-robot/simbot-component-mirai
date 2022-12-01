@@ -94,6 +94,12 @@ public interface MiraiSendOnlyImage :
     
     public companion object Key : Message.Key<MiraiSendOnlyImage> {
         override fun safeCast(value: Any): MiraiSendOnlyImage? = doSafeCast(value)
+    
+        /**
+         * 通过 [resource] 得到一个 [MiraiSendOnlyImage] 实例。
+         */
+        @JvmStatic
+        @JvmOverloads
         public fun of(resource: Resource, isFlash: Boolean = false): MiraiSendOnlyImage =
             MiraiSendOnlyImageImpl(resource, isFlash)
     }
