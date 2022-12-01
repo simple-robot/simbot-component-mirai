@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -35,6 +34,10 @@ public interface MiraiBotContainer : BotContainer {
 
 /**
  * 包含了mirai原生联系人[OriginalMiraiContact] 的容器类型.
+ *
+ * @see MiraiContact
+ * @see MiraiChatroom
+ *
  */
 public interface MiraiContactContainer {
     public val originalContact: OriginalMiraiContact
