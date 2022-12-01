@@ -16,18 +16,16 @@
 
 package love.forte.simbot.component.mirai.message
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
-import love.forte.simbot.CharSequenceID
+import love.forte.plugin.suspendtrans.annotation.JvmAsync
+import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ID
+import love.forte.simbot.component.mirai.MiraiContactContainer
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.message.Image
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.doSafeCast
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.resources.Resource.Companion.toResource
-import love.forte.simbot.utils.runWithInterruptible
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.contact.Contact.Companion.uploadImage
 import net.mamoe.mirai.message.data.Image.Key.queryUrl
@@ -37,7 +35,6 @@ import java.io.IOException
 import java.net.URL
 import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
 import net.mamoe.mirai.message.data.Image as OriginalMiraiImage
-import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
 
 
 /**
@@ -45,7 +42,10 @@ import net.mamoe.mirai.message.data.Message as OriginalMiraiMessage
  * 不建议对其进行长久的序列化，因为其内部的 [resource] 中保存的内容很有可能是 **临时** 内容。
  *
  * [MiraiSendOnlyImage] 是通过 [Resource] 作为上传资源使用的，
- * 如果你希望仅通过一个ID来获取图片，请参考 [love.forte.simbot.resources.Resource] 并使用在 [MiraiBot.uploadImage] 中。
+ * 如果你希望仅通过一个ID来获取图片，[MiraiBot.idImage]。
+ *
+ * [MiraiSendOnlyImage] 是一个预处理对象，每次使用都会进行一次图片上传，其内部不会保存任何**具体的**图片消息对象。
+ * 可以通过 [upload] 将当前图片消息上传为一个具体的图片对象。
  *
  * @see Resource
  * @see MiraiBot.uploadImage
@@ -56,11 +56,10 @@ public interface MiraiSendOnlyImage :
     Image<MiraiSendOnlyImage> {
     
     /**
-     * 图片发送所使用的资源对象。
+     * 作为仅用于发送的图片时的类型，[id] 的值为其内部资源的name而并非具体的图片ID。
+     * 如果希望得到具体的图片信息，使用 [upload]。
      */
-    @JvmSynthetic
-    override suspend fun resource(): Resource
-    
+    override val id: ID
     
     /**
      * 是否作为一个闪照。
@@ -68,68 +67,43 @@ public interface MiraiSendOnlyImage :
     public val isFlash: Boolean
     
     /**
-     * 作为仅用于发送的图片时的类型，
-     * 在真正获取过图片(执行过一次 [originalMiraiMessage])之前将无法获取到ID，因此在那之前 [id] 的值将为空。
-     * 并且此ID不稳定，图片的上传目前 **没有** 缓存，每次执行后得到的ImageId可能会不同，
-     * 但是 [id] 在更新后将不会再次变更。
-     *
-     * 因此无法保证ID的准确性，应尽可能避免对此ID进行操作。
+     * 图片发送所使用的资源对象。
      */
-    override val id: ID
+    @JvmSynthetic
+    override suspend fun resource(): Resource
+    
+    /**
+     * 将当前_预处理_图片消息对象通过 [contact] 上传为一个**具体**的图片消息对象。
+     *
+     * @see MiraiImage
+     */
+    @JvmBlocking
+    @JvmAsync
+    public suspend fun upload(contact: Contact): MiraiImage
+    
+    /**
+     * 将当前的 [MiraiSendOnlyImage] 消息对象通过 [contactContainer.contact][MiraiContactContainer.originalContact] 上传为一个**具体**的图片消息对象。
+     *
+     * @see MiraiContactContainer
+     * @see MiraiImage
+     */
+    @JvmBlocking
+    @JvmAsync
+    public suspend fun upload(contactContainer: MiraiContactContainer): MiraiImage =
+        upload(contactContainer.originalContact)
     
     public companion object Key : Message.Key<MiraiSendOnlyImage> {
         override fun safeCast(value: Any): MiraiSendOnlyImage? = doSafeCast(value)
+    
+        /**
+         * 通过 [resource] 得到一个 [MiraiSendOnlyImage] 实例。
+         */
+        @JvmStatic
+        @JvmOverloads
         public fun of(resource: Resource, isFlash: Boolean = false): MiraiSendOnlyImage =
             MiraiSendOnlyImageImpl(resource, isFlash)
     }
 }
-
-
-@SerialName("mirai.sendOnlyImage")
-@Serializable
-internal class MiraiSendOnlyImageImpl(
-    private val originalResource: Resource,
-    override val isFlash: Boolean,
-) : MiraiSendOnlyImage {
-    
-    @Transient
-    override val id: ID = originalResource.name.ID
-    
-    override suspend fun resource(): Resource = originalResource
-    override val key: Message.Key<MiraiSendOnlyImage>
-        get() = MiraiSendOnlyImage.Key
-    
-    override fun equals(other: Any?): Boolean {
-        if (other === this) return true
-        if (other !is MiraiSendOnlyImageImpl) return false
-        return originalResource === other.originalResource
-    }
-    
-    /**
-     * 返回值只可能是 [OriginalMiraiFlashImage] 或 [OriginalMiraiImage].
-     */
-    override suspend fun originalMiraiMessage(contact: Contact, isDropAction: Boolean): OriginalMiraiMessage {
-        return originalResource.uploadToImage(contact, isFlash)
-    }
-    
-    override fun toString(): String = originalResource.toString()
-    override fun hashCode(): Int = originalResource.hashCode()
-    
-    companion object {
-        // private val ID = "".ID
-    }
-}
-
-
-@Throws(IOException::class)
-internal suspend fun Resource.uploadToImage(contact: Contact, isFlash: Boolean): OriginalMiraiMessage {
-    return runWithInterruptible { openStream() }.use {
-        contact.uploadImage(it).let { image ->
-            if (isFlash) image.flash() else image
-        }
-    }
-}
-
 
 /**
  * 将一个 [OriginalMiraiImage] 作为 simbot的 [love.forte.simbot.message.Image] 进行使用。
@@ -164,38 +138,54 @@ public interface MiraiImage :
     
     /**
      * 图片的宽度 (px), 当无法获取时为 0
+     * @see OriginalMiraiImage.width
      */
     public val width: Int get() = originalImage.width
     
     /**
      * 图片的高度 (px), 当无法获取时为 0
+     * @see OriginalMiraiImage.height
      */
     public val height: Int get() = originalImage.height
     
     /**
      * 图片的大小（字节）, 当无法获取时为 0
+     * @see OriginalMiraiImage.size
      */
     public val size: Long get() = originalImage.size
     
     /**
      * 图片的类型, 当无法获取时为未知 [ImageType.UNKNOWN]
-     * @see ImageType
+     * @see OriginalMiraiImage.imageType
      */
     public val imageType: ImageType get() = originalImage.imageType
     
     /**
      * 判断该图片是否为 `动画表情`
+     * @see OriginalMiraiImage.isEmoji
      */
     public val isEmoji: Boolean get() = originalImage.isEmoji
     
+    /**
+     * 图片文件 MD5.
+     *
+     * @see OriginalMiraiImage.md5
+     */
+    public val md5: ByteArray get() = originalImage.md5
+    
+    /**
+     * 查询原图下载链接.
+     * @see OriginalMiraiImage.queryUrl
+     */
+    @JvmBlocking
+    @JvmAsync
+    public suspend fun queryUrl(): String = originalImage.queryUrl()
     
     /**
      * 通过 [queryUrl] 查询并得到 [Resource] 对象。
      */
     @JvmSynthetic
-    override suspend fun resource(): Resource {
-        return URL(originalImage.queryUrl()).toResource()
-    }
+    override suspend fun resource(): Resource = URL(queryUrl()).toResource()
     
     
     public companion object Key : Message.Key<MiraiImage> {
@@ -217,28 +207,23 @@ public interface MiraiImage :
     
 }
 
-
-@SerialName("mirai.image")
-@Serializable
-internal class MiraiImageImpl(
-    override val originalImage: OriginalMiraiImage,
-    override val isFlash: Boolean,
-) : MiraiImage {
-    override val id: CharSequenceID = originalImage.imageId.ID
-    override val key: Message.Key<MiraiImage> get() = MiraiImage.Key
-    
-    
-    override fun equals(other: Any?): Boolean {
-        if (other === this) return true
-        if (other !is MiraiImage) return false
-        return originalImage == other.originalImage
-    }
-    
-    override fun toString(): String = originalImage.toString()
-    override fun hashCode(): Int = originalImage.hashCode()
-    
-    
+/**
+ * 将 [Resource] 作为资源读取并上传到 [contact], 并得到一个图片结果。
+ */
+internal suspend fun Resource.uploadToImage(contact: Contact): net.mamoe.mirai.message.data.Image {
+    return openStream().use { contact.uploadImage(it) }
 }
+
+/**
+ * 将 [Resource] 作为资源读取并上传到 [contact], 并得到一个图片结果。
+ */
+@Throws(IOException::class)
+internal suspend fun Resource.uploadToImage(contact: Contact, isFlash: Boolean): net.mamoe.mirai.message.data.Message {
+    return uploadToImage(contact).let { image ->
+        if (isFlash) image.flash() else image
+    }
+}
+
 
 public fun OriginalMiraiImage.asSimbot(isFlash: Boolean = false): MiraiImage = MiraiImage.of(this, isFlash)
 public fun OriginalMiraiFlashImage.asSimbot(isFlash: Boolean = true): MiraiImage = MiraiImage.of(this, isFlash)

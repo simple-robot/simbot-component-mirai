@@ -7,7 +7,7 @@ changelog:
     - title: '⚠️ 不兼容变更'
       labels:
         - '不兼容'
-    - title: '🔧 Bug Fix'
+    - title: '🔧 修复'
       labels:
         - 'bug'
     - title: '🎉 新特性'
