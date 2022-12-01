@@ -23,13 +23,11 @@ repositories {
     gradlePluginPortal()
 }
 
-val kotlinVersion = "1.7.10"
-val dokkaPluginVersion = "1.7.10"
-val suspendTransformPlugin = "0.0.4"
+val kotlinVersion = "1.7.20"
+val dokkaPluginVersion = "1.7.20"
+val suspendTransformPlugin = "0.1.0"
 
 dependencies {
-    // kotlin("jvm") apply false
-    implementation(gradleApi())
     implementation(kotlin("gradle-plugin", kotlinVersion))
     implementation(kotlin("serialization", kotlinVersion))
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaPluginVersion")
