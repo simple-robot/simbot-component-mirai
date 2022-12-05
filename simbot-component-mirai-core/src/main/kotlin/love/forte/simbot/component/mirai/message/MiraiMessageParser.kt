@@ -24,13 +24,13 @@ import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
 import love.forte.simbot.component.mirai.message.MiraiForwardMessage.Key.asSimbot
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
+import love.forte.simbot.message.AtAll
+import love.forte.simbot.message.Face
 import love.forte.simbot.message.Message
+import love.forte.simbot.message.PlainText
 import love.forte.simbot.tryToLong
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.message.data.ForwardMessage
-import net.mamoe.mirai.message.data.emptyMessageChain
-import net.mamoe.mirai.message.data.toMessageChain
-import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.At as MiraiAtFunc
 import net.mamoe.mirai.message.data.Audio as OriginalMiraiAudio
 import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
@@ -185,7 +185,9 @@ private object StandardParser : MiraiMessageParser {
             is OriginalMiraiFlashImage -> message.asSimbot()
             is OriginalMiraiAudio -> message.asSimbot()
             is ForwardMessage -> message.asSimbot()
-            // TODO QuoteReply
+            is QuoteReply -> message.asSimbot()
+
+            // 消息类型被遗忘了？告诉我们：https://github.com/simple-robot/simbot-component-mirai/issues
             // other messages.
             else -> SimbotOriginalMiraiMessage(message)
         }
