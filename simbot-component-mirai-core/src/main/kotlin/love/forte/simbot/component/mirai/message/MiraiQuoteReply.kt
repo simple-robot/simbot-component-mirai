@@ -29,7 +29,7 @@ import net.mamoe.mirai.message.data.QuoteReply
 
 /**
  *
- * 使用消息的ID作为Mirai的引用回复对象。
+ * 使用 [QuoteReply] 作为Mirai的引用回复对象。
  * 如果你有一个现成的 [QuoteReply] 对象希望直接发送，
  * 请考虑使用 [SimbotOriginalMiraiMessage].
  *
@@ -44,29 +44,44 @@ public class MiraiQuoteReply(
     private val source: MessageSource, // = id.buildMessageSource()
 ) : OriginalMiraiDirectlySimbotMessage<QuoteReply, MiraiQuoteReply> {
     public constructor(id: ID) : this(id.buildMessageSource())
-    
-    @Suppress("MemberVisibilityCanBePrivate")
+    public constructor(quoteReply: QuoteReply) : this(quoteReply.source) {
+        this._quoteReply = quoteReply
+    }
+
     @Transient
-    private val quoteReply = QuoteReply(source)
-    
+    private var _quoteReply: QuoteReply? = null
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    private val quoteReply: QuoteReply
+        get() = _quoteReply ?: synchronized(this) {
+            _quoteReply ?: QuoteReply(source).also {
+                _quoteReply = it
+            }
+        }
+
     override val key: Message.Key<MiraiQuoteReply>
         get() = Key
-    
+
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is MiraiQuoteReply) return false
-        return other.source == source
+        return other.quoteReply == quoteReply
     }
-    
+
     override fun toString(): String = "MiraiQuoteReply(quoteReply=$quoteReply)"
     override fun hashCode(): Int = quoteReply.hashCode()
-    
+
     @Suppress("MemberVisibilityCanBePrivate")
     override val originalMiraiMessage: QuoteReply
         get() = quoteReply
-    
-    
+
+
     public companion object Key : Message.Key<MiraiQuoteReply> {
         override fun safeCast(value: Any): MiraiQuoteReply? = doSafeCast(value)
     }
 }
+
+/**
+ * 将 [QuoteReply] 包装为 [MiraiQuoteReply]
+ */
+public fun QuoteReply.asSimbot(): MiraiQuoteReply = MiraiQuoteReply(this)
