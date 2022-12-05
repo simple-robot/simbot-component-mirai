@@ -32,23 +32,23 @@ sealed class P : SimbotProject() {
         val version = Version(
             major = "3.0",
             minor = 0, patch = 0,
-            status = VersionStatus.beta(5, null, null),
+            status = VersionStatus.beta(6, null, null),
             isSnapshot = isSnapshot
         )
         const val GROUP = "love.forte.simbot.component"
         const val DESCRIPTION = "Simple Robot框架下针对Mirai框架的组件实现"
         val VERSION: String get() = version.fullVersion(true)
-        
-        
+
+
     }
-    
+
 }
 
 
 fun isSnapshot(): Boolean {
     println("property: ${System.getProperty("simbot.snapshot")}")
     println("env: ${System.getenv(Env.IS_SNAPSHOT)}")
-    
+
     return (System.getProperty("simbot.snapshot")?.toBoolean() ?: false)
             || (System.getenv(Env.IS_SNAPSHOT)?.toBoolean() ?: false)
 }

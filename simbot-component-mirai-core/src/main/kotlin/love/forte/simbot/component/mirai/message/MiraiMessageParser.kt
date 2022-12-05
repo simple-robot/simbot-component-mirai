@@ -24,13 +24,13 @@ import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
 import love.forte.simbot.component.mirai.message.MiraiForwardMessage.Key.asSimbot
 import love.forte.simbot.message.*
 import love.forte.simbot.message.At
+import love.forte.simbot.message.AtAll
+import love.forte.simbot.message.Face
 import love.forte.simbot.message.Message
+import love.forte.simbot.message.PlainText
 import love.forte.simbot.tryToLong
 import net.mamoe.mirai.contact.Contact
-import net.mamoe.mirai.message.data.ForwardMessage
-import net.mamoe.mirai.message.data.emptyMessageChain
-import net.mamoe.mirai.message.data.toMessageChain
-import net.mamoe.mirai.message.data.toPlainText
+import net.mamoe.mirai.message.data.*
 import net.mamoe.mirai.message.data.At as MiraiAtFunc
 import net.mamoe.mirai.message.data.Audio as OriginalMiraiAudio
 import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
@@ -44,7 +44,7 @@ import net.mamoe.mirai.message.data.SingleMessage as OriginalMiraiSingleMessage
 public object EmptySingleMessage : OriginalMiraiSingleMessage {
     override fun contentToString(): String = "EmptySingleMessage"
     override fun toString(): String = "EmptySingleMessage()"
-    
+
     public val simbotMessage: Message.Element<*> = this.asSimbotMessage()
 }
 
@@ -89,16 +89,16 @@ public suspend fun Message.toOriginalMiraiMessage(
     return when (this) {
         is OriginalMiraiDirectlySimbotMessage<*, *> -> originalMiraiMessage.takeIf { it !== EmptySingleMessage }
             ?: emptyMessageChain()
-        
+
         is OriginalMiraiComputableSimbotMessage<*> -> originalMiraiMessage(
             contact,
             isDropAction
         ).takeIf { it !== EmptySingleMessage }
             ?: emptyMessageChain()
-        
+
         else -> {
             val list = mutableListOf<OriginalMiraiMessage>()
-            
+
             if (this is Message.Element<*>) {
                 StandardParser.toMirai(this, contact, list)
             } else if (this is Messages) {
@@ -106,7 +106,7 @@ public suspend fun Message.toOriginalMiraiMessage(
                     StandardParser.toMirai(it, contact, list)
                 }
             }
-            
+
             if (list.isEmpty()) emptyMessageChain() else list.toMessageChain()
         }
     }
@@ -128,7 +128,7 @@ internal interface MiraiMessageParser {
         contact: Contact,
         messages: MutableCollection<OriginalMiraiMessage>,
     )
-    
+
     fun toSimbot(
         message: OriginalMiraiSingleMessage,
     ): Message.Element<*>
@@ -154,7 +154,7 @@ private object StandardParser : MiraiMessageParser {
                     is AtAll -> messages.add(net.mamoe.mirai.message.data.AtAll)
                     is Text -> messages.add(message.text.toPlainText())
                 }
-                
+
                 is PlainText -> messages.add(message.text.toPlainText())
                 is Image -> messages.add(message.toMirai(contact))
                 is Emoji -> messages.add(":${message.id}:".toPlainText())
@@ -162,16 +162,16 @@ private object StandardParser : MiraiMessageParser {
                     val miraiFace = net.mamoe.mirai.message.data.Face(message.id.tryToLong().toInt())
                     messages.add(miraiFace)
                 }
-                
+
                 // ignore RemoteResource
                 else -> {}
             }
-            
+
             is OriginalMiraiComputableSimbotMessage<*> -> message.originalMiraiMessage(contact)
                 .takeIf { it !== EmptySingleMessage }?.also(messages::add)
         }
     }
-    
+
     /**
      * mirai message 转化为 simbot message
      */
@@ -185,7 +185,9 @@ private object StandardParser : MiraiMessageParser {
             is OriginalMiraiFlashImage -> message.asSimbot()
             is OriginalMiraiAudio -> message.asSimbot()
             is ForwardMessage -> message.asSimbot()
-            
+            is QuoteReply -> message.asSimbot()
+
+            // 消息类型被遗忘了？告诉我们：https://github.com/simple-robot/simbot-component-mirai/issues
             // other messages.
             else -> SimbotOriginalMiraiMessage(message)
         }
@@ -200,7 +202,7 @@ private suspend fun Image<*>.toMirai(contact: Contact): OriginalMiraiMessage {
         is MiraiSendOnlyImage -> originalMiraiMessage(contact)
         else -> resource().uploadToImage(contact, false)
     }
-    
+
     return image
 }
 

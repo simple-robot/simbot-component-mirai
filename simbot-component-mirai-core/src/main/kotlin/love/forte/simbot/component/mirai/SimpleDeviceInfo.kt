@@ -48,7 +48,7 @@ public data class SimpleDeviceInfo(
     public val imei: String,
     public val apn: String,
 ) {
-    
+
     /**
      * @see DeviceInfo.Version
      */
@@ -89,23 +89,10 @@ public fun SimpleDeviceInfo.toDeviceInfo(): DeviceInfo = DeviceInfo(
     macAddress = macAddress.toByteArray(),
     wifiBSSID = wifiBSSID.toByteArray(),
     wifiSSID = wifiSSID.toByteArray(),
-    imsiMd5 = hex(imsiMd5),
+    imsiMd5 = imsiMd5.toHex(),
     imei = imei,
     apn = apn.toByteArray()
 )
-
-// TODO replace to 'toHex()'
-private fun hex(hex: String): ByteArray {
-    val result = ByteArray(hex.length / 2)
-    for (idx in result.indices) {
-        val srcIdx = idx * 2
-        val high = hex[srcIdx].toString().toInt(16) shl 4
-        val low = hex[srcIdx + 1].toString().toInt(16)
-        result[idx] = (high or low).toByte()
-    }
-    
-    return result
-}
 
 @FragileSimbotApi
 public fun DeviceInfo.Version.toSimple(): SimpleDeviceInfo.Version = SimpleDeviceInfo.Version(

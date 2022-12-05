@@ -42,7 +42,6 @@ class BotCompletionHandleTest {
 
     @Test
     fun completionHandleTest() {
-        // TODO
         // System.setProperty("mirai.no-desktop", "")
         // val manager = miraiBotManager(coreListenerManager { install(MiraiComponent) })
         // val bot = manager.register(123, "666")
