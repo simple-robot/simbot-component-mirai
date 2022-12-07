@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 @file:JvmName("MiraiComponents")
@@ -26,6 +25,7 @@ import kotlinx.serialization.modules.subclass
 import love.forte.simbot.*
 import love.forte.simbot.application.ApplicationBuilder
 import love.forte.simbot.component.mirai.MiraiComponent.Factory
+import love.forte.simbot.component.mirai.bot.MiraiBotManager
 import love.forte.simbot.component.mirai.message.*
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.message.MessageSerializers
@@ -45,20 +45,20 @@ import net.mamoe.mirai.utils.MiraiExperimentalApi
  * @see Factory
  */
 public class MiraiComponent : Component {
-    
+
     /**
      * 代表组件的唯一标识。
      */
     override val id: String get() = ID_VALUE
-    
+
     /**
      * 得到 [MiraiComponent] 所使用的消息序列化信息。
      */
     override val componentSerializersModule: SerializersModule
         get() = messageSerializersModule
-    
+
     override fun toString(): String = TO_STRING_VALUE
-    
+
     override fun equals(other: Any?): Boolean {
         return when {
             other === this -> true
@@ -66,20 +66,20 @@ public class MiraiComponent : Component {
             else -> id == other.id
         }
     }
-    
+
     override fun hashCode(): Int {
         return id.hashCode()
     }
-    
+
     /**
      * 用于构建 [MiraiComponent] 的 [ComponentFactory] 实现。
      *
      * 当处于 [ApplicationBuilder] 中时，你可以通过扩展函数 [useMiraiComponent] 来注册当前组件,
-     * 可以通过 [useMiraiBotManager] 来注册 [MiraiBotManager], 或者通过 [useMirai] 来注册二者。
+     * 可以通过 [miraiBots] 来注册 [MiraiBotManager], 或者通过 [useMirai] 来注册二者。
      *
      * @see useMirai
      * @see useMiraiComponent
-     * @see useMiraiBotManager
+     * @see miraiBots
      */
     public companion object Factory : ComponentFactory<MiraiComponent, MiraiComponentConfiguration> {
         /**
@@ -87,21 +87,21 @@ public class MiraiComponent : Component {
          */
         @Suppress("MemberVisibilityCanBePrivate")
         public const val ID_VALUE: String = "simbot.mirai"
-        
+
         internal const val TO_STRING_VALUE: String = "MiraiComponent(id=$ID_VALUE)"
-        
+
         /**
          * [Factory.ID_VALUE] 的ID实例。
          */
         @JvmField
         @Deprecated("Unused")
         public val componentID: ID = ID_VALUE.ID
-        
+
         /**
          * 当前组件工厂的注册标识。
          */
         override val key: Attribute<MiraiComponent> = attribute(ID_VALUE)
-        
+
         /**
          * 根据配置函数构建 [MiraiComponent].
          *
@@ -110,7 +110,7 @@ public class MiraiComponent : Component {
             MiraiComponentConfiguration.configurator()
             return MiraiComponent()
         }
-        
+
         /**
          * 当前组件中所提供的所有额外消息类型的序列化模块。
          *
@@ -124,32 +124,32 @@ public class MiraiComponent : Component {
         public val componentSpecialMessageSerializersModule: SerializersModule = SerializersModule {
             polymorphic(Message.Element::class) {
                 subclass(SimbotOriginalMiraiMessage.serializer())
-    
+
                 //region image
                 polymorphic(MiraiImage::class) {
                     subclass(MiraiImageImpl.serializer())
                 }
                 subclass(MiraiImageImpl.serializer())
                 //endregion
-    
+
                 //region audio
                 polymorphic(MiraiAudio::class) {
                     subclass(MiraiAudioImpl.serializer())
                 }
                 subclass(MiraiAudioImpl.serializer())
                 //endregion
-    
+
                 //region forward message
                 polymorphic(MiraiForwardMessage::class) {
                     subclass(MiraiForwardMessageImpl.serializer())
                 }
                 subclass(MiraiForwardMessageImpl.serializer())
-                
+
                 polymorphic(MiraiForwardMessage.Node::class) {
                     subclass(MiraiForwardMessageNodeImpl.serializer())
                 }
                 //endregion
-                
+
                 @OptIn(MiraiExperimentalApi::class) subclass(MiraiShare.serializer())
                 subclass(MiraiQuoteReply.serializer())
                 subclass(MiraiMusicShare.serializer())
@@ -157,7 +157,7 @@ public class MiraiComponent : Component {
                 subclass(MiraiReceivedNudge.serializer())
             }
         }
-        
+
         /**
          * 得到 [MiraiComponent] 所使用的消息序列化信息。
          *
