@@ -12,16 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.bot
 
 import love.forte.simbot.FragileSimbotApi
-import love.forte.simbot.application.Application
-import love.forte.simbot.application.ApplicationBuilder
-import love.forte.simbot.application.BotRegistrar
-import love.forte.simbot.application.EventProvider
+import love.forte.simbot.application.*
 import love.forte.simbot.bot.OriginBotManager
 import love.forte.simbot.component.mirai.MiraiComponent
 
@@ -52,7 +48,7 @@ public inline fun ApplicationBuilder<*>.miraiBots(
         val miraiBotManager = providers.firstNotNullOfOrNull {
             it as? MiraiBotManager
         } ?: throw NoSuchElementException("No event provider of type [MiraiBotManager] in providers: $providers")
-        
+
         miraiBotManager.block(this)
     }
 }
@@ -80,7 +76,7 @@ public inline fun ApplicationBuilder<*>.miraiBotsIfSupport(
         val miraiBotManager = providers.firstNotNullOfOrNull {
             it as? MiraiBotManager
         } ?: return@bots
-        
+
         miraiBotManager.block(this)
     }
 }
@@ -217,6 +213,7 @@ public inline fun Iterable<EventProvider>.filterIsMiraiBotManagers(): List<Mirai
 @Suppress("NOTHING_TO_INLINE")
 public inline fun Sequence<EventProvider>.filterIsMiraiBotManagers(): Sequence<MiraiBotManager> =
     filterIsInstance<MiraiBotManager>()
+
 /**
  * 获取其中第一个为 [MiraiBotManager] 的管理器。
  * 如果找不到则抛出 [NoSuchElementException]。
@@ -224,7 +221,24 @@ public inline fun Sequence<EventProvider>.filterIsMiraiBotManagers(): Sequence<M
  * @throws NoSuchElementException 如果找不到
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline fun Iterable<EventProvider>.firstMiraiBotManager(): MiraiBotManager = first { it is MiraiBotManager } as MiraiBotManager
+public inline fun Iterable<EventProvider>.firstMiraiBotManager(): MiraiBotManager =
+    first { it is MiraiBotManager } as MiraiBotManager
+
+/**
+ * 获取其中第一个为 [MiraiBotManager] 的管理器。
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline fun Iterable<EventProvider>.firstMiraiBotManagerOrNull(): MiraiBotManager? =
+    firstOrNull { it is MiraiBotManager } as MiraiBotManager?
+
+
+/**
+ * 过滤获取其中第一个为 [MiraiBotManager] 的管理器。
+ * 如果找不到则抛出 [NoSuchElementException]。
+ */
+@Suppress("NOTHING_TO_INLINE")
+public inline fun Sequence<EventProvider>.firstMiraiBotManager(): MiraiBotManager =
+    first { it is MiraiBotManager } as MiraiBotManager
 
 
 /**
@@ -232,7 +246,8 @@ public inline fun Iterable<EventProvider>.firstMiraiBotManager(): MiraiBotManage
  * 如果找不到则得到null。
  */
 @Suppress("NOTHING_TO_INLINE")
-public inline fun Sequence<EventProvider>.firstMiraiBotManagerOrNull(): MiraiBotManager? = firstOrNull { it is MiraiBotManager } as MiraiBotManager?
+public inline fun Sequence<EventProvider>.firstMiraiBotManagerOrNull(): MiraiBotManager? =
+    firstOrNull { it is MiraiBotManager } as MiraiBotManager?
 
 
 /**
@@ -245,9 +260,29 @@ public inline val OriginBotManager.miraiBotManagers: List<MiraiBotManager> get()
 
 
 /**
- * 从 [Application.providers] 中寻找所有的 [MiraiBotManager].
+ * 从 [Application.botManagers] 中寻找所有的 [MiraiBotManager].
  *
  */
-public inline val Application.miraiBotManagers: List<MiraiBotManager> get() = this.providers.filterIsMiraiBotManagers()
+public inline val Application.miraiBotManagers: List<MiraiBotManager> get() = botManagers.filterIsMiraiBotManagers()
+
+/**
+ * 从 [Application.botManagers] 中寻找第一个的 [MiraiBotManager].
+ *
+ * @throws NoSuchElementException 未寻得任何实例
+ */
+public inline val Application.firstMiraiBotManager: MiraiBotManager get() = botManagers.firstMiraiBotManager()
+
+/**
+ * 从 [Application.botManagers] 中寻找第一个的 [MiraiBotManager].
+ *
+ */
+public inline val Application.firstMiraiBotManagerOrNull: MiraiBotManager? get() = botManagers.firstMiraiBotManagerOrNull()
+
+
+/**
+ * 从 [BotManagers] 中寻找所有的 [MiraiBotManager].
+ *
+ */
+public inline val BotManagers.miraiBotManagers: List<MiraiBotManager> get() = filterIsMiraiBotManagers()
 
 // endregion
