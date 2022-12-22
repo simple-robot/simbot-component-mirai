@@ -20,7 +20,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import love.forte.simbot.ID
-import love.forte.simbot.component.mirai.buildMessageSource
+import love.forte.simbot.component.mirai.buildMessageSourceFromSerialId
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.doSafeCast
 import net.mamoe.mirai.message.data.MessageSource
@@ -43,7 +43,7 @@ import net.mamoe.mirai.message.data.QuoteReply
 public class MiraiQuoteReply(
     private val source: MessageSource, // = id.buildMessageSource()
 ) : OriginalMiraiDirectlySimbotMessage<QuoteReply, MiraiQuoteReply> {
-    public constructor(id: ID) : this(id.buildMessageSource())
+    public constructor(id: ID) : this(buildMessageSourceFromSerialId(id))
     public constructor(quoteReply: QuoteReply) : this(quoteReply.source) {
         this._quoteReply = quoteReply
     }
