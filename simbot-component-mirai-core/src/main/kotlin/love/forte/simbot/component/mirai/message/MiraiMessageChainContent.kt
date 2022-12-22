@@ -12,13 +12,12 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.message
 
 import love.forte.simbot.ID
-import love.forte.simbot.component.mirai.ID
+import love.forte.simbot.component.mirai.SerialID
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.message.Messages
 import love.forte.simbot.message.toMessages
@@ -39,15 +38,15 @@ public open class MiraiMessageChainContent(
     public val messageSourceOrNull: MessageSource? = originalMessageChain.sourceOrNull,
 ) : MessageContent(),
     MiraiMessageChainContainer {
-    
+
     /**
      * 当前消息的ID。
      *
      * 当 [originalMessageChain] 中的 [MessageSource] 为null的时候会使用 [randomID] 作为消息ID.
      */
-    override val messageId: ID by lazy(LazyThreadSafetyMode.PUBLICATION) { messageSourceOrNull?.ID ?: randomID() }
-    
-    
+    override val messageId: ID by lazy(LazyThreadSafetyMode.PUBLICATION) { messageSourceOrNull?.SerialID ?: randomID() }
+
+
     /**
      * 消息链。
      *
