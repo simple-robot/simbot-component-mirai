@@ -25,9 +25,9 @@ import kotlinx.coroutines.withContext
 import love.forte.simbot.ID
 import love.forte.simbot.SimbotIllegalArgumentException
 import love.forte.simbot.component.mirai.ID
-import love.forte.simbot.component.mirai.SerialID
 import love.forte.simbot.component.mirai.extra.catcode.AppJsonCatCodeSerializer.encoder
 import love.forte.simbot.component.mirai.extra.catcode.XmlCatCodeSerializer.encoder
+import love.forte.simbot.component.mirai.fullSerialID
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.*
 import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
@@ -783,7 +783,7 @@ public object QuoteCatCodeSerializer : CatCodeSerializer() {
         neko["id"]?.let { id ->
             val cacheMsg = baseMessageChain?.findIsInstance<MessageSource>()?.takeIf {
                 @Suppress("DEPRECATION") // 旧ID格式兼容
-                it.SerialID.literal == id || it.ID.literal == id
+                it.fullSerialID.literal == id || it.ID.literal == id
             }
 
             if (cacheMsg == null) {
