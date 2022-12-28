@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
@@ -21,9 +20,9 @@ import love.forte.simbot.ID
 import love.forte.simbot.SimbotIllegalStateException
 import love.forte.simbot.component.mirai.message.MiraiMessageChainContainer
 import love.forte.simbot.component.mirai.message.MiraiMessageChainContent
+import love.forte.simbot.component.mirai.message.MiraiMessageContent
 import love.forte.simbot.message.Messages
 import love.forte.simbot.message.ReceivedMessageContent
-import love.forte.simbot.randomID
 import net.mamoe.mirai.contact.PermissionDeniedException
 import net.mamoe.mirai.event.events.MessagePostSendEvent
 import net.mamoe.mirai.message.data.MessageChain
@@ -47,7 +46,7 @@ public open class MiraiReceivedMessageContent internal constructor(
      * 当此属性不存在时，当前消息将无法被 [删除][MiraiReceivedMessageContent.delete].
      */
     messageSourceOrNull: MessageSource?,
-) : ReceivedMessageContent(), MiraiMessageChainContainer {
+) : ReceivedMessageContent(), MiraiMessageContent, MiraiMessageChainContainer {
     private val delegateContent = MiraiMessageChainContent(originalMessageChain, messageSourceOrNull)
     
     override val originalMessageChain: MessageChain
@@ -83,12 +82,19 @@ public open class MiraiReceivedMessageContent internal constructor(
     /**
      * mirai接收到的消息的ID。
      *
-     * 当 [messageSourceOrNull] 为null的时候会使用 [randomID] 作为消息ID.
-     *
+     * @see MiraiMessageChainContent.messageId
      */
     override val messageId: ID
         get() = delegateContent.messageId
-    
+
+    /**
+     * mirai接收到的消息的完整ID。
+     *
+     * @see MiraiMessageChainContent.fullMessageId
+     */
+    override val fullMessageId: ID
+        get() = delegateContent.fullMessageId
+
     /**
      * 尝试撤回此消息。
      *
