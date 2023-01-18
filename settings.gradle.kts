@@ -29,7 +29,6 @@ dependencyResolutionManagement {
 }
 
 include(":simbot-component-mirai-core")
-include(":simbot-component-mirai-boot")
 
 // extra
 include(":simbot-component-mirai-extra-catcode")
