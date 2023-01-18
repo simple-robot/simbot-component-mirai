@@ -27,6 +27,7 @@ import love.forte.simbot.SimbotIllegalArgumentException
 import love.forte.simbot.component.mirai.ID
 import love.forte.simbot.component.mirai.extra.catcode.AppJsonCatCodeSerializer.encoder
 import love.forte.simbot.component.mirai.extra.catcode.XmlCatCodeSerializer.encoder
+import love.forte.simbot.component.mirai.fullSerialID
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.message.*
 import love.forte.simbot.component.mirai.message.MiraiAudio.Key.asSimbot
@@ -780,7 +781,10 @@ public object MusicShareCatCodeSerializer : CatCodeSerializer() {
 public object QuoteCatCodeSerializer : CatCodeSerializer() {
     override val decoder: CatCodeDecoder = CatCodeDecoder { neko, baseMessageChain ->
         neko["id"]?.let { id ->
-            val cacheMsg = baseMessageChain?.findIsInstance<MessageSource>()?.takeIf { it.ID.literal == id }
+            val cacheMsg = baseMessageChain?.findIsInstance<MessageSource>()?.takeIf {
+                @Suppress("DEPRECATION") // 旧ID格式兼容
+                it.fullSerialID.literal == id || it.ID.literal == id
+            }
 
             if (cacheMsg == null) {
                 MiraiQuoteReply(id.ID)

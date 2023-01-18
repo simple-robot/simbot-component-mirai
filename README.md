@@ -31,6 +31,22 @@
 ## 文档
 你可以参考 [语雀说明文档](https://www.yuque.com/simpler-robot) 的 `simbot3` 部分，或者查看simbot3-mirai组件的 [API Doc](https://simple-robot-library.github.io/simbot3-component-mirai-apiDoc/) .
 
+## 版本说明
+
+> 其他参考：[命名概述](https://simbot.forte.love/docs/overviews/naming-overview/)
+
+simbot官方组件采用 `X.y.z[.status][-suffix]` 的方式。其中，`X` 代表为当前依赖的 [simbot核心库](https://github.com/simple-robot/simpler-robot) 的 `MAJOR.MINOR`。
+例如假若当前依赖的核心库版本为 `v3.0.1`，则 `X` 为 `3.0`。
+
+`y` 和 `z` 以及其他后缀均为常见的语义化版本规则中的对应值，其中 `z` 通常在不包含新功能的修复性更新中增加计数，`y` 则会在包含增加新功能、修改旧功能以及破坏性变更时增加计数，并将 `z` 归零。
+
+
+
+## Mirai依赖说明
+
+simbot-mirai组件会不定时的根据 [mirai最后的release版本](https://github.com/mamoe/mirai/releases/latest) 进行更新。
+
+> 目前暂时不会跟进非 `release` 版本，例如 `xxx-RC`。
 
 ### 快速开始
 参考文档的 [《快速开始》](https://www.yuque.com/simpler-robot/simpler-robot-doc/fvdmq1)

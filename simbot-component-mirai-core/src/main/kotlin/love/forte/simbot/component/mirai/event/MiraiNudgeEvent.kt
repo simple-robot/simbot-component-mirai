@@ -22,12 +22,14 @@ import love.forte.simbot.ID
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.bot.MiraiBot
+import love.forte.simbot.component.mirai.message.MiraiMessageContent
 import love.forte.simbot.component.mirai.message.toMessage
 import love.forte.simbot.definition.Objective
 import love.forte.simbot.event.*
 import love.forte.simbot.message.*
 import love.forte.simbot.randomID
 import net.mamoe.mirai.event.events.NudgeEvent
+import net.mamoe.mirai.message.data.MessageSource
 import net.mamoe.mirai.contact.Contact as OriginalMiraiContact
 import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
@@ -123,8 +125,19 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
  *
  */
 @Suppress("CanBeParameter", "MemberVisibilityCanBePrivate")
-public class MiraiReceivedNudgeMessageContent(public val nudgeEvent: NudgeEvent) : ReceivedMessageContent() {
+public class MiraiReceivedNudgeMessageContent(public val nudgeEvent: NudgeEvent) : ReceivedMessageContent(),
+    MiraiMessageContent {
+    /**
+     * 戳一戳消息不存在 [MessageSource], 不可撤回、引用, 因此也不存在可用的真正消息ID, 使用 [randomID] 作为消息ID。
+     *
+     */
     override val messageId: ID = randomID()
+
+    /**
+     * 与 [messageId] 一致。
+     */
+    override val fullMessageId: ID get() = messageId
+
     override val messages: Messages = nudgeEvent.toMessage().toMessages()
     
     /**

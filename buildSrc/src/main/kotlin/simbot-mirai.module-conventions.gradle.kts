@@ -27,7 +27,6 @@ version = P.ComponentMirai.VERSION
 description = rootProject.description ?: P.ComponentMirai.DESCRIPTION
 
 repositories {
-    mavenLocal()
     mavenCentral()
     maven {
         url = uri(Sonatype.Snapshot.URL)

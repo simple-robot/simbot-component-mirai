@@ -12,17 +12,16 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
 
 import love.forte.simbot.ability.CompletionPerceivable
-import love.forte.simbot.application.Application
-import love.forte.simbot.application.ApplicationBuilder
-import love.forte.simbot.application.ApplicationBuilderDsl
-import love.forte.simbot.component.mirai.bot.MiraiBotManager
-import love.forte.simbot.component.mirai.bot.MiraiBotManagerConfiguration
+import love.forte.simbot.application.*
+import love.forte.simbot.component.mirai.bot.*
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 
 // region 组件、provider的安装
@@ -52,7 +51,7 @@ import love.forte.simbot.component.mirai.bot.MiraiBotManagerConfiguration
  * ```
  */
 @ApplicationBuilderDsl
-public fun <A : Application> ApplicationBuilder<A>.useMiraiBotManager(configurator: MiraiBotManagerConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit = {}) {
+public fun <A : Application> ApplicationBuilder<A>.miraiBots(configurator: MiraiBotManagerConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit = {}) {
     install(MiraiBotManager, configurator)
 }
 
@@ -100,7 +99,7 @@ public annotation class MiraiComponentBuilderDsl
  * @see useMirai
  */
 public interface MiraiComponentUsageBuilder<A : Application> {
-    
+
     /**
      * 配置 [MiraiComponent].
      * ```kotlin
@@ -113,7 +112,7 @@ public interface MiraiComponentUsageBuilder<A : Application> {
      */
     @MiraiComponentBuilderDsl
     public fun component(configurator: MiraiComponentConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit)
-    
+
     /**
      * 配置 [MiraiBotManager].
      *
@@ -128,7 +127,7 @@ public interface MiraiComponentUsageBuilder<A : Application> {
      */
     @MiraiComponentBuilderDsl
     public fun botManager(configurator: MiraiBotManagerConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit)
-    
+
 }
 
 
@@ -160,7 +159,7 @@ public interface MiraiComponentUsageBuilder<A : Application> {
  *
  *
  * @see useMiraiComponent
- * @see useMiraiBotManager
+ * @see miraiBots
  *
  */
 @ApplicationBuilderDsl
@@ -174,15 +173,15 @@ private class MiraiComponentUsageBuilderImpl<A : Application> : MiraiComponentUs
         mutableListOf<MiraiComponentConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit>()
     private val botManagerConfigs =
         mutableListOf<MiraiBotManagerConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit>()
-    
+
     override fun component(configurator: MiraiComponentConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit) {
         componentConfigs.add(configurator)
     }
-    
+
     override fun botManager(configurator: MiraiBotManagerConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit) {
         botManagerConfigs.add(configurator)
     }
-    
+
     fun build(builder: ApplicationBuilder<A>) {
         builder.install(MiraiComponent) {
             componentConfigs.forEach { config ->
@@ -199,5 +198,89 @@ private class MiraiComponentUsageBuilderImpl<A : Application> : MiraiComponentUs
 
 
 // endregion
+
+//region Application/BotManagers 用例
+/**
+ * 通过 [Application] 获取**第一个**存在的 [MiraiBotManager] 并使用它。
+ *
+ * ```kotlin
+ * val application = createSimpleApplication {}
+ * application.miraiBots { // this: MiraiBotManager
+ *    // ...
+ * }
+ * ```
+ *
+ * @param failOnMiss 如果没有找到任何 [MiraiBotManager], 是否抛出 [NoSuchElementException] 异常。
+ * @see BotManagers.miraiBots
+ */
+public inline fun Application.miraiBots(failOnMiss: Boolean, block: MiraiBotManager.() -> Unit) {
+    botManagers.miraiBots(failOnMiss, block)
+}
+
+/**
+ * 通过 [Application] 获取**第一个**存在的 [MiraiBotManager] 并使用它。
+ *
+ * ```kotlin
+ * val application = createSimpleApplication {}
+ * application.miraiBots { // this: MiraiBotManager
+ *    // ...
+ * }
+ * ```
+ *
+ * @param block 执行函数，始终被执行，或者函数抛出异常
+ *
+ * @throws NoSuchElementException 如果没有找到任何 [MiraiBotManager]
+ * @see BotManagers.miraiBots
+ */
+@OptIn(ExperimentalContracts::class)
+public inline fun Application.miraiBots(block: MiraiBotManager.() -> Unit) {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+    botManagers.miraiBots(true, block)
+}
+
+/**
+ * 通过 [BotManagers] 获取**第一个**存在的 [MiraiBotManager] 并使用它。
+ *
+ * ```kotlin
+ * val application = createSimpleApplication {}
+ * application.botManagers.miraiBots { // this: MiraiBotManager
+ *    // ...
+ * }
+ * ```
+ *
+ * @param block 执行函数，始终被执行，或者函数抛出异常
+ * @throws NoSuchElementException 如果没有找到任何 [MiraiBotManager]
+ */
+@OptIn(ExperimentalContracts::class)
+public inline fun BotManagers.miraiBots(block: MiraiBotManager.() -> Unit) {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
+
+    miraiBots(true, block)
+}
+
+/**
+ * 通过 [BotManagers] 获取**第一个**存在的 [MiraiBotManager] 并使用它。
+ *
+ * ```kotlin
+ * val application = createSimpleApplication {}
+ * application.botManagers.miraiBots { // this: MiraiBotManager
+ *    // ...
+ * }
+ * ```
+ *
+ * @param failOnMiss 如果没有找到任何 [MiraiBotManager], 是否抛出 [NoSuchElementException] 异常。
+ */
+public inline fun BotManagers.miraiBots(failOnMiss: Boolean, block: MiraiBotManager.() -> Unit) {
+    val manager = (this as Iterable<EventProvider>).firstMiraiBotManagerOrNull()
+        ?: if (failOnMiss) throw NoSuchElementException("MiraiBotManager") else return
+
+    manager.block()
+}
+//endregion
+
 
 

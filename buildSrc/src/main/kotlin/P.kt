@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -19,7 +19,7 @@ abstract class SimbotProject {
     abstract val version: String
 }
 
-const val SIMBOT_VERSION = "3.0.0-M4"
+const val SIMBOT_VERSION = "3.0.0-RC"
 const val SIMBOT_CORE = "love.forte.simbot:simbot-core:$SIMBOT_VERSION"
 
 /**
@@ -32,11 +32,11 @@ sealed class P : SimbotProject() {
         val version = Version(
             major = "3.0",
             minor = 0, patch = 0,
-            status = VersionStatus.beta(6, null, null),
+            status = VersionStatus("M1", "-", null, null, null),
             isSnapshot = isSnapshot
         )
         const val GROUP = "love.forte.simbot.component"
-        const val DESCRIPTION = "Simple Robot框架下针对Mirai框架的组件实现"
+        const val DESCRIPTION = "Simple Robot框架下针对mirai框架的组件实现"
         val VERSION: String get() = version.fullVersion(true)
 
 
