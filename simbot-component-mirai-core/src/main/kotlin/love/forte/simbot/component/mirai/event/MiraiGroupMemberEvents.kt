@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -569,9 +569,19 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
  */
 @JvmBlocking(asProperty = true, suffix = "")
 @JvmAsync(asProperty = true)
-public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemberLeaveEvent>, MemberDecreaseEvent {
+public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemberLeaveEvent>, GroupMemberDecreaseEvent {
     override val bot: MiraiBot
-    
+
+    /**
+     * 涉及群。
+     */
+    override suspend fun member(): MiraiMember
+
+    /**
+     * 离开的成员。
+     */
+    override suspend fun group(): MiraiGroup
+
     /**
      * 涉及群。同 [group]。
      */
@@ -603,7 +613,7 @@ public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemb
  */
 @JvmBlocking(asProperty = true, suffix = "")
 @JvmAsync(asProperty = true)
-public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMemberJoinEvent>, MemberIncreaseEvent {
+public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMemberJoinEvent>, GroupMemberIncreaseEvent {
     override val bot: MiraiBot
     
     /**
@@ -615,11 +625,20 @@ public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMembe
     
     /**
      * 无法得知操作者，始终为null。
-     * 如果你希望得到 "邀请者"，参考 [inviter].
+     * 如果你希望得到 "邀请者"，使用 [inviter].
      */
     override suspend fun operator(): MiraiMember? = null
-    
-    
+
+    /**
+     * 涉及群。
+     */
+    override suspend fun group(): MiraiGroup
+
+    /**
+     * 入群的成员。
+     */
+    override suspend fun member(): MiraiMember
+
     /**
      * 涉及群。同 [group]。
      */
@@ -629,7 +648,11 @@ public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMembe
      * 入群的成员。同 [member]。
      */
     override suspend fun after(): MiraiMember = member()
-    
+
+    /**
+     * 所在群。同 [group]。
+     */
+    override suspend fun organization(): MiraiGroup = group()
     
     override val key: Event.Key<MiraiMemberJoinEvent> get() = Key
     
