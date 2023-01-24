@@ -601,7 +601,7 @@ public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemb
     override val key: Event.Key<MiraiMemberLeaveEvent> get() = Key
     
     public companion object Key :
-        BaseEventKey<MiraiMemberLeaveEvent>("mirai.member_leave", MiraiGroupMemberEvent, MemberDecreaseEvent) {
+        BaseEventKey<MiraiMemberLeaveEvent>("mirai.member_leave", MiraiGroupMemberEvent, GroupMemberDecreaseEvent) {
         override fun safeCast(value: Any): MiraiMemberLeaveEvent? = doSafeCast(value)
     }
 }
@@ -657,7 +657,7 @@ public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMembe
     override val key: Event.Key<MiraiMemberJoinEvent> get() = Key
     
     public companion object Key :
-        BaseEventKey<MiraiMemberJoinEvent>("mirai.member_join", MiraiGroupMemberEvent, MemberIncreaseEvent) {
+        BaseEventKey<MiraiMemberJoinEvent>("mirai.member_join", MiraiGroupMemberEvent, GroupMemberIncreaseEvent) {
         override fun safeCast(value: Any): MiraiMemberJoinEvent? = doSafeCast(value)
     }
 }
