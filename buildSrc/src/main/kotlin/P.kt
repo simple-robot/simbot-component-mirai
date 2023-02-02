@@ -75,6 +75,9 @@ sealed class P {
         override val group: String
             get() = GROUP
 
+        override val homepage: String
+            get() = HOMEPAGE
+
         override val developers: List<Developer> = developers {
             developer {
                 id = "forte"
