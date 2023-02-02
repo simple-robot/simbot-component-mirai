@@ -130,10 +130,7 @@ tasks.withType<DokkaTaskPartial>().configureEach {
         // samples
         samples.from(
             project.files(),
-//            "src/samples/samples/MiraiBots.kt",
             project.files("src/samples/samples"),
-//             projectDir.resolve("src/samples/samples/MiraiBots.kt"),
-//            project.file("src/samples/samples/MiraiBots.kt")
             )
 
         sourceLink {
