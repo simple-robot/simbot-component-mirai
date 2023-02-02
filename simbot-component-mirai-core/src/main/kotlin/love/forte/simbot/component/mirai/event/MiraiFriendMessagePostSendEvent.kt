@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,10 +16,9 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ID
 import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.JSTP
 import love.forte.simbot.component.mirai.MiraiFriend
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.FriendInfoContainer
@@ -51,15 +50,13 @@ public interface MiraiFriendMessagePostSendEvent :
     /**
      * 发送目标好友对象。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun friend(): MiraiFriend
 
     /**
      * 所有 `post send` 相关事件的源头均来自bot自身。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiBot = bot
 
 

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -54,66 +54,66 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
  * @author ForteScarlet
  */
 public interface MiraiBot : Bot, UserInfo, FriendsContainer {
-    
+
     /**
      * 得到自己。
      */
     override val bot: MiraiBot
         get() = this
-    
+
     /**
      * 得到这个Bot所代表的原生mirai bot。
      *
      * @see OriginalMiraiBot
      */
     public val originalBot: OriginalMiraiBot
-    
+
     /**
      * 全部的好友分组。
      * @see OriginalMiraiBot.friendGroups
      */
     public val friendCategories: MiraiFriendCategories
-    
+
     /**
      * bot的id。
      *
      * 在mirai中，bot的账号都是 [Long] 类型的。
      */
     override val id: LongID
-    
+
     /**
      * @see Bot.eventProcessor
      */
     override val eventProcessor: EventProcessor
-    
-    
+
+
     /**
      * @see Bot.logger
      */
     override val logger: Logger
-    
-    
+
+
     /**
      *  @see Bot.avatar
      */
     override val avatar: String get() = originalBot.avatarUrl
-    
+
     /** 直接使用 [originalBot] 的协程作用域。 */
     override val coroutineContext: CoroutineContext get() = originalBot.coroutineContext
-    
+
     override val isActive: Boolean get() = originalBot.supervisorJob.isActive
     override val isCancelled: Boolean get() = originalBot.supervisorJob.isCancelled
     override val isStarted: Boolean get() = isCancelled || isActive
-    
+
     override val manager: MiraiBotManager
-    
+
     /**
      * 得到用户名。
      *
      * @see OriginalMiraiBot.nick
      */
     override val username: String get() = originalBot.nick
-    
+
     // region friends api
     /**
      * 获取当前bot的好友信息。
@@ -122,16 +122,22 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      *
      */
     override val friends: Items<MiraiFriend>
-    
-    
+
+
     /**
      * 获取指定的好友。在mirai中，好友的获取不是挂起的，因此可以安全的使用 [getFriend]
      */
     @JvmBlocking(baseName = "getFriend", suffix = "")
     @JvmAsync(baseName = "getFriend")
     override suspend fun friend(id: ID): MiraiFriend?
+
+    /**
+     * 获取当前bot中所有好友的数量
+     */
+    @JvmSynthetic
+    override suspend fun friendCount(): Int
     // endregion
-    
+
     // region strangers api
     /**
      * 陌生人数据序列。
@@ -142,7 +148,8 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      * @see OriginalMiraiBot.strangers
      */
     public val strangers: Items<MiraiStranger>
-    
+
+
     /**
      * 根据唯一标识获取一个陌生人。
      *
@@ -151,8 +158,14 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     @JvmBlocking(baseName = "getStranger", suffix = "")
     @JvmAsync(baseName = "getStranger")
     public suspend fun stranger(id: ID): MiraiStranger?
+
+    /**
+     * 获取当前bot所有陌生人的数量。
+     */
+    public val strangersCount: Int
+
     // endregion
-    
+
     // region contacts api
     /**
      * 联系人数据序列。
@@ -164,7 +177,7 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      *
      */
     override val contacts: Items<MiraiContact>
-    
+
     /**
      * 尝试获取一个联系人。
      *
@@ -177,18 +190,24 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     @JvmBlocking(baseName = "getContact", suffix = "")
     @JvmAsync(baseName = "getContact")
     override suspend fun contact(id: ID): MiraiContact?
+
+    /**
+     * 获取当前bot的所有联系人的数量
+     */
+    @JvmSynthetic
+    override suspend fun contactCount(): Int
     // endregion
-    
-    
+
+
     // region group apis
-    
+
     /**
      * 获取当前Bot中的群组序列。
      *
      * 在mirai中，没有实际的限流或分页api，本质上得到的就是列表。
      */
     override val groups: Items<MiraiGroup>
-    
+
     /**
      * 获取指定的群.
      * mirai的群组获取没有真正的挂起，因此可以安全的使用 [getGroup].
@@ -197,9 +216,15 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     @JvmBlocking(baseName = "getGroup", suffix = "")
     @JvmAsync(baseName = "getGroup")
     override suspend fun group(id: ID): MiraiGroup?
+
+    /**
+     * 获取当前bot中所有群的数量
+     */
+    @JvmSynthetic
+    override suspend fun groupCount(): Int
     // endregion
-    
-    
+
+
     // region guild apis
     @Deprecated(
         "Channel related APIs are not supported",
@@ -207,13 +232,18 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     )
     override val guilds: Items<Guild>
         get() = emptyItems()
-    
-    
+
+
+    @Deprecated("Channel related APIs are not supported", ReplaceWith("0"))
+    @JvmSynthetic
+    override suspend fun guildCount(): Int = 0
+
+
     @Deprecated("Channel related APIs are not supported", ReplaceWith("null"))
     @JvmSynthetic
     override suspend fun guild(id: ID): Guild? = null
     // endregion
-    
+
     // region image api
     /**
      * 通过 [resource] 构建得到一个可以且仅可用于在mirai组件中进行 **发送** 的图片消息对象。
@@ -222,7 +252,7 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      * 那么得到的 [Image] 对象只是一个尚未初始化的伪[Image], 他会在发送消息的时候根据对应的 [net.mamoe.mirai.contact.Contact] 来进行上传并发送。
      */
     public fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage
-    
+
     /**
      * @see sendOnlyImage
      */
@@ -230,17 +260,17 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"))
     public suspend fun uploadImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         sendOnlyImage(resource, flash)
-    
+
     /**
      * @see sendOnlyImage
      */
     @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"))
     public fun uploadImageBlocking(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         sendOnlyImage(resource, flash)
-    
-    
+
+
     //// id image
-    
+
     /**
      * 尝试通过一个 [ID] 解析得到一个图片对象。
      * 当使用 [ID]的时候， 会直接通过mirai的函数
@@ -252,15 +282,14 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
         flash: Boolean,
         builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {},
     ): MiraiImage
-    
-    
+
+
     /**
      * @see idImage
      */
-    @JvmAsync
-    @JvmBlocking
+    @love.forte.simbot.component.mirai.JST
     override suspend fun resolveImage(id: ID): MiraiImage = idImage(id, false)
-    
+
     /**
      * @see idImage
      */
@@ -270,13 +299,13 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
         builderAction: net.mamoe.mirai.message.data.Image.Builder.() -> Unit = {},
     ): MiraiImage = idImage(id, flash, builderAction)
     // endregion
-    
-    
+
+
     @JvmSynthetic
     override suspend fun join() {
         originalBot.join()
     }
-    
+
     @JvmSynthetic
     override suspend fun cancel(reason: Throwable?): Boolean {
         return if (isCancelled) false
@@ -295,12 +324,12 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
  */
 @Suppress("UnnecessaryOptInAnnotation")
 public interface MiraiGroupBot : MiraiBot, GroupBot {
-    
+
     /**
      * 此bot在群中的[原生mirai群成员][NormalMember]实例。
      */
     public val originalBotMember: NormalMember
-    
+
     /**
      * 当前bot在指定群中所扮演的成员实例。
      *
@@ -319,30 +348,29 @@ public interface MiraiGroupBot : MiraiBot, GroupBot {
  * @see MiraiBot.friendCategories
  */
 public interface MiraiFriendCategories : Iterable<MiraiFriendCategory> {
-    
+
     /**
      * Mirai原生的好友分组列表对象。
      *
      * @see FriendGroups
      */
     public val originalFriendGroups: FriendGroups
-    
+
     /**
      * 得到ID为 `0` 的默认好友分组。
      *
      * @see FriendGroups
      */
     public val default: MiraiFriendCategory
-    
+
     /**
      * 新建一个好友分组.
      *
      * @see FriendGroups.create
      */
-    @JvmAsync
-    @JvmBlocking
+    @love.forte.simbot.component.mirai.JST
     public suspend fun create(name: String): MiraiFriendCategory
-    
+
     /**
      * 获取指定 ID 的好友分组, 不存在时返回 `null`
      *
@@ -355,7 +383,7 @@ public interface MiraiFriendCategories : Iterable<MiraiFriendCategory> {
             is NumericalID<*> -> id.toInt()
             else -> id.literal.toInt()
         }
-        
+
         return get(idNumber)
     }
 
@@ -365,7 +393,7 @@ public interface MiraiFriendCategories : Iterable<MiraiFriendCategory> {
      * @see FriendGroups.get
      */
     public operator fun get(id: Int): MiraiFriendCategory?
-    
+
     /**
      * 获取当前分组下所有的分组。
      *

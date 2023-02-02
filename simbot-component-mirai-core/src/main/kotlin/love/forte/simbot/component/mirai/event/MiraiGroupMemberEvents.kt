@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -19,9 +19,7 @@ package love.forte.simbot.component.mirai.event
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ExperimentalSimbotApi
-import love.forte.simbot.component.mirai.MemberRole
-import love.forte.simbot.component.mirai.MiraiGroup
-import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.GroupInfo
 import love.forte.simbot.event.*
@@ -484,8 +482,7 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
     /**
      * 涉及群。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun group(): GroupInfo
     
     
@@ -494,35 +491,30 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
      *
      * @see RequestMemberInviterInfo
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun inviter(): RequestMemberInviterInfo?
     
     /**
      * 申请者信息。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun requester(): RequestMemberInfo
     
     
     /**
      * 申请者信息。同 [requester]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): RequestMemberInfo = requester()
     
     /** 接受申请 */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     @OptIn(ExperimentalSimbotApi::class)
     override suspend fun accept(): Boolean
     
     
     /** 拒绝申请 */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     @OptIn(ExperimentalSimbotApi::class)
     override suspend fun reject(): Boolean
     
@@ -530,8 +522,7 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
      * 拒绝申请。
      * @param blockList 添加到黑名单
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun reject(blockList: Boolean): Boolean = reject(blockList, "")
     
     
@@ -539,8 +530,7 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
      * 拒绝申请。
      * @param message 拒绝原因
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun reject(message: String): Boolean = reject(blockList = false, message)
     
     /**
@@ -548,8 +538,7 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
      * @param blockList 添加到黑名单
      * @param message 拒绝原因
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun reject(blockList: Boolean, message: String): Boolean
     
     
@@ -569,9 +558,19 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
  */
 @JvmBlocking(asProperty = true, suffix = "")
 @JvmAsync(asProperty = true)
-public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemberLeaveEvent>, MemberDecreaseEvent {
+public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemberLeaveEvent>, GroupMemberDecreaseEvent {
     override val bot: MiraiBot
-    
+
+    /**
+     * 涉及群。
+     */
+    override suspend fun member(): MiraiMember
+
+    /**
+     * 离开的成员。
+     */
+    override suspend fun group(): MiraiGroup
+
     /**
      * 涉及群。同 [group]。
      */
@@ -591,7 +590,7 @@ public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemb
     override val key: Event.Key<MiraiMemberLeaveEvent> get() = Key
     
     public companion object Key :
-        BaseEventKey<MiraiMemberLeaveEvent>("mirai.member_leave", MiraiGroupMemberEvent, MemberDecreaseEvent) {
+        BaseEventKey<MiraiMemberLeaveEvent>("mirai.member_leave", MiraiGroupMemberEvent, GroupMemberDecreaseEvent) {
         override fun safeCast(value: Any): MiraiMemberLeaveEvent? = doSafeCast(value)
     }
 }
@@ -603,7 +602,7 @@ public interface MiraiMemberLeaveEvent : MiraiGroupMemberEvent<OriginalMiraiMemb
  */
 @JvmBlocking(asProperty = true, suffix = "")
 @JvmAsync(asProperty = true)
-public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMemberJoinEvent>, MemberIncreaseEvent {
+public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMemberJoinEvent>, GroupMemberIncreaseEvent {
     override val bot: MiraiBot
     
     /**
@@ -615,11 +614,20 @@ public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMembe
     
     /**
      * 无法得知操作者，始终为null。
-     * 如果你希望得到 "邀请者"，参考 [inviter].
+     * 如果你希望得到 "邀请者"，使用 [inviter].
      */
     override suspend fun operator(): MiraiMember? = null
-    
-    
+
+    /**
+     * 涉及群。
+     */
+    override suspend fun group(): MiraiGroup
+
+    /**
+     * 入群的成员。
+     */
+    override suspend fun member(): MiraiMember
+
     /**
      * 涉及群。同 [group]。
      */
@@ -629,12 +637,16 @@ public interface MiraiMemberJoinEvent : MiraiGroupMemberEvent<OriginalMiraiMembe
      * 入群的成员。同 [member]。
      */
     override suspend fun after(): MiraiMember = member()
-    
+
+    /**
+     * 所在群。同 [group]。
+     */
+    override suspend fun organization(): MiraiGroup = group()
     
     override val key: Event.Key<MiraiMemberJoinEvent> get() = Key
     
     public companion object Key :
-        BaseEventKey<MiraiMemberJoinEvent>("mirai.member_join", MiraiGroupMemberEvent, MemberIncreaseEvent) {
+        BaseEventKey<MiraiMemberJoinEvent>("mirai.member_join", MiraiGroupMemberEvent, GroupMemberIncreaseEvent) {
         override fun safeCast(value: Any): MiraiMemberJoinEvent? = doSafeCast(value)
     }
 }

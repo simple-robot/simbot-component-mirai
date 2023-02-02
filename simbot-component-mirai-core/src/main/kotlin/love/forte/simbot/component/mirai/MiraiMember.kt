@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,8 +16,6 @@
 
 package love.forte.simbot.component.mirai
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.Api4J
 import love.forte.simbot.JavaDuration
 import love.forte.simbot.LongID
@@ -192,37 +190,32 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
     /**
      * 得到此成员所属群。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun group(): MiraiGroup
     
     /**
      * 得到此成员所属群。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun organization(): MiraiGroup = group()
     
     /**
      * 向此群成员发送消息。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
     /**
      * 向此群成员发送消息。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
     
     /**
      * 向此群成员发送消息。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember> =
         send(message.messages)
     
@@ -235,8 +228,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
      * @return 是否为普通成员且踢出执行成功。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     public suspend fun kick(message: String, block: Boolean): Boolean
     
     /**
@@ -246,8 +238,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      * @throws PermissionDeniedException 无权限修改时. see [net.mamoe.mirai.contact.NormalMember.kick].
      * @return 是否为普通成员且踢出执行成功。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     public suspend fun kick(message: String): Boolean = kick("", false)
     
     /**
@@ -317,8 +308,7 @@ public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
      * @throws PermissionDeniedException see [NormalMember.modifyAdmin]
      *
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     public suspend fun modifyAdmin(operator: Boolean) {
         val member = originalContact as? NormalMember
             ?: throw UnsupportedOperationException("member $originalContact type is not NormalMember")

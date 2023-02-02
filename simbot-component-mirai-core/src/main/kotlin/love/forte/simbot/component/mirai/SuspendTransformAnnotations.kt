@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2023-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -14,26 +14,23 @@
  *
  */
 
+package love.forte.simbot.component.mirai
 
-plugins {
-    id("love.forte.plugin.suspend-transform")
-}
+import love.forte.simbot.JvmSuspendTrans
+import love.forte.simbot.JvmSuspendTransProperty
 
-suspendTransform {
-    includeRuntime = false
 
-    addJvmTransformers(
-        // @JvmBlocking
-        SuspendTransforms.jvmBlockingTransformer,
-        // @JvmAsync
-        SuspendTransforms.jvmAsyncTransformer,
+/**
+ * **J**vm **S**uspend **T**rans
+ * @see JvmSuspendTrans
+ */
+@Suppress("SpellCheckingInspection")
+internal typealias JST = JvmSuspendTrans
 
-        // @JvmSuspendTrans
-         SuspendTransforms.jvmSuspendTransTransformerForBlocking,
-         SuspendTransforms.jvmSuspendTransTransformerForAsync,
 
-        // @JvmSuspendTransProperty
-         SuspendTransforms.jvmSuspendTransPropTransformerForBlocking,
-         SuspendTransforms.jvmSuspendTransPropTransformerForAsync
-    )
-}
+/**
+ * **J**vm **S**uspend **T**rans **P**roperty.
+ * @see JvmSuspendTransProperty
+ */
+@Suppress("SpellCheckingInspection")
+internal typealias JSTP = JvmSuspendTransProperty

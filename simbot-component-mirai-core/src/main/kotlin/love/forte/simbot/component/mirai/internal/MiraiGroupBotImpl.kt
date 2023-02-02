@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -61,7 +61,15 @@ internal class MiraiGroupBotImpl(
     override suspend fun friend(id: ID): MiraiFriend? = baseBot.friend(id)
     
     override suspend fun group(id: ID): MiraiGroup? = baseBot.group(id)
-    
+
+    override suspend fun friendCount(): Int = baseBot.friendCount()
+
+    override val strangersCount: Int get() = baseBot.strangersCount
+
+    override suspend fun contactCount(): Int = baseBot.contactCount()
+
+    override suspend fun groupCount(): Int = baseBot.groupCount()
+
     override suspend fun resolveImage(id: ID): MiraiImage = baseBot.resolveImage(id)
     
     override fun resolveImage(id: ID, flash: Boolean, builderAction: Image.Builder.() -> Unit): MiraiImage =

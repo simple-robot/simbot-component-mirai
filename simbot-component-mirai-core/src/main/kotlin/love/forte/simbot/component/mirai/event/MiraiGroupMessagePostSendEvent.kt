@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,8 +16,7 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
+import love.forte.simbot.component.mirai.JSTP
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.GroupInfoContainer
@@ -46,16 +45,14 @@ public interface MiraiGroupMessagePostSendEvent :
     /**
      * 发送目标群对象。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun group(): MiraiGroup
     
     
     /**
      * 所有 `post send` 相关事件的源头均来自于[bot]自身。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiBot = bot
     
     

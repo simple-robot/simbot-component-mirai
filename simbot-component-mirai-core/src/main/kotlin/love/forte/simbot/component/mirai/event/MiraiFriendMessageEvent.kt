@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,13 +16,9 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.action.SendSupport
-import love.forte.simbot.component.mirai.MiraiFriend
-import love.forte.simbot.component.mirai.MiraiStranger
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.event.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
@@ -38,6 +34,8 @@ import net.mamoe.mirai.event.events.StrangerMessageEvent as OriginalMiraiStrange
  *
  * Mirai [OriginalMiraiFriendMessageEvent] 事件对应的 [FriendMessageEvent] 事件类型。
  *
+ * 戳一戳消息事件为独立的事件类型，参考 [MiraiFriendNudgeEvent].
+ *
  * @see OriginalMiraiFriendMessageEvent
  * @author ForteScarlet
  */
@@ -50,43 +48,35 @@ public interface MiraiFriendMessageEvent :
     /**
      * 涉及到的好友，同 [friend]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): MiraiFriend = friend()
     
     /**
      * 涉及到的好友，同 [friend]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiFriend = friend()
     
     // region send api
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-    
-    @JvmAsync
-    @JvmBlocking
+
+    @JST
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
-    
-    @JvmAsync
-    @JvmBlocking
+
+    @JST
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     // endregion
     
     
     // region reply api
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     // endregion
     
@@ -108,42 +98,34 @@ public interface MiraiStrangerMessageEvent :
     ContactMessageEvent, ReplySupport, SendSupport {
     override val key: Event.Key<MiraiStrangerMessageEvent> get() = Key
     
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): MiraiStranger
     
     
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiStranger = user()
     
     
     // region reply api
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     // endregion
     
     
     // region send api
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     // endregion
     

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -47,8 +47,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     /**
      * 群主信息。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun owner(): MiraiMember
     
     /**
@@ -129,23 +128,20 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     /**
      * 向群内发送消息。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
     
     /**
      * 向群内发送消息。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
     
     
     /**
      * 向群内发送消息。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         send(message.messages)
     

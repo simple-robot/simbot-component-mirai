@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,10 +16,10 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.action.SendSupport
+import love.forte.simbot.component.mirai.JST
+import love.forte.simbot.component.mirai.JSTP
 import love.forte.simbot.component.mirai.MiraiMember
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.bot.MiraiBot
@@ -53,16 +53,14 @@ public interface MiraiMemberMessageEvent
     /**
      * 发送消息的群成员。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): MiraiMember
     
     
     /**
      * 发送消息的群成员。同 [user]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiMember = user()
     
     
@@ -71,22 +69,19 @@ public interface MiraiMemberMessageEvent
     /**
      * 回复此群成员的消息。效果等同于 [send].
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
     /**
      * 回复此群成员的消息。效果等同于 [send].
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
     /**
      * 回复此群成员的消息。效果等同于 [send].
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     // endregion
     
@@ -94,23 +89,20 @@ public interface MiraiMemberMessageEvent
     /**
      * 向此群成员发送消息。效果等同于 [reply].
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
     /**
      * 向此群成员发送消息。效果等同于 [reply].
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
     
     /**
      * 向此群成员发送消息。效果等同于 [reply].
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     // endregion
     
