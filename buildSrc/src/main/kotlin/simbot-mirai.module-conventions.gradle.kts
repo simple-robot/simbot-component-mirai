@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2023-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -15,6 +15,9 @@
  */
 
 import love.forte.gradle.common.core.project.setup
+import org.jetbrains.dokka.DokkaConfiguration
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import java.net.URL
 
 /*
  *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
@@ -102,8 +105,37 @@ idea {
 
 
 //// show project info
-println("========================================================")
-println("== project.group:   ${group}")
-println("== project.name:    ${name}")
-println("== project.version: ${version}")
-println("========================================================")
+logger.info("========================================================")
+logger.info("== project.group:   {}", group)
+logger.info("== project.name:    {}", name)
+logger.info("== project.version: {}", version)
+logger.info("========================================================")
+
+
+// dokka config
+
+tasks.withType<DokkaTaskPartial>().configureEach {
+    dokkaSourceSets.configureEach {
+        this.documentedVisibilities.set(listOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED))
+
+        sourceLink {
+            localDirectory.set(projectDir.resolve("src"))
+            val relativeTo = projectDir.relativeTo(rootProject.projectDir)
+            remoteUrl.set(URL("${P.ComponentMirai.HOMEPAGE}/tree/main/$relativeTo/src"))
+            remoteLineSuffix.set("#L")
+        }
+
+        perPackageOption {
+            matchingRegex.set(".*internal.*") // will match all .internal packages and sub-packages
+            suppress.set(true)
+        }
+
+        externalDocumentationLink {
+            url.set(URL("https://simple-robot-library.github.io/simbot3-main-apiDoc/"))
+            packageListUrl.set(
+                rootProject.projectDir.resolve("site/simbot.package.list").toURI().toURL()
+            )
+        }
+
+    }
+}

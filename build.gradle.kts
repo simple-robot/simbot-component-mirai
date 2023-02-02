@@ -27,7 +27,7 @@ plugins {
 setup(P.ComponentMirai)
 
 
-println("=== Current version: $version ===")
+logger.info("=== Current version: {} ===", version)
 
 tasks.create("createChangelog") {
     group = "build"
@@ -68,3 +68,5 @@ tasks.create("createChangelog") {
 fun repoRow(moduleName: String, group: String, id: String, version: String): String {
     return "| $moduleName | [$moduleName: v$version](https://repo1.maven.org/maven2/${group.replace(".", "/")}/${id.replace(".", "/")}/$version) | [$moduleName: v$version](https://search.maven.org/artifact/$group/$id/$version/jar)  |"
 }
+
+

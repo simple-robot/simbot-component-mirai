@@ -130,6 +130,12 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     @JvmBlocking(baseName = "getFriend", suffix = "")
     @JvmAsync(baseName = "getFriend")
     override suspend fun friend(id: ID): MiraiFriend?
+
+    /**
+     * 获取当前bot中所有好友的数量
+     */
+    @JvmSynthetic
+    override suspend fun friendCount(): Int
     // endregion
 
     // region strangers api
@@ -143,6 +149,7 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      */
     public val strangers: Items<MiraiStranger>
 
+
     /**
      * 根据唯一标识获取一个陌生人。
      *
@@ -151,6 +158,12 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     @JvmBlocking(baseName = "getStranger", suffix = "")
     @JvmAsync(baseName = "getStranger")
     public suspend fun stranger(id: ID): MiraiStranger?
+
+    /**
+     * 获取当前bot所有陌生人的数量。
+     */
+    public val strangersCount: Int
+
     // endregion
 
     // region contacts api
@@ -177,6 +190,12 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     @JvmBlocking(baseName = "getContact", suffix = "")
     @JvmAsync(baseName = "getContact")
     override suspend fun contact(id: ID): MiraiContact?
+
+    /**
+     * 获取当前bot的所有联系人的数量
+     */
+    @JvmSynthetic
+    override suspend fun contactCount(): Int
     // endregion
 
 
@@ -197,6 +216,12 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     @JvmBlocking(baseName = "getGroup", suffix = "")
     @JvmAsync(baseName = "getGroup")
     override suspend fun group(id: ID): MiraiGroup?
+
+    /**
+     * 获取当前bot中所有群的数量
+     */
+    @JvmSynthetic
+    override suspend fun groupCount(): Int
     // endregion
 
 
@@ -207,6 +232,11 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     )
     override val guilds: Items<Guild>
         get() = emptyItems()
+
+
+    @Deprecated("Channel related APIs are not supported", ReplaceWith("0"))
+    @JvmSynthetic
+    override suspend fun guildCount(): Int = 0
 
 
     @Deprecated("Channel related APIs are not supported", ReplaceWith("null"))
