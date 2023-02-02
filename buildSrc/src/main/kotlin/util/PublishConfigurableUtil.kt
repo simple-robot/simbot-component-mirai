@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -34,4 +34,11 @@ fun checkPublishConfigurable(): PublishConfigurableResult {
     val isReleaseOnly = (System.getProperty("releaseOnly") ?: System.getenv(Env.RELEASES_ONLY))?.equals("true", true) == true
     
     return PublishConfigurableResult(isSnapshotOnly, isReleaseOnly)
+}
+
+inline fun checkPublishConfigurable(block: PublishConfigurableResult.() -> Unit) {
+    val v = checkPublishConfigurable()
+    if (v.isPublishConfigurable) {
+        v.block()
+    }
 }

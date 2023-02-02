@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -11,7 +11,6 @@
  *  https://www.gnu.org/licenses
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
- *
  *
  */
 
@@ -49,7 +48,8 @@ repositories {
 
 fun org.jetbrains.dokka.gradle.AbstractDokkaTask.configOutput(format: String) {
     moduleName.set("simple-robot-component-mirai")
-    outputDirectory.set(rootProject.file("dokka/$format/v$version"))
+//    outputDirectory.set(rootProject.file("dokka/$format/v$version"))
+    outputDirectory.set(rootProject.file("build/dokka/$format"))
 }
 
 tasks.named<org.jetbrains.dokka.gradle.DokkaMultiModuleTask>("dokkaHtmlMultiModule") {

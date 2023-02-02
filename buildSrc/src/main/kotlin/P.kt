@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2023-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -54,8 +54,11 @@ sealed class P {
 
         init {
 
-            val mainVersion = version(major = "${simbotVersionInfo.major}.${simbotVersionInfo.minor}", 0, 0)
-            val status = version("M1")
+            val mainVersion = version(
+                major = "${simbotVersionInfo.major}.${simbotVersionInfo.minor}",
+                0, 0
+            )
+            val status = version("M2")
             versionWithoutSnapshot = mainVersion - status
 
             val mainStatus = if (isSnapshot()) (status - Version.SNAPSHOT) else status

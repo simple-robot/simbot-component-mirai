@@ -37,8 +37,17 @@ jobs:
       - name: Gradle generate documentation
         uses: gradle/gradle-build-action@v2
         with:
-          gradle-version: 7.5.1
-          arguments: clean build dokkaHtmlMultiModuleAndPost -DisSnapshot=false
+          gradle-version: 7.6
+          arguments: |
+            dokkaHtmlMultiModule
+            --info 
+            --warning-mode all
+            -x test
+            --build-cache
+            -Porg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" 
+            -Porg.gradle.daemon=false
+            env:
+            SIMBOT_IS_SNAPSHOT: false
 
       - name: Push to doc repository
         uses: peaceiris/actions-gh-pages@v3
@@ -46,5 +55,5 @@ jobs:
           personal_token: ${{ secrets.PUSH_TOKEN }}
           external_repository: simple-robot-library/simbot3-component-mirai-apiDoc
           publish_branch: gh-pages  # default: gh-pages
-          publish_dir: ./dokka/html
+          publish_dir: ./build/dokka/html
           full_commit_message: Publish ${{ github.ref_name }} documentation
