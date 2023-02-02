@@ -34,9 +34,7 @@ import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
 
 /**
- * mirai中与戳一戳相关的事件。
- *
- * 戳一戳事件也算所相对应的消息事件。
+ * mirai中与戳一戳相关的事件。戳一戳事件也算作相对应的[消息事件][MessageEvent]。
  *
  * 戳一戳事件算作消息事件，消息中将只包含一个 nudge 对象，不存在plainText.
  *

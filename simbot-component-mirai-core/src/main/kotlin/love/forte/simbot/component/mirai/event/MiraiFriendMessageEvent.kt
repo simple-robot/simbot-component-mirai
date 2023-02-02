@@ -34,6 +34,8 @@ import net.mamoe.mirai.event.events.StrangerMessageEvent as OriginalMiraiStrange
  *
  * Mirai [OriginalMiraiFriendMessageEvent] 事件对应的 [FriendMessageEvent] 事件类型。
  *
+ * 戳一戳消息事件为独立的事件类型，参考 [MiraiFriendNudgeEvent].
+ *
  * @see OriginalMiraiFriendMessageEvent
  * @author ForteScarlet
  */
