@@ -35,7 +35,6 @@ jobs:
         with:
           gradle-version: 7.6
           arguments: assemble test
-          cache: 'gradle'
 
       # setup Gradle
       - name: Gradle Publish Release
@@ -74,7 +73,6 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: 11
-          cache: 'gradle'
 
       # setup Gradle
       - name: Gradle generate documentation
@@ -98,7 +96,6 @@ jobs:
           personal_token: ${{ secrets.PUSH_TOKEN }}
           external_repository: simple-robot-library/simbot3-component-mirai-apiDoc
           publish_dir: ./build/dokka/html
-
 
   publish-snapshot:
     name: Publish snapshot
