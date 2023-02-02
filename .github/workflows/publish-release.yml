@@ -91,7 +91,7 @@ jobs:
             -Porg.gradle.jvmargs="-XX:MaxMetaspaceSize=1g -Dfile.encoding=UTF-8" 
             -Porg.gradle.daemon=false
         env:
-        SIMBOT_IS_SNAPSHOT: false
+          SIMBOT_IS_SNAPSHOT: false
 
       - name: Push to doc repository
         uses: peaceiris/actions-gh-pages@v3
