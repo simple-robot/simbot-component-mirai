@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,9 +16,8 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ID
+import love.forte.simbot.component.mirai.JSTP
 import love.forte.simbot.component.mirai.MiraiContact
 import love.forte.simbot.component.mirai.MiraiGroup
 import love.forte.simbot.component.mirai.MiraiMember
@@ -123,8 +122,7 @@ public interface MiraiSimbotContactMessageEvent<E : OriginalMiraiMessageEvent> :
     /**
      * 此事件中涉及到的用户。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): MiraiContact
     
     override val messageContent: MiraiReceivedMessageContent
@@ -151,8 +149,7 @@ public interface MiraiSimbotUserMessageEvent<E : OriginalMiraiMessageEvent> :
     /**
      * 事件中涉及的用户。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): MiraiContact
     
     override val messageContent: MiraiReceivedMessageContent
@@ -180,15 +177,13 @@ public interface MiraiSimbotGroupMessageEvent<E : OriginalMiraiMessageEvent> :
     /**
      * 此消息事件的发送人。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun author(): MiraiMember
     
     /**
      * 此事件发生的群。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiGroup
     
     

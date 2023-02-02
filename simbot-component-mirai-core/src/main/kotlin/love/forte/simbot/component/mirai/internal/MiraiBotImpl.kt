@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -180,15 +180,18 @@ internal class MiraiBotImpl(
     override suspend fun stranger(id: ID): MiraiStranger? {
         return originalBot.getStranger(id.tryToLong())?.asSimbot(this)
     }
+
+    override val strangerCount: Int
+        get() = originalBot.strangers.size
     
     override val friends: Items<MiraiFriend>
         get() = originalBot.friends.asItems().map { it.asSimbot(this) }
     
-    
     override suspend fun friend(id: ID): MiraiFriend? =
         originalBot.getFriend(id.tryToLong())?.asSimbot(this)
-    
-    
+
+    override suspend fun friendCount(): Int = originalBot.friends.size
+
     override val contacts: Items<MiraiContact>
         get() = effectedSequenceItems {
             originalBot.friends.forEach {
@@ -205,13 +208,17 @@ internal class MiraiBotImpl(
         return originalBot.getFriend(number)?.asSimbot(this)
             ?: originalBot.getStranger(number)?.asSimbot(this)
     }
+
+    override suspend fun contactCount(): Int = originalBot.friends.size + originalBot.strangers.size
     
     override val groups: Items<MiraiGroup>
         get() = originalBot.groups.asItems().map { it.asSimbot(this) }
     
     override suspend fun group(id: ID): MiraiGroup? =
         originalBot.getGroup(id.tryToLong())?.asSimbot(this)
-    
+
+    override suspend fun groupCount(): Int = originalBot.groups.size
+
     override fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage {
         return MiraiSendOnlyImage.of(resource, flash)
     }

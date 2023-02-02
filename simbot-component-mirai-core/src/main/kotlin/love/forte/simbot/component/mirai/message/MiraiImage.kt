@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,9 +16,8 @@
 
 package love.forte.simbot.component.mirai.message
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ID
+import love.forte.simbot.component.mirai.JST
 import love.forte.simbot.component.mirai.MiraiContactContainer
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.message.Image
@@ -77,8 +76,7 @@ public interface MiraiSendOnlyImage :
      *
      * @see MiraiImage
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun upload(contact: Contact): MiraiImage
     
     /**
@@ -87,8 +85,7 @@ public interface MiraiSendOnlyImage :
      * @see MiraiContactContainer
      * @see MiraiImage
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun upload(contactContainer: MiraiContactContainer): MiraiImage =
         upload(contactContainer.originalContact)
     
@@ -177,8 +174,7 @@ public interface MiraiImage :
      * 查询原图下载链接.
      * @see OriginalMiraiImage.queryUrl
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun queryUrl(): String = originalImage.queryUrl()
     
     /**

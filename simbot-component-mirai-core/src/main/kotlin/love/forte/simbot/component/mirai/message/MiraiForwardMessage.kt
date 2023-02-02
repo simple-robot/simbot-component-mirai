@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -50,7 +50,7 @@ public interface MiraiForwardMessage : OriginalMiraiDirectlySimbotMessage<Forwar
      * 得到当前消息中包装的 [ForwardMessage] 类型。
      */
     public val originalForwardMessage: ForwardMessage
-    
+
     // region ForwardMessage渲染后属性
     /**
      * @see ForwardMessage.preview

@@ -21,10 +21,10 @@ repositories {
     mavenCentral()
     gradlePluginPortal()
 }
-
-val kotlinVersion = "1.7.20"
+val kotlinVersion = "1.8.0" //
 val dokkaPluginVersion = "1.7.20"
-val suspendTransformPlugin = "0.1.0"
+val suspendTransformPlugin = "0.2.2" // 0.2.2
+val gradleCommon = "0.0.11"
 
 dependencies {
     implementation(kotlin("gradle-plugin", kotlinVersion))
@@ -34,4 +34,9 @@ dependencies {
     // see https://github.com/gradle-nexus/publish-plugin
     implementation("io.github.gradle-nexus:publish-plugin:1.1.0")
     implementation("love.forte.plugin.suspend-transform:suspend-transform-plugin-gradle:$suspendTransformPlugin")
+
+    // gradle common
+    implementation("love.forte.gradle.common:gradle-common-core:$gradleCommon")
+    implementation("love.forte.gradle.common:gradle-common-kotlin-multiplatform:$gradleCommon")
+    implementation("love.forte.gradle.common:gradle-common-publication:$gradleCommon")
 }

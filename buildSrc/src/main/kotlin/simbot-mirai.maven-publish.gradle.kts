@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -14,8 +14,9 @@
  *
  */
 
+import love.forte.gradle.common.core.Gpg
+import love.forte.gradle.common.publication.configure.jvmConfigPublishing
 import util.checkPublishConfigurable
-import util.systemProp
 
 
 plugins {
@@ -23,131 +24,55 @@ plugins {
     id("maven-publish")
 }
 
-val (isSnapshotOnly, isReleaseOnly, isPublishConfigurable) = checkPublishConfigurable()
+
+checkPublishConfigurable {
+    jvmConfigPublishing {
+        project = P.ComponentMirai
+        publicationName = "simbotDist"
 
 
-println("isSnapshotOnly: $isSnapshotOnly")
-println("isReleaseOnly: $isReleaseOnly")
-println("isPublishConfigurable: $isPublishConfigurable")
-
-
-if (isPublishConfigurable) {
-    val sonatypeUsername: String? = systemProp("OSSRH_USER")
-    val sonatypePassword: String? = systemProp("OSSRH_PASSWORD")
-    
-    if (sonatypeUsername == null || sonatypePassword == null) {
-        println("[WARN] - sonatype.username or sonatype.password is null, cannot config nexus publishing.")
-    }
-    
-    val jarSources by tasks.registering(Jar::class) {
-        archiveClassifier.set("sources")
-        from(sourceSets["main"].allSource)
-    }
-    
-    val jarJavadoc by tasks.registering(Jar::class) {
-        archiveClassifier.set("javadoc")
-    }
-    
-    publishing {
-        publications {
-            create<MavenPublication>("miraiDist") {
-                from(components["java"])
-                artifact(jarSources)
-                artifact(jarJavadoc)
-                
-                groupId = project.group.toString()
-                artifactId = project.name
-                version = project.version.toString()
-                description = project.description ?: P.ComponentMirai.DESCRIPTION
-                
-                pom {
-                    show()
-                    
-                    name.set("${project.group}:${project.name}")
-                    description.set(project.description ?: P.ComponentMirai.DESCRIPTION)
-                    url.set("https://github.com/simple-robot/simbot-component-mirai")
-                    licenses {
-                        license {
-                            name.set("GNU GENERAL PUBLIC LICENSE, Version 3")
-                            url.set("https://www.gnu.org/licenses/gpl-3.0-standalone.html")
-                        }
-                        license {
-                            name.set("GNU LESSER GENERAL PUBLIC LICENSE, Version 3")
-                            url.set("https://www.gnu.org/licenses/lgpl-3.0-standalone.html")
-                        }
-                    }
-                    scm {
-                        url.set("https://github.com/simple-robot/simbot-component-mirai")
-                        connection.set("scm:git:https://github.com/simple-robot/simbot-component-mirai.git")
-                        developerConnection.set("scm:git:ssh://git@github.com/simple-robot/simbot-component-mirai.git")
-                    }
-                    
-                    setupDevelopers()
-                }
-            }
-            
-            
-            
-            repositories {
-                configMaven(Sonatype.Central, sonatypeUsername, sonatypePassword)
-                configMaven(Sonatype.Snapshot, sonatypeUsername, sonatypePassword)
-            }
+        val jarSources by tasks.registering(Jar::class) {
+            from(sourceSets["main"].allSource)
+            archiveClassifier.set("sources")
         }
-    }
-    
-    val keyId = System.getenv("GPG_KEY_ID")
-    val secretKey = System.getenv("GPG_SECRET_KEY")
-    val password = System.getenv("GPG_PASSWORD")
-    if (keyId != null) {
-        signing {
-            setRequired {
-                !project.version.toString().endsWith("SNAPSHOT")
-            }
-        
-            useInMemoryPgpKeys(keyId, secretKey, password)
-        
-            sign(publishing.publications)
+
+
+//        val dokkaHtmlJar by tasks.registering(Jar::class) {
+//            dependsOn(tasks.dokkaHtml)
+//            from(tasks.dokkaHtml.flatMap { it.outputDirectory })
+//            archiveClassifier.set("html-docs")
+//        }
+
+        val jarJavadoc by tasks.registering(Jar::class) {
+//            dependsOn(tasks.dokkaJavadoc)
+//            from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+            dependsOn(tasks.dokkaHtml)
+            from(tasks.dokkaHtml.flatMap { it.outputDirectory })
+//            from(tasks.dokkaHtml)
+            archiveClassifier.set("javadoc")
         }
+
+        artifact(jarSources)
+        artifact(jarJavadoc)
+//        artifact(dokkaHtmlJar)
+
+        isSnapshot = project.version.toString().contains("SNAPSHOT", true)
+        releasesRepository = ReleaseRepository
+        snapshotRepository = SnapshotRepository
+        gpg = Gpg.ofSystemPropOrNull()
+
     }
-    
-    
-    
-    println("[publishing-configure] - [$name] configured.")
+    show()
+
+
 }
 
+internal val TaskContainer.dokkaJavadoc: TaskProvider<org.jetbrains.dokka.gradle.DokkaTask>
+    get() = named<org.jetbrains.dokka.gradle.DokkaTask>("dokkaJavadoc")
 
-fun RepositoryHandler.configMaven(sonatype: Sonatype, username: String?, password: String?) {
-    maven {
-        name = sonatype.name
-        url = uri(sonatype.url)
-        credentials {
-            this.username = username
-            this.password = password
-        }
-    }
-}
+internal val TaskContainer.dokkaHtml: TaskProvider<org.jetbrains.dokka.gradle.DokkaTask>
+    get() = named<org.jetbrains.dokka.gradle.DokkaTask>("dokkaHtml")
 
-
-/**
- * 配置开发者/协作者信息。
- *
- */
-fun MavenPom.setupDevelopers() {
-    developers {
-        developer {
-            id.set("forte")
-            name.set("ForteScarlet")
-            email.set("ForteScarlet@163.com")
-            url.set("https://github.com/ForteScarlet")
-        }
-        developer {
-            id.set("forliy")
-            name.set("ForliyScarlet")
-            email.set("ForliyScarlet@163.com")
-            url.set("https://github.com/ForliyScarlet")
-        }
-    }
-}
 
 fun show() {
     //// show project info

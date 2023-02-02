@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,8 +16,6 @@
 
 package love.forte.simbot.component.mirai
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.IntID
 import love.forte.simbot.LongID
@@ -54,22 +52,19 @@ public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
     /**
      * 向此好友发送消息。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     
     /**
      * 向此好友发送消息。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     
     /**
      * 向此好友发送消息。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend> =
         send(message.messages)
     
@@ -157,8 +152,7 @@ public interface MiraiFriendCategory : Category, DeleteSupport {
      * 修改分组名称。
      * @see FriendGroup.renameTo
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun renameTo(newName: String): Boolean {
         return originalFriendGroup.renameTo(newName)
     }
@@ -167,8 +161,7 @@ public interface MiraiFriendCategory : Category, DeleteSupport {
      * 把一名好友移动至本分组内.
      * @see FriendGroup.moveIn
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun moveIn(friend: MiraiFriend): Boolean {
         return originalFriendGroup.moveIn(friend.originalContact)
     }
@@ -177,8 +170,7 @@ public interface MiraiFriendCategory : Category, DeleteSupport {
      * 把一名好友移动至本分组内.
      * @see FriendGroup.moveIn
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun moveIn(friend: OriginalMiraiFriend): Boolean {
         return originalFriendGroup.moveIn(friend)
     }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -12,14 +12,14 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.*
-import love.forte.simbot.definition.*
+import love.forte.simbot.LongID
+import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.definition.MemberInfo
 
 /**
  * [MiraiMemberJoinRequestEvent] 中的 [requester][MiraiMemberJoinRequestEvent.requester] 等相关属性的返回值。

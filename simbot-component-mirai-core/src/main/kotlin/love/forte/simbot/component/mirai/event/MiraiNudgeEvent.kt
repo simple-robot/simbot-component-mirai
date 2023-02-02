@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,8 +16,6 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ID
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.component.mirai.*
@@ -36,9 +34,7 @@ import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
 
 /**
- * mirai中与戳一戳相关的事件。
- *
- * 戳一戳事件也算所相对应的消息事件。
+ * mirai中与戳一戳相关的事件。戳一戳事件也算作相对应的[消息事件][MessageEvent]。
  *
  * 戳一戳事件算作消息事件，消息中将只包含一个 nudge 对象，不存在plainText.
  *
@@ -67,8 +63,7 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
      * 发送这个戳一戳的源头。如果来自私聊，则可能是 [MiraiFriend]、[MiraiStranger]、[MiraiMember],
      * 如果来自群聊，则为 [MiraiGroup].
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): Objective
     
     //// apis
@@ -77,22 +72,19 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
     /**
      * 回复消息发送者。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiContact>
     
     /**
      * 回复消息发送者。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiContact>
     
     /**
      * 回复消息发送者。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiContact>
     // endregion
     
@@ -101,8 +93,7 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
     /**
      * 回复此目标一个戳一戳。相当于针对当前的 target 发送一个戳一戳。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun replyNudge(): Boolean
     // endregion
     
@@ -154,8 +145,7 @@ public class MiraiReceivedNudgeMessageContent(public val nudgeEvent: NudgeEvent)
  * 实现 [GroupMessageEvent], 但是不同于 [MiraiGroupMessageEvent].
  *
  */
-@JvmBlocking(asProperty = true, suffix = "")
-@JvmAsync(asProperty = true)
+@JSTP
 public interface MiraiGroupNudgeEvent : MiraiNudgeEvent, GroupMessageEvent {
     /**
      * 这个戳一戳消息所在群。
@@ -199,28 +189,23 @@ public interface MiraiMemberNudgeEvent : MiraiNudgeEvent, ContactMessageEvent {
     /**
      * 发送戳一戳的成员。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): MiraiMember
     
     /**
      * 发送戳一戳的成员。同 [user]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiMember = user()
     
     // region reply api
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiMember>
     // endregion
     
@@ -245,36 +230,30 @@ public interface MiraiFriendNudgeEvent : MiraiNudgeEvent, FriendMessageEvent {
     /**
      * 发送戳一戳消息的好友。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun friend(): MiraiFriend
     
     /**
      * 发送戳一戳消息的好友。同 [friend]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiFriend = friend()
     
     /**
      * 发送戳一戳消息的好友。同 [friend]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): MiraiFriend = friend()
     
     
     // region reply api
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend>
     // endregion
     
@@ -298,28 +277,23 @@ public interface MiraiStrangerNudgeEvent : MiraiNudgeEvent, ContactMessageEvent 
     /**
      * 发送戳一戳消息的陌生人。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): MiraiStranger
     
     /**
      * 发送戳一戳消息的陌生人。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiStranger = user()
     
     // region reply api
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiStranger>
     // endregion
     

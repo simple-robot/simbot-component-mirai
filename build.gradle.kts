@@ -1,3 +1,5 @@
+import love.forte.gradle.common.core.project.setup
+
 /*
  *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
  *
@@ -22,16 +24,15 @@ plugins {
     id("simbot-mirai.changelog-generator")
 }
 
-group = P.ComponentMirai.GROUP
-version = P.ComponentMirai.VERSION
-description = P.ComponentMirai.DESCRIPTION
+setup(P.ComponentMirai)
 
-println("=== Current version: $version ===")
+
+logger.info("=== Current version: {} ===", version)
 
 tasks.create("createChangelog") {
     group = "build"
     doFirst {
-        val realVersion = P.ComponentMirai.version.fullVersion(false)
+        val realVersion = P.ComponentMirai.version.toString()
         val version = "v$realVersion"
         println("Generate change log for $version ...")
         // configurations.runtimeClasspath
@@ -67,3 +68,5 @@ tasks.create("createChangelog") {
 fun repoRow(moduleName: String, group: String, id: String, version: String): String {
     return "| $moduleName | [$moduleName: v$version](https://repo1.maven.org/maven2/${group.replace(".", "/")}/${id.replace(".", "/")}/$version) | [$moduleName: v$version](https://search.maven.org/artifact/$group/$id/$version/jar)  |"
 }
+
+
