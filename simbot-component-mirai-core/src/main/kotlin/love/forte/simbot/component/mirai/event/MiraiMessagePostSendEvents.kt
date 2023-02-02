@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,9 +16,8 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.SimbotIllegalStateException
+import love.forte.simbot.component.mirai.JST
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
 import love.forte.simbot.component.mirai.bot.MiraiBot
@@ -65,8 +64,7 @@ public interface MiraiMessagePostSendEvent<C : net.mamoe.mirai.contact.Contact, 
      *
      * @throws SimbotIllegalStateException 无法引用回复时
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<C> {
         val quote = originalEvent.receipt?.quote()
             ?: throw SimbotIllegalStateException("Cannot reply this event: $this: the originalEvent.receipt is null")
@@ -83,8 +81,7 @@ public interface MiraiMessagePostSendEvent<C : net.mamoe.mirai.contact.Contact, 
      *
      * @throws SimbotIllegalStateException 无法引用回复时
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<C> {
         val quote = originalEvent.receipt?.quote()
             ?: throw SimbotIllegalStateException("Cannot reply this event: $this: the originalEvent.receipt is null")
@@ -101,8 +98,7 @@ public interface MiraiMessagePostSendEvent<C : net.mamoe.mirai.contact.Contact, 
      *
      * @throws SimbotIllegalStateException 无法引用回复时
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<C> {
         return reply(message.messages)
     }

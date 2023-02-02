@@ -19,7 +19,7 @@ abstract class SimbotProject {
     abstract val version: String
 }
 
-const val SIMBOT_VERSION = "3.0.0-RC"
+const val SIMBOT_VERSION = "3.0.0-RC.2"
 const val SIMBOT_CORE = "love.forte.simbot:simbot-core:$SIMBOT_VERSION"
 
 /**

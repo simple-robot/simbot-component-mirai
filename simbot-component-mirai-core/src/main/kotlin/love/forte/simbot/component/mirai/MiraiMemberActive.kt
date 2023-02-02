@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,8 +16,6 @@
 
 package love.forte.simbot.component.mirai
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import net.mamoe.mirai.contact.active.MemberActive
 import net.mamoe.mirai.contact.active.MemberMedalInfo
 import net.mamoe.mirai.data.GroupHonorType
@@ -69,8 +67,7 @@ public interface MiraiMemberActive {
      * @return Mirai原生的 [MemberMedalInfo] 类结果。
      * @see MemberActive.queryMedal
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun queryMedal(): MemberMedalInfo = originalMemberActive.queryMedal()
     
     

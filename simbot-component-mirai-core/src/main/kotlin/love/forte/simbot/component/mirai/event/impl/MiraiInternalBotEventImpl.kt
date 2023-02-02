@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -12,14 +12,16 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai.event.impl
 
-import love.forte.simbot.*
-import love.forte.simbot.component.mirai.event.*
-import love.forte.simbot.component.mirai.internal.*
+import love.forte.simbot.ID
+import love.forte.simbot.Timestamp
+import love.forte.simbot.component.mirai.event.MiraiBotRegisteredEvent
+import love.forte.simbot.component.mirai.event.MiraiBotStartedEvent
+import love.forte.simbot.component.mirai.internal.MiraiBotImpl
+import love.forte.simbot.randomID
 
 internal class MiraiBotRegisteredEventImpl(override val bot: MiraiBotImpl) : MiraiBotRegisteredEvent() {
     override val timestamp: Timestamp = Timestamp.now()

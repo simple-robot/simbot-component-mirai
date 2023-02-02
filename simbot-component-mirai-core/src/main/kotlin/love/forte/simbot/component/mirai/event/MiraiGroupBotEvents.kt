@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -21,9 +21,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.ID
 import love.forte.simbot.action.ActionType
-import love.forte.simbot.component.mirai.MemberRole
-import love.forte.simbot.component.mirai.MiraiGroup
-import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.GroupInfo
 import love.forte.simbot.definition.UserInfo
@@ -345,38 +343,33 @@ public interface MiraiBotInvitedJoinGroupRequestEvent :
     /**
      * 涉及的群的信息。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun group(): GroupInfo
     
     /**
      * 申请人，即bot自己，同 [bot]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun requester(): MiraiBot = bot
     
     /**
      * 申请人，即bot自己，同 [bot]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): MiraiBot = bot
     
     /**
      * 邀请人的信息，同 [user]。
      * @see InvitorUserInfo
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun inviter(): InvitorUserInfo
     
     /**
      * 同意请求。
      */
     @OptIn(ExperimentalSimbotApi::class)
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun accept(): Boolean
     
     /**
@@ -385,8 +378,7 @@ public interface MiraiBotInvitedJoinGroupRequestEvent :
      * @see OriginalMiraiBotInvitedJoinGroupRequestEvent
      */
     @OptIn(ExperimentalSimbotApi::class)
-    @JvmAsync
-    @JvmBlocking
+    @JST
     override suspend fun reject(): Boolean
     
     override val type: RequestEvent.Type get() = RequestEvent.Type.INVITATION

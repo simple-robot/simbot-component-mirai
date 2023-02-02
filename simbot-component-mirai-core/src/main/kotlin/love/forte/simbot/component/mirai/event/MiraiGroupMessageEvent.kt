@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -16,13 +16,9 @@
 
 package love.forte.simbot.component.mirai.event
 
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.action.ReplySupport
 import love.forte.simbot.action.SendSupport
-import love.forte.simbot.component.mirai.MiraiGroup
-import love.forte.simbot.component.mirai.MiraiMember
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.event.*
 import love.forte.simbot.message.Message
@@ -55,29 +51,25 @@ public interface MiraiGroupMessageEvent :
     /**
      * 此消息的发送者。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun author(): MiraiMember
 
     /**
      * 收到消息的群。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun group(): MiraiGroup
     
     /**
      * 收到消息的群。同 [group].
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun organization(): MiraiGroup = group()
 
     /**
      * 收到消息的群。同 [group].
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun source(): MiraiGroup = group()
 
     //// api
@@ -89,31 +81,27 @@ public interface MiraiGroupMessageEvent :
      *
      * @see net.mamoe.mirai.message.data.MessageSource.recall
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun recall(): Boolean
 
 
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
 
     /**
      * 在当前群内**引用回复**发消息的人。会在消息开头拼接一个 QuoteReply。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
 
@@ -121,22 +109,19 @@ public interface MiraiGroupMessageEvent :
     /**
      * 向此事件的群发送消息。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
     /**
      * 向此事件的群发送消息。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
     
     /**
      * 向此事件的群发送消息。
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
     //endregion
 

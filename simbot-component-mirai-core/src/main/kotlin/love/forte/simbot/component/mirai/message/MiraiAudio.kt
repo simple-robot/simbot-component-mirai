@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -21,6 +21,7 @@ import kotlinx.serialization.Serializable
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.SimbotIllegalArgumentException
+import love.forte.simbot.component.mirai.JST
 import love.forte.simbot.component.mirai.MiraiContact
 import love.forte.simbot.component.mirai.MiraiContactContainer
 import love.forte.simbot.component.mirai.MiraiGroup
@@ -104,8 +105,7 @@ public class MiraiSendOnlyAudio(
      *
      * @return 音频上传结果。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     public suspend fun uploadTo(originalAudioSupported: AudioSupported): MiraiAudio {
         return uploadAudioTo(originalAudioSupported).asSimbot()
     }
@@ -118,8 +118,7 @@ public class MiraiSendOnlyAudio(
      *
      * @return 音频上传结果。
      */
-    @JvmAsync
-    @JvmBlocking
+    @JST
     public suspend fun uploadTo(miraiContact: MiraiContactContainer): MiraiAudio {
         val original = miraiContact.originalContact
         if (original !is AudioSupported) {

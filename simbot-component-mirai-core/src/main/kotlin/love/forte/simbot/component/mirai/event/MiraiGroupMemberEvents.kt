@@ -19,9 +19,7 @@ package love.forte.simbot.component.mirai.event
 import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.ExperimentalSimbotApi
-import love.forte.simbot.component.mirai.MemberRole
-import love.forte.simbot.component.mirai.MiraiGroup
-import love.forte.simbot.component.mirai.MiraiMember
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.definition.GroupInfo
 import love.forte.simbot.event.*
@@ -484,8 +482,7 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
     /**
      * 涉及群。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun group(): GroupInfo
     
     
@@ -494,35 +491,30 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
      *
      * @see RequestMemberInviterInfo
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun inviter(): RequestMemberInviterInfo?
     
     /**
      * 申请者信息。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun requester(): RequestMemberInfo
     
     
     /**
      * 申请者信息。同 [requester]。
      */
-    @JvmBlocking(asProperty = true, suffix = "")
-    @JvmAsync(asProperty = true)
+    @JSTP
     override suspend fun user(): RequestMemberInfo = requester()
     
     /** 接受申请 */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     @OptIn(ExperimentalSimbotApi::class)
     override suspend fun accept(): Boolean
     
     
     /** 拒绝申请 */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     @OptIn(ExperimentalSimbotApi::class)
     override suspend fun reject(): Boolean
     
@@ -530,8 +522,7 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
      * 拒绝申请。
      * @param blockList 添加到黑名单
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun reject(blockList: Boolean): Boolean = reject(blockList, "")
     
     
@@ -539,8 +530,7 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
      * 拒绝申请。
      * @param message 拒绝原因
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun reject(message: String): Boolean = reject(blockList = false, message)
     
     /**
@@ -548,8 +538,7 @@ public interface MiraiMemberJoinRequestEvent : MiraiSimbotBotEvent<OriginalMirai
      * @param blockList 添加到黑名单
      * @param message 拒绝原因
      */
-    @JvmBlocking
-    @JvmAsync
+    @JST
     public suspend fun reject(blockList: Boolean, message: String): Boolean
     
     
