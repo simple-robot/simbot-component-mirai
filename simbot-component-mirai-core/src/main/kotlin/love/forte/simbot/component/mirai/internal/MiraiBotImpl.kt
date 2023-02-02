@@ -181,7 +181,7 @@ internal class MiraiBotImpl(
         return originalBot.getStranger(id.tryToLong())?.asSimbot(this)
     }
 
-    override val strangersCount: Int
+    override val strangerCount: Int
         get() = originalBot.strangers.size
     
     override val friends: Items<MiraiFriend>

@@ -162,7 +162,7 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     /**
      * 获取当前bot所有陌生人的数量。
      */
-    public val strangersCount: Int
+    public val strangerCount: Int
 
     // endregion
 

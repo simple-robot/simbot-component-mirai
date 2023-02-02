@@ -64,7 +64,7 @@ internal class MiraiGroupBotImpl(
 
     override suspend fun friendCount(): Int = baseBot.friendCount()
 
-    override val strangersCount: Int get() = baseBot.strangersCount
+    override val strangerCount: Int get() = baseBot.strangerCount
 
     override suspend fun contactCount(): Int = baseBot.contactCount()
 
