@@ -73,14 +73,18 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
         jvmTarget = "1.8"
         freeCompilerArgs = freeCompilerArgs + listOf("-Xjvm-default=all")
     }
+
 }
 
 kotlin {
     explicitApi()
-    this.sourceSets.configureEach {
+    sourceSets.configureEach {
         languageSettings {
             optIn("kotlin.RequiresOptIn")
         }
+    }
+    sourceSets.getByName("test").kotlin {
+        srcDir("src/samples")
     }
 }
 
@@ -122,6 +126,15 @@ tasks.withType<DokkaTaskPartial>().configureEach {
         if (project.file("Module.md").exists()) {
             includes.from("Module.md")
         }
+
+        // samples
+        samples.from(
+            project.files(),
+//            "src/samples/samples/MiraiBots.kt",
+            project.files("src/samples/samples"),
+//             projectDir.resolve("src/samples/samples/MiraiBots.kt"),
+//            project.file("src/samples/samples/MiraiBots.kt")
+            )
 
         sourceLink {
             localDirectory.set(projectDir.resolve("src"))
