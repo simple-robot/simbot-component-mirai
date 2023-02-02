@@ -30,19 +30,30 @@ checkPublishConfigurable {
         project = P.ComponentMirai
         publicationName = "simbotDist"
 
+
         val jarSources by tasks.registering(Jar::class) {
-            archiveClassifier.set("sources")
             from(sourceSets["main"].allSource)
+            archiveClassifier.set("sources")
         }
 
+
+//        val dokkaHtmlJar by tasks.registering(Jar::class) {
+//            dependsOn(tasks.dokkaHtml)
+//            from(tasks.dokkaHtml.flatMap { it.outputDirectory })
+//            archiveClassifier.set("html-docs")
+//        }
+
         val jarJavadoc by tasks.registering(Jar::class) {
-            dependsOn(tasks.dokkaJavadoc)
-            from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+//            dependsOn(tasks.dokkaJavadoc)
+//            from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
+            dependsOn(tasks.dokkaHtml)
+            from(tasks.dokkaHtml.flatMap { it.outputDirectory })
             archiveClassifier.set("javadoc")
         }
 
         artifact(jarSources)
         artifact(jarJavadoc)
+//        artifact(dokkaHtmlJar)
 
         isSnapshot = project.version.toString().contains("SNAPSHOT", true)
         releasesRepository = ReleaseRepository
@@ -58,6 +69,10 @@ checkPublishConfigurable {
 
 internal val TaskContainer.dokkaJavadoc: TaskProvider<org.jetbrains.dokka.gradle.DokkaTask>
     get() = named<org.jetbrains.dokka.gradle.DokkaTask>("dokkaJavadoc")
+
+internal val TaskContainer.dokkaHtml: TaskProvider<org.jetbrains.dokka.gradle.DokkaTask>
+    get() = named<org.jetbrains.dokka.gradle.DokkaTask>("dokkaHtml")
+
 
 fun show() {
     //// show project info
