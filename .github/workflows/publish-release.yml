@@ -18,7 +18,6 @@ jobs:
   test-and-publish-releases:
     name: Publish Release
     runs-on: ubuntu-latest
-    needs: run-test
     steps:
       # 检出仓库代码
       - name: Check Out Repo
