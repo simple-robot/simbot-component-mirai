@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -12,12 +12,11 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
+import love.forte.gradle.common.core.repository.Repositories
+import love.forte.gradle.common.publication.configure.nexusPublishConfig
 import util.checkPublishConfigurable
-import util.systemProp
-import java.time.Duration
 
 /*
  *  Copyright (c) 2022 ForteScarlet <ForteScarlet@163.com>
@@ -44,39 +43,50 @@ plugins {
 val (isSnapshotOnly, isReleaseOnly, isPublishConfigurable) = checkPublishConfigurable()
 
 
-println("isSnapshotOnly: $isSnapshotOnly")
-println("isReleaseOnly: $isReleaseOnly")
-println("isPublishConfigurable: $isPublishConfigurable")
+logger.info("isSnapshotOnly: {}", isSnapshotOnly)
+logger.info("isReleaseOnly: {}", isReleaseOnly)
+logger.info("isPublishConfigurable: {}", isPublishConfigurable)
 
 
 if (isPublishConfigurable) {
-    val sonatypeUsername: String? = systemProp("OSSRH_USER")
-    val sonatypePassword: String? = systemProp("OSSRH_PASSWORD")
-    
-    if (sonatypeUsername == null || sonatypePassword == null) {
-        println("[WARN] - sonatype.username or sonatype.password is null, cannot config nexus publishing.")
+    val userInfo = love.forte.gradle.common.publication.sonatypeUserInfoOrNull
+
+    if (userInfo == null) {
+        logger.warn("sonatype.username or sonatype.password is null, cannot config nexus publishing.")
     }
-    
-    nexusPublishing {
-        packageGroup.set(project.group.toString())
-        
-        useStaging.set(
-            project.provider { !project.version.toString().endsWith("SNAPSHOT", ignoreCase = true) }
-        )
-        
-        transitionCheckOptions {
-            maxRetries.set(100)
-            delayBetween.set(Duration.ofSeconds(5))
-        }
-        
-        repositories {
+
+    nexusPublishConfig {
+        projectDetail = P.ComponentMirai
+        useStaging = project.provider { !project.version.toString().endsWith("SNAPSHOT", ignoreCase = true) }
+        repositoriesConfig = {
             sonatype {
-                snapshotRepositoryUrl.set(uri(Sonatype.Snapshot.URL))
-                username.set(sonatypeUsername)
-                password.set(sonatypePassword)
+                snapshotRepositoryUrl.set(uri(Repositories.Snapshot.URL))
+                username.set(userInfo?.username)
+                password.set(userInfo?.password)
             }
         }
     }
+
+//    nexusPublishing {
+//        packageGroup.set(project.group.toString())
+//
+//        useStaging.set(
+//            project.provider { !project.version.toString().endsWith("SNAPSHOT", ignoreCase = true) }
+//        )
+//
+//        transitionCheckOptions {
+//            maxRetries.set(100)
+//            delayBetween.set(Duration.ofSeconds(5))
+//        }
+//
+//        repositories {
+//            sonatype {
+//                snapshotRepositoryUrl.set(uri(Sonatype.Snapshot.URL))
+//                username.set(sonatypeUsername)
+//                password.set(sonatypePassword)
+//            }
+//        }
+//    }
     
     
     println("[publishing-configure] - [$name] configured.")
