@@ -46,8 +46,9 @@ checkPublishConfigurable {
         val jarJavadoc by tasks.registering(Jar::class) {
 //            dependsOn(tasks.dokkaJavadoc)
 //            from(tasks.dokkaJavadoc.flatMap { it.outputDirectory })
-            dependsOn(tasks.dokkaHtml)
-            from(tasks.dokkaHtml.flatMap { it.outputDirectory })
+//            dependsOn(tasks.dokkaHtml)
+//            from(tasks.dokkaHtml.flatMap { it.outputDirectory })
+            from(tasks.dokkaHtml)
             archiveClassifier.set("javadoc")
         }
 
