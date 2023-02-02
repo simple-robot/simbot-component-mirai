@@ -257,7 +257,7 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     /**
      * @see idImage
      */
-    @JST
+    @love.forte.simbot.component.mirai.JST
     override suspend fun resolveImage(id: ID): MiraiImage = idImage(id, false)
 
     /**
@@ -338,7 +338,7 @@ public interface MiraiFriendCategories : Iterable<MiraiFriendCategory> {
      *
      * @see FriendGroups.create
      */
-    @JST
+    @love.forte.simbot.component.mirai.JST
     public suspend fun create(name: String): MiraiFriendCategory
 
     /**

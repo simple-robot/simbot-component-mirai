@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -12,14 +12,13 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 plugins {
     idea
 }
 
 group = P.ComponentMirai.GROUP
-version = P.ComponentMirai.VERSION
+version = P.ComponentMirai.version
 description = P.ComponentMirai.DESCRIPTION
 
 idea {
