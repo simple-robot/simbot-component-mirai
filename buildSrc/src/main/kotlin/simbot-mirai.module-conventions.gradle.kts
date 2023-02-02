@@ -116,7 +116,12 @@ logger.info("========================================================")
 
 tasks.withType<DokkaTaskPartial>().configureEach {
     dokkaSourceSets.configureEach {
-        this.documentedVisibilities.set(listOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED))
+        version = P.ComponentMirai.versionWithoutSnapshot.toString()
+        documentedVisibilities.set(listOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED))
+        reportUndocumented.set(true)
+        if (project.file("Module.md").exists()) {
+            includes.from("Module.md")
+        }
 
         sourceLink {
             localDirectory.set(projectDir.resolve("src"))
@@ -133,7 +138,8 @@ tasks.withType<DokkaTaskPartial>().configureEach {
         externalDocumentationLink {
             url.set(URL("https://simple-robot-library.github.io/simbot3-main-apiDoc/"))
             packageListUrl.set(
-                rootProject.projectDir.resolve("site/simbot.package.list").toURI().toURL()
+                URL("https://raw.githubusercontent.com/simple-robot-library/simbot3-main-apiDoc/gh-pages/package-list")
+                //rootProject.projectDir.resolve("site/simbot.package.list").toURI().toURL()
             )
         }
 
