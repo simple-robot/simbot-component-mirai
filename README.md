@@ -29,7 +29,21 @@
 
 
 ## 文档
-你可以参考 [语雀说明文档](https://www.yuque.com/simpler-robot) 的 `simbot3` 部分，或者查看simbot3-mirai组件的 [API Doc](https://simple-robot-library.github.io/simbot3-component-mirai-apiDoc/) .
+
+Simple Robot 官方文档：[simbot.forte.love](https://simbot.forte.love)
+
+API文档：
+- GitHub Page 托管：[点击前往](https://simple-robot-library.github.io/simbot3-component-mirai-apiDoc)
+  > 基于版本发布自动构建，可在 [simple robot 图书馆](https://github.com/simple-robot-library) 找到。
+  > 与 javadoc.io 的托管不同，此托管中的文档是simbot-mirai组件的所有模块整体文档。
+
+- [javadoc.io](https://javadoc.io/) 托管：[点击前往](https://javadoc.io/doc/love.forte.simbot.component/simbot-component-mirai-core)
+  > 基于[Central Maven](https://search.maven.org/)自动托管。
+  > 与 GitHub Page 的托管不同，此托管是以每个**单独的模块**进行的，你也可以通过此站点查询其他组件的文档。
+  > - [simbot-component-mirai-core](https://javadoc.io/doc/love.forte.simbot.component/simbot-component-mirai-core)
+  > - [simbot-component-mirai-extra-catcode](https://javadoc.io/doc/love.forte.simbot.component/simbot-component-mirai-extra-catcode)
+
+
 
 ## 版本说明
 
