@@ -153,6 +153,11 @@ tasks.withType<DokkaTaskPartial>().configureEach {
             }
         }
 
+        // kotlin-coroutines doc
+        externalDocumentation(URL("https://kotlinlang.org/api/kotlinx.coroutines"))
+
+        // kotlin-serialization doc
+        externalDocumentation(URL("https://kotlinlang.org/api/kotlinx.serialization"))
 
         // simbot doc
         externalDocumentation(URL("https://simple-robot-library.github.io/simbot3-main-apiDoc"))
