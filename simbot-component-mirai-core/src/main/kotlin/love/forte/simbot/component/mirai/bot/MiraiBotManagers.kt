@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -20,6 +20,7 @@ import love.forte.simbot.FragileSimbotApi
 import love.forte.simbot.application.*
 import love.forte.simbot.bot.OriginBotManager
 import love.forte.simbot.component.mirai.MiraiComponent
+import org.jetbrains.annotations.ApiStatus
 
 
 /**
@@ -138,11 +139,11 @@ public inline fun BotRegistrar.miraiIfSupport(block: MiraiBotManager.() -> Unit)
 /**
  * 通过 [OriginBotManager] 获取所有的 [MiraiBotManager]。
  *
- * @see miraiBotManagers
+ * @suppress see [miraiBotManagers]
  */
 @FragileSimbotApi
 @Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use miraiBotManagers()", ReplaceWith("miraiBotManagers()"))
+@Deprecated("Use miraiBotManagers()", ReplaceWith("miraiBotManagers()"), level = DeprecationLevel.ERROR)
 public inline fun miraiComponents(): List<MiraiBotManager> = miraiBotManagers()
 
 /**
@@ -150,11 +151,12 @@ public inline fun miraiComponents(): List<MiraiBotManager> = miraiBotManagers()
  *
  * @throws [NoSuchElementException] 如果找不到的话
  *
- * @see firstMiraiBotManager
+ * @suppress see [firstMiraiBotManager]
  */
 @FragileSimbotApi
 @Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use firstMiraiBotManager()", ReplaceWith("firstMiraiBotManager()"))
+@Deprecated("Use firstMiraiBotManager()", ReplaceWith("firstMiraiBotManager()"), level = DeprecationLevel.ERROR)
+@ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
 public inline fun firstMiraiComponent(): MiraiBotManager = firstMiraiBotManager()
 
 /**
@@ -162,11 +164,12 @@ public inline fun firstMiraiComponent(): MiraiBotManager = firstMiraiBotManager(
  *
  * 如果找不到则返回null。
  *
- * @see firstMiraiBotManagerOrNull
+ * @suppress see [firstMiraiBotManagerOrNull]
  */
 @FragileSimbotApi
 @Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use firstMiraiBotManagerOrNull()", ReplaceWith("firstMiraiBotManagerOrNull()"))
+@Deprecated("Use firstMiraiBotManagerOrNull()", ReplaceWith("firstMiraiBotManagerOrNull()"), level = DeprecationLevel.ERROR)
+@ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
 public inline fun firstMiraiComponentOrNull(): MiraiBotManager? = firstMiraiBotManagerOrNull()
 
 /**

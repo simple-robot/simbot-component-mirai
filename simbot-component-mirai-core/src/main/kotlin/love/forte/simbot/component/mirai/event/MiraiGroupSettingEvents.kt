@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -26,6 +26,7 @@ import love.forte.simbot.event.BaseEventKey
 import love.forte.simbot.event.ChangedEvent
 import love.forte.simbot.event.Event
 import love.forte.simbot.message.doSafeCast
+import org.jetbrains.annotations.ApiStatus
 import net.mamoe.mirai.event.events.GroupAllowAnonymousChatEvent as OriginalMiraiGroupAllowAnonymousChatEvent
 import net.mamoe.mirai.event.events.GroupAllowConfessTalkEvent as OriginalMiraiGroupAllowConfessTalkEvent
 import net.mamoe.mirai.event.events.GroupAllowMemberInviteEvent as OriginalMiraiGroupAllowMemberInviteEvent
@@ -105,8 +106,9 @@ public interface MiraiGroupNameChangeEvent : MiraiGroupSettingEvent<String, Orig
  * 入群公告改变.
  * @see net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent
  */
-@Suppress("DEPRECATION")
-@Deprecated("This event (net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent) is not being triggered anymore.")
+@Suppress("DEPRECATION", "DEPRECATION_ERROR")
+@Deprecated("This event (net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent) is not being triggered anymore.", level = DeprecationLevel.ERROR)
+@ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
 public interface MiraiGroupEntranceAnnouncementChangeEvent :
     MiraiGroupSettingEvent<String, net.mamoe.mirai.event.events.GroupEntranceAnnouncementChangeEvent> {
     

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -29,7 +29,6 @@ import love.forte.simbot.bot.BotVerifyInfo
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.logger.LoggerFactory
-import love.forte.simbot.logger.logger
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.utils.BotConfiguration
 import net.mamoe.mirai.utils.DeviceInfo
@@ -43,9 +42,8 @@ import java.io.File
  *
  * 通过 [BotVerifyInfo] 进行注册的bot信息配置类。
  *
- * 对一个bot的配置，账号（[code]）与密码（[password] | [passwordMD5] | [passwordMD5Bytes]）为必须属性；
+ * 对一个bot的配置, 账号（[code]）与密码（[passwordInfo]）为必须属性,
  * 其他额外配置位于 [config] 属性中。
- *
  *
  * @see BotConfiguration
  */
@@ -60,7 +58,7 @@ public data class MiraiBotVerifyInfoConfiguration(
     /**
      * 用户密码信息配置。
      */
-    val passwordInfo: PasswordInfoConfiguration? = null,
+    val passwordInfo: PasswordInfoConfiguration,
     
     /**
      * 必要属性之外的额外配置属性。
@@ -74,24 +72,24 @@ public data class MiraiBotVerifyInfoConfiguration(
     // region 弃用的密码配置
     
     /**
-     * 密码。与 [passwordMD5] 和 [passwordMD5Bytes] 之间只能存在一个。
+     * @suppress see [passwordInfo]
      */
-    @Deprecated("Use passwordInfo")
-    @ScheduledForRemoval(inVersion = "3.0.0")
+    @Deprecated("Use passwordInfo", level = DeprecationLevel.ERROR)
+    @ScheduledForRemoval(inVersion = "3.0.0.0")
     var password: String? = null
-    
+
     /**
-     * 密码。与 [password] 和 [passwordMD5Bytes] 之间只能存在一个。
+     * @suppress see [passwordInfo]
      */
-    @Deprecated("Use passwordInfo")
-    @ScheduledForRemoval(inVersion = "3.0.0")
+    @Deprecated("Use passwordInfo", level = DeprecationLevel.ERROR)
+    @ScheduledForRemoval(inVersion = "3.0.0.0")
     var passwordMD5: String? = null
-    
+
     /**
-     * 密码。与 [password] 和 [passwordMD5] 之间只能存在一个。
+     * @suppress see [passwordInfo]
      */
-    @Deprecated("Use passwordInfo")
-    @ScheduledForRemoval(inVersion = "3.0.0")
+    @Deprecated("Use passwordInfo", level = DeprecationLevel.ERROR)
+    @ScheduledForRemoval(inVersion = "3.0.0.0")
     var passwordMD5Bytes: ByteArray? = null
     
     // endregion
@@ -157,13 +155,15 @@ public data class MiraiBotVerifyInfoConfiguration(
          *
          * 优先使用此属性。
          */
-        @Deprecated("Use deviceInfoConfiguration")
+        @Deprecated("Use deviceInfoConfiguration", level = DeprecationLevel.ERROR)
+        @ScheduledForRemoval(inVersion = "3.0.0.0")
         var deviceInfoJson: DeviceInfo? = null,
         
         /**
          * 优先使用 [deviceInfo].
          */
-        @Deprecated("Use deviceInfoConfiguration")
+        @Deprecated("Use deviceInfoConfiguration", level = DeprecationLevel.ERROR)
+        @ScheduledForRemoval(inVersion = "3.0.0.0")
         var simpleDeviceInfoJson: SimpleDeviceInfo? = null,
         
         /**
@@ -171,7 +171,8 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 如果是 `classpath:` 开头，则会优先尝试加载resource，
          * 否则优先视为文件路径加载。
          */
-        @Deprecated("Use deviceInfoConfiguration")
+        @Deprecated("Use deviceInfoConfiguration", level = DeprecationLevel.ERROR)
+        @ScheduledForRemoval(inVersion = "3.0.0.0")
         var deviceInfoFile: String? = null,
         
         /**
@@ -234,7 +235,8 @@ public data class MiraiBotVerifyInfoConfiguration(
          * @see recallMessageCacheStrategyConfig
          * @suppress Use [recallMessageCacheStrategyConfig] plz.
          */
-        @Deprecated("Use 'recallMessageCacheStrategyConfig'")
+        @Deprecated("Use 'recallMessageCacheStrategyConfig'", level = DeprecationLevel.ERROR)
+        @ScheduledForRemoval(inVersion = "3.0.0.0")
         var recallMessageCacheStrategy: RecallMessageCacheStrategyType? = null,
         
         /**
@@ -266,21 +268,21 @@ public data class MiraiBotVerifyInfoConfiguration(
             deviceInfoCompatibleCheck()
         }
         
-        @Suppress("DEPRECATION")
+        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
         private fun deviceInfoCompatibleCheck() {
             // deviceInfoJson
             if (deviceInfoJson != null) {
                 val illegalProp = "deviceInfoJson"
-                val warning = SimbotIllegalStateException(
+                val error = SimbotIllegalStateException(
                     """
-                    The configuration property [config.$illegalProp] is deprecated.
+                    The configuration property [config.$illegalProp] is deprecated and will be removed.
                 
                     Maybe you should replace the property [config.$illegalProp]:
                     
                     ```
                     {
                        "config": {
-                          "$illegalProp": deviceInfoJson
+                          "$illegalProp": { ... },
                        }
                     }
                     ```
@@ -302,22 +304,23 @@ public data class MiraiBotVerifyInfoConfiguration(
                     
                 """.trimIndent()
                 )
-                log.error("Deprecated config property", warning)
+
+                throw DeprecatedConfigurationPropertyException("config.$illegalProp", error)
             }
             
             // simpleDeviceInfoJson
             if (simpleDeviceInfoJson != null) {
                 val illegalProp = "simpleDeviceInfoJson"
-                val warning = SimbotIllegalStateException(
+                val error = SimbotIllegalStateException(
                     """
-                    The configuration property [config.$illegalProp] is deprecated.
+                    The configuration property [config.$illegalProp] is deprecated and will be removed.
                 
                     Maybe you should replace the property [config.$illegalProp]:
                     
                     ```
                     {
                        "config": {
-                          "$illegalProp": simpleDeviceInfoJson
+                          "$illegalProp": { ... }
                        }
                     }
                     ```
@@ -339,15 +342,16 @@ public data class MiraiBotVerifyInfoConfiguration(
                     
                 """.trimIndent()
                 )
-                log.error("Deprecated config property", warning)
+
+                throw DeprecatedConfigurationPropertyException("config.$illegalProp", error)
             }
             
             // deviceInfoFile
             if (deviceInfoFile != null) {
                 val illegalProp = "deviceInfoFile"
-                val warning = SimbotIllegalStateException(
+                val error = SimbotIllegalStateException(
                     """
-                    The configuration property [config.$illegalProp] is deprecated.
+                    The configuration property [config.$illegalProp] is deprecated and will be removed.
                 
                     Maybe you should replace the property [config.$illegalProp]:
                     
@@ -376,7 +380,7 @@ public data class MiraiBotVerifyInfoConfiguration(
                     
                 """.trimIndent()
                 )
-                log.error("Deprecated config property", warning)
+                throw DeprecatedConfigurationPropertyException("config.$illegalProp", error)
             }
         }
         
@@ -430,23 +434,25 @@ public data class MiraiBotVerifyInfoConfiguration(
         
         
         public companion object {
-            private val log = LoggerFactory.logger<Config>()
+//            private val log = LoggerFactory.logger<Config>()
             
             @JvmField
-            @Deprecated("Unused")
+            @Deprecated("Unused", level = DeprecationLevel.ERROR)
+            @ScheduledForRemoval(inVersion = "3.0.0.0")
             public val DEFAULT: Config = Config()
             
             /**
              * 构建一个新的 [Config] 实例。
              *
              * ```kotlin
-             * // function
+             * // Kotlin
              * buildConfig {
              *   // ...
              * }
              * ```
              *
              * ```java
+             * // Java
              * Config config = Config.build(builder -> {
              *      // ...
              *  });
@@ -529,7 +535,8 @@ public data class MiraiBotVerifyInfoConfiguration(
         
         public companion object {
             @JvmField
-            @Deprecated("Unused")
+            @Deprecated("Unused", level = DeprecationLevel.ERROR)
+            @ScheduledForRemoval(inVersion = "3.0.0.0")
             public val DEFAULT: ContactListCacheConfiguration = ContactListCacheConfiguration()
             
             /**
@@ -574,7 +581,7 @@ public data class MiraiBotVerifyInfoConfiguration(
         }
     
     
-    @Suppress("DEPRECATION")
+    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     private val recallMessageCacheStrategy: MiraiRecallMessageCacheStrategy
         get() {
             val deprecatedConfig = config.recallMessageCacheStrategy
@@ -589,7 +596,7 @@ public data class MiraiBotVerifyInfoConfiguration(
                 }
                 val err = SimbotIllegalArgumentException(
                     """
-                    The configuration property [recallMessageCacheStrategy] is deprecated.
+                    The configuration property [recallMessageCacheStrategy] is deprecated and will be removed.
                     
                     Maybe you should replace the property [recallMessageCacheStrategy]:
                 
@@ -621,17 +628,12 @@ public data class MiraiBotVerifyInfoConfiguration(
                     
                 """.trimIndent()
                 )
-                // warn
-                logger.warn("The property [recallMessageCacheStrategy] is deprecated", err)
-                return deprecatedConfig.strategy()
+                throw DeprecatedConfigurationPropertyException("config.recallMessageCacheStrategy", err)
             }
             
             return config.recallMessageCacheStrategyConfig.recallMessageCacheStrategy(this)
         }
     
-    public companion object {
-        private val logger = LoggerFactory.logger<MiraiBotVerifyInfoConfiguration>()
-    }
 }
 
 
@@ -680,3 +682,6 @@ public fun interface BuilderFunction<T> {
 private fun <T> T.doBuild(builder: BuilderFunction<T>): T {
     return apply { builder.apply { invoke() } }
 }
+
+
+internal class DeprecatedConfigurationPropertyException(message: String, cause: Throwable? = null) : SimbotIllegalStateException(message, cause)
