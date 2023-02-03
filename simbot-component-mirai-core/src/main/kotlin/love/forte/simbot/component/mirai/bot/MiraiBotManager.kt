@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -38,6 +38,7 @@ import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
 import love.forte.simbot.event.EventProcessor
 import net.mamoe.mirai.BotFactory
+import org.jetbrains.annotations.ApiStatus
 import org.slf4j.Logger
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -57,7 +58,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      */
     @JvmSynthetic
     override suspend fun start(): Boolean = false
-    
+
     @OptIn(InternalApi::class)
     override fun register(verifyInfo: BotVerifyInfo): MiraiBot {
         val serializer = MiraiBotVerifyInfoConfiguration.serializer()
@@ -69,47 +70,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         
         val configuration = verifyInfo.decode(serializer)
         
-        compatibleCheck(configuration)
-        val passwordInfo = configuration.passwordInfo
-        @Suppress("DEPRECATION")
-        if (passwordInfo == null) {
-            val pwdMd5Bytes = configuration.passwordMD5Bytes
-            val pwdMd5Text = configuration.passwordMD5
-            val pwdText = configuration.password
-            // 兼容检测
-            when {
-                pwdMd5Bytes != null -> {
-                    logger.warn("The [passwordInfo] is null and [passwordMD5Bytes] is not null, will use the deprecated property [passwordMD5Bytes].")
-                    return register(
-                        code = configuration.code,
-                        password = pwdMd5Bytes,
-                        configuration = configuration.simbotBotConfiguration,
-                    )
-                }
-                
-                pwdMd5Text != null -> {
-                    logger.warn("The [passwordInfo] is null and [passwordMD5] is not null, will use the deprecated property [passwordMD5].")
-                    return register(
-                        code = configuration.code,
-                        password = PasswordInfoConfiguration.Md5Text(pwdMd5Text).getPassword(configuration),
-                        configuration = configuration.simbotBotConfiguration,
-                    )
-                }
-                
-                pwdText != null -> {
-                    logger.warn("The [passwordInfo] is null and [password] is not null, will use the deprecated property [password].")
-                    return register(
-                        code = configuration.code,
-                        password = pwdText,
-                        configuration = configuration.simbotBotConfiguration,
-                    )
-                }
-            }
-            
-            throw NoSuchElementException("[passwordInfo] is required but it was missing.")
-        }
-        
-        when (passwordInfo) {
+        when (val passwordInfo = configuration.passwordInfo) {
             is TextPasswordInfoConfiguration -> {
                 return register(
                     code = configuration.code,
@@ -128,128 +89,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         }
     }
     
-    @Suppress("DEPRECATION")
-    @OptIn(InternalApi::class)
-    private fun compatibleCheck(configuration: MiraiBotVerifyInfoConfiguration) {
-        val password = configuration.password
-        if (password != null) {
-            val showPwd =
-                if (logger.isDebugEnabled) password else "${password.firstOrNull() ?: "?"}*****${password.lastOrNull() ?: "?"}"
-            val warning = SimbotIllegalStateException(
-                """
-                The configuration property [password] is deprecated.
-                
-                Maybe you should replace the property [password]:
-                
-                ```
-                {
-                  "code": ${configuration.code},
-                  "password": "$showPwd"
-                }
-                ```
-                
-                to [passwordInfo]:
-                
-                ```
-                {
-                  "code": ${configuration.code},
-                  "passwordInfo": {
-                     "type": "${PasswordInfoConfiguration.Text.TYPE}",
-                     "text": "$showPwd"
-                  }
-                }
-                ```
-                
-                See [PasswordInfo] and [MiraiBotVerifyInfoConfiguration.passwordInfo] for more information.
-                
-            """.trimIndent()
-            )
-            logger.error("The configuration property [password] is deprecated", warning)
-        }
-        
-        
-        val passwordMD5 = configuration.passwordMD5
-        if (passwordMD5 != null) {
-            val showPwd =
-                if (logger.isDebugEnabled) passwordMD5 else "${passwordMD5.firstOrNull() ?: "?"}*****${passwordMD5.lastOrNull() ?: "?"}"
-            
-            val warning = SimbotIllegalStateException(
-                """
-                The configuration property [passwordMD5] is deprecated.
-                
-                Maybe you should replace the property [passwordMD5]:
-                
-                ```
-                {
-                  "code": ${configuration.code},
-                  "passwordMD5": "$showPwd"
-                }
-                ```
-                
-                to [passwordInfo]:
-                
-                ```
-                {
-                  "code": ${configuration.code},
-                  "passwordInfo": {
-                     "type": "${PasswordInfoConfiguration.Md5Text.TYPE}",
-                     "md5": "$showPwd"
-                  }
-                }
-                ```
-                
-                See [PasswordInfo] and [MiraiBotVerifyInfoConfiguration.passwordInfo] for more information.
-                
-            """.trimIndent()
-            )
-            logger.error("The configuration property [passwordMD5] is deprecated", warning)
-        }
-        
-        
-        val passwordMD5Bytes = configuration.passwordMD5Bytes
-        if (passwordMD5Bytes != null) {
-            val showPwd =
-                if (logger.isDebugEnabled) passwordMD5Bytes.joinToString(
-                    ", ",
-                    "[",
-                    "]"
-                ) else "[**, **, **]"
-            
-            val warning = SimbotIllegalStateException(
-                """
-                The configuration property [passwordMD5Bytes] is deprecated.
-                
-                Maybe you should replace the property [passwordMD5Bytes]:
-                
-                ```
-                {
-                  "code": ${configuration.code},
-                  "passwordMD5Bytes": $showPwd
-                }
-                ```
-                
-                to [passwordInfo]:
-                
-                ```
-                {
-                  "code": ${configuration.code},
-                  "passwordInfo": {
-                     "type": "${PasswordInfoConfiguration.Md5Bytes.TYPE}",
-                     "md5": $showPwd
-                  }
-                }
-                ```
-                
-                See [PasswordInfo] and [MiraiBotVerifyInfoConfiguration.passwordInfo] for more information.
-                
-            """.trimIndent()
-            )
-            logger.error("The configuration property [passwordMD5Bytes] is deprecated", warning)
-        }
-        
-        
-    }
-    
+
     /**
      * 注册一个Bot。
      *
@@ -336,10 +176,14 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      */
     public companion object Factory : EventProviderFactory<MiraiBotManager, MiraiBotManagerConfiguration> {
         override val key: Attribute<MiraiBotManager> = attribute("SIMBOT.MIRAI")
-        
+
+        /**
+         * @suppress install mirai component and bot manager in application.
+         */
         @JvmStatic
         @Suppress("DeprecatedCallableAddReplaceWith")
-        @Deprecated("install mirai in simbotApplication.")
+        @Deprecated("install mirai in simbotApplication.", level = DeprecationLevel.ERROR)
+        @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
         public fun newInstance(eventProcessor: EventProcessor): MiraiBotManager {
             return MiraiBotManagerImpl(eventProcessor, MiraiComponent(), MiraiBotManagerConfigurationImpl())
         }
@@ -353,7 +197,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         ): MiraiBotManager {
             // configurator ignore
             // find self
-            val component = components.find { it.id == MiraiComponent.ID_VALUE } as? MiraiComponent
+            val component = components.find { it is MiraiComponent } as? MiraiComponent
                 ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID_VALUE}) registered in the current application.")
             
             val configuration = MiraiBotManagerConfigurationImpl().also {
@@ -381,7 +225,7 @@ public fun interface MiraiBotConfigurationConfigurator {
  * [MiraiBotManager] 的配置类。
  *
  */
-@Suppress("DEPRECATION")
+@Suppress("DEPRECATION", "DEPRECATION_ERROR")
 public interface MiraiBotManagerConfiguration {
     
     /**
@@ -401,8 +245,11 @@ public interface MiraiBotManagerConfiguration {
      * @param password 密码
      * @param configuration mirai的 bot 注册所需要的配置类。
      * @param onBot 当bot被注册后执行函数。
+     *
+     * @suppress
      */
-    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }")
+    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }", level = DeprecationLevel.ERROR)
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public fun register(
         code: Long,
         password: String,
@@ -417,8 +264,11 @@ public interface MiraiBotManagerConfiguration {
      * @param passwordMd5 密码的md5数据
      * @param configuration mirai的 bot 注册所需要的配置类。
      * @param onBot 当bot被注册后执行函数。
+     *
+     * @suppress
      */
-    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }")
+    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }", level = DeprecationLevel.ERROR)
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public fun register(
         code: Long,
         passwordMd5: ByteArray,
@@ -435,9 +285,12 @@ public interface MiraiBotManagerConfiguration {
      * @param password 密码
      * @param configuration simbot组件的 bot 注册所需要的配置类。
      * @param onBot 当bot被注册后执行函数。
+     *
+     * @suppress
      */
     @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }")
+    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }", level = DeprecationLevel.ERROR)
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public fun register(
         code: Long,
         password: String,
@@ -454,9 +307,12 @@ public interface MiraiBotManagerConfiguration {
      * @param passwordMd5 密码的md5数据
      * @param configuration mirai的 bot 注册所需要的配置类。
      * @param onBot 当bot被注册后执行函数。
+     *
+     * @suppress
      */
     @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }")
+    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }", level = DeprecationLevel.ERROR)
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public fun register(
         code: Long,
         passwordMd5: ByteArray,
@@ -523,9 +379,12 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
     
 }
 
-
-@Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION")
-@Deprecated("Use simbotApplication and install MiraiBotManager.")
+/**
+ * @suppress install mirai component and bot manager in application.
+ */
+@Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION", "DEPRECATION_ERROR")
+@Deprecated("Use simbotApplication and install MiraiBotManager.", level = DeprecationLevel.ERROR)
+@ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
 public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
     MiraiBotManager.newInstance(eventProcessor)
 

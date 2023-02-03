@@ -117,7 +117,6 @@ logger.info("========================================================")
 
 
 // dokka config
-
 tasks.withType<DokkaTaskPartial>().configureEach {
     dokkaSourceSets.configureEach {
         version = P.ComponentMirai.versionWithoutSnapshot.toString()
@@ -145,13 +144,28 @@ tasks.withType<DokkaTaskPartial>().configureEach {
             suppress.set(true)
         }
 
-        externalDocumentationLink {
-            url.set(URL("https://simple-robot-library.github.io/simbot3-main-apiDoc/"))
-            packageListUrl.set(
-                URL("https://raw.githubusercontent.com/simple-robot-library/simbot3-main-apiDoc/gh-pages/package-list")
-                //rootProject.projectDir.resolve("site/simbot.package.list").toURI().toURL()
-            )
+
+
+        fun externalDocumentation(docUrl: URL) {
+            externalDocumentationLink {
+                url.set(docUrl)
+                packageListUrl.set(URL(docUrl, "${docUrl.path}/package-list"))
+            }
         }
 
+        // kotlin-coroutines doc
+        externalDocumentation(URL("https://kotlinlang.org/api/kotlinx.coroutines"))
+
+        // kotlin-serialization doc
+        externalDocumentation(URL("https://kotlinlang.org/api/kotlinx.serialization"))
+
+        // simbot doc
+        externalDocumentation(URL("https://simple-robot-library.github.io/simbot3-main-apiDoc"))
+
+        // mirai doc
+        val miraiVersion = rootProject.extra["mirai_version"]?.toString()
+        externalDocumentation(URL("https://kdoc.mirai.mamoe.net/$miraiVersion"))
     }
 }
+
+

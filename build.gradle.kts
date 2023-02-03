@@ -16,6 +16,7 @@ import love.forte.gradle.common.core.project.setup
  *
  */
 
+extra["mirai_version"] = libs.mirai.get().version
 
 plugins {
     id("simbot-mirai.root-module-conventions")
@@ -47,7 +48,7 @@ tasks.create("createChangelog") {
             val autoGenerateText = """
                 > 对应核心版本: [**v$coreVersion**](https://github.com/ForteScarlet/simpler-robot/releases/tag/v$coreVersion)
                 >
-                > 对应[**mirai**](https://github.com/mamoe/mirai)版本: [v$miraiVersion](https://github.com/mamoe/mirai/releases/tag/v$miraiVersion)
+                > 对应[**mirai**](https://github.com/mamoe/mirai)版本: [**v$miraiVersion**](https://github.com/mamoe/mirai/releases/tag/v$miraiVersion)
                
                 **仓库参考:**
                 
