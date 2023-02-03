@@ -35,6 +35,7 @@ import love.forte.simbot.utils.item.Items.Companion.emptyItems
 import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.contact.friendgroup.FriendGroups
 import net.mamoe.mirai.supervisorJob
+import org.jetbrains.annotations.ApiStatus
 import org.slf4j.Logger
 import kotlin.coroutines.CoroutineContext
 import net.mamoe.mirai.Bot as OriginalMiraiBot
@@ -226,6 +227,10 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
 
 
     // region guild apis
+    /**
+     * mirai中不存在'频道（guild）'概念。
+     *
+     */
     @Deprecated(
         "Channel related APIs are not supported",
         ReplaceWith("emptyItems()", "love.forte.simbot.utils.item.Items.Companion.emptyItems")
@@ -234,11 +239,19 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
         get() = emptyItems()
 
 
+    /**
+     * mirai中不存在'频道（guild）'概念。
+     *
+     */
     @Deprecated("Channel related APIs are not supported", ReplaceWith("0"))
     @JvmSynthetic
     override suspend fun guildCount(): Int = 0
 
 
+    /**
+     * mirai中不存在'频道（guild）'概念。
+     *
+     */
     @Deprecated("Channel related APIs are not supported", ReplaceWith("null"))
     @JvmSynthetic
     override suspend fun guild(id: ID): Guild? = null
@@ -255,16 +268,20 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
 
     /**
      * @see sendOnlyImage
+     * @suppress will be removed.
      */
     @JvmSynthetic
-    @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"))
+    @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"), level = DeprecationLevel.ERROR)
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public suspend fun uploadImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         sendOnlyImage(resource, flash)
 
     /**
      * @see sendOnlyImage
+     * @suppress will be removed.
      */
-    @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"))
+    @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"), level = DeprecationLevel.ERROR)
+    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public fun uploadImageBlocking(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         sendOnlyImage(resource, flash)
 
