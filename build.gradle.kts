@@ -16,6 +16,7 @@ import love.forte.gradle.common.core.project.setup
  *
  */
 
+extra["mirai_version"] = libs.mirai.get().version
 
 plugins {
     id("simbot-mirai.root-module-conventions")
