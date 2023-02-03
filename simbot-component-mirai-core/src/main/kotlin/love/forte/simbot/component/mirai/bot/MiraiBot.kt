@@ -32,6 +32,7 @@ import love.forte.simbot.message.Image
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.emptyItems
+import net.mamoe.mirai.contact.AvatarSpec
 import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.contact.friendgroup.FriendGroups
 import net.mamoe.mirai.supervisorJob
@@ -95,9 +96,19 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
 
 
     /**
-     *  @see Bot.avatar
+     * 获取当前bot的头像链接。规格默认为 [AvatarSpec.LARGEST]
+     *  @see OriginalMiraiBot.avatarUrl
      */
     override val avatar: String get() = originalBot.avatarUrl
+
+    /**
+     * 获取当前bot的头像链接。
+     * @param spec 头像规格，为mirai原生类型 [AvatarSpec]。
+     * @see Bot.avatar
+     */
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmName("getAvatar")
+    public fun avatar(spec: AvatarSpec): String = originalBot.avatarUrl(spec)
 
     /** 直接使用 [originalBot] 的协程作用域。 */
     override val coroutineContext: CoroutineContext get() = originalBot.coroutineContext
