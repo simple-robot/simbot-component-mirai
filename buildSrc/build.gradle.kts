@@ -21,15 +21,30 @@ repositories {
     mavenCentral()
     gradlePluginPortal()
 }
-val kotlinVersion = "1.8.0" //
-val dokkaPluginVersion = "1.7.20"
-val suspendTransformPlugin = "0.2.2" // 0.2.2
-val gradleCommon = "0.0.11"
+
+val rootProperties =
+    rootDir.resolve("../build_versions.properties").useLines { lines ->
+        lines.map { it.trim() }
+            .filter { !it.startsWith('#') }
+            .associate { line ->
+                line.split(limit = 2, delimiters = charArrayOf('=')).let { split ->
+                    split[0] to split[1]
+                }
+            }
+    }
+
+val kotlinVersion = rootProperties["kotlin_version"]
+val dokkaPluginVersion = rootProperties["dokka_version"]
+val suspendTransformPlugin = rootProperties["suspend_transform_plugin_version"]
+val gradleCommon = rootProperties["gradle_common_version"]
 
 dependencies {
     implementation(kotlin("gradle-plugin", kotlinVersion))
     implementation(kotlin("serialization", kotlinVersion))
+
+    // dokka
     implementation("org.jetbrains.dokka:dokka-gradle-plugin:$dokkaPluginVersion")
+    implementation("org.jetbrains.dokka:dokka-base:$dokkaPluginVersion")
 
     // see https://github.com/gradle-nexus/publish-plugin
     implementation("io.github.gradle-nexus:publish-plugin:1.1.0")
