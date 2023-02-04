@@ -160,7 +160,7 @@ tasks.withType<DokkaTaskPartial>().configureEach {
         externalDocumentation(URL("https://kotlinlang.org/api/kotlinx.serialization"))
 
         // simbot doc
-        externalDocumentation(URL("https://simple-robot-library.github.io/simbot3-main-apiDoc"))
+        externalDocumentation(URL("https://docs.simbot.forte.love/main"))
 
         // mirai doc
         val miraiVersion = rootProject.extra["mirai_version"]?.toString()
