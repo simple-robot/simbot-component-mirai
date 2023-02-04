@@ -95,8 +95,10 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           personal_token: ${{ secrets.PUSH_TOKEN }}
-          external_repository: simple-robot-library/simbot3-component-mirai-apiDoc
+          external_repository: simple-robot-library/simbot3-api-docs
           publish_dir: ./build/dokka/html
+          # deploy to sub dir
+          destination_dir: components/mirai
 
   publish-snapshot:
     name: Publish snapshot
