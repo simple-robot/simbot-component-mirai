@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2023-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -57,7 +57,7 @@ tasks.named<org.jetbrains.dokka.gradle.DokkaMultiModuleTask>("dokkaHtmlMultiModu
     pluginConfiguration<DokkaBase, DokkaBaseConfiguration> {
         customAssets = listOf(rootProject.file(".simbot/dokka-assets/logo-icon.svg"))
         customStyleSheets = listOf(rootProject.file(".simbot/dokka-assets/css/kdoc-style.css"))
-        footerMessage = "© 2021-${Year.now().value} ForteScarlet. All rights reserved."
+        footerMessage = "© 2021-${Year.now().value} <a href='https://github.com/simple-robot'>Simple Robot</a>, <a href='https://github.com/ForteScarlet'>ForteScarlet</a>. All rights reserved."
         separateInheritedMembers = true
     }
 }
