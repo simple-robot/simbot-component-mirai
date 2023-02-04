@@ -115,7 +115,6 @@ logger.info("== project.name:    {}", name)
 logger.info("== project.version: {}", version)
 logger.info("========================================================")
 
-
 // dokka config
 tasks.withType<DokkaTaskPartial>().configureEach {
     dokkaSourceSets.configureEach {
