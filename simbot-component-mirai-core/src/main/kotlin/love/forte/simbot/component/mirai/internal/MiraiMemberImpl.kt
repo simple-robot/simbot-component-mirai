@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -39,7 +39,11 @@ internal class MiraiMemberImpl(
     initGroup: MiraiGroupImpl? = null,
 ) : MiraiMember, SendSupport {
     override val id: LongID = originalContact.id.ID
-    
+
+    override suspend fun queryProfile(): MiraiUserProfile {
+        return originalContact.queryProfile().asSimbot()
+    }
+
     override val joinTime: Timestamp = when (val member = originalContact) {
         is NormalMember -> Timestamp.bySecond(member.joinTimestamp.toLong())
         else -> Timestamp.NotSupport

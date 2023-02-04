@@ -47,7 +47,7 @@ import net.mamoe.mirai.contact.NormalMember as OriginalMiraiNormalMember
  * @see OriginalMiraiMember
  * @author ForteScarlet
  */
-public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport {
+public interface MiraiMember : GroupMember, MiraiContact, DeleteSupport, MiraiUserProfileQueryable {
     
     override val originalContact: OriginalMiraiMember
     

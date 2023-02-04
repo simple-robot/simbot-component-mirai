@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -20,6 +20,7 @@ import love.forte.simbot.Api4J
 import love.forte.simbot.ID
 import love.forte.simbot.LongID
 import love.forte.simbot.component.mirai.MiraiStranger
+import love.forte.simbot.component.mirai.MiraiUserProfile
 import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
@@ -37,6 +38,10 @@ internal class MiraiStrangerImpl(
     override val originalContact: OriginalMiraiStranger,
 ) : MiraiStranger {
     override val id: LongID = originalContact.id.ID
+
+    override suspend fun queryProfile(): MiraiUserProfile {
+        return originalContact.queryProfile().asSimbot()
+    }
 
     @JvmSynthetic
     override suspend fun send(message: Message): SimbotMiraiMessageReceiptImpl<OriginalMiraiStranger> {

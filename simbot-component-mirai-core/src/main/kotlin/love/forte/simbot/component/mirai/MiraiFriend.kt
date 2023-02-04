@@ -38,7 +38,7 @@ import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
  *
  * @author ForteScarlet
  */
-public interface MiraiFriend : Friend, MiraiContact, DeleteSupport {
+public interface MiraiFriend : Friend, MiraiContact, DeleteSupport, MiraiUserProfileQueryable {
     override val bot: MiraiBot
     override val id: LongID
     
