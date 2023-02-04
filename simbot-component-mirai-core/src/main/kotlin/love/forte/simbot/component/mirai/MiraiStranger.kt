@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -33,7 +33,7 @@ import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
  */
 @JvmAsync
 @JvmBlocking
-public interface MiraiStranger : Contact, Stranger, MiraiContact {
+public interface MiraiStranger : Contact, Stranger, MiraiContact, MiraiUserProfileQueryable {
     
     override val bot: MiraiBot
     override val originalContact: OriginalMiraiStranger
