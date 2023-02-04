@@ -27,7 +27,6 @@ import love.forte.simbot.definition.FriendsContainer
 import love.forte.simbot.definition.GroupBot
 import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.UserInfo
-import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.message.Image
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.utils.item.Items
@@ -37,7 +36,6 @@ import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.contact.friendgroup.FriendGroups
 import net.mamoe.mirai.supervisorJob
 import org.jetbrains.annotations.ApiStatus
-import org.slf4j.Logger
 import kotlin.coroutines.CoroutineContext
 import net.mamoe.mirai.Bot as OriginalMiraiBot
 
@@ -55,23 +53,23 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
  * @see Bot
  * @author ForteScarlet
  */
-public interface MiraiBot : Bot, UserInfo, FriendsContainer {
+public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQueryable {
 
     /**
-     * 得到自己。
+     * 得到自己
      */
     override val bot: MiraiBot
         get() = this
 
     /**
-     * 得到这个Bot所代表的原生mirai bot。
+     * 得到这个Bot所代表的[原生mirai bot][OriginalMiraiBot]。
      *
      * @see OriginalMiraiBot
      */
     public val originalBot: OriginalMiraiBot
 
     /**
-     * 全部的好友分组。
+     * 好友分组
      * @see OriginalMiraiBot.friendGroups
      */
     public val friendCategories: MiraiFriendCategories
@@ -82,17 +80,6 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      * 在mirai中，bot的账号都是 [Long] 类型的。
      */
     override val id: LongID
-
-    /**
-     * @see Bot.eventProcessor
-     */
-    override val eventProcessor: EventProcessor
-
-
-    /**
-     * @see Bot.logger
-     */
-    override val logger: Logger
 
 
     /**
@@ -117,6 +104,9 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     override val isCancelled: Boolean get() = originalBot.supervisorJob.isCancelled
     override val isStarted: Boolean get() = isCancelled || isActive
 
+    /**
+     * 当前bot所属的bot管理器。
+     */
     override val manager: MiraiBotManager
 
     /**
@@ -304,6 +294,10 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
      * 当使用 [ID]的时候， 会直接通过mirai的函数
      * [net.mamoe.mirai.message.data.Image] 直接通过此ID获取对应图片。
      * 此时的 [Image] 对象是可以序列化的。
+     *
+     * @param id 图片的ID
+     * @param flash 是否标记为闪照
+     * @param builderAction mirai原生图片类型的构建器函数
      */
     public fun idImage(
         id: ID,
@@ -313,12 +307,14 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
 
 
     /**
+     * 通过id构造一个 [MiraiImage].
      * @see idImage
      */
     @love.forte.simbot.component.mirai.JST
     override suspend fun resolveImage(id: ID): MiraiImage = idImage(id, false)
 
     /**
+     * 通过id构造一个 [MiraiImage].
      * @see idImage
      */
     public fun resolveImage(
@@ -328,12 +324,17 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer {
     ): MiraiImage = idImage(id, flash, builderAction)
     // endregion
 
-
+    /**
+     * 挂起直到当前bot结束其任务。
+     */
     @JvmSynthetic
     override suspend fun join() {
         originalBot.join()
     }
 
+    /**
+     * 关闭当前bot
+     */
     @JvmSynthetic
     override suspend fun cancel(reason: Throwable?): Boolean {
         return if (isCancelled) false

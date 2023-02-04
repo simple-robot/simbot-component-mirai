@@ -117,7 +117,11 @@ internal class MiraiBotImpl(
             else -> id.literal == this.id.literal
         }
     }
-    
+
+    override suspend fun queryProfile(): MiraiUserProfile {
+        return originalBot.asFriend.queryProfile().asSimbot()
+    }
+
     private val groupMuteJobs = ConcurrentHashMap<Long, Job>()
     private val groupMuteJob = SupervisorJob(originalBot.supervisorJob).also {
         it.invokeOnCompletion {

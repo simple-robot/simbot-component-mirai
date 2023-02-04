@@ -48,7 +48,11 @@ internal class MiraiGroupBotImpl(
     private val member = originalBotMember.asSimbot(baseBot, initGroup)
     
     override suspend fun asMember(): MiraiMember = member
-    
+
+    override suspend fun queryProfile(): MiraiUserProfile {
+        return originalBotMember.queryProfile().asSimbot()
+    }
+
     override fun toString(): String {
         return "MiraiGroupMemberBotImpl(baseBot=$baseBot, member=$member)"
     }

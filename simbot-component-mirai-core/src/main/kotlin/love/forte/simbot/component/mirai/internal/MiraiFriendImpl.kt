@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -19,10 +19,7 @@ package love.forte.simbot.component.mirai.internal
 import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.ID
 import love.forte.simbot.IntID
-import love.forte.simbot.component.mirai.MiraiFriend
-import love.forte.simbot.component.mirai.MiraiFriendCategory
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceipt
-import love.forte.simbot.component.mirai.SimbotMiraiMessageReceiptImpl
+import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
 import net.mamoe.mirai.contact.friendgroup.FriendGroup
@@ -47,7 +44,11 @@ internal class MiraiFriendImpl(
         get() = _category ?: synchronized(this) {
             _category ?: MiraiFriendCategoryImpl(bot, originalContact.friendGroup).also { _category = it }
         }
-    
+
+    override suspend fun queryProfile(): MiraiUserProfile {
+        return originalContact.queryProfile().asSimbot()
+    }
+
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
         val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
         return SimbotMiraiMessageReceiptImpl(receipt)
