@@ -81,13 +81,13 @@ jobs:
         with:
           gradle-version: 7.6
           arguments: |
-            dokkaHtmlMultiModule
+            -Porg.gradle.jvmargs="-Xmx4g -Xms4g -XX:MaxMetaspaceSize=2g -Dfile.encoding=UTF-8" 
+            -Porg.gradle.daemon=false
             --info 
             --warning-mode all
             -x test
             --build-cache
-            -Porg.gradle.jvmargs="-Xmx4g -Xms4g -XX:MaxMetaspaceSize=2g -Dfile.encoding=UTF-8" 
-            -Porg.gradle.daemon=false
+            dokkaHtmlMultiModule
         env:
           SIMBOT_IS_SNAPSHOT: false
 
