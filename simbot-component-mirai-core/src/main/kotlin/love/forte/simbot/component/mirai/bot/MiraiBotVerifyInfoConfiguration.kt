@@ -29,6 +29,7 @@ import love.forte.simbot.bot.BotVerifyInfo
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.logger.LoggerFactory
+import love.forte.simbot.logger.logger
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.utils.BotConfiguration
 import net.mamoe.mirai.utils.DeviceInfo
@@ -45,6 +46,10 @@ import java.io.File
  * 对一个bot的配置, 账号（[code]）与密码（[passwordInfo]）为必须属性,
  * 其他额外配置位于 [config] 属性中。
  *
+ * ### 仅序列化用
+ * [MiraiBotVerifyInfoConfiguration] 是用于对应配置文件进行序列化/反序列化的，因此其仅考虑面向配置文件兼容/二进制兼容，
+ * 而不保证源码兼容，需要尽可能避免直接在代码中构建此类。
+ *
  * @see BotConfiguration
  */
 @Serializable
@@ -54,12 +59,12 @@ public data class MiraiBotVerifyInfoConfiguration(
      * 账号。
      */
     val code: Long,
-    
+
     /**
      * 用户密码信息配置。
      */
     val passwordInfo: PasswordInfoConfiguration,
-    
+
     /**
      * 必要属性之外的额外配置属性。
      */
@@ -68,9 +73,9 @@ public data class MiraiBotVerifyInfoConfiguration(
     @OptIn(ExperimentalSerializationApi::class)
     @EncodeDefault
     public val component: String = MiraiComponent.ID_VALUE
-    
+
     // region 弃用的密码配置
-    
+
     /**
      * @suppress see [passwordInfo]
      */
@@ -91,9 +96,9 @@ public data class MiraiBotVerifyInfoConfiguration(
     @Deprecated("Use passwordInfo", level = DeprecationLevel.ERROR)
     @ScheduledForRemoval(inVersion = "3.0.0.0")
     var passwordMD5Bytes: ByteArray? = null
-    
+
     // endregion
-    
+
     /**
      * [MiraiBotVerifyInfoConfiguration] 中除了必要信息以外的额外配置信息。
      */
@@ -102,14 +107,16 @@ public data class MiraiBotVerifyInfoConfiguration(
     public data class Config(
         /** mirai配置自定义deviceInfoSeed的时候使用的随机种子。默认为1. */
         var deviceInfoSeed: Long = DEFAULT_SIMBOT_MIRAI_DEVICE_INFO_SEED,
-        
+
         /**
          * Mirai配置中的工作目录。
          *
          * @see BotConfiguration.workingDir
          */
-        @Serializable(FileSerializer::class) var workingDir: File = BotConfiguration.Default.workingDir,
-        
+        @Serializable(FileSerializer::class)
+        @Transient
+        var workingDir: File = BotConfiguration.Default.workingDir,
+
         /**
          * 同mirai原生配置 [BotConfiguration.heartbeatPeriodMillis]。
          */
@@ -122,32 +129,32 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 同mirai原生配置 [BotConfiguration.heartbeatTimeoutMillis]。
          */
         var heartbeatTimeoutMillis: Long = BotConfiguration.Default.heartbeatTimeoutMillis,
-        
+
         /**
          * 同mirai原生配置 [BotConfiguration.heartbeatStrategy]。
          */
         @Serializable(HeartbeatStrategySerializer::class) var heartbeatStrategy: BotConfiguration.HeartbeatStrategy = BotConfiguration.Default.heartbeatStrategy,
-        
+
         /**
          * 同mirai原生配置 [BotConfiguration.reconnectionRetryTimes]。
          */
         var reconnectionRetryTimes: Int = BotConfiguration.Default.reconnectionRetryTimes,
-        
+
         /**
          * 同mirai原生配置 [BotConfiguration.autoReconnectOnForceOffline]。
          */
         var autoReconnectOnForceOffline: Boolean = BotConfiguration.Default.autoReconnectOnForceOffline,
-        
+
         /**
          * 同mirai原生配置 [BotConfiguration.protocol]。
          */
         @Serializable(MiraiProtocolSerializer::class) var protocol: BotConfiguration.MiraiProtocol = BotConfiguration.Default.protocol,
-        
+
         /**
          * 同mirai原生配置 [BotConfiguration.highwayUploadCoroutineCount]。
          */
         var highwayUploadCoroutineCount: Int = BotConfiguration.Default.highwayUploadCoroutineCount,
-        
+
         /**
          * 如果是字符串，尝试解析为json
          * 否则视为文件路径。
@@ -158,14 +165,14 @@ public data class MiraiBotVerifyInfoConfiguration(
         @Deprecated("Use deviceInfoConfiguration", level = DeprecationLevel.ERROR)
         @ScheduledForRemoval(inVersion = "3.0.0.0")
         var deviceInfoJson: DeviceInfo? = null,
-        
+
         /**
          * 优先使用 [deviceInfo].
          */
         @Deprecated("Use deviceInfoConfiguration", level = DeprecationLevel.ERROR)
         @ScheduledForRemoval(inVersion = "3.0.0.0")
         var simpleDeviceInfoJson: SimpleDeviceInfo? = null,
-        
+
         /**
          * 加载的设备信息json文件的路径。
          * 如果是 `classpath:` 开头，则会优先尝试加载resource，
@@ -174,7 +181,7 @@ public data class MiraiBotVerifyInfoConfiguration(
         @Deprecated("Use deviceInfoConfiguration", level = DeprecationLevel.ERROR)
         @ScheduledForRemoval(inVersion = "3.0.0.0")
         var deviceInfoFile: String? = null,
-        
+
         /**
          * 配置设备信息。
          *
@@ -182,7 +189,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          */
         @SerialName("deviceInfo")
         var deviceInfoConfiguration: DeviceInfoConfiguration? = DeviceInfoConfiguration.Auto(),
-        
+
         /**
          * 是否不输出网络日志。当为true时等同于使用了 [BotConfiguration.noNetworkLog]
          */
@@ -195,12 +202,18 @@ public data class MiraiBotVerifyInfoConfiguration(
          * 同原生配置 [BotConfiguration.isShowingVerboseEventLog]
          */
         var isShowingVerboseEventLog: Boolean = BotConfiguration.Default.isShowingVerboseEventLog,
-        
+
         /**
-         * 同原生配置 [BotConfiguration.cacheDir]
+         * 类似原生配置 [BotConfiguration.cacheDir], 但是此处默认值为null。
+         *
+         * 当值为null时，[cacheDir] 会使用 `BotConfiguration.Default.cacheDir.resolve(botCode)` 路径作为缓存目录。
+         * 需要注意的是，这与 BotConfiguration [默认配置][BotConfiguration.Default] 中的行为不同。
+         * 由于 [mirai#2475](https://github.com/mamoe/mirai/issues/2475) 的原因，当需要启用 `account.secrets` 的保存时（即 [disableAccountSecretes] == false 时）
+         * 需要保证各bot缓存目录的独立。
+         *
          */
-        @Serializable(FileSerializer::class) var cacheDir: File = BotConfiguration.Default.cacheDir,
-        
+        @Serializable(FileSerializer::class) var cacheDir: File? = null,
+
         /**
          *
          * json:
@@ -215,19 +228,19 @@ public data class MiraiBotVerifyInfoConfiguration(
          * ```
          */
         @SerialName("contactListCache") var contactListCacheConfiguration: ContactListCacheConfiguration = ContactListCacheConfiguration(),
-        
+
         /**
          * 是否开启登录缓存。
          * @see BotConfiguration.loginCacheEnabled
          */
         var loginCacheEnabled: Boolean = BotConfiguration.Default.loginCacheEnabled,
-        
+
         /**
          * 是否处理接受到的特殊换行符, 默认为 true
          * @see BotConfiguration.convertLineSeparator
          */
         var convertLineSeparator: Boolean = BotConfiguration.Default.convertLineSeparator,
-        
+
         ///////////// simbot config
         /**
          * Deprecated: 使用 [recallMessageCacheStrategyConfig] 来得到对未来更好的扩展性和更丰富的可配置性。
@@ -238,7 +251,7 @@ public data class MiraiBotVerifyInfoConfiguration(
         @Deprecated("Use 'recallMessageCacheStrategyConfig'", level = DeprecationLevel.ERROR)
         @ScheduledForRemoval(inVersion = "3.0.0.0")
         var recallMessageCacheStrategy: RecallMessageCacheStrategyType? = null,
-        
+
         /**
          * 消息撤回缓存策略，默认使用 [不缓存][RecallMessageCacheStrategyConfiguration.Invalid] 策略。
          *
@@ -253,21 +266,35 @@ public data class MiraiBotVerifyInfoConfiguration(
          * @see RecallMessageCacheStrategyConfiguration
          */
         var recallMessageCacheStrategyConfig: RecallMessageCacheStrategyConfiguration = RecallMessageCacheStrategyConfiguration.invalid(),
-        
+
         /**
+         * 如果为 `true`, 则会使用 [BotConfiguration.disableAccountSecretes] 禁用 `account.secrets` 的保存。
+         *
+         * > Deprecated: 由于属性名与实际行为存在歧义，因此使用新的 [disableAccountSecretes] 来代替此属性。
+         */
+        @Deprecated("Use disableAccountSecretes")
+        var accountSecrets: Boolean? = null,
+
+
+        /**
+         * 是否禁止保存 `account.secrets`.
          * 如果为 `true`, 则会使用 [BotConfiguration.disableAccountSecretes] 禁用 `account.secrets` 的保存。
          *
          * @see BotConfiguration.disableAccountSecretes
          */
-        var accountSecrets: Boolean = false,
-        
+        var disableAccountSecretes: Boolean = false,
+
         ) {
-        
+
+
+        /**
+         * deviceInfo 构造器
+         */
         @Transient
         private val deviceInfo: ((Bot) -> DeviceInfo)? = deviceInfoConfiguration.also {
             deviceInfoCompatibleCheck()
         }
-        
+
         @Suppress("DEPRECATION", "DEPRECATION_ERROR")
         private fun deviceInfoCompatibleCheck() {
             // deviceInfoJson
@@ -307,7 +334,7 @@ public data class MiraiBotVerifyInfoConfiguration(
 
                 throw DeprecatedConfigurationPropertyException("config.$illegalProp", error)
             }
-            
+
             // simpleDeviceInfoJson
             if (simpleDeviceInfoJson != null) {
                 val illegalProp = "simpleDeviceInfoJson"
@@ -345,7 +372,7 @@ public data class MiraiBotVerifyInfoConfiguration(
 
                 throw DeprecatedConfigurationPropertyException("config.$illegalProp", error)
             }
-            
+
             // deviceInfoFile
             if (deviceInfoFile != null) {
                 val illegalProp = "deviceInfoFile"
@@ -383,12 +410,12 @@ public data class MiraiBotVerifyInfoConfiguration(
                 throw DeprecatedConfigurationPropertyException("config.$illegalProp", error)
             }
         }
-        
-        
+
+
         /**
          * 将当前配置的信息转化为 [MiraiBotConfiguration][BotConfiguration] 实例。
          */
-        public fun miraiBotConfiguration(initial: BotConfiguration): BotConfiguration {
+        internal fun miraiBotConfiguration(self: MiraiBotVerifyInfoConfiguration, initial: BotConfiguration): BotConfiguration {
             return initial.also {
                 it.workingDir = workingDir
                 it.heartbeatPeriodMillis = heartbeatPeriodMillis
@@ -399,48 +426,57 @@ public data class MiraiBotVerifyInfoConfiguration(
                 it.autoReconnectOnForceOffline = autoReconnectOnForceOffline
                 it.protocol = protocol
                 it.highwayUploadCoroutineCount = highwayUploadCoroutineCount
-                
+
                 it.deviceInfo = deviceInfo
-                
+
                 if (noNetworkLog) it.noNetworkLog() else it.networkLoggerSupplier = networkLoggerSupplier
                 if (noBotLog) it.noBotLog() else it.botLoggerSupplier = botLoggerSupplier
-                
+
                 it.isShowingVerboseEventLog = isShowingVerboseEventLog
-                
-                it.cacheDir = cacheDir
+
+                val cacheDir0 = cacheDir ?: BotConfiguration.Default.cacheDir.resolve(self.code.toString())
+
+                it.cacheDir = cacheDir0
                 it.contactListCache = contactListCacheConfiguration.contactListCache
                 it.loginCacheEnabled = loginCacheEnabled
                 it.convertLineSeparator = convertLineSeparator
-                
-                if (accountSecrets) {
+
+                @Suppress("DEPRECATION")
+                if (accountSecrets != null) {
+                    // 过时兼容
+                    logger.warn("The property `config.accountSecrets` is deprecated, use `config.disableAccountSecretes` instead")
                     it.disableAccountSecretes()
                 }
-                
+
+                if (disableAccountSecretes) {
+                    it.disableAccountSecretes()
+                }
+
             }
         }
-        
-        
+
+
         @Transient
         private val botLoggerSupplier: ((Bot) -> MiraiLogger) = {
             val name = "love.forte.simbot.mirai.bot.${it.id}"
             LoggerFactory.getLogger(name).asMiraiLogger()
         }
-        
+
         @Transient
         private val networkLoggerSupplier: ((Bot) -> MiraiLogger) = {
             val name = "love.forte.simbot.mirai.net.${it.id}"
             LoggerFactory.getLogger(name).asMiraiLogger()
         }
-        
-        
+
+
         public companion object {
-//            private val log = LoggerFactory.logger<Config>()
-            
+            private val logger = LoggerFactory.logger<Config>()
+
             @JvmField
             @Deprecated("Unused", level = DeprecationLevel.ERROR)
             @ScheduledForRemoval(inVersion = "3.0.0.0")
             public val DEFAULT: Config = Config()
-            
+
             /**
              * 构建一个新的 [Config] 实例。
              *
@@ -464,10 +500,10 @@ public data class MiraiBotVerifyInfoConfiguration(
             public fun buildConfig(builder: BuilderFunction<Config>): Config {
                 return Config().doBuild(builder)
             }
-            
+
         }
     }
-    
+
     /**
      * 使用的消息撤回缓存策略类型。
      *
@@ -480,24 +516,24 @@ public data class MiraiBotVerifyInfoConfiguration(
          *
          */
         INVALID({ InvalidMiraiRecallMessageCacheStrategy }),
-        
+
         /**
          * 使用 [MemoryLruMiraiRecallMessageCacheStrategy]
          */
         MEMORY_LRU({ MemoryLruMiraiRecallMessageCacheStrategy() }),
-        
+
         // 想要更多实现? see: StandardMiraiRecallMessageCacheStrategy
-        
+
     }
-    
-    
+
+
     /**
      * 通过 [config] 构建一个 [MiraiBotConfiguration][BotConfiguration].
      */
-    public fun miraiBotConfiguration(initial: BotConfiguration): BotConfiguration =
-        config.miraiBotConfiguration(initial)
-    
-    
+    private fun miraiBotConfiguration(initial: BotConfiguration): BotConfiguration =
+        config.miraiBotConfiguration(this, initial)
+
+
     /**
      * mirai的联系人列表缓存配置的对应配置类。
      *
@@ -522,7 +558,7 @@ public data class MiraiBotVerifyInfoConfiguration(
          */
         var groupMemberListCacheEnabled: Boolean = BotConfiguration.Default.contactListCache.groupMemberListCacheEnabled,
     ) {
-        
+
         /**
          * 得到对应的 [MiraiBotConfiguration.ContactListCache][BotConfiguration.ContactListCache] 实例。
          */
@@ -532,13 +568,13 @@ public data class MiraiBotVerifyInfoConfiguration(
             it.friendListCacheEnabled = friendListCacheEnabled
             it.groupMemberListCacheEnabled = groupMemberListCacheEnabled
         }
-        
+
         public companion object {
             @JvmField
             @Deprecated("Unused", level = DeprecationLevel.ERROR)
             @ScheduledForRemoval(inVersion = "3.0.0.0")
             public val DEFAULT: ContactListCacheConfiguration = ContactListCacheConfiguration()
-            
+
             /**
              * 构建一个 [ContactListCacheConfiguration] 实例。
              *
@@ -564,11 +600,11 @@ public data class MiraiBotVerifyInfoConfiguration(
             public fun buildContactListCacheConfiguration(builder: BuilderFunction<ContactListCacheConfiguration>): ContactListCacheConfiguration {
                 return ContactListCacheConfiguration().doBuild(builder)
             }
-            
+
         }
     }
-    
-    
+
+
     public val simbotBotConfiguration: MiraiBotConfiguration
         get() {
             return MiraiBotConfiguration(
@@ -579,8 +615,8 @@ public data class MiraiBotVerifyInfoConfiguration(
                 }
             }
         }
-    
-    
+
+
     @Suppress("DEPRECATION", "DEPRECATION_ERROR")
     private val recallMessageCacheStrategy: MiraiRecallMessageCacheStrategy
         get() {
@@ -590,6 +626,7 @@ public data class MiraiBotVerifyInfoConfiguration(
                     RecallMessageCacheStrategyType.INVALID -> {
                         RecallMessageCacheStrategyConfiguration.Invalid.TYPE
                     }
+
                     RecallMessageCacheStrategyType.MEMORY_LRU -> {
                         RecallMessageCacheStrategyConfiguration.MemoryLru.TYPE
                     }
@@ -630,10 +667,10 @@ public data class MiraiBotVerifyInfoConfiguration(
                 )
                 throw DeprecatedConfigurationPropertyException("config.recallMessageCacheStrategy", err)
             }
-            
+
             return config.recallMessageCacheStrategyConfig.recallMessageCacheStrategy(this)
         }
-    
+
 }
 
 
@@ -642,14 +679,14 @@ public data class MiraiBotVerifyInfoConfiguration(
 /**
  * 文件路径序列化器。
  */
-internal class FileSerializer : KSerializer<File> {
+internal object FileSerializer : KSerializer<File> {
     override fun deserialize(decoder: Decoder): File {
         val dir = decoder.decodeString()
         return File(dir)
     }
-    
+
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor("File", PrimitiveKind.STRING)
-    
+
     override fun serialize(encoder: Encoder, value: File) {
         encoder.encodeString(value.toString())
     }
@@ -684,4 +721,5 @@ private fun <T> T.doBuild(builder: BuilderFunction<T>): T {
 }
 
 
-internal class DeprecatedConfigurationPropertyException(message: String, cause: Throwable? = null) : SimbotIllegalStateException(message, cause)
+internal class DeprecatedConfigurationPropertyException(message: String, cause: Throwable? = null) :
+    SimbotIllegalStateException(message, cause)
