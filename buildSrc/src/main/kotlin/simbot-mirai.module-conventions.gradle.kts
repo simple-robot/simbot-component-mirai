@@ -120,9 +120,24 @@ tasks.withType<DokkaTaskPartial>().configureEach {
     dokkaSourceSets.configureEach {
         version = P.ComponentMirai.versionWithoutSnapshot.toString()
         documentedVisibilities.set(listOf(DokkaConfiguration.Visibility.PUBLIC, DokkaConfiguration.Visibility.PROTECTED))
-        reportUndocumented.set(true)
-        if (project.file("Module.md").exists()) {
-            includes.from("Module.md")
+        fun checkModule(projectFileName: String): Boolean {
+            val moduleMdFile = project.file(projectFileName)
+            if (moduleMdFile.exists()) {
+                moduleMdFile.useLines { lines ->
+                    val head = lines.first { it.isNotBlank() }.trim()
+
+                    if (head == "# Module ${project.name}") {
+                        includes.from(projectFileName)
+                        return true
+                    }
+                }
+            }
+
+            return false
+        }
+
+        if (!checkModule("Module.md")) {
+            checkModule("README.md")
         }
 
         // samples
