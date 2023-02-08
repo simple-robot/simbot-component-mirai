@@ -41,6 +41,7 @@ public sealed interface MiraiSimbotMessage<E : MiraiSimbotMessage<E>> : Message.
 
 /**
  * 标记性质的接口。
+ *
  * 标记一个类型为 **仅** 用于发送使用的 [Message.Element]. 这类消息将 **不保证** 能够序列化。
  *
  * @see MiraiShare
