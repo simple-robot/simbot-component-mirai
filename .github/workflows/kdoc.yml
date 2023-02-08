@@ -1,6 +1,7 @@
 name: Deploy doc
 on: # push
-  push: pref_kdoc_deploy
+  push:
+    branches: pref_kdoc_deploy
 
 env:
   SIMBOT_IS_SNAPSHOT: false
