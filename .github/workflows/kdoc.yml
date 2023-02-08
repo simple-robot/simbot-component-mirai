@@ -49,3 +49,4 @@ jobs:
           publish_dir: ./build/dokka/html
           # deploy to sub dir
           destination_dir: components/mirai
+          commit_message: ${{ github.event.head_commit.message }}
