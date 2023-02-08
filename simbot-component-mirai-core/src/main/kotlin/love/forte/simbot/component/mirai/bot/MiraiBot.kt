@@ -56,7 +56,7 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
 public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQueryable {
 
     /**
-     * 得到自己
+     * 得到自己。
      */
     override val bot: MiraiBot
         get() = this
