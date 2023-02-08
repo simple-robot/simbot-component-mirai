@@ -48,8 +48,4 @@ jobs:
           external_repository: simple-robot-library/simbot3-api-docs
           publish_branch: kdoc-deploy/component-mirai
           publish_dir: ./build/dokka/html
-          # deploy to sub dir
-          destination_dir: components/mirai
-          user_name: 'ForteScarlet'
-          user_email: 'ForteScarlet@163.com'
           exclude_assets: '.github,.nojekyll'
