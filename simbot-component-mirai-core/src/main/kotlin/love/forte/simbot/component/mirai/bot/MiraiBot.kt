@@ -106,6 +106,8 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQue
 
     /**
      * 当前bot所属的bot管理器。
+     *
+     * @see MiraiBotManager
      */
     override val manager: MiraiBotManager
 
