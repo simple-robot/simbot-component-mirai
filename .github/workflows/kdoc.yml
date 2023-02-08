@@ -50,4 +50,5 @@ jobs:
           publish_dir: ./build/dokka/html
           # deploy to sub dir
           destination_dir: components/mirai
+          user_name: 'ForteScarlet'
           user_email: 'ForteScarlet@163.com'
