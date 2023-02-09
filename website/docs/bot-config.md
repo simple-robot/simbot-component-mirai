@@ -15,8 +15,6 @@ import Label from '@site/src/components/Label'
 
 mirai组件为其下的BOT配置文件提供了 [`json-schema`](http://json-schema.org/) 。
 
-> 当前 `schema` 版本：[<Label>0.1.0</Label>](/schema/component/mirai/bot/0.1.0/bot.config.json)
-
 ### 架构资源
 
 你可以通过 [此处](/schema/bot/0.2.0/bot.config.json) 下载 `bot.config.json` 架构文件，
@@ -115,13 +113,14 @@ passwordInfo.value.text=e807f1fcf82d132f9bb018ca6738a19f
 </TabItem>
 </Tabs>
 
-
-
 <details>
 <summary>完整配置参考</summary>
 
-> 仅供参考，以具体代码效果为准。
+:::note FYI
 
+仅供参考，以具体代码效果为准。
+
+:::
 
 配置属性 `config` 下的几乎所有属性都是可选的（甚至包括 `config` 属性自己），因此你没有必要书写过于完整的配置文件。
 
@@ -245,6 +244,13 @@ config.disableAccountSecretes=false
 
 
 </details>
+
+
+:::tip 更诚实
+
+配置文件对应的实际内容可参考 [API文档](https://docs.simbot.forte.love/components/mirai/simbot-component-mirai-core/love.forte.simbot.component.mirai.bot/-mirai-bot-verify-info-configuration/) 。
+
+:::
 
 ## 参数释义
 

@@ -17,7 +17,7 @@ mirai组件是基于 [simbot核心库](https://github.com/simple-robot/simpler-r
 
 > 首先你应当已经阅读并了解过了 [simbot3](https://simbot.forte.love) 的基本内容
 
-:::tips
+:::tip 别忘了
 
 在使用mirai组件时必须**显式指定**simbot核心库的依赖，例如 `simbot-core` 或 `simboot-spring-boot-starter` 等。
 

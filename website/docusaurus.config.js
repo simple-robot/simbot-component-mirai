@@ -4,7 +4,7 @@
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
-const currentVersion = '3.0.0.0-M4'
+const currentVersion = '3.0.0.0-M'
 const firstYear = 2022
 const currentYear = new Date().getFullYear()
 const copyrightYear = currentYear === firstYear ? firstYear : firstYear + '-' + currentYear
@@ -12,7 +12,7 @@ const copyrightYear = currentYear === firstYear ? firstYear : firstYear + '-' + 
 /** @type {import('@docusaurus/types').Config} */
 async function config() {
   return {
-    title: 'simbot-mirai组件库',
+    title: 'Simple Robot Mirai组件库',
     tagline: `基于mirai框架的simbot组件实现库`,
     favicon: 'img/favicon.png',
 
