@@ -5,7 +5,9 @@ const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 
 const currentVersion = '3.0.0.0-M4'
-
+const firstYear = 2022
+const currentYear = new Date().getFullYear()
+const copyrightYear = currentYear === firstYear ? firstYear : firstYear + '-' + currentYear
 
 /** @type {import('@docusaurus/types').Config} */
 async function config() {
@@ -131,14 +133,8 @@ async function config() {
                 position: 'left',
                 label: '文档',
               },
-              // {to: '/blog', label: 'Blog', position: 'left'},
-              {
-                href: 'https://github.com/simple-robot/simbot-component-mirai',
-                // label: 'GitHub',
-                position: 'right',
-                className: 'bi-github',
-                'aria-label': 'GitHub',
-              },
+              {href: 'https://github.com/orgs/simple-robot/discussions', label: '社区', position: 'left'},
+              {href: 'https://docs.simbot.forte.love', label: 'API文档站', position: 'left'},
               {
                 type: 'docsVersionDropdown',
                 position: 'right',
@@ -146,53 +142,85 @@ async function config() {
                 // dropdownItemsAfter: [{to: '/versions', label: 'All versions'}],
                 dropdownActiveClassDisabled: true,
               },
+              {
+                href: 'https://github.com/simple-robot/simbot-component-mirai',
+                position: 'right',
+                className: 'bi-github',
+                'aria-label': 'GitHub',
+              },
             ],
           },
           footer: {
             style: 'dark',
             links: [
               {
-                title: 'Docs',
+                title: '文档',
                 items: [
                   {
-                    label: 'Tutorial',
-                    to: '/',
+                    label: '文档',
+                    to: '/docs',
+                  },
+                  {
+                    label: 'API文档站',
+                    to: 'https://docs.simbot.forte.love',
                   },
                 ],
               },
               {
-                title: 'Community',
+                title: '指路牌',
                 items: [
                   {
-                    label: 'Stack Overflow',
-                    href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-                  },
-                  {
-                    label: 'Discord',
-                    href: 'https://discordapp.com/invite/docusaurus',
-                  },
-                  {
-                    label: 'Twitter',
-                    href: 'https://twitter.com/docusaurus',
-                  },
-                ],
-              },
-              {
-                title: 'More',
-                items: [
-                  {
-                    label: 'GitHub',
+                    label: 'GitHub ',
                     href: 'https://github.com/simple-robot/simbot-component-mirai',
                   },
-
+                  {
+                    label: '组织库 🏢',
+                    href: 'https://github.com/simple-robot',
+                  },
+                  {
+                    label: '图书馆 📚',
+                    href: 'https://github.com/simple-robot-library',
+                  },
+                ],
+              },
+              {
+                title: '交流&反馈',
+                items: [
+                  {
+                    label: '问题反馈',
+                    href: 'https://github.com/simple-robot/simpler-robot/issues',
+                  },
+                  {
+                    label: '交流社区',
+                    href: 'https://github.com/orgs/simple-robot/discussions',
+                  },
                 ],
               },
             ],
-            copyright: `Copyright © 2022-${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+            copyright: `Built with <a href="https://www.docusaurus.io/zh-CN/">Docusaurus</a>. <br> Copyright © ${copyrightYear} Forte Scarlet.`,
           },
           prism: {
+            additionalLanguages: ['java', 'kotlin', 'groovy', 'properties'],
             theme: lightCodeTheme,
             darkTheme: darkCodeTheme,
+            magicComments: [
+              // Remember to extend the default highlight class name as well!
+              {
+                className: 'theme-code-block-highlighted-line',
+                line: 'highlight-next-line',
+                block: {start: 'highlight-start', end: 'highlight-end'},
+              },
+              {
+                className: 'code-block-error-line',
+                line: 'This will error',
+                block: {start: 'error-start', end: 'error-end'},
+              },
+              {
+                className: 'code-block-success-line',
+                line: 'This is success',
+                block: {start: 'success-start', end: 'success-end'},
+              },
+            ],
           },
         }),
   }
