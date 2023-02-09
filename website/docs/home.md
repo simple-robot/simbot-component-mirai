@@ -1,0 +1,10 @@
+---
+slug: /
+sidebar_position: 1
+---
+
+# 首页
+
+欢迎来到 simbot-mirai 组件文档。
+
+mirai组件是基于 [simbot核心库](https://github.com/simple-robot/simpler-robot) API对 [mirai框架](https://github.com/mamoe/mirai) 的实现。
