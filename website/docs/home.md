@@ -15,7 +15,7 @@ mirai组件是基于 [simbot核心库](https://github.com/simple-robot/simpler-r
 
 ## 使用
 
-> 首先你应当已经阅读并了解过了 [simbot3](https://simbot.forte.love) 。
+> 首先你应当已经阅读并了解过了 [simbot3](https://simbot.forte.love) 的基本内容
 
 :::tips
 
@@ -67,5 +67,4 @@ implementation 'love.forte.simbot.component:simbot-component-mirai-core:$CMPT_MI
 ```
 
 </TabItem>
-
 </Tabs>
