@@ -133,6 +133,7 @@ async function config() {
                 position: 'left',
                 label: '文档',
               },
+              {href: 'https://simbot.forte.love', label: 'simbot官网', position: 'left'},
               {href: 'https://github.com/orgs/simple-robot/discussions', label: '社区', position: 'left'},
               {href: 'https://docs.simbot.forte.love', label: 'API文档站', position: 'left'},
               {
@@ -172,6 +173,10 @@ async function config() {
                   {
                     label: 'GitHub ',
                     href: 'https://github.com/simple-robot/simbot-component-mirai',
+                  },
+                  {
+                    label: 'simbot官网 🏠',
+                    href: 'https://simbot.forte.love',
                   },
                   {
                     label: '组织库 🏢',
