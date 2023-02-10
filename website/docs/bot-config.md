@@ -33,7 +33,13 @@ mirai组件为其下的BOT配置文件提供了 [`json-schema`](http://json-sche
 
 :::
 
-## 最简配置
+## 配置
+
+:::tip 捉迷藏
+
+在 Spring Boot Starter 中，bot配置文件的默认放置路径为 `simbot-bots/*.bot.json`
+
+:::
 
 ### 明文密码
 
