@@ -24,7 +24,9 @@ import love.forte.simbot.event.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.message.doSafeCast
+import net.mamoe.mirai.contact.PermissionDeniedException
 import net.mamoe.mirai.message.data.MessageSource.Key.recall
+import net.mamoe.mirai.message.data.source
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 import net.mamoe.mirai.event.events.GroupMessageEvent as OriginalMiraiGroupMessageEvent
 
@@ -46,7 +48,7 @@ public interface MiraiGroupMessageEvent :
      * 收到的消息本体。
      */
     override val messageContent: MiraiReceivedMessageContent
-    
+
 
     /**
      * 此消息的发送者。
@@ -59,7 +61,7 @@ public interface MiraiGroupMessageEvent :
      */
     @JSTP
     override suspend fun group(): MiraiGroup
-    
+
     /**
      * 收到消息的群。同 [group].
      */
@@ -117,13 +119,28 @@ public interface MiraiGroupMessageEvent :
      */
     @JST
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-    
+
     /**
      * 向此事件的群发送消息。
      */
     @JST
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
     //endregion
+
+    /**
+     * 将当前消息事件中的消息设置为群精华消息。
+     *
+     * [setAsEssenceMessage] 内直接操作mirai原生的事件类型，相对于 [MiraiGroup.setEssenceMessage] 而言
+     * 有更高的可靠性。
+     *
+     * @throws PermissionDeniedException 没有权限时抛出
+     * @return 是否操作成功
+     */
+    @JST
+    public suspend fun setAsEssenceMessage(): Boolean {
+        val group = originalEvent.group
+        return group.setEssenceMessage(originalEvent.message.source)
+    }
 
     override val key: Event.Key<MiraiGroupMessageEvent> get() = Key
 

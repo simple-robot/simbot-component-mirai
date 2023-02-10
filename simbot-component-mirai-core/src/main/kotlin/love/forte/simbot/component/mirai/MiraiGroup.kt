@@ -221,6 +221,16 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      *
      * 作为参数的 [message] 必须为 [MiraiMessageChainContent] 类型，否则会引发 [ClassCastException].
      *
+     * ### 可靠性
+     *
+     * [setEssenceMessage] 的参数类型为了保证一定程度的兼容性而使用了 [MessageContent],
+     * 这会导致此函数内存在一些隐患：如 [message] 的实际类型不符合预期或 [messageSource][MiraiMessageChainContent.messageSourceOrNull] 不存在
+     * （例如 [message] 为 [MiraiReceivedNudgeMessageContent][love.forte.simbot.component.mirai.event.MiraiReceivedNudgeMessageContent] 类型时）,
+     *
+     * 如果希望使用相对而言更可靠的API，[MiraiGroupMessageEvent.setAsEssenceMessage][love.forte.simbot.component.mirai.event.MiraiGroupMessageEvent.setAsEssenceMessage]
+     * 是一个不错的选择。
+     *
+     * @see love.forte.simbot.component.mirai.event.MiraiGroupMessageEvent.setAsEssenceMessage
      * @param message 要被设置的精华消息
      *
      * @throws PermissionDeniedException 没有权限时抛出
@@ -228,6 +238,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      * @throws UnsupportedActionException 当前消息无法被设置为精华消息时抛出（例如当前消息中不存在 [messageSource][MiraiMessageChainContent.messageSourceOrNull] 等）
      *
      * @return 是否操作成功
+     *
      */
     @JST
     public suspend fun setEssenceMessage(message: MessageContent): Boolean {
