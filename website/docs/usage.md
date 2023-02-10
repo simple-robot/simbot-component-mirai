@@ -69,6 +69,10 @@ implementation 'love.forte.simbot.component:simbot-component-mirai-core:${ versi
 
 ## 使用
 
+mirai组件中的 `Component` 实现类型为 [`MiraiComponent`](https://docs.simbot.forte.love/components/mirai/simbot-component-mirai-core/love.forte.simbot.component.mirai/-mirai-component/)；
+
+`BotManager` 的实现类型为 [`MiraiBotManager`](https://docs.simbot.forte.love/components/mirai/simbot-component-mirai-core/love.forte.simbot.component.mirai.bot/-mirai-bot-manager)
+
 ### application install
 
 在使用 simbot application 时，安装mirai的相关组件与BotManager。此处以 `Simple Application` 为例：

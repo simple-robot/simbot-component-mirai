@@ -3,8 +3,6 @@ on:
   push:
     tags:
       - v**
-    branches:
-      - dev/**
 
 env:
   IS_CI: true
