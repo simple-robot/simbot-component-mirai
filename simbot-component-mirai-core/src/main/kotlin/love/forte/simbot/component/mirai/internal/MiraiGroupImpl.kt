@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -24,6 +24,7 @@ import love.forte.simbot.message.Message
 import love.forte.simbot.utils.item.Items
 import love.forte.simbot.utils.item.Items.Companion.asItems
 import love.forte.simbot.utils.item.map
+import net.mamoe.mirai.contact.GroupSettings
 import net.mamoe.mirai.contact.active.GroupActive
 import net.mamoe.mirai.contact.getMember
 import java.util.concurrent.TimeUnit
@@ -41,96 +42,85 @@ internal class MiraiGroupImpl(
     initOwner: MiraiMemberImpl? = null,
 ) : MiraiGroup {
     private lateinit var memberBot: MiraiGroupBotImpl
-    
+
     override val bot: MiraiGroupBotImpl
         get() {
             if (::memberBot.isInitialized) {
                 return memberBot
             }
-            
+
             // 不关心线程安全
             return getGroupBot(baseBot).also {
                 memberBot = it
             }
         }
-    
+
     override val id: LongID = originalContact.id.ID
-    
+
     private var _active: MiraiGroupActive? = null
-    
+
     override val active: MiraiGroupActive
-        // Don't care about concurrency
+        // Don't care about concurrency, maybe
         get() = _active ?: MiraiGroupActiveImpl(originalContact.active).also { _active = it }
-    
+
+    private var _settings: MiraiGroupSettings? = null
+
+    override val settings: MiraiGroupSettings
+        // Don't care about concurrency, maybe
+        get() = _settings ?: MiraiGroupSettingsImpl(originalContact.settings).also { _settings = it }
+
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
         val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))
         return SimbotMiraiMessageReceiptImpl(receipt)
     }
-    
+
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
         return SimbotMiraiMessageReceiptImpl(originalContact.sendMessage(text))
     }
-    
+
     override suspend fun member(id: ID): MiraiMember? {
         return originalContact.getMember(id.tryToLong())?.asSimbot(baseBot, this)
     }
-    
+
     private val _owner = initOwner ?: originalContact.owner.asSimbot(baseBot, this)
-    
+
     override suspend fun owner(): MiraiMember = _owner
-    
+
     override val ownerId: LongID get() = _owner.id
-    
+
     override val members: Items<MiraiMember>
         get() = originalContact.members.asItems().map { it.asSimbot(baseBot) }
-    
-    
+
+
     override val roles: Items<MemberRole>
         get() = MemberRole.values().asList().asItems()
-    
+
     override suspend fun mute(duration: Duration): Boolean {
         baseBot.groupMute(originalContact, duration.inWholeMilliseconds)
         return true
     }
-    
+
     override suspend fun mute(time: Long, timeUnit: TimeUnit): Boolean {
-        baseBot.groupMute(originalContact,timeUnit.toMillis(time))
+        baseBot.groupMute(originalContact, timeUnit.toMillis(time))
         return true
     }
-    
+
     @Api4J
     override fun muteBlocking(duration: JavaDuration): Boolean {
         baseBot.groupMute(originalContact, duration.toMillis())
         return true
     }
-    
+
     @Api4J
     override fun muteBlocking(): Boolean {
         baseBot.groupMute(originalContact, 0)
         return true
     }
-    
+
     override suspend fun unmute(): Boolean {
         return baseBot.groupUnmute(originalContact)
     }
-    
-}
 
-internal class MiraiGroupActiveImpl(override val originalGroupActive: GroupActive) : MiraiGroupActive {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        
-        other as MiraiGroupActiveImpl
-        
-        if (originalGroupActive != other.originalGroupActive) return false
-        
-        return true
-    }
-    
-    override fun hashCode(): Int {
-        return originalGroupActive.hashCode()
-    }
 }
 
 internal fun OriginalMiraiGroup.asSimbot(bot: MiraiBotImpl): MiraiGroupImpl =
@@ -138,3 +128,52 @@ internal fun OriginalMiraiGroup.asSimbot(bot: MiraiBotImpl): MiraiGroupImpl =
 
 internal fun OriginalMiraiGroup.asSimbot(bot: MiraiBotImpl, initOwner: MiraiMemberImpl): MiraiGroupImpl =
     bot.computeGroup(this) { MiraiGroupImpl(bot, this, initOwner) }
+
+internal class MiraiGroupActiveImpl(override val originalGroupActive: GroupActive) : MiraiGroupActive {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MiraiGroupActiveImpl
+
+        if (originalGroupActive != other.originalGroupActive) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return originalGroupActive.hashCode()
+    }
+
+    override fun toString(): String {
+        return "MiraiGroupActiveImpl(originalGroupActive=$originalGroupActive)"
+    }
+
+
+}
+
+
+internal class MiraiGroupSettingsImpl(override val originalGroupSettings: GroupSettings) : MiraiGroupSettings {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as MiraiGroupSettingsImpl
+
+        if (originalGroupSettings != other.originalGroupSettings) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return originalGroupSettings.hashCode()
+    }
+
+    override fun toString(): String {
+        return "MiraiGroupSettingsImpl(originalGroupSettings=$originalGroupSettings)"
+    }
+
+
+}
+
+
