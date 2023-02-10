@@ -27,6 +27,7 @@ import net.mamoe.mirai.data.GroupHonorType
  *
  * @see MemberActive
  */
+@MiraiMappingType(MemberActive::class)
 public interface MiraiMemberActive {
     
     /**

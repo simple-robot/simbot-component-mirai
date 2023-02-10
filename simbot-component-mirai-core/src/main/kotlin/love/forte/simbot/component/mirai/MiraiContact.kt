@@ -34,7 +34,7 @@ public interface MiraiBotContainer : BotContainer {
 
 
 /**
- * 包含了mirai原生联系人[OriginalMiraiContact] 的容器类型.
+ * 包含了mirai原生联系人 [OriginalMiraiContact] 的容器类型.
  *
  * @see MiraiContact
  * @see MiraiChatroom
@@ -73,7 +73,6 @@ public interface MiraiContact : Contact, MiraiContactObjective {
      */
     override val avatar: String
         get() = originalContact.avatarUrl
-
 
     /**
      * 获取头像链接。
