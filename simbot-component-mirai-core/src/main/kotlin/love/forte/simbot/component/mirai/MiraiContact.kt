@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -20,6 +20,7 @@ import love.forte.simbot.LongID
 import love.forte.simbot.component.mirai.bot.MiraiBot
 import love.forte.simbot.component.mirai.bot.MiraiGroupBot
 import love.forte.simbot.definition.*
+import net.mamoe.mirai.contact.AvatarSpec
 import net.mamoe.mirai.contact.Contact as OriginalMiraiContact
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
@@ -66,6 +67,22 @@ public interface MiraiContact : Contact, MiraiContactObjective {
     override val id: LongID
     override val bot: MiraiBot
     override val originalContact: OriginalMiraiContact
+
+    /**
+     * 获取头像链接。
+     */
+    override val avatar: String
+        get() = originalContact.avatarUrl
+
+
+    /**
+     * 获取头像链接。
+     * @param spec 头像规格，为mirai原生类型 [AvatarSpec]。
+     * @see net.mamoe.mirai.contact.ContactOrBot.avatarUrl
+     */
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmName("getAvatar")
+    public fun avatar(spec: AvatarSpec): String = originalContact.avatarUrl(spec)
 }
 
 /**
@@ -78,5 +95,20 @@ public interface MiraiChatroom : ChatRoom, MiraiContactObjective {
     override val bot: MiraiGroupBot
     override val originalContact: OriginalMiraiGroup
 
+    /**
+     * 获取群头像链接
+     */
+    override val icon: String
+        get() = originalContact.avatarUrl
+
+
+    /**
+     * 获取头像链接。
+     * @param spec 头像规格，为mirai原生类型 [AvatarSpec]。
+     * @see net.mamoe.mirai.contact.ContactOrBot.avatarUrl
+     */
+    @Suppress("INAPPLICABLE_JVM_NAME")
+    @JvmName("getIcon")
+    public fun icon(spec: AvatarSpec): String = originalContact.avatarUrl(spec)
 
 }

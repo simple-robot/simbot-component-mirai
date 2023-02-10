@@ -61,7 +61,6 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     override val id: LongID
 
-
     /**
      * 群头像链接
      */

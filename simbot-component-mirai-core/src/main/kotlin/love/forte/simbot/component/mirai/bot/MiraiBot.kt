@@ -53,7 +53,7 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
  * @see Bot
  * @author ForteScarlet
  */
-public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQueryable {
+public interface MiraiBot : MiraiContact, Bot, UserInfo, FriendsContainer, MiraiUserProfileQueryable {
 
     /**
      * 得到自己。
@@ -87,15 +87,6 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQue
      *  @see OriginalMiraiBot.avatarUrl
      */
     override val avatar: String get() = originalBot.avatarUrl
-
-    /**
-     * 获取当前bot的头像链接。
-     * @param spec 头像规格，为mirai原生类型 [AvatarSpec]。
-     * @see Bot.avatar
-     */
-    @Suppress("INAPPLICABLE_JVM_NAME")
-    @JvmName("getAvatar")
-    public fun avatar(spec: AvatarSpec): String = originalBot.avatarUrl(spec)
 
     /** 直接使用 [originalBot] 的协程作用域。 */
     override val coroutineContext: CoroutineContext get() = originalBot.coroutineContext
