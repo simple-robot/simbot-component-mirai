@@ -29,6 +29,7 @@ import kotlin.concurrent.read
 import kotlin.concurrent.write
 
 /**
+ * 标准撤回消息缓存策略，
  * 由组件所提供的 [MiraiRecallMessageCacheStrategy] 标准实现类型。
  *
  * ## 更多标准策略?
@@ -255,9 +256,6 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
         public const val DEFAULT_LOAD_FACTOR: Float = 0.75F
     }
 }
-
-
-
 
 
 
