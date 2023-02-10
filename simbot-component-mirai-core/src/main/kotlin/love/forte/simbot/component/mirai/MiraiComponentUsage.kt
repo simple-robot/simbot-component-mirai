@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -29,30 +29,13 @@ import kotlin.contracts.contract
 /**
  * 安装使用 [MiraiBotManager].
  *
- * e.g.:
- * ```kotlin
- * simbotApplication(Foo) {
- *
- *  useMiraiBotManager()
- *  // 或
- *  useMiraiBotManager {
- *      // config...
- *  }
- *
- * }
- * ```
- *
- * 相当于:
- * ```kotlin
- * simbotApplication(Foo) {
- *  install(MiraiBotManager) { ... }
- *  // ...
- * }
- * ```
+ *  @suppress 使用 [useMiraiBotManager]
+ * @see useMiraiBotManager
  */
 @ApplicationBuilderDsl
+@Deprecated("use useMiraiBotManager", ReplaceWith("useMiraiBotManager(configurator)"))
 public fun <A : Application> ApplicationBuilder<A>.miraiBots(configurator: MiraiBotManagerConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit = {}) {
-    install(MiraiBotManager, configurator)
+    useMiraiBotManager(configurator)
 }
 
 
@@ -81,9 +64,47 @@ public fun <A : Application> ApplicationBuilder<A>.miraiBots(configurator: Mirai
  * ```
  */
 @ApplicationBuilderDsl
-public fun <A : Application> ApplicationBuilder<A>.useMiraiComponent(configurator: MiraiComponentConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit = {}) {
-    install(MiraiComponent, configurator)
+@JvmName("useMiraiComponent")
+@JvmOverloads
+public inline fun <A : Application> ApplicationBuilder<A>.useMiraiComponent(crossinline configurator: MiraiComponentConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit = {}) {
+    install(MiraiComponent) {
+        configurator(it)
+    }
 }
+
+/**
+ * 安装使用 [MiraiBotManager].
+ *
+ * e.g.:
+ * ```kotlin
+ * simbotApplication(Foo) {
+ *
+ *  useMiraiBotManager()
+ *  // 或
+ *  useMiraiBotManager {
+ *      // config...
+ *  }
+ *
+ * }
+ * ```
+ *
+ * 相当于:
+ * ```kotlin
+ * simbotApplication(Foo) {
+ *  install(MiraiBotManager) { ... }
+ *  // ...
+ * }
+ * ```
+ */
+@ApplicationBuilderDsl
+@JvmName("useMiraiBotManager")
+@JvmOverloads
+public inline fun <A : Application> ApplicationBuilder<A>.useMiraiBotManager(crossinline configurator: MiraiBotManagerConfiguration.(perceivable: CompletionPerceivable<A>) -> Unit = {}) {
+    install(MiraiBotManager) {
+        configurator(it)
+    }
+}
+
 
 /**
  * 为 [MiraiComponentUsageBuilder] 提供DSL染色。
