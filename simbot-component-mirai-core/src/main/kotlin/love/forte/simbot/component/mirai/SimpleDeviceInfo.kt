@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -22,10 +22,18 @@ import love.forte.simbot.utils.toHex
 import net.mamoe.mirai.utils.DeviceInfo
 
 /**
+ * 简化的设备信息。针对 [DeviceInfo] 的简化映射类型。
+ * 字段中绝大多数 [ByteArray] 类型会以 [String] 的形式提供。
+ *
+ * ### 不稳定
+ *
+ * [SimpleDeviceInfo] 是通过手动映射的方式构建而成，无法保证兼容性与可用性，需谨慎使用。
+ *
  * @see DeviceInfo
  */
 @FragileSimbotApi
 @Serializable
+@MiraiMappingType(DeviceInfo::class)
 public data class SimpleDeviceInfo(
     public val display: String,
     public val product: String,

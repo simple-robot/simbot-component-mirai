@@ -18,7 +18,9 @@ package love.forte.simbot.component.mirai.internal
 
 import love.forte.simbot.*
 import love.forte.simbot.component.mirai.*
+import love.forte.simbot.component.mirai.announcement.MiraiAnnouncements
 import love.forte.simbot.component.mirai.internal.MiraiGroupBotImpl.Companion.getGroupBot
+import love.forte.simbot.component.mirai.internal.announcement.MiraiAnnouncementsImpl
 import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.message.Message
 import love.forte.simbot.utils.item.Items
@@ -37,7 +39,7 @@ import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
  * @author ForteScarlet
  */
 internal class MiraiGroupImpl(
-    private val baseBot: MiraiBotImpl,
+    internal val baseBot: MiraiBotImpl,
     override val originalContact: OriginalMiraiGroup,
     initOwner: MiraiMemberImpl? = null,
 ) : MiraiGroup {
@@ -57,17 +59,14 @@ internal class MiraiGroupImpl(
 
     override val id: LongID = originalContact.id.ID
 
-    private var _active: MiraiGroupActive? = null
-
     override val active: MiraiGroupActive
-        // Don't care about concurrency, maybe
-        get() = _active ?: MiraiGroupActiveImpl(originalContact.active).also { _active = it }
-
-    private var _settings: MiraiGroupSettings? = null
+        get() = MiraiGroupActiveImpl(originalContact.active)
 
     override val settings: MiraiGroupSettings
-        // Don't care about concurrency, maybe
-        get() = _settings ?: MiraiGroupSettingsImpl(originalContact.settings).also { _settings = it }
+        get() = MiraiGroupSettingsImpl(originalContact.settings)
+
+    override val announcements: MiraiAnnouncements
+        get() = MiraiAnnouncementsImpl(this, originalContact.announcements)
 
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup> {
         val receipt = originalContact.sendMessage(message.toOriginalMiraiMessage(originalContact))

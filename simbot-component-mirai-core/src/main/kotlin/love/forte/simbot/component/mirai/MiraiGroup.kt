@@ -21,6 +21,7 @@ import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.*
 import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.action.UnsupportedActionException
+import love.forte.simbot.component.mirai.announcement.MiraiAnnouncements
 import love.forte.simbot.component.mirai.bot.MiraiGroupBot
 import love.forte.simbot.component.mirai.message.MiraiMessageChainContent
 import love.forte.simbot.definition.*
@@ -135,6 +136,14 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     public val settings: MiraiGroupSettings
 
+    /**
+     * 获取群公告列表（管理器）。
+     *
+     * 类似于 [OriginalMiraiGroup.announcements]
+     *
+     * @see OriginalMiraiGroup.announcements
+     */
+    public val announcements: MiraiAnnouncements
 
     /**
      * 让bot退出这个群。
@@ -279,6 +288,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
  *
  * @see GroupSettings
  */
+@MiraiMappingType(GroupSettings::class)
 public interface MiraiGroupSettings {
     /**
      * 获取原生的 [mirai GroupSettings][GroupSettings].

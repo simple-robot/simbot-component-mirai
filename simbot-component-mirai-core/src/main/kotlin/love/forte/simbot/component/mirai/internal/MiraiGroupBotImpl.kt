@@ -42,11 +42,15 @@ internal class MiraiGroupBotImpl(
     override val originalBotMember: NormalMember,
     initGroup: MiraiGroupImpl,
 ) : MiraiGroupBot {
+
+    override val bot: MiraiBotImpl
+        get() = baseBot
+
     override val friendCategories: MiraiFriendCategories
         get() = baseBot.friendCategories
-    
+
     private val member = originalBotMember.asSimbot(baseBot, initGroup)
-    
+
     override suspend fun asMember(): MiraiMember = member
 
     override suspend fun queryProfile(): MiraiUserProfile {
@@ -56,14 +60,14 @@ internal class MiraiGroupBotImpl(
     override fun toString(): String {
         return "MiraiGroupMemberBotImpl(baseBot=$baseBot, member=$member)"
     }
-    
+
     // region impl MiraiBot
     override suspend fun contact(id: ID): MiraiContact? = baseBot.contact(id)
-    
+
     override suspend fun stranger(id: ID): MiraiStranger? = baseBot.stranger(id)
-    
+
     override suspend fun friend(id: ID): MiraiFriend? = baseBot.friend(id)
-    
+
     override suspend fun group(id: ID): MiraiGroup? = baseBot.group(id)
 
     override suspend fun friendCount(): Int = baseBot.friendCount()
@@ -75,17 +79,17 @@ internal class MiraiGroupBotImpl(
     override suspend fun groupCount(): Int = baseBot.groupCount()
 
     override suspend fun resolveImage(id: ID): MiraiImage = baseBot.resolveImage(id)
-    
+
     override fun resolveImage(id: ID, flash: Boolean, builderAction: Image.Builder.() -> Unit): MiraiImage =
         baseBot.resolveImage(id, flash, builderAction)
-    
+
     override val component: Component
         get() = baseBot.component
-    
+
     override fun isMe(id: ID): Boolean = baseBot.isMe(id)
-    
+
     override suspend fun start(): Boolean = baseBot.start()
-    
+
     override val originalBot: Bot
         get() = baseBot.originalBot
     override val id: LongID
@@ -104,33 +108,32 @@ internal class MiraiGroupBotImpl(
         get() = baseBot.contacts
     override val groups: Items<MiraiGroup>
         get() = baseBot.groups
-    
+
     override fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
         baseBot.sendOnlyImage(resource, flash)
-    
+
     override fun idImage(id: ID, flash: Boolean, builderAction: Image.Builder.() -> Unit): MiraiImage =
         baseBot.idImage(id, flash, builderAction)
-    
+
     // endregion
-    
-    
+
     override fun hashCode(): Int {
         return (baseBot.hashCode() * 59) + member.hashCode()
     }
-    
+
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is MiraiGroupBotImpl) return false
         return other.baseBot == baseBot && other.member == member
     }
-    
-    
+
+
     companion object {
         fun MiraiGroupImpl.getGroupBot(bot: MiraiBotImpl): MiraiGroupBotImpl {
             val originalBotMember = originalContact.botAsMember
             return MiraiGroupBotImpl(bot, originalBotMember, this)
         }
-        
+
     }
 }
 

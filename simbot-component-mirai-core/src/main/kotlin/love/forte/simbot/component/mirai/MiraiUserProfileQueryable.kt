@@ -51,6 +51,7 @@ public interface MiraiUserProfileQueryable {
  * @see UserProfile
  *
  */
+@MiraiMappingType(UserProfile::class)
 public interface MiraiUserProfile {
     /**
      * 当前对象所表示的原生的 [UserProfile] 实例。
