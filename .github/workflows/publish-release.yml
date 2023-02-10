@@ -2,7 +2,9 @@ name: Publish Release
 on:
   push:
     tags:
-      - dev/ver/v**
+      - v**
+    branches:
+      - dev/**
 
 env:
   IS_CI: true
