@@ -121,7 +121,7 @@ async function config() {
           //
           // },
           navbar: {
-            title: 'Simple Robot Component Mirai',
+            title: 'Simple Robot | Mirai组件',
             logo: {
               alt: 'Simbot Logo',
               src: 'img/favicon.png',
@@ -135,7 +135,7 @@ async function config() {
               },
               {href: 'https://simbot.forte.love', label: 'simbot官网', position: 'left'},
               {href: 'https://github.com/orgs/simple-robot/discussions', label: '社区', position: 'left'},
-              {href: 'https://docs.simbot.forte.love', label: 'API文档站', position: 'left'},
+              {href: 'https://docs.simbot.forte.love', label: 'API文档', position: 'left'},
               {
                 type: 'docsVersionDropdown',
                 position: 'right',
@@ -162,7 +162,7 @@ async function config() {
                     to: '/docs',
                   },
                   {
-                    label: 'API文档站',
+                    label: 'API文档',
                     to: 'https://docs.simbot.forte.love',
                   },
                 ],

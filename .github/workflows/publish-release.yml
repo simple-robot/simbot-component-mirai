@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - v3.**.**
+      - dev/ver/v**
 
 env:
   IS_CI: true
