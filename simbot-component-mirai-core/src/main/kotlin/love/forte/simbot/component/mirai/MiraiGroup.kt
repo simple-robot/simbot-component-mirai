@@ -26,6 +26,8 @@ import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.utils.item.Items
 import net.mamoe.mirai.contact.GroupSettings
+import net.mamoe.mirai.contact.PermissionDeniedException
+import net.mamoe.mirai.utils.MiraiExperimentalApi
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
 
@@ -104,13 +106,25 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      * 获取群成员信息流。
      */
     override val members: Items<MiraiMember>
-    
+
     /**
      * 获取群活跃度信息。
+     *
+     * 类似于 [OriginalMiraiGroup.active]
+     *
      * @see OriginalMiraiGroup.active
      */
     public val active: MiraiGroupActive
-    
+
+    /**
+     * 获取群设置信息。
+     *
+     * 类似于 [OriginalMiraiGroup.settings]
+     *
+     * @see OriginalMiraiGroup.settings
+     */
+    public val settings: MiraiGroupSettings
+
     /**
      * 让bot退出这个群。
      *
@@ -123,8 +137,8 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     @JvmSynthetic
     override suspend fun delete(): Boolean = originalContact.quit()
-    
-    
+
+
     /**
      * 尝试禁言这个群。(即开启全群禁言。)
      *
@@ -136,7 +150,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     @JvmSynthetic
     override suspend fun mute(duration: Duration): Boolean
-    
+
     /**
      * 尝试禁言这个群。(即开启全群禁言。)
      *
@@ -148,48 +162,48 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     @Api4J
     override fun muteBlocking(duration: JavaDuration): Boolean
-    
+
     /**
      * 尝试禁言这个群。(即开启全群禁言。)
      */
     @Api4J
     override fun muteBlocking(): Boolean
-    
-    
+
+
     /**
      * 取消全群禁言。[unmute] 的同时会取消此群涉及到的由 [mute] 构建出来的延时任务。
      */
     @JvmSynthetic
     override suspend fun unmute(): Boolean
-    
+
     /**
      * 根据ID获取指定成员信息。
      */
     @JvmBlocking(baseName = "getMember", suffix = "")
     @JvmAsync(baseName = "getMember")
     override suspend fun member(id: ID): MiraiMember?
-    
+
     /**
      * 向群内发送消息。
      */
     @JST
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-    
+
     /**
      * 向群内发送消息。
      */
     @JST
     override suspend fun send(message: Message): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
-    
-    
+
+
     /**
      * 向群内发送消息。
      */
     @JST
     override suspend fun send(message: MessageContent): SimbotMiraiMessageReceipt<OriginalMiraiGroup> =
         send(message.messages)
-    
-    
+
+
     /**
      * Mirai中，一个群内可能出现的权限是固定的。
      *
@@ -197,7 +211,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     override val roles: Items<MemberRole>
 
-    
+
     /**
      * 群没有“上层”概念, 始终得到null。
      */
@@ -209,7 +223,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
 
 
 /**
- * 群设置。同 [mirai GroupSettings][GroupSettings]
+ * 群设置。是对 [mirai GroupSettings][GroupSettings] 的映射类型。
  *
  * @see GroupSettings
  */
@@ -217,11 +231,51 @@ public interface MiraiGroupSettings {
     /**
      * 获取原生的 [mirai GroupSettings][GroupSettings].
      */
-    public val originalSettings: GroupSettings
+    public val originalGroupSettings: GroupSettings
 
+    /**
+     * 是否启用了全体禁言
+     *
+     * @throws PermissionDeniedException 无权限修改时将会抛出异常
+     * @see GroupSettings.isMuteAll
+     */
+    public var isMuteAll: Boolean
+        get() = originalGroupSettings.isMuteAll
+        set(value) {
+            originalGroupSettings.isMuteAll = value
+        }
 
+    /**
+     * 是否群员邀请好友入群
+     *
+     * @throws PermissionDeniedException 无权限修改时将会抛出异常
+     * @see GroupSettings.isAllowMemberInvite
+     */
+    public var isAllowMemberInvite: Boolean
+        get() = originalGroupSettings.isAllowMemberInvite
+        set(value) {
+            originalGroupSettings.isAllowMemberInvite = value
+        }
 
+    /**
+     * 自动加群审批
+     *
+     * @see GroupSettings.isAutoApproveEnabled
+     */
+    @MiraiExperimentalApi
+    public val isAutoApproveEnabled: Boolean
+        get() = originalGroupSettings.isAutoApproveEnabled
 
+    /**
+     * 是否允许匿名聊天
+     *
+     * @see GroupSettings.isAnonymousChatEnabled
+     */
+    public var isAnonymousChatEnabled: Boolean
+        get() = originalGroupSettings.isAnonymousChatEnabled
+        set(value) {
+            originalGroupSettings.isAnonymousChatEnabled = value
+        }
 
 
 }
