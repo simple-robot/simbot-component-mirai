@@ -2,7 +2,6 @@ name: Publish Release
 on:
   push:
     tags:
-      - v3.**.**
       - dev/ver/v**
 
 env:
