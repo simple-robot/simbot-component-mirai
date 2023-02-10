@@ -20,13 +20,17 @@ import love.forte.plugin.suspendtrans.annotation.JvmAsync
 import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.*
 import love.forte.simbot.action.DeleteSupport
+import love.forte.simbot.action.UnsupportedActionException
 import love.forte.simbot.component.mirai.bot.MiraiGroupBot
+import love.forte.simbot.component.mirai.message.MiraiMessageChainContent
 import love.forte.simbot.definition.*
 import love.forte.simbot.message.Message
 import love.forte.simbot.message.MessageContent
 import love.forte.simbot.utils.item.Items
+import net.mamoe.mirai.contact.Group.Companion.setEssenceMessage
 import net.mamoe.mirai.contact.GroupSettings
 import net.mamoe.mirai.contact.PermissionDeniedException
+import net.mamoe.mirai.message.data.MessageSource
 import net.mamoe.mirai.utils.MiraiExperimentalApi
 import kotlin.time.Duration
 import net.mamoe.mirai.contact.Group as OriginalMiraiGroup
@@ -108,6 +112,13 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     override val members: Items<MiraiMember>
 
     /**
+     * Mirai中，一个群内可能出现的权限是固定的。
+     *
+     * @see MemberRole
+     */
+    override val roles: Items<MemberRole>
+
+    /**
      * 获取群活跃度信息。
      *
      * 类似于 [OriginalMiraiGroup.active]
@@ -125,6 +136,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     public val settings: MiraiGroupSettings
 
+
     /**
      * 让bot退出这个群。
      *
@@ -137,7 +149,6 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     @JvmSynthetic
     override suspend fun delete(): Boolean = originalContact.quit()
-
 
     /**
      * 尝试禁言这个群。(即开启全群禁言。)
@@ -163,12 +174,12 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     @Api4J
     override fun muteBlocking(duration: JavaDuration): Boolean
 
+
     /**
      * 尝试禁言这个群。(即开启全群禁言。)
      */
     @Api4J
     override fun muteBlocking(): Boolean
-
 
     /**
      * 取消全群禁言。[unmute] 的同时会取消此群涉及到的由 [mute] 构建出来的延时任务。
@@ -189,6 +200,7 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
     @JST
     override suspend fun send(text: String): SimbotMiraiMessageReceipt<OriginalMiraiGroup>
 
+
     /**
      * 向群内发送消息。
      */
@@ -205,11 +217,54 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
 
 
     /**
-     * Mirai中，一个群内可能出现的权限是固定的。
+     * 将一个消息设置为群精华消息, 需要管理员或群主权限。
      *
-     * @see MemberRole
+     * 作为参数的 [message] 必须为 [MiraiMessageChainContent] 类型，否则会引发 [ClassCastException].
+     *
+     * ### 可靠性
+     *
+     * [setEssenceMessage] 的参数类型为了保证一定程度的兼容性而使用了 [MessageContent],
+     * 这会导致此函数内存在一些隐患：如 [message] 的实际类型不符合预期或 [messageSource][MiraiMessageChainContent.messageSourceOrNull] 不存在
+     * （例如 [message] 为 [MiraiReceivedNudgeMessageContent][love.forte.simbot.component.mirai.event.MiraiReceivedNudgeMessageContent] 类型时）,
+     *
+     * 如果希望使用相对而言更可靠的API，[MiraiGroupMessageEvent.setAsEssenceMessage][love.forte.simbot.component.mirai.event.MiraiGroupMessageEvent.setAsEssenceMessage]
+     * 是一个不错的选择。
+     *
+     * @see love.forte.simbot.component.mirai.event.MiraiGroupMessageEvent.setAsEssenceMessage
+     * @param message 要被设置的精华消息
+     *
+     * @throws PermissionDeniedException 没有权限时抛出
+     * @throws ClassCastException 当 [message] 不是 [MiraiMessageChainContent] 时
+     * @throws UnsupportedActionException 当前消息无法被设置为精华消息时抛出（例如当前消息中不存在 [messageSource][MiraiMessageChainContent.messageSourceOrNull] 等）
+     *
+     * @return 是否操作成功
+     *
      */
-    override val roles: Items<MemberRole>
+    @JST
+    public suspend fun setEssenceMessage(message: MessageContent): Boolean {
+        val content = message as MiraiMessageChainContent
+        val source = content.messageSourceOrNull ?: throw UnsupportedActionException("No messageSource", NullPointerException("messageSourceOrNull is null"))
+
+        return setEssenceMessage(source)
+    }
+
+    /**
+     * 将一个消息设置为群精华消息, 需要管理员或群主权限。
+     *
+     * 等同于 [mirai Group.setEssenceMessage][OriginalMiraiGroup.setEssenceMessage]
+     *
+     * @see OriginalMiraiGroup.setEssenceMessage
+     *
+     * @param source 要被设置的精华消息
+     *
+     * @throws PermissionDeniedException 没有权限时抛出
+     *
+     * @return 是否操作成功
+     */
+    @JST
+    public suspend fun setEssenceMessage(source: MessageSource): Boolean {
+        return originalContact.setEssenceMessage(source)
+    }
 
 
     /**
@@ -217,8 +272,6 @@ public interface MiraiGroup : Group, MiraiChatroom, DeleteSupport {
      */
     @JvmSynthetic
     override suspend fun previous(): Organization? = null
-
-
 }
 
 

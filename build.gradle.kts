@@ -55,7 +55,6 @@ tasks.create("createChangelog") {
                 | **模块** | **repo1.maven** | **search.maven** |
                 |---------|-----------------|------------------|
                 ${repoRow("simbot-mirai-core", "love.forte.simbot.component", "simbot-component-mirai-core", realVersion)}
-                ${repoRow("simbot-mirai-boot", "love.forte.simbot.component", "simbot-component-mirai-boot", realVersion)}
                 ${repoRow("simbot-mirai-extra-catcode", "love.forte.simbot.component", "simbot-component-mirai-extra-catcode", realVersion)}
                 
             """.trimIndent()
