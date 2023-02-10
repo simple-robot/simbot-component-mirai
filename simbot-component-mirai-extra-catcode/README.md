@@ -1,7 +1,20 @@
-# mirai组件扩展：Cat Code兼容
+# Module simbot-component-mirai-extra-catcode
+
+mirai组件扩展：CatCode兼容
 
 ## 使用
-### Maven
+
+**Gradle Kotlin DSL**
+```kotlin
+implementation("love.forte.simbot.component:simbot-component-mirai-extra-catcode:$version")
+```
+
+**Gradle Groovy**
+```groovy
+implementation 'love.forte.simbot.component:simbot-component-mirai-extra-catcode:$version'
+```
+
+**Maven**
 ```xml
 <dependency>
     <groupId>love.forte.simbot.component</groupId>
@@ -10,15 +23,6 @@
 </dependency>
 ```
 
-### Gradle Kotlin DSL
-```kotlin
-implementation("love.forte.simbot.component:simbot-component-mirai-extra-catcode:$version")
-```
-
-### Gradle Groovy DSL
-```groovy
-implementation 'love.forte.simbot.component:simbot-component-mirai-extra-catcode:$version'
-```
 
 
 ## 示例

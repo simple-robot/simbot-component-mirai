@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -12,7 +12,6 @@
  *  https://www.gnu.org/licenses/gpl-3.0-standalone.html
  *  https://www.gnu.org/licenses/lgpl-3.0-standalone.html
  *
- *
  */
 
 package love.forte.simbot.component.mirai
@@ -22,12 +21,13 @@ import love.forte.simbot.IntID
 import love.forte.simbot.component.mirai.MemberRole.*
 import love.forte.simbot.definition.Role
 import net.mamoe.mirai.contact.isOperator
+import net.mamoe.mirai.contact.isOwner
 import net.mamoe.mirai.contact.Member as OriginalMiraiMember
 import net.mamoe.mirai.contact.MemberPermission as MiraiMemberPermission
 
 
 /**
- * 在Mirai中，也就是在QQ群中，只有三种角色：
+ * 在mirai中（也就是在QQ群中），只有三种角色：
  * - [群主][OWNER]
  * - [管理员][ADMINISTRATOR]
  * - [成员][MEMBER]
@@ -40,21 +40,39 @@ public enum class MemberRole(
      */
     public val originalMiraiPermission: MiraiMemberPermission,
 ) : Role, Comparable<MemberRole> {
-    
+
+    /** 群主 */
     MEMBER(MiraiMemberPermission.MEMBER),
+
+    /** 管理员 */
     ADMINISTRATOR(MiraiMemberPermission.ADMINISTRATOR),
+
+    /** 成员 */
     OWNER(MiraiMemberPermission.OWNER),
     ;
-    
+
     /**
      * ID, 等同于 [net.mamoe.mirai.contact.MemberPermission.level].
      */
     override val id: IntID = originalMiraiPermission.level.ID
-    
+
+    /**
+     * 判断是否为管理员或群主。等同于 [MiraiMemberPermission.isOperator]
+     *
+     * @see MiraiMemberPermission.isOperator
+     *
+     */
     override val isAdmin: Boolean
         get() = originalMiraiPermission.isOperator()
-    
-    
+
+    /**
+     * 判断是否为群主。等同于 [MiraiMemberPermission.isOwner]
+     *
+     * @see MiraiMemberPermission.isOwner
+     */
+    public val isOwner: Boolean
+        get() = originalMiraiPermission.isOwner()
+
 }
 
 

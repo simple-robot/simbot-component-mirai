@@ -16,8 +16,6 @@
 
 package love.forte.simbot.component.mirai.bot
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -201,9 +199,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                 ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID_VALUE}) registered in the current application.")
             
             val configuration = MiraiBotManagerConfigurationImpl().also {
-                val context = applicationConfiguration.coroutineContext
-                val parentJob = context[Job]
-                it.parentCoroutineContext = context + SupervisorJob(parentJob)
+                it.parentCoroutineContext = applicationConfiguration.coroutineContext
                 configurator(it)
             }
             

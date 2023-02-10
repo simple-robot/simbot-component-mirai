@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -29,12 +29,13 @@ import kotlin.concurrent.read
 import kotlin.concurrent.write
 
 /**
+ * 标准撤回消息缓存策略，
  * 由组件所提供的 [MiraiRecallMessageCacheStrategy] 标准实现类型。
  *
  * ## 更多标准策略?
  * [StandardMiraiRecallMessageCacheStrategy] 的实现应当拥有明确且泛用的适用场景、不应需要额外依赖、不会过于复杂且庞大。
  *
- * 如果您有符合上述条件的策略实现需求，可以通过 [Pull requests](https://github.com/simple-robot/simbot-component-mirai/pulls)
+ * 如果您有符合上述条件的策略实现需求，可以通过 [Pull Requests](https://github.com/simple-robot/simbot-component-mirai/pulls)
  * 贡献您的方案。
  *
  * @see InvalidMiraiRecallMessageCacheStrategy
@@ -255,9 +256,6 @@ public class MemoryLruMiraiRecallMessageCacheStrategy(
         public const val DEFAULT_LOAD_FACTOR: Float = 0.75F
     }
 }
-
-
-
 
 
 

@@ -2,7 +2,9 @@ name: Publish Release
 on:
   push:
     tags:
-      - v3.**.**
+      - v**
+    branches:
+      - dev/**
 
 env:
   IS_CI: true
@@ -81,13 +83,13 @@ jobs:
         with:
           gradle-version: 7.6
           arguments: |
-            dokkaHtmlMultiModule
+            -Porg.gradle.jvmargs="-Xmx4g -Xms4g -XX:MaxMetaspaceSize=2g -Dfile.encoding=UTF-8" 
+            -Porg.gradle.daemon=false
             --info 
             --warning-mode all
             -x test
             --build-cache
-            -Porg.gradle.jvmargs="-Xmx4g -Xms4g -XX:MaxMetaspaceSize=2g -Dfile.encoding=UTF-8" 
-            -Porg.gradle.daemon=false
+            dokkaHtmlMultiModule
         env:
           SIMBOT_IS_SNAPSHOT: false
 
@@ -96,6 +98,7 @@ jobs:
         with:
           personal_token: ${{ secrets.PUSH_TOKEN }}
           external_repository: simple-robot-library/simbot3-api-docs
+          publish_branch: kdoc-deploy/component-mirai
           publish_dir: ./build/dokka/html
           # deploy to sub dir
           destination_dir: components/mirai

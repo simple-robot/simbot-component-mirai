@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -59,7 +59,7 @@ internal class MiraiBotManagerImpl(
     
     private val completableJob: CompletableJob
     override val coroutineContext: CoroutineContext
-    private val botCache = ConcurrentHashMap<Long, MiraiBotImpl>()
+    private val botHolder = ConcurrentHashMap<Long, MiraiBotImpl>()
     
     init {
         val configCoroutineContext = configuration.parentCoroutineContext + CoroutineName("MiraiBotManagerImpl")
@@ -126,7 +126,7 @@ internal class MiraiBotManagerImpl(
         configuration: MiraiBotConfiguration,
         crossinline factory: () -> OriginalMiraiBot,
     ): MiraiBotImpl {
-        return botCache.compute(code) { key, old ->
+        return botHolder.compute(code) { key, old ->
             if (old != null) {
                 throw BotAlreadyRegisteredException("$key")
             }
@@ -134,7 +134,7 @@ internal class MiraiBotManagerImpl(
         }!!.also {
             val originalBot = it.originalBot
             originalBot.supervisorJob.invokeOnCompletion {
-                botCache.compute(code) { _, old ->
+                botHolder.compute(code) { _, old ->
                     if (old?.originalBot === originalBot) null else old
                 }
             }
@@ -157,10 +157,10 @@ internal class MiraiBotManagerImpl(
         return true
     }
     
-    override fun get(id: ID): MiraiBot? = botCache[id.tryToLong()]
+    override fun get(id: ID): MiraiBot? = botHolder[id.tryToLong()]
     
     override fun all(): List<MiraiBot> {
-        return botCache.values.toList()
+        return botHolder.values.toList()
     }
     
     override fun invokeOnCompletion(handler: CompletionHandler) {
@@ -173,7 +173,7 @@ internal class MiraiBotManagerImpl(
     
     override fun toString(): String {
         return "MiraiBotManager(bots=${
-            botCache.keys().asSequence().joinToString(", ", prefix = "[", postfix = "]")
+            botHolder.keys().asSequence().joinToString(", ", prefix = "[", postfix = "]")
         }, isActive=$isActive, eventProcessor$eventProcessor)@${hashCode()}"
     }
     

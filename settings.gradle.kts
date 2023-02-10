@@ -17,17 +17,6 @@
 
 rootProject.name = "simbot-component-mirai"
 
-enableFeaturePreview("VERSION_CATALOGS")
-
-dependencyResolutionManagement {
-    @Suppress("UnstableApiUsage")
-    versionCatalogs {
-        create("libs") {
-            from(files(File(rootProject.projectDir, "libs.versions.toml")))
-        }
-    }
-}
-
 include(":simbot-component-mirai-core")
 
 // extra

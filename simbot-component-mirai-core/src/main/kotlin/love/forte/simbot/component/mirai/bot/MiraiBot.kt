@@ -56,7 +56,7 @@ import net.mamoe.mirai.Bot as OriginalMiraiBot
 public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQueryable {
 
     /**
-     * 得到自己
+     * 得到自己。
      */
     override val bot: MiraiBot
         get() = this
@@ -89,9 +89,9 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQue
     override val avatar: String get() = originalBot.avatarUrl
 
     /**
-     * 获取当前bot的头像链接。
+     * 获取头像链接。
      * @param spec 头像规格，为mirai原生类型 [AvatarSpec]。
-     * @see Bot.avatar
+     * @see net.mamoe.mirai.contact.ContactOrBot.avatarUrl
      */
     @Suppress("INAPPLICABLE_JVM_NAME")
     @JvmName("getAvatar")
@@ -106,6 +106,8 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQue
 
     /**
      * 当前bot所属的bot管理器。
+     *
+     * @see MiraiBotManager
      */
     override val manager: MiraiBotManager
 

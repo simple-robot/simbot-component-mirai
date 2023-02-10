@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -26,7 +26,7 @@ public abstract class CustomPropertiesMiraiRecallMessageCacheStrategy : MiraiRec
     /**
      * 等待初始化的属性表。[properties] 在默认情况下不应该在初始化阶段使用，且应当在当前类被实例化后迫切地进行初始化。
      */
-    public open lateinit var properties: Map<String, String>
+    public lateinit var properties: Map<String, String>
     
     
 }

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -17,8 +17,6 @@
 package love.forte.simbot.component.mirai
 
 import kotlinx.coroutines.flow.Flow
-import love.forte.plugin.suspendtrans.annotation.JvmAsync
-import love.forte.plugin.suspendtrans.annotation.JvmBlocking
 import love.forte.simbot.Api4J
 import love.forte.simbot.utils.runInBlocking
 import net.mamoe.mirai.contact.active.ActiveChart
@@ -37,8 +35,8 @@ import java.util.stream.Stream
  * @see GroupActive
  * @author ForteScarlet
  */
-@JvmAsync
-@JvmBlocking
+@JST
+@MiraiMappingType(GroupActive::class)
 public interface MiraiGroupActive {
     
     /**

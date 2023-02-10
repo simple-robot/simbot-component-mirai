@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2022 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
@@ -41,6 +41,7 @@ public sealed interface MiraiSimbotMessage<E : MiraiSimbotMessage<E>> : Message.
 
 /**
  * 标记性质的接口。
+ *
  * 标记一个类型为 **仅** 用于发送使用的 [Message.Element]. 这类消息将 **不保证** 能够序列化。
  *
  * @see MiraiShare
@@ -89,6 +90,8 @@ public interface OriginalMiraiComputableSimbotMessage<E : OriginalMiraiComputabl
 }
 
 /**
+ * 不需要计算而可以直接获取mirai消息的消息类型。
+ *
  * 实现 [OriginalMiraiComputableSimbotMessage], 并提供一个可以直接获取的属性 [originalMiraiMessage] 来代替需要使用 [Contact] 来计算获取的函数。
  * 此类型代表一些不需要计算便可直接获取到 [OriginalMiraiMessage] 实例的消息类型。
  *
@@ -134,10 +137,11 @@ public interface MiraiSendOnlyComputableMessage<E : MiraiSendOnlyComputableMessa
 
 
 /**
- * 直接将一个 [OriginalMiraiSingleMessage] 作为 [Message] 使用，将会忽略掉 [OriginalMiraiComputableSimbotMessage.originalMiraiMessage] 的参数 [Contact].
- * [OriginalMiraiSingleMessage] -> [Message].
+ * 原始mirai消息类型的直接包装类型。
  *
- * 所有未提供特殊实现的mirai消息对象都会使用此类型进行包装。
+ * 直接将一个 [Mirai的SingleMessage][OriginalMiraiSingleMessage] 作为 [Message] 使用。
+ *
+ * 在消息事件中，所有未提供特殊实现的mirai消息对象都会使用此类型进行包装。
  */
 @SerialName("mirai.nativeMessage")
 @Serializable
