@@ -7,7 +7,7 @@ openjdk-jmh = "1.35"
 [libraries]
 
 # mirai
-mirai = "net.mamoe:mirai-core-jvm:2.13.4"
+mirai = "net.mamoe:mirai-core-jvm:2.14.0"
 
 # kotlinx-serialization
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinx-serialization" }

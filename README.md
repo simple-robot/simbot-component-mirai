@@ -25,24 +25,14 @@
 
 此为 [simbot3](https://github.com/simple-robot/simpler-robot) 下基于simbot标准API对 [mirai](https://github.com/mamoe/mirai) 的组件支持。
 
-更多详情请参考 [simbot3文档](https://www.yuque.com/simpler-robot/simpler-robot-doc/mudleb)
-
 
 ## 文档
 
 Simple Robot 官方文档：[simbot.forte.love](https://simbot.forte.love)
 
-API文档：
-- GitHub Page 托管：[点击前往](https://simple-robot-library.github.io/simbot3-component-mirai-apiDoc)
-  > 基于版本发布自动构建，可在 [simple robot 图书馆](https://github.com/simple-robot-library) 找到。
-  > 与 javadoc.io 的托管不同，此托管中的文档是simbot-mirai组件的所有模块整体文档。
+simbot-mirai 组件文档：[component-mirai.simbot.forte.love](https://component-mirai.simbot.forte.love)
 
-- [javadoc.io](https://javadoc.io/) 托管：[点击前往](https://javadoc.io/doc/love.forte.simbot.component/simbot-component-mirai-core)
-  > 基于[Central Maven](https://search.maven.org/)自动托管。
-  > 与 GitHub Page 的托管不同，此托管是以每个**单独的模块**进行的，你也可以通过此站点查询其他组件的文档。
-  > - [simbot-component-mirai-core](https://javadoc.io/doc/love.forte.simbot.component/simbot-component-mirai-core)
-  > - [simbot-component-mirai-extra-catcode](https://javadoc.io/doc/love.forte.simbot.component/simbot-component-mirai-extra-catcode)
-
+API文档：[文档引导站点](https://docs.simbot.forte.love)
 
 
 ## 版本说明

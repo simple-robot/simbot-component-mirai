@@ -3,7 +3,8 @@ on:
   push:
     branches:
       - main
-      - v*.*.*.**
+      - dev/ver/v**
+
     paths:
       - 'website/**'
 

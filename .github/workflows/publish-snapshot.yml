@@ -4,7 +4,8 @@ on:
     branches:
       - main
       - dev-snapshot**
-      - v*.*.*.**
+      - dev/var/**
+
     paths:
       - '**src/main/kotlin/**.kt'
       - '**.kts'
