@@ -9,6 +9,8 @@ const firstYear = 2022
 const currentYear = new Date().getFullYear()
 const copyrightYear = currentYear === firstYear ? firstYear : firstYear + '-' + currentYear
 
+const keywords = ['forte', 'simple robot', 'simbot', 'bot', 'qqbot', 'qq机器人', 'mirai', 'mirai组件']
+
 /** @type {import('@docusaurus/types').Config} */
 async function config() {
   return {
@@ -16,10 +18,7 @@ async function config() {
     tagline: `基于mirai框架的simbot组件实现库`,
     favicon: 'img/favicon.png',
 
-    // Set the production url of your site here
     url: 'https://component-mirai.simbot.forte.love',
-    // Set the /<baseUrl>/ pathname under which your site is served
-    // For GitHub pages deployment, it is often '/<projectName>/'
     baseUrl: '/',
 
     // GitHub pages deployment config.
@@ -98,7 +97,7 @@ async function config() {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
           metadata: [{
-            name: 'keywords', content: 'forte, forte-scarlet, fortescarlet, simbot, simple-robot, bot, qqbot, mirai, simbot-mirai'
+            name: 'keywords', content:  keywords.join(',')
           }],
 
           // Replace with your project's social card
