@@ -1,79 +1,17 @@
 ---
-sidebar_position: 2
-title: 安装&使用
+title: 配合核心库使用
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import versionInfo from './versions.json';
 import CodeBlock from '@theme/CodeBlock';
 
-:::info 前情提要
-
-你应当已经阅读并了解过了 [simbot3](https://simbot.forte.love) 的基本内容
-
-:::
-
-## 安装
-
-在使用mirai组件时必须**显式指定**simbot核心库的依赖，例如 `simbot-core` 或 `simboot-spring-boot-starter` 等。
-
-下文将以 `simbot-core` 为例，在引入 `simbot-core` 的基础上，使用mirai组件：
-
-<Tabs groupId="use-dependency">
-<TabItem value="Gradle Kotlin DSL" default>
-
-<CodeBlock language="kotlin">
-{`
-implementation("love.forte.simbot:simbot-core:$SIMBOT_VERSION") // simbot核心库
-implementation("love.forte.simbot.component:simbot-component-mirai-core:${ versionInfo.core }") // mirai组件
-`.trim()}
-</CodeBlock>
-
-</TabItem>
-
-<TabItem value="Gradle Groovy">
-
-<CodeBlock language="groovy">
-{`
-implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION' // simbot核心库
-implementation 'love.forte.simbot.component:simbot-component-mirai-core:${ versionInfo.core }' // mirai组件
-`.trim()}
-</CodeBlock>
-
-</TabItem>
-
-<TabItem value="Maven">
-
-<CodeBlock language="xml">
-{`
-<dependencies>
-    <!-- simbot核心库 -->
-    <dependency>
-        <groupId>love.forte.simbot</groupId>
-        <artifactId>simbot-core</artifactId>
-        <version>\${simbot.version}</version>
-    </dependency>
-    <!-- mirai组件 -->
-    <dependency>
-        <groupId>love.forte.simbot.component</groupId>
-        <artifactId>simbot-component-mirai-core</artifactId>
-        <version>${ versionInfo.core }</version>
-    </dependency>
-</dependencies>
-`.trim()}
-</CodeBlock>
-
-</TabItem>
-</Tabs>
-
-## 使用
 
 mirai组件中的 `Component` 实现类型为 [`MiraiComponent`](https://docs.simbot.forte.love/components/mirai/simbot-component-mirai-core/love.forte.simbot.component.mirai/-mirai-component/)；
 
-`BotManager` 的实现类型为 [`MiraiBotManager`](https://docs.simbot.forte.love/components/mirai/simbot-component-mirai-core/love.forte.simbot.component.mirai.bot/-mirai-bot-manager)
+`BotManager` 的实现类型为 [`MiraiBotManager`](https://docs.simbot.forte.love/components/mirai/simbot-component-mirai-core/love.forte.simbot.component.mirai.bot/-mirai-bot-manager)。
 
-### application install
+### 在Application中安装
 
 在使用 simbot application 时，安装mirai的相关组件与BotManager。此处以 `Simple Application` 为例：
 
@@ -219,12 +157,5 @@ applicationAsync.thenAccept(application -> {
 </TabItem>
 </Tabs>
 
-
-### Spring Boot Starter
-
-mirai组件中的 `MiraiComponent` 和 `MiraiBotManager` 均实现并支持了simbot核心库所提供的 `Service Load`。
-依据simbot的特性，在 Spring Boot Starter （以下简称starter） 中将会自动加载mirai组件和BotManager。
-
-因此，当使用 starter 时候，只需要书写bot配置文件即可。有关bot配置文件的内容参考章节  [Bot配置文件](bot-config)
 
 
