@@ -97,6 +97,16 @@ public interface MiraiAnnouncements {
      *
      * @see Announcements.get
      */
+    public suspend fun get(fid: ID): MiraiOnlineAnnouncement? = get(fid.literal)
+
+    /**
+     * 获取一条群公告.
+     * @param fid 公告的 [OnlineAnnouncement.fid]
+     * @return 返回 `null` 表示不存在该 [fid] 的群公告
+     * @throws IllegalStateException 当协议异常时抛出
+     *
+     * @see Announcements.get
+     */
     public suspend fun get(fid: String): MiraiOnlineAnnouncement?
 
     /**
