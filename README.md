@@ -171,3 +171,20 @@ suspend fun MiraiGroupMessageEvent.onEvent(name: String) {
     group.send(At(author.id) + "好的，以后就叫你$name了".toText())
 }
 ```
+
+# License
+
+```
+Copyright (C) 2022-2023 ForteScarlet.
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+```
+
+## 衍生软件
+
+直接/间接引用 `simbot-component-mirai` 的项目需要以 `AGPLv3` 协议开源。
+
