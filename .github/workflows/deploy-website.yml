@@ -1,10 +1,9 @@
-name: Publish Release
+name: Deploy Website
 on:
   push:
     branches:
-      - main
+#      - main
       - dev/ver/v**
-
     paths:
       - 'website/**'
 

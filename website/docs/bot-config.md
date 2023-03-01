@@ -33,7 +33,13 @@ mirai组件为其下的BOT配置文件提供了 [`json-schema`](http://json-sche
 
 :::
 
-## 最简配置
+## 配置
+
+:::tip 捉迷藏
+
+在 Spring Boot Starter 中，bot配置文件的默认放置路径为 `simbot-bots/*.bot.json`
+
+:::
 
 ### 明文密码
 
@@ -155,7 +161,7 @@ passwordInfo.value.text=e807f1fcf82d132f9bb018ca6738a19f
       "noNetworkLog": false,
       "noBotLog": false,
       "isShowingVerboseEventLog": false,
-      "cacheDir": "cache",
+      "cacheDir": "cache/123",
       "contactListCache": {
         "saveIntervalMillis": 60000,
         "friendListCacheEnabled": false,
@@ -195,7 +201,7 @@ config:
   noNetworkLog: false
   noBotLog: false
   isShowingVerboseEventLog: false
-  cacheDir: "cache"
+  cacheDir: "cache/123456789"
   contactListCache:
     saveIntervalMillis: 60000
     friendListCacheEnabled: false
@@ -228,7 +234,7 @@ config.deviceInfo.type=auto
 config.noNetworkLog=false
 config.noBotLog=false
 config.isShowingVerboseEventLog=false
-config.cacheDir=cache
+config.cacheDir=cache/123456789
 config.contactListCache.saveIntervalMillis=60000
 config.contactListCache.friendListCacheEnabled=false
 config.contactListCache.groupMemberListCacheEnabled=false
@@ -357,7 +363,10 @@ config.disableAccountSecretes=false
     <tr>
         <td>config.<b>cacheDir</b></td>
         <td><Label>string</Label></td>
-        <td>同原生mirai配置，缓存数据目录, 相对于 <code>workingDir</code> 。</td>
+        <td>
+            <p>类似原生mirai配置，缓存数据目录, 相对于 <code>workingDir</code> 。</p>
+            <p>与原生配置的默认行为<b>不同的是</b>，cacheDir的默认值为 <code>cache/$CODE$</code> （<code>$CODE$</code> 为当前配置的账号）。</p>
+        </td>
     </tr>
     <tr>
         <td>config.<b>contactListCache</b></td>
@@ -407,20 +416,20 @@ config.disableAccountSecretes=false
         </td>
     </tr>
     <tr>
-        <td>config.<b>accountSecrets</b></td>
+        <td><s>config.<b>accountSecrets</b></s></td>
         <td><Label>boolean</Label></td>
         <td>
             <b>已弃用。</b>
-            是否禁用 `account.secrets` 的保存，默认为 `false`。
-            相当于 `BotConfiguration.disableAccountSecretes()`。
+            是否禁用 <code>account.secrets</code> 的保存，默认为 <code>false</code> 。
+            相当于 <code>BotConfiguration.disableAccountSecretes()</code> 。
         </td>
     </tr>
     <tr>
         <td>config.<b>disableAccountSecretes</b></td>
         <td><Label>boolean</Label></td>
         <td>
-            是否禁用 `account.secrets` 的保存，默认为 `false`。
-            相当于 `BotConfiguration.disableAccountSecretes()`。
+            是否禁用 <code>account.secrets</code> 的保存，默认为 <code>false</code>。
+            相当于 <code>BotConfiguration.disableAccountSecretes()</code> 。
         </td>
     </tr>
 

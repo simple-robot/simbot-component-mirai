@@ -17,10 +17,15 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="/docs">
-                从文档开始📚
-          </Link>
+            to="/docs">直奔文档📚</Link>
         </div>
+          <div className={styles.buttons}>
+              <Link
+                  className="button button--outline button--md"
+                  to="https://github.com/simple-robot/simbot-component-mirai">
+                  {<><span className="bi-github"> GitHub</span> </>}
+              </Link>
+          </div>
       </div>
     </header>
   );
