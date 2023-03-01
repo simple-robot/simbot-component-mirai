@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2022-2023 ForteScarlet <ForteScarlet@163.com>
+ *  Copyright (c) 2022-2023 ForteScarlet.
  *
  *  本文件是 simbot-component-mirai 的一部分。
  *
