@@ -188,3 +188,4 @@ You should have received a copy of the GNU Affero General Public License along w
 
 直接/间接引用 `simbot-component-mirai` 的项目需要以 `AGPLv3` 协议开源。
 
+本仓库引用开源软件[**mirai**](https://github.com/mamoe/mirai)，衍生软件同样需受其协议约束。
