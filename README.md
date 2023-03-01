@@ -184,6 +184,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 ```
 
+
 ## 衍生软件
 
 直接/间接引用 `simbot-component-mirai` 的项目需要以 `AGPLv3` 协议开源。
