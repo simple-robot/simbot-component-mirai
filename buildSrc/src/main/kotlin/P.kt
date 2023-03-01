@@ -33,7 +33,7 @@ import love.forte.gradle.common.core.project.version
  *
  */
 
-val simbotVersionInfo = version(3, 0, 0) - version("RC", 2)
+val simbotVersionInfo = version(3, 0, 0) - version("RC", 3)
 
 @JvmField
 val SIMBOT_VERSION = simbotVersionInfo.toString() //"3.0.0-RC.2"
@@ -56,7 +56,7 @@ sealed class P {
                 major = "${simbotVersionInfo.major}.${simbotVersionInfo.minor}",
                 0, 0
             )
-            val status = version("M5")
+            val status = version("RC")
             versionWithoutSnapshot = mainVersion - status
 
             val mainStatus = if (isSnapshot()) (status - Version.SNAPSHOT) else status
