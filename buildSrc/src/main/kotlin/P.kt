@@ -56,7 +56,7 @@ sealed class P {
                 major = "${simbotVersionInfo.major}.${simbotVersionInfo.minor}",
                 0, 0
             )
-            val status = version("RC")
+            val status = version("RC.2")
             versionWithoutSnapshot = mainVersion - status
 
             val mainStatus = if (isSnapshot()) (status - Version.SNAPSHOT) else status

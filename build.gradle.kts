@@ -60,16 +60,12 @@ tasks.create("createChangelog") {
             val coreVersion = SIMBOT_VERSION
             val miraiVersion = libs.mirai.get().versionConstraint.requiredVersion // V.Mirai.VERSION
             val autoGenerateText = """
-                > 对应核心版本: [**v$coreVersion**](https://github.com/ForteScarlet/simpler-robot/releases/tag/v$coreVersion)
-                >
-                > 对应[**mirai**](https://github.com/mamoe/mirai)版本: [**v$miraiVersion**](https://github.com/mamoe/mirai/releases/tag/v$miraiVersion)
-               
-                **仓库参考:**
+                **部分库版本参考**
                 
-                | **模块** | **repo1.maven** | **search.maven** |
-                |---------|-----------------|------------------|
-                ${repoRow("simbot-mirai-core", "love.forte.simbot.component", "simbot-component-mirai-core", realVersion)}
-                ${repoRow("simbot-mirai-extra-catcode", "love.forte.simbot.component", "simbot-component-mirai-extra-catcode", realVersion)}
+                | **库** | **版本** |
+                |:---------:|:------:|
+                | [simbot核心库](https://github.com/simple-robot/simpler-robot) | [`v$coreVersion`](https://github.com/simple-robot/simpler-robot/releases/tag/v$coreVersion) |
+                | [mirai](https://github.com/mamoe/mirai) | [`v$miraiVersion`](https://github.com/mamoe/mirai/releases/tag/v$miraiVersion) |
                 
             """.trimIndent()
             
