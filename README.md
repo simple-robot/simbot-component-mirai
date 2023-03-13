@@ -52,7 +52,8 @@ simbot-mirai组件会不定时的根据 [mirai最后的release版本](https://gi
 
 > 目前暂时不会跟进非 `release` 版本，例如 `xxx-RC`。
 
-### 快速开始
+## 快速开始
+
 参考文档的 [《快速开始》](https://www.yuque.com/simpler-robot/simpler-robot-doc/fvdmq1)
 
 ### 使用
@@ -88,6 +89,27 @@ implementation 'love.forte.simbot.component:simbot-component-mirai-core:$COMPONE
     </dependency>
 </dependencies>
 ```
+
+## 其他说明和注意事项
+
+### `cache` 目录的默认行为
+
+从 [#120](https://github.com/simple-robot/simbot-component-mirai/pull/120) 开始，
+mirai组件中 `cache` 文件夹的默认行为与 **mirai 原本的**行为不再相同。
+
+当你从其他位置通过各种工具得到了 `device.json` 和 `cache` 文件夹后，你需要稍作调整。
+
+目前组件中针对每个bot的 `cache` 目录规则为 `cache/$CODE` ，也就是 `cache` 
+目录下以QQ号为名称的子目录。
+
+举个例子，如果一个bot的qq号为 `123456`，那么它所使用的 cacheDir 为 
+
+```
+cache
+  \- 123456
+```
+
+因此当你希望使用一些外部的 `cache` 目录时，请记得将内容物调整到具体的子目录中。
 
 ### 变更mirai版本
 
