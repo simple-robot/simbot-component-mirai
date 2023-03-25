@@ -46,19 +46,7 @@ internal abstract class BaseMiraiNudgeEvent<C : Contact>(
     abstract override suspend fun reply(text: String): SimbotMiraiMessageReceipt<C>
 
     @JvmSynthetic
-    override suspend fun replyNudge(): Boolean {
-        return try {
-            doNudge()
-            true
-        } catch (e: UnsupportedOperationException) {
-            false
-        }
-    }
-
-    /**
-     * @throws UnsupportedOperationException
-     */
-    protected abstract suspend fun doNudge()
+    abstract override suspend fun replyNudge(): Boolean
 }
 
 
@@ -86,8 +74,8 @@ internal class MiraiGroupNudgeEventImpl(
         return _group.send(text)
     }
 
-    override suspend fun doNudge() {
-        if (originalEvent.target.id == originalEvent.bot.id) {
+    override suspend fun replyNudge(): Boolean {
+        return if (originalEvent.target.id == originalEvent.bot.id) {
             originalEvent.subject.sendNudge(originalEvent.from.nudge())
         } else {
             originalEvent.subject.sendNudge(originalEvent.target.nudge())
@@ -118,8 +106,8 @@ internal class MiraiMemberNudgeEventImpl(
         return _user.send(text)
     }
 
-    override suspend fun doNudge() {
-        originalEvent.subject.sendNudge(originalEvent.from.nudge())
+    override suspend fun replyNudge(): Boolean {
+        return originalEvent.subject.sendNudge(originalEvent.from.nudge())
     }
 }
 
@@ -145,8 +133,8 @@ internal class MiraiFriendNudgeEventImpl(
         return _friend.send(text)
     }
 
-    override suspend fun doNudge() {
-        originalEvent.subject.sendNudge(originalEvent.from.nudge())
+    override suspend fun replyNudge(): Boolean {
+        return originalEvent.subject.sendNudge(originalEvent.from.nudge())
     }
 }
 
@@ -173,8 +161,8 @@ internal class MiraiStrangerNudgeEventImpl(
         return _user.send(text)
     }
 
-    override suspend fun doNudge() {
-        originalEvent.subject.sendNudge(originalEvent.from.nudge())
+    override suspend fun replyNudge(): Boolean {
+        return originalEvent.subject.sendNudge(originalEvent.from.nudge())
     }
 }
 
