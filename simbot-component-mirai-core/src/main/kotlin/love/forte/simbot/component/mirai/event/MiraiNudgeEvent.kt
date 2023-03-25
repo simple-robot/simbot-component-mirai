@@ -89,13 +89,20 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
     
     // region reply nudge api
     /**
-     * 回复此目标一个戳一戳。相当于针对当前的 target 发送一个戳一戳。
+     * 回复此目标一个戳一戳。
+     *
+     * 如果当前语境在群里，则 [replyNudge] 相当于对当前被戳的对象（`target`）进行戳一戳。
+     * 其他情况，[replyNudge] 会对发送此戳一戳事件的对象（`from`）进行戳一戳。
+     *
+     * 当发送时抛出了 [UnsupportedOperationException]（使用了不支持戳一戳的协议） 则会得到 `false`,
+     * 否则会得到 `true` 或其他导致过程终止的异常。
+     * 有关此异常的说明参考 [sendNudge][net.mamoe.mirai.message.action.Nudge.sendNudge]
      */
     @JST
     public suspend fun replyNudge(): Boolean
     // endregion
-    
-    
+
+
     override val key: Event.Key<out MiraiNudgeEvent>
     
     public companion object Key : BaseEventKey<MiraiNudgeEvent>(
