@@ -91,8 +91,11 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
     /**
      * 回复此目标一个戳一戳。
      *
-     * 如果当前语境在群里，则 [replyNudge] 相当于对当前被戳的对象（`target`）进行戳一戳。
-     * 其他情况，[replyNudge] 会对发送此戳一戳事件的对象（`from`）进行戳一戳。
+     * 如果当前语境在群里：
+     * - 如果被戳的对象不是当前bot，则戳一戳与当前 **被戳** 对象相同的对象。
+     * - 如果被戳的对象是当前bot，则戳一戳当前 **发起** 戳一戳的对象。
+     *
+     * 如果当前语境不在群里，则戳一戳当前 **发起** 戳一戳的对象。
      *
      * 当发送时抛出了 [UnsupportedOperationException]（使用了不支持戳一戳的协议） 则会得到 `false`,
      * 否则会得到 `true` 或其他导致过程终止的异常。

@@ -47,19 +47,18 @@ internal abstract class BaseMiraiNudgeEvent<C : Contact>(
 
     @JvmSynthetic
     override suspend fun replyNudge(): Boolean {
-        val subject = originalEvent.subject
         return try {
-            if (subject is Group) {
-                // 戳相同的目标
-                originalEvent.target.nudge().also { subject.sendNudge(it) }
-            } else {
-                originalEvent.from.nudge().also { subject.sendNudge(it) }
-            }
+            doNudge()
             true
         } catch (e: UnsupportedOperationException) {
             false
         }
     }
+
+    /**
+     * @throws UnsupportedOperationException
+     */
+    protected abstract suspend fun doNudge()
 }
 
 
@@ -86,6 +85,15 @@ internal class MiraiGroupNudgeEventImpl(
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Group> {
         return _group.send(text)
     }
+
+    override suspend fun doNudge() {
+        if (originalEvent.target.id == originalEvent.bot.id) {
+            originalEvent.subject.sendNudge(originalEvent.from.nudge())
+        } else {
+            originalEvent.subject.sendNudge(originalEvent.target.nudge())
+        }
+    }
+
 }
 
 
@@ -108,6 +116,10 @@ internal class MiraiMemberNudgeEventImpl(
 
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<net.mamoe.mirai.contact.Member> {
         return _user.send(text)
+    }
+
+    override suspend fun doNudge() {
+        originalEvent.subject.sendNudge(originalEvent.from.nudge())
     }
 }
 
@@ -132,6 +144,10 @@ internal class MiraiFriendNudgeEventImpl(
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<OriginalMiraiFriend> {
         return _friend.send(text)
     }
+
+    override suspend fun doNudge() {
+        originalEvent.subject.sendNudge(originalEvent.from.nudge())
+    }
 }
 
 
@@ -155,6 +171,10 @@ internal class MiraiStrangerNudgeEventImpl(
 
     override suspend fun reply(text: String): SimbotMiraiMessageReceipt<net.mamoe.mirai.contact.Stranger> {
         return _user.send(text)
+    }
+
+    override suspend fun doNudge() {
+        originalEvent.subject.sendNudge(originalEvent.from.nudge())
     }
 }
 
