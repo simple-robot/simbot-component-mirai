@@ -41,6 +41,7 @@ dependencies {
     
     //https://github.com/Ricky12Awesome/json-schema-serialization
     testImplementation("com.github.Ricky12Awesome:json-schema-serialization:0.6.6")
+//    testImplementation(rootProject.files("libs/fix-protocol-version-1.3.0.mirai2.jar"))
 }
 
 repositories {
