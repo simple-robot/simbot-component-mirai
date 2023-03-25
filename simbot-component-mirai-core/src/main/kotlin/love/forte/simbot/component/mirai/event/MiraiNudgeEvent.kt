@@ -25,6 +25,7 @@ import love.forte.simbot.event.*
 import love.forte.simbot.message.*
 import love.forte.simbot.randomID
 import net.mamoe.mirai.event.events.NudgeEvent
+import net.mamoe.mirai.message.action.Nudge.Companion.sendNudge
 import net.mamoe.mirai.message.data.MessageSource
 import net.mamoe.mirai.contact.Contact as OriginalMiraiContact
 import net.mamoe.mirai.contact.Friend as OriginalMiraiFriend
@@ -36,7 +37,7 @@ import net.mamoe.mirai.contact.Stranger as OriginalMiraiStranger
  *
  * 戳一戳事件算作消息事件，消息中将只包含一个 nudge 对象，不存在plainText.
  *
- * 不会接收 `from == bot.id` 的戳一戳事件。
+ * 不会接收 `from == bot.id` 的戳一戳事件（即bot自己发起的戳一戳）。
  *
  * 针对 [mirai的戳一戳事件][NudgeEvent] 中 [subject][NudgeEvent.subject]
  * 所示的可能类型提供4个不同的 [MiraiNudgeEvent] 子类型：
@@ -89,13 +90,50 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
     
     // region reply nudge api
     /**
-     * 回复此目标一个戳一戳。相当于针对当前的 target 发送一个戳一戳。
+     * 回复此目标一个戳一戳。
+     *
+     * 如果当前语境在群里：
+     * - 如果被戳的对象不是当前bot，则戳一戳与当前 **被戳** 对象相同的对象。
+     * - 如果被戳的对象是当前bot，则戳一戳当前 **发起戳一戳** 的对象。
+     *
+     * 如果当前语境不在群里，则戳一戳当前 **发起戳一戳** 的对象。
+     *
+     *@see net.mamoe.mirai.message.action.Nudge.sendNudge
+     *
+     * @throws UnsupportedOperationException 如果当前协议不支持戳一戳。see [sendNudge][net.mamoe.mirai.message.action.Nudge.sendNudge]
+     *
      */
     @JST
     public suspend fun replyNudge(): Boolean
+
+    /**
+     * 戳一戳当前**被戳**的对象。
+     *
+     * 这可能会让bot戳自己。
+     *
+     * @see net.mamoe.mirai.message.action.Nudge.sendNudge
+     *
+     * @throws UnsupportedOperationException 如果当前协议不支持戳一戳。see [sendNudge][net.mamoe.mirai.message.action.Nudge.sendNudge]
+     *
+     * @since 3.0.0.0-RC.2
+     */
+    @JST
+    public suspend fun nudgeTarget(): Boolean = originalEvent.subject.sendNudge(originalEvent.target.nudge())
+
+    /**
+     * 戳一戳当前**发起戳一戳**的对象。
+     *
+     * @see net.mamoe.mirai.message.action.Nudge.sendNudge
+     *
+     * @throws UnsupportedOperationException 如果当前协议不支持戳一戳。see [sendNudge][net.mamoe.mirai.message.action.Nudge.sendNudge]
+     *
+     * @since 3.0.0.0-RC.2
+     */
+    @JST
+    public suspend fun nudgeFrom(): Boolean = originalEvent.subject.sendNudge(originalEvent.from.nudge())
     // endregion
-    
-    
+
+
     override val key: Event.Key<out MiraiNudgeEvent>
     
     public companion object Key : BaseEventKey<MiraiNudgeEvent>(
@@ -104,7 +142,6 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
         override fun safeCast(value: Any): MiraiNudgeEvent? = doSafeCast(value)
     }
 }
-
 
 /**
  * 针对于 [戳一戳事件][MiraiNudgeEvent] 所使用的 [ReceivedMessageContent] 实现。

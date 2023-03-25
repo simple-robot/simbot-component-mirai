@@ -15,6 +15,7 @@
 package love.forte.simbot.component.mirai.internal
 
 import kotlinx.coroutines.*
+import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.ID
 import love.forte.simbot.bot.BotAlreadyRegisteredException
 import love.forte.simbot.component.mirai.MiraiBotConfiguration
@@ -30,6 +31,7 @@ import love.forte.simbot.event.EventProcessor
 import love.forte.simbot.event.pushIfProcessable
 import love.forte.simbot.logger.LoggerFactory
 import love.forte.simbot.tryToLong
+import net.mamoe.mirai.Bot
 import net.mamoe.mirai.BotFactory
 import net.mamoe.mirai.supervisorJob
 import net.mamoe.mirai.utils.BotConfiguration
@@ -97,8 +99,13 @@ internal class MiraiBotManagerImpl(
             launch { pushRegisteredEvent(bot) }
         }
     }
-    
-    
+
+    @ExperimentalSimbotApi
+    override fun register(bot: Bot, configuration: MiraiBotConfiguration?): MiraiBot {
+        val configuration0 = configuration ?: MiraiBotConfiguration()
+        return processMiraiBot(bot.id, configuration0) { bot }
+    }
+
     private suspend fun pushRegisteredEvent(bot: MiraiBotImpl): EventProcessingResult? {
         return eventProcessor.pushIfProcessable(MiraiBotRegisteredEvent) {
             MiraiBotRegisteredEventImpl(bot)
@@ -124,16 +131,16 @@ internal class MiraiBotManagerImpl(
         configuration: MiraiBotConfiguration,
         crossinline factory: () -> OriginalMiraiBot,
     ): MiraiBotImpl {
-        return botHolder.compute(code) { key, old ->
-            if (old != null) {
+        return botHolder.compute(code) { key, current ->
+            if (current != null) {
                 throw BotAlreadyRegisteredException("$key")
             }
             MiraiBotImpl(factory(), this@MiraiBotManagerImpl, eventProcessor, component, configuration)
         }!!.also {
             val originalBot = it.originalBot
             originalBot.supervisorJob.invokeOnCompletion {
-                botHolder.compute(code) { _, old ->
-                    if (old?.originalBot === originalBot) null else old
+                botHolder.compute(code) { _, current ->
+                    if (current?.originalBot === originalBot) null else current
                 }
             }
         }

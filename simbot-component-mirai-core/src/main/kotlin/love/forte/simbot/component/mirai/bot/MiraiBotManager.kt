@@ -25,6 +25,7 @@ import love.forte.simbot.application.ApplicationBuilder
 import love.forte.simbot.application.ApplicationConfiguration
 import love.forte.simbot.application.EventProviderAutoRegistrarFactory
 import love.forte.simbot.application.EventProviderFactory
+import love.forte.simbot.bot.BotAlreadyRegisteredException
 import love.forte.simbot.bot.BotManager
 import love.forte.simbot.bot.BotVerifyInfo
 import love.forte.simbot.bot.ComponentMismatchException
@@ -33,6 +34,7 @@ import love.forte.simbot.component.mirai.MiraiComponent
 import love.forte.simbot.component.mirai.internal.InternalApi
 import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
 import love.forte.simbot.event.EventProcessor
+import net.mamoe.mirai.Bot
 import net.mamoe.mirai.BotFactory
 import org.jetbrains.annotations.ApiStatus
 import org.slf4j.Logger
@@ -93,6 +95,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * 则将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
      * 包括其中的设备信息配置、logger配置等。
      *
+     * @throws BotAlreadyRegisteredException 如果bot已经在当前manager中存在
+     *
      * @param code 账号
      * @param password 密码
      * @param configuration simbot中的bot配置类
@@ -107,6 +111,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * 则将会完全的直接使用 [configuration] 配置结果中的 [MiraiBotConfiguration.initialBotConfiguration],
      * 包括其中的设备信息配置、logger配置等。
      *
+     * @throws BotAlreadyRegisteredException 如果bot已经在当前manager中存在
+     *
      * @param code 账号
      * @param password 密码
      * @param configuration simbot中的bot配置类配置函数
@@ -117,6 +123,9 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     
     /**
      * 注册一个Bot。
+     *
+     * @throws BotAlreadyRegisteredException 如果bot已经在当前manager中存在
+     *
      * @param code 账号
      * @param password 密码
      */
@@ -130,6 +139,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * 此函数构建的 [MiraiBot] 中，如果配置了[MiraiBotConfiguration.initialBotConfiguration],
      * 则将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
      * 包括其中的设备信息配置、logger配置等。
+     *
+     * @throws BotAlreadyRegisteredException 如果bot已经在当前manager中存在
      *
      * @param code 账号
      * @param password 密码的MD5字节数组
@@ -145,6 +156,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * 则将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
      * 包括其中的设备信息配置、logger配置等。
      *
+     * @throws BotAlreadyRegisteredException 如果bot已经在当前manager中存在
+     *
      * @param code 账号
      * @param passwordMD5 密码的MD5字节数组
      * @param configuration simbot bot 配置函数
@@ -159,12 +172,38 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     /**
      * 注册一个Bot。
      *
+     * @throws BotAlreadyRegisteredException 如果bot已经在当前manager中存在
+     *
      * @param code 账号
      * @param passwordMD5 密码的MD5字节数组
      */
     public fun register(code: Long, passwordMD5: ByteArray): MiraiBot =
         register(code, passwordMD5, MiraiBotConfiguration())
-    
+
+
+    /**
+     * 注册一个bot。
+     *
+     * 直接通过一个 [mirai bot][Bot] 注册，并包装为 [MiraiBot]。
+     * 使用的 [bot] 不会进行任何操作而直接通过 [MiraiBot] 进行**包装**。
+     *
+     * 额外提供一个 [MiraiBotConfiguration][configuration],
+     * 但是不会使用其中的 [MiraiBotConfiguration.initialBotConfiguration] 来对 [bot]
+     * 进行任何操作，而只使用其他组件可能会用到的属性，例如 [MiraiBotConfiguration.recallCacheStrategy]。
+     *
+     * **实验性：此API尚处于试验阶段，可能会随时变更/删除。**
+     *
+     * @param bot 被包装的mirai原始bot类型。
+     * @param configuration 用于提供组件所需信息的配置类，默认为 `null`。为 `null` 时会构建一个属性均为默认值的实例。
+     *
+     * @throws BotAlreadyRegisteredException 如果bot已经在当前manager中存在
+     *
+     * @since 3.0.0.0-RC.2
+     *
+     */
+    @ExperimentalSimbotApi
+    public abstract fun register(bot: Bot, configuration: MiraiBotConfiguration? = null): MiraiBot
+
     
     /**
      * [MiraiBotManager] 的构造工厂。
