@@ -114,6 +114,8 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
      * @see net.mamoe.mirai.message.action.Nudge.sendNudge
      *
      * @throws UnsupportedOperationException 如果当前协议不支持戳一戳。see [sendNudge][net.mamoe.mirai.message.action.Nudge.sendNudge]
+     *
+     * @since 3.0.0.0-RC.2.1
      */
     @JST
     public suspend fun nudgeTarget(): Boolean = originalEvent.subject.sendNudge(originalEvent.target.nudge())
@@ -124,6 +126,8 @@ public interface MiraiNudgeEvent : MiraiSimbotEvent<NudgeEvent>, MessageEvent, R
      * @see net.mamoe.mirai.message.action.Nudge.sendNudge
      *
      * @throws UnsupportedOperationException 如果当前协议不支持戳一戳。see [sendNudge][net.mamoe.mirai.message.action.Nudge.sendNudge]
+     *
+     * @since 3.0.0.0-RC.2.1
      */
     @JST
     public suspend fun nudgeFrom(): Boolean = originalEvent.subject.sendNudge(originalEvent.from.nudge())
