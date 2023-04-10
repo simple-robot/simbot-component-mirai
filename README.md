@@ -120,9 +120,9 @@ cache
 ```kotlin
 implementation("love.forte.simbot:simbot-core:$SIMBOT_VERSION")
 implementation("love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION") {
-    exclude("net.mamoe", "mirai-core-jvm")
+    exclude("net.mamoe") // 排除 groupId = 'net.mamoe' 的所有依赖
 }
-// 自行引入
+// 然后自行引入一个新的
 implementation("net.mamoe:mirai-core-jvm:$MIRAI_VERSION")
 ```
 **gradle groovy dsl**
@@ -130,10 +130,10 @@ implementation("net.mamoe:mirai-core-jvm:$MIRAI_VERSION")
 ```groovy
 implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION'
 implementation 'love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION' {
-    exclude group: 'net.mamoe', module: 'mirai-core-jvm'
+    exclude group: 'net.mamoe' // 排除 groupId = 'net.mamoe' 的所有依赖
 }
 
-// 自行引入
+// 然后自行引入一个新的
 implementation 'net.mamoe:mirai-core-jvm:$MIRAI_VERSION'
 ```
 
@@ -152,12 +152,13 @@ implementation 'net.mamoe:mirai-core-jvm:$MIRAI_VERSION'
         <exclusions>
             <exclusion>
                 <groupId>net.mamoe</groupId>
-                <artifactId>mirai-core-jvm</artifactId>
+                <!--  排除 groupId = 'net.mamoe' 的所有依赖 -->
+                <artifactId>*</artifactId>
             </exclusion>
         </exclusions>
     </dependency>
 
-    <!-- 自行引入 -->
+    <!-- 然后自行引入一个新的 -->
     <dependency>
         <groupId>net.mamoe</groupId>
         <artifactId>mirai-core-jvm</artifactId>
