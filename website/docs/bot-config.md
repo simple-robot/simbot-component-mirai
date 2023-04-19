@@ -20,7 +20,7 @@ mirai组件为其下的BOT配置文件提供了 [`json-schema`](http://json-sche
 你可以通过 [此处](/schema/bot/0.2.0/bot.config.json) 下载 `bot.config.json` 架构文件，
 或者使用远程资源路径：
 
-**`https://component-mirai.simbot.forte.love/schema/bot/0.2.0/bot.config.json`**
+`https://component-mirai.simbot.forte.love/schema/bot/0.2.0/bot.config.json`
 
 ### 如何使用
 
