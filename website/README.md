@@ -9,4 +9,4 @@ mirai组件是基于 [simbot核心库](https://github.com/simple-robot/simpler-r
 - mirai框架：https://github.com/mamoe/mirai
 - simbot官网：https://simbot.forte.love
 - simbot组织库：https://github.com/simple-robot
-- simbot-mirai组件库：https://github.com/simple-robot/simbot-component-mirai
+- simbot-mirai组件库仓库：https://github.com/simple-robot/simbot-component-mirai
