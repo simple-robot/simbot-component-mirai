@@ -68,7 +68,7 @@ implementation("love.forte.simbot.component:simbot-component-mirai-core:$COMPONE
 ```
 **gradle groovy dsl**
 
-```groovy
+```gradle
 implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION'
 implementation 'love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION'
 ```
@@ -127,7 +127,7 @@ implementation("net.mamoe:mirai-core-jvm:$MIRAI_VERSION")
 ```
 **gradle groovy dsl**
 
-```groovy
+```gradle
 implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION'
 implementation 'love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION' {
     exclude group: 'net.mamoe' // 排除 groupId = 'net.mamoe' 的所有依赖

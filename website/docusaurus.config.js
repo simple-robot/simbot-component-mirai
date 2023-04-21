@@ -204,7 +204,7 @@ async function config() {
             copyright: `Built with <a href="https://www.docusaurus.io/zh-CN/">Docusaurus</a>. <br> Copyright © ${copyrightYear} Forte Scarlet.`,
           },
           prism: {
-            additionalLanguages: ['java', 'kotlin', 'groovy', 'properties'],
+            additionalLanguages: ['java', 'kotlin', 'groovy', 'gradle', 'properties'],
             theme: lightCodeTheme,
             darkTheme: darkCodeTheme,
             magicComments: [

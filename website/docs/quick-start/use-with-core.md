@@ -1,5 +1,8 @@
 ---
 title: 使用simbot核心库
+sidebar_position: 10
+pagination_prev: quick-start/index
+pagination_next: quick-start/next-step
 ---
 
 import Tabs from '@theme/Tabs';
@@ -13,28 +16,21 @@ mirai组件中的 `Component` 实现类型为 [`MiraiComponent`](https://docs.si
 
 ## 安装
 
-:::tip 核心库版本?
-
-simbot核心库的版本 (`simbot-core`) 可前往 [**GitHub Releases**](https://github.com/simple-robot/simpler-robot/releases) 查阅。
-
-:::
-
 <Tabs groupId="dept">
 <TabItem value="Gradle Kotlin DSL" default>
 
 <CodeBlock language="kotlin" >{`
 // 必须显式的引用具体的simbot-core
-implementation("love.forte.simbot:simbot-core:$SIMBOT_VERSION") // 版本参考上文所述的参考连接
+implementation("love.forte.simbot:simbot-core:$SIMBOT_VERSION") // 版本参考下文所述的参考连接
 implementation("love.forte.simbot.component:simbot-component-mirai-core:${version.version}")
 `.trim()}</CodeBlock>
-
 
 </TabItem>
 <TabItem value="Gradle Groovy">
 
-<CodeBlock language="groovy" >{`
+<CodeBlock language="gradle" >{`
 // 必须显式的引用具体的simbot-core
-implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION' // 版本参考上文所述的参考连接
+implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION' // 版本参考下文所述的参考连接
 implementation 'love.forte.simbot.component:simbot-component-mirai-core:${version.version}'
 `.trim()}</CodeBlock>
 
@@ -46,7 +42,7 @@ implementation 'love.forte.simbot.component:simbot-component-mirai-core:${versio
 <dependency>
     <groupId>love.forte.simbot</groupId>
     <artifactId>simbot-core</artifactId>
-    <!-- 版本参考上文所述的参考连接 -->
+    <!-- 版本参考下文所述的参考连接 -->
     <version>\${SIMBOT_VERSION}</version>
 </dependency>
 <dependency>
@@ -58,6 +54,12 @@ implementation 'love.forte.simbot.component:simbot-component-mirai-core:${versio
 
 </TabItem>
 </Tabs>
+
+:::tip 核心库版本?
+
+simbot核心库的版本 (`simbot-core`) 可前往 [**Releases**](https://github.com/simple-robot/simpler-robot/releases) 查阅。
+
+:::
 
 ## 使用
 
@@ -333,5 +335,70 @@ applicationAsync.thenAccept(application -> {
 </TabItem>
 </Tabs>
 
+## 信息获取
+
+很多信息的获取也都是从bot开始的（除事件以外），比如获取群列表、获取频道列表等等。
+
+<Tabs groupId="code">
+<TabItem value="Kotlin" default>
+
+```kotlin
+val bot: MiraiBot = ... // 注册并启动后的bot
+
+// 获取所有的群列表
+bot.groups.collect { ... }
+// 尝试获取指定群号的群
+val group: MiraiGroup? = bot.group(123.ID)
+
+// 获取群中所有的成员列表
+group?.members?.collect { ... }
+// 尝试获取群中成员
+val member: MiraiMember? = group?.member(666.ID)
+```
+
+
+</TabItem>
+
+<TabItem value="Java">
+
+```java
+MiraiBot bot = ...; // 注册并启动后的bot
+// 获取所有的群列表
+bot.getGroups().collect(group -> { ... });
+// 尝试获取指定群号的群
+MiraiGroup group = bot.getGroup(Identifies.ID(123));
+// Note: group 是 nullable 的, 真正使用的时候注意处理
+
+// 获取群中所有的成员列表
+group.getMembers().collect(member -> { ... });
+// 尝试获取群中成员
+MiraiMember member = group.getMember(Identifies.ID(666));
+// Note: member 是 nullable 的, 真正使用的时候注意处理
+```
+
+</TabItem>
+<TabItem value="Java Async">
+
+```java
+MiraiBot bot = ...; // 注册并启动后的bot
+// 获取所有的群列表
+bot.getGroups().collectAsync(group -> { ... });
+
+// 尝试获取指定群号的群
+bot.getGroupAsync(Identifies.ID(123)).thenApply(group -> {
+    // Note: group 是 nullable 的, 真正使用的时候注意处理
+    return group;
+}).thenCompose(group -> {
+    // 获取群中所有的成员列表
+    group.getMembers().collectAsync(member -> { ...});
+    // 尝试获取群中成员
+    return group.getMemberAsync(Identifies.ID(666))
+}).thenAccept(member -> {
+    // Note: member 是 nullable 的, 真正使用的时候注意处理
+});
+```
+
+</TabItem>
+</Tabs>
 
 
