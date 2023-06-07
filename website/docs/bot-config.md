@@ -17,10 +17,10 @@ mirai组件为其下的BOT配置文件提供了 [`json-schema`](http://json-sche
 
 ### 架构资源
 
-你可以通过 [此处](/schema/bot/0.2.0/bot.config.json) 下载 `bot.config.json` 架构文件，
+你可以通过 [此处](/schema/bot/0.3.0/bot.config.json) 下载 `bot.config.json` 架构文件，
 或者使用远程资源路径：
 
-**`https://component-mirai.simbot.forte.love/schema/bot/0.2.0/bot.config.json`**
+**`https://component-mirai.simbot.forte.love/schema/bot/0.3.0/bot.config.json`**
 
 ### 如何使用
 
@@ -780,6 +780,45 @@ passwordInfo.value.env=xxx
 
 </TabItem>
 </Tabs>
+
+#### qr_code
+
+通过 **二维码扫码** 登陆账号。
+
+<Tabs groupId="bot-config">
+<TabItem value="JSON">
+
+```json
+{
+  "passwordInfo": {
+    "type": "qr_code"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="YAML">
+
+```yaml
+passwordInfo: !<qr_code>
+```
+
+</TabItem>
+<TabItem value="Properties">
+
+```properties
+passwordInfo.type=qr_code
+```
+
+</TabItem>
+</Tabs>
+
+:::note since mirai 2.15
+
+二维码扫码是 mirai `v2.15+` 追加的新能力（参考 [mirai#1281](https://github.com/mamoe/mirai/issues/1281) ）
+
+:::
+
 
 ### DeviceInfoConfiguration
 

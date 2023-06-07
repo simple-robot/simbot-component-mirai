@@ -80,3 +80,15 @@ fun repoRow(moduleName: String, group: String, id: String, version: String): Str
 }
 
 
+tasks.create("updateWebsiteVersion") {
+    group = "build"
+    doFirst {
+        val realVersion = P.ComponentMirai.version.toString()
+        val versionJsonFile = rootProject.file("website/static/versions.json")
+        if (!versionJsonFile.exists()) {
+            versionJsonFile.createNewFile()
+        }
+
+        versionJsonFile.writeText("""{"core": "$realVersion"}""".trimIndent())
+    }
+}

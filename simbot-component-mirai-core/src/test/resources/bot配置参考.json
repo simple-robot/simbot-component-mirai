@@ -1,6 +1,9 @@
 {
+  "component": "simbot.mirai",
   "code": 123,
-  "passwordInfo": null,
+  "passwordInfo": {
+    "type": "qr_code"
+  },
   "config": {
     "deviceInfoSeed": 1,
     "workingDir": ".",
@@ -31,14 +34,9 @@
     },
     "loginCacheEnabled": true,
     "convertLineSeparator": true,
-    "recallMessageCacheStrategy": null,
     "recallMessageCacheStrategyConfig": {
       "type": "invalid"
     },
-    "accountSecrets": false
-  },
-  "component": "simbot.mirai",
-  "password": null,
-  "passwordMD5": null,
-  "passwordMD5Bytes": null
+    "disableAccountSecretes": false
+  }
 }
