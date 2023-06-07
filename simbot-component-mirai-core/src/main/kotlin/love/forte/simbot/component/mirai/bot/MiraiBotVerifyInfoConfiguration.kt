@@ -52,6 +52,7 @@ import java.io.File
  */
 @Serializable
 @InternalApi
+@OptIn(FragileSimbotApi::class)
 public data class MiraiBotVerifyInfoConfiguration(
     /**
      * 账号。
@@ -293,7 +294,7 @@ public data class MiraiBotVerifyInfoConfiguration(
             deviceInfoCompatibleCheck()
         }
 
-        @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+        @Suppress("DEPRECATION_ERROR")
         private fun deviceInfoCompatibleCheck() {
             // deviceInfoJson
             if (deviceInfoJson != null) {
@@ -615,7 +616,7 @@ public data class MiraiBotVerifyInfoConfiguration(
         }
 
 
-    @Suppress("DEPRECATION", "DEPRECATION_ERROR")
+    @Suppress("DEPRECATION_ERROR")
     private val recallMessageCacheStrategy: MiraiRecallMessageCacheStrategy
         get() {
             val deprecatedConfig = config.recallMessageCacheStrategy
