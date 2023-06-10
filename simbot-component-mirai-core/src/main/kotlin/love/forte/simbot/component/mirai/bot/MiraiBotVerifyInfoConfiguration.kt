@@ -67,6 +67,9 @@ public data class MiraiBotVerifyInfoConfiguration(
     val passwordInfo: PasswordInfoConfiguration? = null,
 
 
+    /**
+     * 用户登录信息。
+     */
     val authorization: BotAuthorizationConfiguration? = null,
 
     /**

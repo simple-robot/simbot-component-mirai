@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2023 ForteScarlet.
+ *  Copyright (c) 2023-2023 ForteScarlet.
  *
  *  This file is part of simbot-component-mirai.
  *
@@ -37,9 +37,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.SimbotIllegalArgumentException
-import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration.Companion.env
-import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration.EnvPasswordInfoConfiguration
-import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration.Md5Text
 import love.forte.simbot.component.mirai.internal.InternalApi
 import net.mamoe.mirai.auth.BotAuthorization
 

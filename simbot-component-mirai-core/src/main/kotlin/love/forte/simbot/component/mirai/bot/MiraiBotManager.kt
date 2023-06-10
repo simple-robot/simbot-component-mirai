@@ -75,7 +75,16 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         val authorization = configuration.authorization
 
         if (passwordInfo != null) {
-            logger.warn("The `passwordInfo' configuration property is deprecated, you may want to replace the `passwordInfo' configuration property with `authorization`.")
+            logger.warn("""
+                The `passwordInfo' configuration property is deprecated, you may want to replace the `passwordInfo' configuration property with `authorization`.
+                ```json
+                {
+                  "code": {},
+                  "authorization": { ... } <---- replace 'passwordInfo' with 'authorization'
+                  ...
+                }
+                ```
+            """.trimIndent(), configuration.code)
             when (passwordInfo) {
                 is TextPasswordInfoConfiguration -> {
                     return register(
@@ -93,7 +102,6 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
                     )
                 }
 
-                //@OptIn(ExperimentalSimbotApi::class)
                 is AuthorizationConfiguration -> {
                     return register(
                         code = configuration.code,

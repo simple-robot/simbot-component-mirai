@@ -20,7 +20,7 @@ mirai组件为其下的BOT配置文件提供了 [`json-schema`](http://json-sche
 你可以通过 [此处](/schema/bot/0.3.0/bot.config.json) 下载 `bot.config.json` 架构文件，
 或者使用远程资源路径：
 
-**`https://component-mirai.simbot.forte.love/schema/bot/0.3.0/bot.config.json`**
+<https://component-mirai.simbot.forte.love/schema/bot/0.3.0/bot.config.json>
 
 ### 如何使用
 
@@ -50,7 +50,7 @@ mirai组件为其下的BOT配置文件提供了 [`json-schema`](http://json-sche
 {
     "component": "simbot.mirai",
     "code": 123456789,
-    "passwordInfo": {
+    "authorization": {
         "type": "text",
         "text": "你的密码"
     }
@@ -63,7 +63,7 @@ mirai组件为其下的BOT配置文件提供了 [`json-schema`](http://json-sche
 ```yaml title='my-bot.bot.yaml'
 component: "simbot.mirai"
 code: 123456789
-passwordInfo: !<text>
+authorization: !<text>
   text: "你的密码"
 ```
 
@@ -72,8 +72,8 @@ passwordInfo: !<text>
 
 ```properties title='my-bot.properties'
 code=123456789
-passwordInfo.type=text
-passwordInfo.value.text=你的密码
+authorization.type=text
+authorization.value.text=你的密码
 ```
 
 </TabItem>
@@ -89,7 +89,7 @@ passwordInfo.value.text=你的密码
 {
     "component": "simbot.mirai",
     "code": 123456789,
-    "passwordInfo": {
+    "authorization": {
         "type": "md5_text",
         "md5": "e807f1fcf82d132f9bb018ca6738a19f"
     }
@@ -102,7 +102,7 @@ passwordInfo.value.text=你的密码
 ```yaml title='my-bot.bot.yaml'
 component: "simbot.mirai"
 code: 123456789
-passwordInfo: !<md5_text>
+authorization: !<md5_text>
   text: "e807f1fcf82d132f9bb018ca6738a19f"
 ```
 
@@ -112,8 +112,8 @@ passwordInfo: !<md5_text>
 ```properties title='my-bot.properties'
 component=simbot.mirai
 code=123456789
-passwordInfo.type=md5_text
-passwordInfo.value.text=e807f1fcf82d132f9bb018ca6738a19f
+authorization.type=md5_text
+authorization.value.text=e807f1fcf82d132f9bb018ca6738a19f
 ```
 
 </TabItem>
@@ -132,7 +132,7 @@ passwordInfo.value.text=e807f1fcf82d132f9bb018ca6738a19f
 
 下述的完整配置参考中，`config.deviceInfo` 将会被**省略**。
 
-> 下述部分属性不会提供所有的可能（例如 `passwordInfo`），对所有属性的完整解释参见后续说明。
+> 下述部分属性不会提供所有的可能（例如 `authorization`），对所有属性的完整解释参见后续说明。
 
 <Tabs groupId="bot-config">
 <TabItem value="JSON">
@@ -141,7 +141,7 @@ passwordInfo.value.text=e807f1fcf82d132f9bb018ca6738a19f
 {
   "component": "simbot.mirai",
   "code": 123,
-  "passwordInfo": {
+  "authorization": {
      "type": "text",
      "text": "明文密码"
   },
@@ -184,7 +184,7 @@ passwordInfo.value.text=e807f1fcf82d132f9bb018ca6738a19f
 ```yaml title='my-bot.bot.yaml'
 component: "simbot.mirai"
 code: 123456789
-passwordInfo: !<text>
+authorization: !<text>
   text: "明文密码"
 config:
   deviceInfoSeed: 1
@@ -218,8 +218,8 @@ config:
 ```properties title='my-bot.properties'
 component=simbot.mirai
 code=123456789
-passwordInfo.type=text
-passwordInfo.value.text=明文密码
+authorization.type=text
+authorization.value.text=明文密码
 config.deviceInfoSeed=1
 config.workingDir=.
 config.heartbeatPeriodMillis=60000
@@ -274,8 +274,13 @@ config.disableAccountSecretes=false
         <td>账号。</td>
     </tr>
     <tr>
-        <td><b>passwordInfo</b> <Label>必须</Label> </td>
-        <td><a href=".#passwordinfoconfiguration"><Label>PasswordInfoConfiguration</Label></a></td>
+        <td><s>passwordInfo</s> <Label>弃用</Label> </td>
+        <td><a href="#botauthorizationconfiguration"><Label>PasswordInfoConfiguration</Label></a></td>
+        <td>密码配置。<b>已弃用</b>，参考 <a href="#botauthorizationconfiguration"><code>BotAuthorizationConfiguration</code></a>  </td>
+    </tr>
+    <tr>
+        <td><b>authorization</b> <Label>必须</Label> </td>
+        <td><a href="#botauthorizationconfiguration"><Label>BotAuthorizationConfiguration</Label></a></td>
         <td>密码配置。后续会提供详细解释。</td>
     </tr>
     <tr>
@@ -436,17 +441,17 @@ config.disableAccountSecretes=false
 </tbody>
 </table>
 
-### PasswordInfoConfiguration
+### BotAuthorizationConfiguration
 
-`PasswordInfoConfiguration` 是用于配置账号密码的配置类型。其大致结构如下：
+`BotAuthorizationConfiguration` 是用于配置bot登录信息的配置类型。其大致结构如下：
 
 <Tabs groupId="bot-config">
 <TabItem value="JSON">
 
 ```json
 {
-  "passwordInfo": {
-    "type": "password_type",
+  "authorization": {
+    "type": "authorization_type",
     "paramA": "valueA",
     "paramB": "valueB"
   }
@@ -457,7 +462,7 @@ config.disableAccountSecretes=false
 <TabItem value="YAML">
 
 ```yaml
-passwordInfo: !<password_type>
+authorization: !<authorization_type>
   paramA: "valueA"
   paramB: "valueB"
 ```
@@ -466,16 +471,16 @@ passwordInfo: !<password_type>
 <TabItem value="Properties">
 
 ```properties
-passwordInfo.type=password_type
-passwordInfo.value.paramA=valueA
-passwordInfo.value.paramB=valueB
+authorization.type=authorization_type
+authorization.value.paramA=valueA
+authorization.value.paramB=valueB
 ```
 
 </TabItem>
 </Tabs>
 
 
-上述示例中可见，`passwordInfo` 一定存在一个 `type` 属性来标记当前配置的类型。`type` 是一个具有固定可选范围的字符串值，并且 `type` 的选择会决定其他的可用属性。
+上述示例中可见，`authorization` 一定存在一个 `type` 属性来标记当前配置的类型。`type` 是一个具有固定可选范围的字符串值，并且 `type` 的选择会决定其他的可用属性。
 下面会分别介绍所有的type以及它们对应的具体结构。
 
 #### text {#pwd-text}
@@ -487,7 +492,7 @@ passwordInfo.value.paramB=valueB
 
 ```json
 {
-  "passwordInfo": {
+  "authorization": {
     "type": "text",
     "text": "password"
   }
@@ -498,7 +503,7 @@ passwordInfo.value.paramB=valueB
 <TabItem value="YAML">
 
 ```yaml
-passwordInfo: !<text>
+authorization: !<text>
   text: "password"
 ```
 
@@ -506,8 +511,8 @@ passwordInfo: !<text>
 <TabItem value="Properties">
 
 ```properties
-passwordInfo.type=text
-passwordInfo.value.text=password
+authorization.type=text
+authorization.value.text=password
 ```
 
 </TabItem>
@@ -523,7 +528,7 @@ passwordInfo.value.text=password
 
 ```json
 {
-  "passwordInfo": {
+  "authorization": {
     "type": "md5_text",
     "md5": "e807f1fcf84d112f3bb018ca6738a19f"
   }
@@ -534,7 +539,7 @@ passwordInfo.value.text=password
 <TabItem value="YAML">
 
 ```yaml
-passwordInfo: !<md5_text>
+authorization: !<md5_text>
   md5: "e807f1fcf84d112f3bb018ca6738a19f"
 ```
 
@@ -542,8 +547,8 @@ passwordInfo: !<md5_text>
 <TabItem value="Properties">
 
 ```properties
-passwordInfo.type=md5_text
-passwordInfo.value.md5=e807f1fcf84d112f3bb018ca6738a19f
+authorization.type=md5_text
+authorization.value.md5=e807f1fcf84d112f3bb018ca6738a19f
 ```
 
 </TabItem>
@@ -558,7 +563,7 @@ passwordInfo.value.md5=e807f1fcf84d112f3bb018ca6738a19f
 
 ```json
 {
-  "passwordInfo": {
+  "authorization": {
     "type": "md5_bytes",
     "md5": [-24, 7, -15, -4, -14, 45, 18, 47, -101, -80, 24, -54, 102, 56, -95, -97]
   }
@@ -569,7 +574,7 @@ passwordInfo.value.md5=e807f1fcf84d112f3bb018ca6738a19f
 <TabItem value="YAML">
 
 ```yaml
-passwordInfo: !<md5_bytes>
+authorization: !<md5_bytes>
   md5: [-117, 26, -103, 83, -60, 97, 18, -106, -88, 39, -85, -8, -60, 120, 4, -41]
 ```
 
@@ -583,23 +588,23 @@ passwordInfo: !<md5_bytes>
 :::
 
 ```properties
-passwordInfo.type=md5_bytes
-passwordInfo.value.md5.0=-117
-passwordInfo.value.md5.1=26
-passwordInfo.value.md5.2=-103
-passwordInfo.value.md5.3=83
-passwordInfo.value.md5.4=-60
-passwordInfo.value.md5.5=97
-passwordInfo.value.md5.6=18
-passwordInfo.value.md5.7=-106
-passwordInfo.value.md5.8=-88
-passwordInfo.value.md5.9=39
-passwordInfo.value.md5.10=-85
-passwordInfo.value.md5.11=-8
-passwordInfo.value.md5.12=-60
-passwordInfo.value.md5.13=120
-passwordInfo.value.md5.14=4
-passwordInfo.value.md5.15=-41
+authorization.type=md5_bytes
+authorization.value.md5.0=-117
+authorization.value.md5.1=26
+authorization.value.md5.2=-103
+authorization.value.md5.3=83
+authorization.value.md5.4=-60
+authorization.value.md5.5=97
+authorization.value.md5.6=18
+authorization.value.md5.7=-106
+authorization.value.md5.8=-88
+authorization.value.md5.9=39
+authorization.value.md5.10=-85
+authorization.value.md5.11=-8
+authorization.value.md5.12=-60
+authorization.value.md5.13=120
+authorization.value.md5.14=4
+authorization.value.md5.15=-41
 ```
 
 </TabItem>
@@ -618,7 +623,7 @@ passwordInfo.value.md5.15=-41
 ```json
 {
   "code": 123456,
-  "passwordInfo": {
+  "authorization": {
     "type": "env_xxx",
     "prop": "mirai.$CODE$.password",
     "env": "mirai.$CODE$.password"
@@ -631,7 +636,7 @@ passwordInfo.value.md5.15=-41
 
 ```yaml
 code: 123456
-passwordInfo: !<env_xxx>
+authorization: !<env_xxx>
   prop: "mirai.$CODE$.password"
   env: "mirai.$CODE$.password"
 ```
@@ -641,9 +646,9 @@ passwordInfo: !<env_xxx>
 
 ```properties
 code=123456
-passwordInfo.type=env_xxx
-passwordInfo.value.prop=mirai.$CODE$.password
-passwordInfo.value.env=mirai.$CODE$.password
+authorization.type=env_xxx
+authorization.value.prop=mirai.$CODE$.password
+authorization.value.env=mirai.$CODE$.password
 ```
 
 </TabItem>
@@ -678,7 +683,7 @@ java -jar -Dsimbot.mirai.123456.password=myPassword myBot.jar
 
 ```json
 {
-  "passwordInfo": {
+  "authorization": {
     "type": "env_xxx"
   }
 }
@@ -689,7 +694,7 @@ java -jar -Dsimbot.mirai.123456.password=myPassword myBot.jar
 
 ```yaml
 code: 123456
-passwordInfo: !<env_xxx>
+authorization: !<env_xxx>
 ```
 
 </TabItem>
@@ -697,7 +702,7 @@ passwordInfo: !<env_xxx>
 
 ```properties
 code=123456
-passwordInfo.type=env_xxx
+authorization.type=env_xxx
 ```
 
 </TabItem>
@@ -714,7 +719,7 @@ passwordInfo.type=env_xxx
 
 ```json
 {
-  "passwordInfo": {
+  "authorization": {
     "type": "env_text",
     "prop": "xxx",
     "env": "xxx"
@@ -726,7 +731,7 @@ passwordInfo.type=env_xxx
 <TabItem value="YAML">
 
 ```yaml
-passwordInfo: !<env_text>
+authorization: !<env_text>
   prop: "xxx"
   env: "xxx"
 ```
@@ -735,9 +740,9 @@ passwordInfo: !<env_text>
 <TabItem value="Properties">
 
 ```properties
-passwordInfo.type=env_text
-passwordInfo.value.prop=xxx
-passwordInfo.value.env=xxx
+authorization.type=env_text
+authorization.value.prop=xxx
+authorization.value.env=xxx
 ```
 
 </TabItem>
@@ -752,7 +757,7 @@ passwordInfo.value.env=xxx
 
 ```json
 {
-  "passwordInfo": {
+  "authorization": {
     "type": "env_md5_text",
     "prop": "xxx",
     "env": "xxx"
@@ -764,7 +769,7 @@ passwordInfo.value.env=xxx
 <TabItem value="YAML">
 
 ```yaml
-passwordInfo: !<env_md5_text>
+authorization: !<env_md5_text>
   prop: "xxx"
   env: "xxx"
 ```
@@ -773,9 +778,9 @@ passwordInfo: !<env_md5_text>
 <TabItem value="Properties">
 
 ```properties
-passwordInfo.type=env_md5_text
-passwordInfo.value.prop=xxx
-passwordInfo.value.env=xxx
+authorization.type=env_md5_text
+authorization.value.prop=xxx
+authorization.value.env=xxx
 ```
 
 </TabItem>
@@ -790,7 +795,7 @@ passwordInfo.value.env=xxx
 
 ```json
 {
-  "passwordInfo": {
+  "authorization": {
     "type": "qr_code"
   }
 }
@@ -800,14 +805,14 @@ passwordInfo.value.env=xxx
 <TabItem value="YAML">
 
 ```yaml
-passwordInfo: !<qr_code>
+authorization: !<qr_code>
 ```
 
 </TabItem>
 <TabItem value="Properties">
 
 ```properties
-passwordInfo.type=qr_code
+authorization.type=qr_code
 ```
 
 </TabItem>
