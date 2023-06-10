@@ -19,7 +19,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.SimbotIllegalArgumentException
-import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration.EnvPasswordInfoConfiguration.Companion.CODE_MARK
 import love.forte.simbot.component.mirai.internal.InternalApi
 import net.mamoe.mirai.auth.BotAuthorization
 
@@ -38,9 +37,17 @@ import net.mamoe.mirai.auth.BotAuthorization
  * - [环境变量md5字符串密码][PasswordInfoConfiguration.EnvMd5Text]
  * - [md5字节组密码][PasswordInfoConfiguration.Md5Bytes]
  *
+ * ### [二维码扫描][QRCode]
+ *
+ * ## [BotAuthorizationConfiguration]
+ *
+ * 使用更符合语义的 [BotAuthorizationConfiguration] 来进行配置
+ *
+ * @see BotAuthorizationConfiguration
  */
 @Serializable
 @OptIn(InternalApi::class)
+@Deprecated("use 'BotAuthorizationConfiguration' plz")
 public sealed class PasswordInfoConfiguration {
     /**
      * 明文密码类型。
@@ -395,6 +402,7 @@ public sealed class PasswordInfoConfiguration {
 /**
  * 提供密码md5字节数组的密码配置形式。
  */
+@Suppress("DEPRECATION")
 public sealed class Md5BytesPasswordInfoConfiguration : PasswordInfoConfiguration() {
     @OptIn(InternalApi::class)
     public abstract fun getPassword(configuration: MiraiBotVerifyInfoConfiguration): ByteArray
@@ -403,6 +411,7 @@ public sealed class Md5BytesPasswordInfoConfiguration : PasswordInfoConfiguratio
 /**
  * 直接提供**明文**密码字符串的密码配置形式。
  */
+@Suppress("DEPRECATION")
 public sealed class TextPasswordInfoConfiguration : PasswordInfoConfiguration() {
     @OptIn(InternalApi::class)
     public abstract fun getPassword(configuration: MiraiBotVerifyInfoConfiguration): String
@@ -415,6 +424,7 @@ public sealed class TextPasswordInfoConfiguration : PasswordInfoConfiguration() 
  *
  * @since 3.0.0.0-M6
  */
+@Suppress("DEPRECATION")
 public sealed class AuthorizationConfiguration : PasswordInfoConfiguration() {
     @OptIn(InternalApi::class)
     public abstract fun getBotAuthorization(configuration: MiraiBotVerifyInfoConfiguration): BotAuthorization
