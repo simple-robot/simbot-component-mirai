@@ -5,7 +5,7 @@ title: 安装
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import versionInfo from '/versions.json';
+import versionInfo from '/version.json';
 import CodeBlock from '@theme/CodeBlock';
 
 :::info 前情提要
@@ -25,7 +25,7 @@ import CodeBlock from '@theme/CodeBlock';
 <CodeBlock language="kotlin">
 {`
 implementation("love.forte.simbot:simbot-core:$SIMBOT_VERSION") // simbot核心库
-implementation("love.forte.simbot.component:simbot-component-mirai-core:${ versionInfo.core }") // mirai组件
+implementation("love.forte.simbot.component:simbot-component-mirai-core:${ versionInfo.version }") // mirai组件
 `.trim()}
 </CodeBlock>
 
@@ -36,7 +36,7 @@ implementation("love.forte.simbot.component:simbot-component-mirai-core:${ versi
 <CodeBlock language="groovy">
 {`
 implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION' // simbot核心库
-implementation 'love.forte.simbot.component:simbot-component-mirai-core:${ versionInfo.core }' // mirai组件
+implementation 'love.forte.simbot.component:simbot-component-mirai-core:${ versionInfo.version }' // mirai组件
 `.trim()}
 </CodeBlock>
 
@@ -57,7 +57,7 @@ implementation 'love.forte.simbot.component:simbot-component-mirai-core:${ versi
     <dependency>
         <groupId>love.forte.simbot.component</groupId>
         <artifactId>simbot-component-mirai-core</artifactId>
-        <version>${ versionInfo.core }</version>
+        <version>${ versionInfo.version }</version>
     </dependency>
 </dependencies>
 `.trim()}
