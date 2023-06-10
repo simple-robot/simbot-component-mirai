@@ -5,7 +5,7 @@ title: 安装
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import versionInfo from './versions.json';
+import versionInfo from '/versions.json';
 import CodeBlock from '@theme/CodeBlock';
 
 :::info 前情提要
