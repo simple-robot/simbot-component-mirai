@@ -62,7 +62,15 @@ public data class MiraiBotVerifyInfoConfiguration(
     /**
      * 用户密码信息配置。
      */
-    val passwordInfo: PasswordInfoConfiguration,
+    @Suppress("DEPRECATION")
+    @Deprecated("use 'authorization'")
+    val passwordInfo: PasswordInfoConfiguration? = null,
+
+
+    /**
+     * 用户登录信息。
+     */
+    val authorization: BotAuthorizationConfiguration? = null,
 
     /**
      * 必要属性之外的额外配置属性。

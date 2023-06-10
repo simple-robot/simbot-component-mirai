@@ -16,6 +16,136 @@
     },
     "passwordInfo": {
       "description": "密码配置",
+      "deprecationMessage": "使用更符合语义的 'authorization'",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "env_text",
+            "md5_text",
+            "md5_bytes",
+            "env_md5_text",
+            "qr_code"
+          ],
+          "description": "配置类型. enum: text, env_text, md5_text, md5_bytes, env_md5_text, qr_code"
+        }
+      },
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "text"
+            },
+            "text": {
+              "type": "string",
+              "description": "明文密码"
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "env_text"
+            },
+            "prop": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "明文密码虚拟机参数键"
+            },
+            "env": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "明文密码环境变量键"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "md5_text"
+            },
+            "md5": {
+              "type": "string",
+              "description": "md5密码（字符串）"
+            }
+          },
+          "required": [
+            "md5"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "md5_bytes"
+            },
+            "md5": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "description": "md5密码（字节组）"
+            }
+          },
+          "required": [
+            "md5"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "env_md5_text"
+            },
+            "prop": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "md5密码（字符串）虚拟机参数键"
+            },
+            "env": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "md5密码（字符串）环境变量键"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": {
+              "const": "qr_code",
+              "description": "使用扫码登陆"
+            }
+          }
+        }
+      ],
+      "required": [
+        "type"
+      ]
+    },
+    "authorization": {
+      "description": "登录信息配置",
       "properties": {
         "type": {
           "type": "string",
@@ -764,7 +894,7 @@
   },
   "required": [
     "code",
-    "passwordInfo",
+    "authorization",
     "component"
   ],
   "definitions": {}

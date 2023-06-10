@@ -69,32 +69,55 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
 
         val configuration = verifyInfo.decode(serializer)
 
-        when (val passwordInfo = configuration.passwordInfo) {
-            is TextPasswordInfoConfiguration -> {
-                return register(
-                    code = configuration.code,
-                    password = passwordInfo.getPassword(configuration),
-                    configuration = configuration.simbotBotConfiguration,
-                )
-            }
+        @Suppress("DEPRECATION")
+        val passwordInfo = configuration.passwordInfo
 
-            is Md5BytesPasswordInfoConfiguration -> {
-                return register(
-                    code = configuration.code,
-                    password = passwordInfo.getPassword(configuration),
-                    configuration = configuration.simbotBotConfiguration,
-                )
-            }
+        val authorization = configuration.authorization
 
-            //@OptIn(ExperimentalSimbotApi::class)
-            is AuthorizationConfiguration -> {
-                return register(
-                    code = configuration.code,
-                    authorization = passwordInfo.getBotAuthorization(configuration),
-                    configuration = configuration.simbotBotConfiguration
-                )
+        if (passwordInfo != null) {
+            logger.warn("""
+                The `passwordInfo' configuration property is deprecated, you may want to replace the `passwordInfo' configuration property with `authorization`.
+                ```json
+                {
+                  "code": {},
+                  "authorization": { ... } <---- replace 'passwordInfo' with 'authorization'
+                  ...
+                }
+                ```
+            """.trimIndent(), configuration.code)
+            when (passwordInfo) {
+                is TextPasswordInfoConfiguration -> {
+                    return register(
+                        code = configuration.code,
+                        password = passwordInfo.getPassword(configuration),
+                        configuration = configuration.simbotBotConfiguration,
+                    )
+                }
+
+                is Md5BytesPasswordInfoConfiguration -> {
+                    return register(
+                        code = configuration.code,
+                        password = passwordInfo.getPassword(configuration),
+                        configuration = configuration.simbotBotConfiguration,
+                    )
+                }
+
+                is AuthorizationConfiguration -> {
+                    return register(
+                        code = configuration.code,
+                        authorization = passwordInfo.getBotAuthorization(configuration),
+                        configuration = configuration.simbotBotConfiguration
+                    )
+                }
             }
         }
+
+
+        return register(
+            code = configuration.code,
+            authorization = authorization?.getBotAuthorization(configuration) ?: throw IllegalArgumentException("The required attribute 'authorization' is not configured."),
+            configuration = configuration.simbotBotConfiguration
+        )
     }
 
 
