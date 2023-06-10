@@ -13,7 +13,7 @@ implementation("love.forte.simbot.component:simbot-component-mirai-core:$version
 ```
 
 **Gradle Groovy**
-```groovy
+```gradle
 implementation 'love.forte.simbot:simbot-core:$simbot_version'
 implementation 'love.forte.simbot.component:simbot-component-mirai-core:$version'
 ```

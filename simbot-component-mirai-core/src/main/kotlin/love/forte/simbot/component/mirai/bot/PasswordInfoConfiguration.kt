@@ -17,9 +17,10 @@ package love.forte.simbot.component.mirai.bot
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import love.forte.simbot.ExperimentalSimbotApi
 import love.forte.simbot.SimbotIllegalArgumentException
-import love.forte.simbot.component.mirai.bot.PasswordInfoConfiguration.EnvPasswordInfoConfiguration.Companion.CODE_MARK
 import love.forte.simbot.component.mirai.internal.InternalApi
+import net.mamoe.mirai.auth.BotAuthorization
 
 /**
  * 通过 [MiraiBotVerifyInfoConfiguration.passwordInfo] 来提供多种形式的密码配置。
@@ -36,9 +37,17 @@ import love.forte.simbot.component.mirai.internal.InternalApi
  * - [环境变量md5字符串密码][PasswordInfoConfiguration.EnvMd5Text]
  * - [md5字节组密码][PasswordInfoConfiguration.Md5Bytes]
  *
+ * ### [二维码扫描][QRCode]
+ *
+ * ## [BotAuthorizationConfiguration]
+ *
+ * 使用更符合语义的 [BotAuthorizationConfiguration] 来进行配置
+ *
+ * @see BotAuthorizationConfiguration
  */
 @Serializable
 @OptIn(InternalApi::class)
+@Deprecated("use 'BotAuthorizationConfiguration' plz")
 public sealed class PasswordInfoConfiguration {
     /**
      * 明文密码类型。
@@ -286,7 +295,31 @@ public sealed class PasswordInfoConfiguration {
             public const val TYPE: String = "env_${Md5Text.TYPE}"
         }
     }
-    
+
+    /**
+     * 通过二维码扫码的方式来登陆bot。
+     *
+     * ```json
+     * "passwordInfo": {
+     *    "type": "qr_code"
+     * }
+     * ```
+     *
+     * @since 3.0.0.0-M6
+     *
+     * @see BotAuthorization.byQRCode
+     */
+    @Serializable
+    @SerialName(QRCode.TYPE)
+    @ExperimentalSimbotApi
+    public object QRCode : AuthorizationConfiguration() {
+        override fun getBotAuthorization(configuration: MiraiBotVerifyInfoConfiguration): BotAuthorization {
+            return BotAuthorization.byQRCode()
+        }
+
+        public const val TYPE: String = "qr_code"
+    }
+
     
     public companion object Companion {
         /**
@@ -369,6 +402,7 @@ public sealed class PasswordInfoConfiguration {
 /**
  * 提供密码md5字节数组的密码配置形式。
  */
+@Suppress("DEPRECATION")
 public sealed class Md5BytesPasswordInfoConfiguration : PasswordInfoConfiguration() {
     @OptIn(InternalApi::class)
     public abstract fun getPassword(configuration: MiraiBotVerifyInfoConfiguration): ByteArray
@@ -377,8 +411,22 @@ public sealed class Md5BytesPasswordInfoConfiguration : PasswordInfoConfiguratio
 /**
  * 直接提供**明文**密码字符串的密码配置形式。
  */
+@Suppress("DEPRECATION")
 public sealed class TextPasswordInfoConfiguration : PasswordInfoConfiguration() {
     @OptIn(InternalApi::class)
     public abstract fun getPassword(configuration: MiraiBotVerifyInfoConfiguration): String
+}
+
+/**
+ * 通过非密码登陆的方式（使用 [BotAuthorization]）。
+ *
+ * Note: *通过 [BotAuthorization] 是mirai `v2.15.0` 后才有的能力*
+ *
+ * @since 3.0.0.0-M6
+ */
+@Suppress("DEPRECATION")
+public sealed class AuthorizationConfiguration : PasswordInfoConfiguration() {
+    @OptIn(InternalApi::class)
+    public abstract fun getBotAuthorization(configuration: MiraiBotVerifyInfoConfiguration): BotAuthorization
 }
 

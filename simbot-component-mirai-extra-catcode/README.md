@@ -10,7 +10,7 @@ implementation("love.forte.simbot.component:simbot-component-mirai-extra-catcode
 ```
 
 **Gradle Groovy**
-```groovy
+```gradle
 implementation 'love.forte.simbot.component:simbot-component-mirai-extra-catcode:$version'
 ```
 

@@ -68,7 +68,7 @@ implementation("love.forte.simbot.component:simbot-component-mirai-core:$COMPONE
 ```
 **gradle groovy dsl**
 
-```groovy
+```gradle
 implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION'
 implementation 'love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION'
 ```
@@ -120,20 +120,20 @@ cache
 ```kotlin
 implementation("love.forte.simbot:simbot-core:$SIMBOT_VERSION")
 implementation("love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION") {
-    exclude("net.mamoe", "mirai-core-jvm")
+    exclude("net.mamoe") // 排除 groupId = 'net.mamoe' 的所有依赖
 }
-// 自行引入
+// 然后自行引入一个新的
 implementation("net.mamoe:mirai-core-jvm:$MIRAI_VERSION")
 ```
 **gradle groovy dsl**
 
-```groovy
+```gradle
 implementation 'love.forte.simbot:simbot-core:$SIMBOT_VERSION'
 implementation 'love.forte.simbot.component:simbot-component-mirai-core:$COMPONENT_VERSION' {
-    exclude group: 'net.mamoe', module: 'mirai-core-jvm'
+    exclude group: 'net.mamoe' // 排除 groupId = 'net.mamoe' 的所有依赖
 }
 
-// 自行引入
+// 然后自行引入一个新的
 implementation 'net.mamoe:mirai-core-jvm:$MIRAI_VERSION'
 ```
 
@@ -152,12 +152,13 @@ implementation 'net.mamoe:mirai-core-jvm:$MIRAI_VERSION'
         <exclusions>
             <exclusion>
                 <groupId>net.mamoe</groupId>
-                <artifactId>mirai-core-jvm</artifactId>
+                <!--  排除 groupId = 'net.mamoe' 的所有依赖 -->
+                <artifactId>*</artifactId>
             </exclusion>
         </exclusions>
     </dependency>
 
-    <!-- 自行引入 -->
+    <!-- 然后自行引入一个新的 -->
     <dependency>
         <groupId>net.mamoe</groupId>
         <artifactId>mirai-core-jvm</artifactId>
@@ -199,11 +200,16 @@ suspend fun MiraiGroupMessageEvent.onEvent(name: String) {
 ```
 Copyright (C) 2022-2023 ForteScarlet.
 
-This program is free software: you can redistribute it and/or modify it under the terms of the GNU Affero General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+This program is free software: you can redistribute it and/or modify it under the terms 
+of the GNU Affero General Public License as published by the Free Software Foundation, 
+either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+See the GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
+You should have received a copy of the GNU Affero General Public License along with this program. 
+If not, see <https://www.gnu.org/licenses/>.
 ```
 
 
