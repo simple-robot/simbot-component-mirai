@@ -36,6 +36,7 @@ import love.forte.simbot.component.mirai.internal.MiraiBotManagerImpl
 import love.forte.simbot.event.EventProcessor
 import net.mamoe.mirai.Bot
 import net.mamoe.mirai.BotFactory
+import net.mamoe.mirai.auth.BotAuthorization
 import org.jetbrains.annotations.ApiStatus
 import org.slf4j.Logger
 import kotlin.coroutines.CoroutineContext
@@ -50,7 +51,7 @@ import kotlin.coroutines.EmptyCoroutineContext
  */
 public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     protected abstract val logger: Logger
-    
+
     /**
      * manager中的 [start] 没有效果。
      */
@@ -60,33 +61,65 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     @OptIn(InternalApi::class)
     override fun register(verifyInfo: BotVerifyInfo): MiraiBot {
         val serializer = MiraiBotVerifyInfoConfiguration.serializer()
-        
+
         if (verifyInfo.componentId != this.component.id) {
             logger.debug("[{}] mismatch by mirai: [{}] != [{}]", verifyInfo.name, component, this.component.id)
             throw ComponentMismatchException("[$component] != [${this.component.id}]")
         }
-        
+
         val configuration = verifyInfo.decode(serializer)
-        
-        when (val passwordInfo = configuration.passwordInfo) {
-            is TextPasswordInfoConfiguration -> {
-                return register(
-                    code = configuration.code,
-                    password = passwordInfo.getPassword(configuration),
-                    configuration = configuration.simbotBotConfiguration,
-                )
-            }
-            
-            is Md5BytesPasswordInfoConfiguration -> {
-                return register(
-                    code = configuration.code,
-                    password = passwordInfo.getPassword(configuration),
-                    configuration = configuration.simbotBotConfiguration,
-                )
+
+        @Suppress("DEPRECATION")
+        val passwordInfo = configuration.passwordInfo
+
+        val authorization = configuration.authorization
+
+        if (passwordInfo != null) {
+            logger.warn("""
+                The `passwordInfo' configuration property is deprecated, you may want to replace the `passwordInfo' configuration property with `authorization`.
+                ```json
+                {
+                  "code": {},
+                  "authorization": { ... } <---- replace 'passwordInfo' with 'authorization'
+                  ...
+                }
+                ```
+            """.trimIndent(), configuration.code)
+            when (passwordInfo) {
+                is TextPasswordInfoConfiguration -> {
+                    return register(
+                        code = configuration.code,
+                        password = passwordInfo.getPassword(configuration),
+                        configuration = configuration.simbotBotConfiguration,
+                    )
+                }
+
+                is Md5BytesPasswordInfoConfiguration -> {
+                    return register(
+                        code = configuration.code,
+                        password = passwordInfo.getPassword(configuration),
+                        configuration = configuration.simbotBotConfiguration,
+                    )
+                }
+
+                is AuthorizationConfiguration -> {
+                    return register(
+                        code = configuration.code,
+                        authorization = passwordInfo.getBotAuthorization(configuration),
+                        configuration = configuration.simbotBotConfiguration
+                    )
+                }
             }
         }
+
+
+        return register(
+            code = configuration.code,
+            authorization = authorization?.getBotAuthorization(configuration) ?: throw IllegalArgumentException("The required attribute 'authorization' is not configured."),
+            configuration = configuration.simbotBotConfiguration
+        )
     }
-    
+
 
     /**
      * 注册一个Bot。
@@ -101,9 +134,10 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param password 密码
      * @param configuration simbot中的bot配置类
      */
-    public abstract fun register(code: Long, password: String, configuration: MiraiBotConfiguration): MiraiBot
-    
-    
+    public fun register(code: Long, password: String, configuration: MiraiBotConfiguration): MiraiBot =
+        register(code, BotAuthorization.byPassword(password), configuration)
+
+
     /**
      * 注册一个Bot。
      *
@@ -119,8 +153,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      */
     public fun register(code: Long, password: String, configuration: MiraiBotConfigurationConfigurator): MiraiBot =
         register(code, password, configuration.run { MiraiBotConfiguration().also { c -> c.config() } })
-    
-    
+
+
     /**
      * 注册一个Bot。
      *
@@ -131,8 +165,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      */
     public fun register(code: Long, password: String): MiraiBot =
         register(code, password, MiraiBotConfiguration())
-    
-    
+
+
     /**
      * 注册一个Bot。
      *
@@ -146,9 +180,34 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
      * @param password 密码的MD5字节数组
      * @param configuration simbot bot 配置
      */
-    public abstract fun register(code: Long, password: ByteArray, configuration: MiraiBotConfiguration): MiraiBot
-    
-    
+    public fun register(code: Long, password: ByteArray, configuration: MiraiBotConfiguration): MiraiBot =
+        register(code, BotAuthorization.byPassword(password), configuration)
+
+
+    /**
+     * 注册一个Bot。
+     *
+     * 此函数构建的 [MiraiBot] 中，如果配置了[MiraiBotConfiguration.initialBotConfiguration],
+     * 则将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 包括其中的设备信息配置、logger配置等。
+     *
+     * @since 3.0.0.0-M6
+     *
+     * @param code bot的账号
+     * @param authorization bot登陆用的鉴权方式
+     * @param configuration simbot-mirai 组件的 bot 配置
+     *
+     * @throws BotAlreadyRegisteredException 如果bot已经在当前manager中存在
+     * @throws Exception 其他可能在mirai注册过程中产生的异常
+     *
+     */
+    public abstract fun register(
+        code: Long,
+        authorization: BotAuthorization,
+        configuration: MiraiBotConfiguration
+    ): MiraiBot
+
+
     /**
      * 注册一个Bot。
      *
@@ -168,7 +227,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         configuration: MiraiBotConfigurationConfigurator,
     ): MiraiBot =
         register(code, passwordMD5, configuration.run { MiraiBotConfiguration().also { c -> c.config() } })
-    
+
     /**
      * 注册一个Bot。
      *
@@ -204,7 +263,7 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
     @ExperimentalSimbotApi
     public abstract fun register(bot: Bot, configuration: MiraiBotConfiguration? = null): MiraiBot
 
-    
+
     /**
      * [MiraiBotManager] 的构造工厂。
      *
@@ -222,8 +281,8 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         public fun newInstance(eventProcessor: EventProcessor): MiraiBotManager {
             return MiraiBotManagerImpl(eventProcessor, MiraiComponent(), MiraiBotManagerConfigurationImpl())
         }
-        
-        
+
+
         override suspend fun create(
             eventProcessor: EventProcessor,
             components: List<Component>,
@@ -234,18 +293,18 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
             // find self
             val component = components.find { it is MiraiComponent } as? MiraiComponent
                 ?: throw NoSuchComponentException("There are no MiraiComponent(id=${MiraiComponent.ID_VALUE}) registered in the current application.")
-            
+
             val configuration = MiraiBotManagerConfigurationImpl().also {
                 it.parentCoroutineContext = applicationConfiguration.coroutineContext
                 configurator(it)
             }
-            
+
             return MiraiBotManagerImpl(eventProcessor, component, configuration).also {
                 configuration.useBotManager(it)
             }
         }
     }
-    
+
 }
 
 
@@ -258,9 +317,9 @@ public fun interface MiraiBotConfigurationConfigurator {
  * [MiraiBotManager] 的配置类。
  *
  */
-@Suppress("DEPRECATION", "DEPRECATION_ERROR")
+@Suppress("DEPRECATION_ERROR")
 public interface MiraiBotManagerConfiguration {
-    
+
     /**
      * 用于使用在 [MiraiBotManager] 中以及作为所有Bot的父类协程上下文。
      *
@@ -268,7 +327,7 @@ public interface MiraiBotManagerConfiguration {
      *
      */
     public var parentCoroutineContext: CoroutineContext
-    
+
     /**
      * 注册一个mirai bot.
      *
@@ -281,7 +340,10 @@ public interface MiraiBotManagerConfiguration {
      *
      * @suppress
      */
-    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }", level = DeprecationLevel.ERROR)
+    @Deprecated(
+        "Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }",
+        level = DeprecationLevel.ERROR
+    )
     @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public fun register(
         code: Long,
@@ -289,7 +351,7 @@ public interface MiraiBotManagerConfiguration {
         configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit = {},
     )
-    
+
     /**
      * 注册一个mirai bot.
      *
@@ -300,7 +362,10 @@ public interface MiraiBotManagerConfiguration {
      *
      * @suppress
      */
-    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }", level = DeprecationLevel.ERROR)
+    @Deprecated(
+        "Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }",
+        level = DeprecationLevel.ERROR
+    )
     @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public fun register(
         code: Long,
@@ -308,7 +373,7 @@ public interface MiraiBotManagerConfiguration {
         configuration: MiraiBotConfiguration,
         onBot: suspend (bot: MiraiBot) -> Unit = {},
     )
-    
+
     /**
      * 注册一个mirai bot.
      *
@@ -322,7 +387,10 @@ public interface MiraiBotManagerConfiguration {
      * @suppress
      */
     @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }", level = DeprecationLevel.ERROR)
+    @Deprecated(
+        "Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }",
+        level = DeprecationLevel.ERROR
+    )
     @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public fun register(
         code: Long,
@@ -332,7 +400,7 @@ public interface MiraiBotManagerConfiguration {
     ) {
         register(code, password, MiraiBotConfiguration().botConfiguration(configuration), onBot)
     }
-    
+
     /**
      * 注册一个mirai bot.
      *
@@ -344,7 +412,10 @@ public interface MiraiBotManagerConfiguration {
      * @suppress
      */
     @Suppress("DeprecatedCallableAddReplaceWith")
-    @Deprecated("Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }", level = DeprecationLevel.ERROR)
+    @Deprecated(
+        "Use ApplicationBuilder.miraiBots { ... } or BotRegistrar.mirai { ... }",
+        level = DeprecationLevel.ERROR
+    )
     @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
     public fun register(
         code: Long,
@@ -372,9 +443,9 @@ public class MiraiBotManagerAutoRegistrarFactory :
  */
 private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
     override var parentCoroutineContext: CoroutineContext = EmptyCoroutineContext
-    
+
     private var botManagerProcessor: (suspend (MiraiBotManager) -> Unit)? = null
-    
+
     private fun newProcessor(p: suspend (MiraiBotManager) -> Unit) {
         botManagerProcessor.also { old ->
             botManagerProcessor = { manager ->
@@ -383,7 +454,7 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
             }
         }
     }
-    
+
     @Suppress("OVERRIDE_DEPRECATION", "OverridingDeprecatedMember")
     override fun register(
         code: Long,
@@ -393,8 +464,8 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
     ) {
         newProcessor { manager -> onBot(manager.register(code, password, configuration)) }
     }
-    
-    
+
+
     @Suppress("OVERRIDE_DEPRECATION", "OverridingDeprecatedMember")
     override fun register(
         code: Long,
@@ -404,18 +475,18 @@ private class MiraiBotManagerConfigurationImpl : MiraiBotManagerConfiguration {
     ) {
         newProcessor { manager -> onBot(manager.register(code, passwordMd5, configuration)) }
     }
-    
+
     suspend fun useBotManager(botManager: MiraiBotManager) {
         botManagerProcessor?.invoke(botManager)
     }
-    
-    
+
+
 }
 
 /**
  * @suppress install mirai component and bot manager in application.
  */
-@Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION", "DEPRECATION_ERROR")
+@Suppress("DeprecatedCallableAddReplaceWith", "DEPRECATION_ERROR")
 @Deprecated("Use simbotApplication and install MiraiBotManager.", level = DeprecationLevel.ERROR)
 @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
 public fun miraiBotManager(eventProcessor: EventProcessor): MiraiBotManager =
@@ -431,9 +502,9 @@ internal abstract class EnumStringSerializer<E : Enum<E>>(name: String, private 
         val name = decoder.decodeString().replace('-', '_').uppercase()
         return valueOf(name)
     }
-    
+
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(name, PrimitiveKind.STRING)
-    
+
     override fun serialize(encoder: Encoder, value: E) {
         encoder.encodeString(value.name)
     }
