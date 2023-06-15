@@ -207,6 +207,30 @@ public abstract class MiraiBotManager : BotManager<MiraiBot>() {
         configuration: MiraiBotConfiguration
     ): MiraiBot
 
+    /**
+     * 注册一个Bot。
+     *
+     * 此函数构建的 [MiraiBot] 中，如果配置了[MiraiBotConfiguration.initialBotConfiguration],
+     * 则将会完全的直接使用 [configuration] 中的 [MiraiBotConfiguration.initialBotConfiguration],
+     * 包括其中的设备信息配置、logger配置等。
+     *
+     * @since 3.0.0.0-M7
+     *
+     * @param code bot的账号
+     * @param authorization bot登陆用的鉴权方式
+     * @param configuration simbot-mirai 组件的 bot 配置
+     *
+     * @throws BotAlreadyRegisteredException 如果bot已经在当前manager中存在
+     * @throws Exception 其他可能在mirai注册过程中产生的异常
+     *
+     */
+    public fun register(
+        code: Long,
+        authorization: BotAuthorization,
+        configuration: MiraiBotConfigurationConfigurator
+    ): MiraiBot =
+        register(code, authorization, configuration.run { MiraiBotConfiguration().also { c -> c.config() } })
+
 
     /**
      * 注册一个Bot。
