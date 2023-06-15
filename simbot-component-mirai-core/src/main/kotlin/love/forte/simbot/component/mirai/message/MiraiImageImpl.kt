@@ -22,6 +22,7 @@ import love.forte.simbot.ID
 import love.forte.simbot.message.Message
 import love.forte.simbot.resources.Resource
 import net.mamoe.mirai.contact.Contact
+import net.mamoe.mirai.message.data.FlashImage
 import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
 import net.mamoe.mirai.message.data.Image as OriginalMiraiImage
 
@@ -78,8 +79,14 @@ internal class MiraiImageImpl(
 ) : MiraiImage {
     override val id: CharSequenceID = originalImage.imageId.ID
     override val key: Message.Key<MiraiImage> get() = MiraiImage.Key
-    
-    
+
+    override suspend fun originalMiraiMessage(
+        contact: Contact,
+        isDropAction: Boolean
+    ): net.mamoe.mirai.message.data.Message {
+        return if (isFlash) FlashImage(originalImage) else originalImage
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other === this) return true
         if (other !is MiraiImage) return false

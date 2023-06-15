@@ -29,6 +29,7 @@ import love.forte.simbot.message.PlainText
 import love.forte.simbot.tryToLong
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.data.*
+import net.mamoe.mirai.message.data.FlashImage
 import net.mamoe.mirai.message.data.At as MiraiAtFunc
 import net.mamoe.mirai.message.data.Audio as OriginalMiraiAudio
 import net.mamoe.mirai.message.data.FlashImage as OriginalMiraiFlashImage
@@ -97,11 +98,15 @@ public suspend fun Message.toOriginalMiraiMessage(
         else -> {
             val list = mutableListOf<OriginalMiraiMessage>()
 
-            if (this is Message.Element<*>) {
-                StandardParser.toMirai(this, contact, list)
-            } else if (this is Messages) {
-                this.forEach {
-                    StandardParser.toMirai(it, contact, list)
+            when (this) {
+                is Message.Element<*> -> {
+                    StandardParser.toMirai(this, contact, list)
+                }
+
+                is Messages -> {
+                    this.forEach {
+                        StandardParser.toMirai(it, contact, list)
+                    }
                 }
             }
 
@@ -195,7 +200,7 @@ private object StandardParser : MiraiMessageParser {
 
 private suspend fun Image<*>.toMirai(contact: Contact): OriginalMiraiMessage {
     val image: OriginalMiraiMessage = when (this) {
-        is MiraiImage -> originalImage
+        is MiraiImage -> if (isFlash) FlashImage.from(originalImage) else originalImage
         is ResourceImage -> resource().uploadToImage(contact, false)
         is MiraiSendOnlyImage -> originalMiraiMessage(contact)
         else -> resource().uploadToImage(contact, false)

@@ -86,7 +86,16 @@ public interface MiraiSendOnlyImage :
     @JST
     public suspend fun upload(contactContainer: MiraiContactContainer): MiraiImage =
         upload(contactContainer.originalContact)
-    
+
+    /**
+     * 返回值只可能是 [OriginalMiraiFlashImage] 或 [OriginalMiraiImage].
+     */
+    @JvmSynthetic
+    override suspend fun originalMiraiMessage(
+        contact: Contact,
+        isDropAction: Boolean,
+    ): net.mamoe.mirai.message.data.Message
+
     public companion object Key : Message.Key<MiraiSendOnlyImage> {
         override fun safeCast(value: Any): MiraiSendOnlyImage? = doSafeCast(value)
     
@@ -105,7 +114,7 @@ public interface MiraiSendOnlyImage :
  *
  */
 public interface MiraiImage :
-    OriginalMiraiDirectlySimbotMessage<OriginalMiraiImage, MiraiImage>,
+    OriginalMiraiComputableSimbotMessage<MiraiImage>,
     Image<MiraiImage> {
     
     /**
@@ -114,11 +123,28 @@ public interface MiraiImage :
     public val originalImage: OriginalMiraiImage
     
     /**
-     * 得到Mirai的原生图片类型 [OriginalMiraiImage]。同 [originalImage]。
+     * 得到 mirai 的原生图片类型 [OriginalMiraiImage]。同 [originalImage]。
+     *
+     * **Note: [MiraiImage] 原本错误的实现了 [OriginalMiraiDirectlySimbotMessage] 而保留下来的函数，现在仅用作兼容。**
      */
-    override val originalMiraiMessage: OriginalMiraiImage
+    @Deprecated("This function is reserved for compatibility only, please use 'originalMiraiMessage'",
+        ReplaceWith("originalImage")
+    )
+    public val originalMiraiMessage: OriginalMiraiImage
         get() = originalImage
-    
+
+    /**
+     * 得到 mirai 的原生图片类型 [Image][OriginalMiraiImage] 或一个闪照类型 [FlashImage][OriginalMiraiFlashImage]。
+     * 这取决于 [isFlash]。
+     *
+     * @since 3.0.0.0-M7
+     */
+    @JvmSynthetic
+    override suspend fun originalMiraiMessage(
+        contact: Contact,
+        isDropAction: Boolean
+    ): net.mamoe.mirai.message.data.Message
+
     /**
      * 此图片是否为一个 `闪照`。
      * @see OriginalMiraiFlashImage
