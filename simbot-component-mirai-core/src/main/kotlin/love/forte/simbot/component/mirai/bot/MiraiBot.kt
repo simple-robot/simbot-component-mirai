@@ -21,10 +21,8 @@ import love.forte.simbot.bot.*
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.MiraiImage
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
-import love.forte.simbot.definition.FriendsContainer
-import love.forte.simbot.definition.GroupBot
-import love.forte.simbot.definition.Guild
-import love.forte.simbot.definition.UserInfo
+import love.forte.simbot.definition.*
+import love.forte.simbot.definition.SocialRelationsContainer.Companion.COUNT_NOT_SUPPORTED
 import love.forte.simbot.message.Image
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.utils.item.Items
@@ -169,6 +167,15 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQue
     // endregion
 
     // region contacts api
+
+    /**
+     * mirai 支持联系人 [contact][MiraiContact] 操作。
+     * 在 mirai 组件中，联系人相当于好友 [friend][MiraiFriend]
+     * 与陌生人 [stranger][MiraiStranger] 的汇总。
+     */
+    override val isContactsSupported: Boolean
+        get() = true
+
     /**
      * 联系人数据序列。
      *
@@ -204,6 +211,12 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQue
     // region group apis
 
     /**
+     * mirai 组件中支持群 [group][MiraiGroup] 操作。
+     */
+    override val isGroupsSupported: Boolean
+        get() = true
+
+    /**
      * 获取当前Bot中的群组序列。
      *
      * 在mirai中，没有实际的限流或分页api，本质上得到的就是列表。
@@ -228,6 +241,13 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQue
 
 
     // region guild apis
+
+    /**
+     * mirai 组件中没有频道 `guild` 。
+     */
+    override val isGuildsSupported: Boolean
+        get() = false
+
     /**
      * mirai中不存在'频道（guild）'概念。
      *
@@ -246,7 +266,7 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQue
      */
     @Deprecated("Channel related APIs are not supported", ReplaceWith("0"))
     @JvmSynthetic
-    override suspend fun guildCount(): Int = 0
+    override suspend fun guildCount(): Int = COUNT_NOT_SUPPORTED
 
 
     /**
