@@ -47,7 +47,7 @@ import kotlin.random.Random
 @Serializable
 public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
     protected fun String.replaceCodeMark(code: String): String = replace(CODE_MARK, code)
-    
+
     /**
      * 使用simbot通过的基础设备模板进行一定范围内的伪随机。
      *
@@ -67,16 +67,16 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
     public data class SimbotRandom @JvmOverloads constructor(public val seed: Long = DEFAULT_SIMBOT_MIRAI_DEVICE_INFO_SEED) :
         DeviceInfoConfiguration() {
         override fun invoke(bot: Bot): DeviceInfo = simbotMiraiDeviceInfo(bot.id, seed)
-        
+
         public companion object {
             public const val TYPE: String = "simbot_random"
-            
+
             @JvmField
             internal val DEFAULT: SimbotRandom = SimbotRandom()
         }
     }
-    
-    
+
+
     /**
      * 直接使用mirai原本的随机方案进行随机。
      *
@@ -102,13 +102,13 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
         @Transient
         private val random = seed?.let(::Random) ?: Random
         override fun invoke(bot: Bot): DeviceInfo = DeviceInfo.random(random)
-        
+
         public companion object {
             public const val TYPE: String = "random"
         }
     }
-    
-    
+
+
     /**
      * 通过本地文件或资源文件所得到的结果。
      * ```json
@@ -120,8 +120,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
      * }
      * ```
      *
-     * 此方案所使用的 `.json` 文件内容应是直接对 [DeviceInfo] 进行反序列化
-     * 的结果，其可能也许会与 [FileBased] 方案的结果略有不同。
+     * 此方案所使用的 `.json` 文件内容使用 [DeviceInfo.deserializeFromString] 进行反序列化。
      *
      * ## 占位符替换
      * [paths] 属性支持占位符替换。参考 [CODE_MARK]，例如：
@@ -160,90 +159,87 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
          */
         public val paths: List<String>,
     ) : DeviceInfoConfiguration() {
-        
+
         init {
             Simbot.require(paths.isNotEmpty()) { "[deviceInfo.path] must not be empty." }
         }
-        
-        
+
+
         override fun invoke(bot: Bot): DeviceInfo {
-            val json = Json {
-                isLenient = true
-                ignoreUnknownKeys = true
-            }
             val resolvedPath = paths.map { p -> p.replaceCodeMark(bot.id.toString()) }
             for (p in resolvedPath) {
                 readStream(p)?.use { inp ->
-                    return json.decodeFromString(DeviceInfo.serializer(), inp.bufferedReader().readText())
+                    val text = inp.bufferedReader().readText()
+                    return DeviceInfo.deserializeFromString(text)
                 }
             }
-            
+
             throw NoSuchElementException("valid deviceInfo resource path in $resolvedPath")
         }
-        
-        
+
+
         public companion object {
             internal fun readStream(path: String): InputStream? {
                 return when {
                     path.startsWith(LOCAL_FILE_PREFIX) -> {
                         readLocalFile(path.substringAfter(LOCAL_FILE_PREFIX))
                     }
-                    
+
                     path.startsWith(CLASSPATH_PREFIX) -> {
                         readResource(path.substringAfter(CLASSPATH_PREFIX))
                     }
-                    
+
                     path.startsWith(MULTI_CLASSPATH_PREFIX) -> {
                         readResourceMulti(path.substringAfter(MULTI_CLASSPATH_PREFIX))
                     }
-                    
+
                     else -> {
                         readLocalFile(path) ?: readResource(path)
                     }
                 }
             }
-            
+
             private fun readLocalFile(filePath: String): InputStream? {
                 val path = Path(filePath)
                 if (!path.exists()) return null
-                
+
                 return path.inputStream(StandardOpenOption.READ).buffered()
             }
-            
+
             private fun readResource(resourcePath: String): InputStream? {
                 return currentLoader.getResourceAsStream(resourcePath)?.buffered()
             }
-            
+
             private fun readResourceMulti(resourcePath: String): InputStream? {
                 val resources = currentLoader.getResources(resourcePath)
-                
+
                 if (!resources.hasMoreElements()) return null
                 return resources.nextElement().openStream().buffered()
             }
-            
+
             private val currentLoader: ClassLoader
                 get() = Resource::class.java.classLoader ?: Thread.currentThread().contextClassLoader
                 ?: ClassLoader.getSystemClassLoader()
-            
+
             public const val TYPE: String = "resource"
-            
+
             /**
              * 仅查找本地文件
              */
             public const val LOCAL_FILE_PREFIX: String = "file:"
-            
+
             /**
              * 仅查找资源目录
              */
             public const val CLASSPATH_PREFIX: String = "classpath:"
-            
+
             /**
              * 仅查找多层级的资源目录
              */
             public const val MULTI_CLASSPATH_PREFIX: String = "classpath*:"
         }
     }
-    
+
     /**
      * 通过指定的本地文件来记录设备信息。
      * ```json
@@ -257,15 +253,10 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
      * 与 [Resource] 不同的是，[FileBased] 是基于 [DeviceInfo.loadAsDeviceInfo] 的，
      * 其最终结果与行为会类似于使用 [BotConfiguration.fileBasedDeviceInfo]。
      *
-     *[FileBased] **仅支持** 本地文件，且所需要读取的设备信息文件的格式也与
-     * [DeviceInfo] 存在些许不同，它们是存在"版本号"的信息格式，因此 [FileBased] 的所需格式与 [Resource]
-     * 的所需格式可能并不通用。
-     *
-     * 好吧，骗你的。[FileBased] 虽然"仅支持"本地文件，但是它提供了一个可选参数 [fromResource]
+     * [FileBased] 虽然"仅支持"本地文件，但是它提供了一个可选参数 [fromResource]
      * 来允许在读取文件之前进行检测：当 [file] 处的文件不存在时，会尝试从资源路径中的 [fromResource]
      * 文件复制到 [file] 处。
      * 如果此行为尝试失败，则会输出警告日志，但不会终止流程。
-     *
      *
      * 与 [BotConfiguration.fileBasedDeviceInfo] 不同的是，[FileBased] 的属性 [file]
      * **不会** 被限制在 [BotConfiguration.workingDir] 中，而是**直接使用**。
@@ -294,7 +285,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
          */
         public val fromResource: String? = null,
     ) : DeviceInfoConfiguration() {
-        
+
         override fun invoke(bot: Bot): DeviceInfo {
             val code = bot.id.toString()
             val targetFile = File(file.replaceCodeMark(code))
@@ -321,20 +312,20 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                     anyEx
                 )
             }
-            
+
             return targetFile.loadAsDeviceInfo()
         }
-        
+
         public companion object {
             private val logger = LoggerFactory.logger<FileBased>()
             public const val TYPE: String = "file_based"
             public const val DEFAULT_FILE: String = "device.json"
         }
-        
+
     }
-    
+
     // deviceInfo json object
-    
+
     /**
      * 直接使用 [DeviceInfo] 的序列化json对象最为目标值。
      *
@@ -348,20 +339,23 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
      *   }
      * }
      * ```
-     * 对于 `object` 参数的json结构请自行参考 [DeviceInfo] 或相关json文件内容，此处不做示例。
+     * 对于 `object` 参数的json结构请自行参考 [DeviceInfo] 或相关json文件内容，
+     * 默认情况下 [DeviceInfo] 是使用 `v1` 序列化的。
+     * 此处不做示例。
+     *
      *
      */
     @Serializable
     @SerialName(JsonObj.TYPE)
     public data class JsonObj(@SerialName("object") public val info: DeviceInfo) : DeviceInfoConfiguration() {
-        
+
         override fun invoke(bot: Bot): DeviceInfo = info
-        
+
         public companion object {
             public const val TYPE: String = "object"
         }
     }
-    
+
     /**
      * 直接使用 [SimpleDeviceInfo] 的序列化json对象最为目标值。
      *
@@ -388,18 +382,18 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
     @SerialName(SimpleJsonObj.TYPE)
     public class SimpleJsonObj(@SerialName("object") public val simpleInfo: SimpleDeviceInfo) :
         DeviceInfoConfiguration() {
-        
+
         @Transient
         private val info = simpleInfo.toDeviceInfo()
-        
+
         override fun invoke(bot: Bot): DeviceInfo = info
-        
+
         public companion object {
             public const val TYPE: String = "simple_object"
         }
     }
-    
-    
+
+
     /**
      * 自动寻找或配置deviceInfo。
      *
@@ -465,14 +459,14 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
          */
         public val fileBasedFilename: String = "device.json",
     ) : DeviceInfoConfiguration() {
-        
+
         override fun invoke(bot: Bot): DeviceInfo {
             val code = bot.id.toString()
             val json = Json {
                 isLenient = true
                 ignoreUnknownKeys = true
             }
-            
+
             if (baseDir != null) {
                 val formattedBaseDir = baseDir.replaceCodeMark(code)
                 val classLoader = currentClassLoader
@@ -489,7 +483,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                                     code
                                 )
                             }
-                            
+
                             !path.isReadable() -> {
                                 logger.warn(
                                     "Device info path [{}] for bot(code={}) is exists, but is not readable.",
@@ -497,7 +491,7 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                                     code
                                 )
                             }
-                            
+
                             else -> {
                                 // read.
                                 return try {
@@ -517,14 +511,14 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                                             it.addSuppressed(le)
                                         }
                                     }
-                                    
+
                                 }
                             }
                         }
                     } else {
                         logger.debug("No device info found on path {}", path)
                     }
-                    
+
                     // resource
                     val resourcePath = path.toString()
                     logger.debug("Finding device info [{}] from resource", resourcePath)
@@ -538,22 +532,22 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
                         logger.debug("No device info found on resource {}", resourcePath)
                     }
                 }
-                
+
                 logger.debug(
                     "No device info file found in target paths: {}. The device info will be generated (or load) using FileBased(file=$fileBasedFilename).",
                     resolvedPaths
                 )
-                
+
             }
-            
+
             return fileBased(fileBasedFilename)(bot)
-            
+
         }
-        
+
         private inline val currentClassLoader: ClassLoader
             get() = javaClass.classLoader
                 ?: Thread.currentThread().contextClassLoader ?: ClassLoader.getSystemClassLoader()
-        
+
         public companion object {
             private val logger = LoggerFactory.logger<Auto>()
             private val TARGETS: Array<String> = arrayOf(
@@ -563,36 +557,36 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
             public const val TYPE: String = "auto"
         }
     }
-    
-    
+
+
     public companion object {
         /**
          * 用于代表当前需要进行配置的bot的账号占位符。
          * 当可以进行占位符替换时，会使用 [Bot.id] 替换字符串中的占位符。
          */
         public const val CODE_MARK: String = "\$CODE$"
-        
+
         /**
          * 得到一个 [SimbotRandom]
          */
         @JvmStatic
         @JvmOverloads
         public fun simbotRandom(seed: Long = DEFAULT_SIMBOT_MIRAI_DEVICE_INFO_SEED): SimbotRandom = SimbotRandom(seed)
-        
-        
+
+
         /**
          * 得到一个 [OriginalRandom]
          */
         @JvmStatic
         public fun random(seed: Long): OriginalRandom = OriginalRandom(seed)
-        
-        
+
+
         /**
          * 得到一个 [OriginalRandom]
          */
         @JvmStatic
         public fun random(): OriginalRandom = OriginalRandom()
-        
+
         /**
          * 得到一个 [Resource]，最终使用的列表为 [paths] 的副本。
          *
@@ -601,8 +595,8 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
          */
         @JvmStatic
         public fun resource(paths: Iterable<String>): Resource = Resource(paths.toList())
-        
-        
+
+
         /**
          * 得到一个 [Resource]，最终使用的列表为 [paths] 的副本。
          *
@@ -611,8 +605,8 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
          */
         @JvmStatic
         public fun resource(vararg paths: String): Resource = Resource(paths.toList())
-        
-        
+
+
         /**
          * 得到一个 [FileBased]。
          */
@@ -620,13 +614,13 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
         @JvmOverloads
         public fun fileBased(file: String = FileBased.DEFAULT_FILE, fromResource: String? = null): FileBased =
             FileBased(file, fromResource)
-        
+
         /**
          * 得到一个 [JsonObj]
          */
         @JvmStatic
         public fun obj(info: DeviceInfo): JsonObj = JsonObj(info)
-        
+
         /**
          * 得到一个 [SimpleJsonObj]
          *
@@ -635,13 +629,13 @@ public sealed class DeviceInfoConfiguration : (Bot) -> DeviceInfo {
         @FragileSimbotApi
         @JvmStatic
         public fun obj(info: SimpleDeviceInfo): SimpleJsonObj = SimpleJsonObj(info)
-        
+
         /**
          * 得到一个 [Auto]
          */
         @JvmStatic
         @JvmOverloads
         public fun auto(baseDir: String? = null): Auto = Auto(baseDir)
-        
+
     }
 }
