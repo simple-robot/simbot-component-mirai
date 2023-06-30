@@ -18,6 +18,7 @@ import kotlinx.serialization.Serializable
 import love.forte.simbot.FragileSimbotApi
 import love.forte.simbot.utils.toHex
 import net.mamoe.mirai.utils.DeviceInfo
+import net.mamoe.mirai.utils.DeviceInfoBuilder
 
 /**
  * 简化的设备信息。针对 [DeviceInfo] 的简化映射类型。
@@ -33,26 +34,27 @@ import net.mamoe.mirai.utils.DeviceInfo
 @Serializable
 @MiraiMappingType(DeviceInfo::class)
 public data class SimpleDeviceInfo(
-    public val display: String,
-    public val product: String,
-    public val device: String,
-    public val board: String,
-    public val brand: String,
-    public val model: String,
-    public val bootloader: String,
-    public val fingerprint: String,
-    public val bootId: String,
-    public val procVersion: String,
-    public val baseBand: String,
-    public val version: Version,
-    public val simInfo: String,
-    public val osType: String,
-    public val macAddress: String,
-    public val wifiBSSID: String,
-    public val wifiSSID: String,
-    public val imsiMd5: String,
-    public val imei: String,
-    public val apn: String,
+        public val display: String?,
+        public val product: String?,
+        public val device: String?,
+        public val board: String?,
+        public val brand: String?,
+        public val model: String?,
+        public val bootloader: String?,
+        public val fingerprint: String?,
+        public val bootId: String?,
+        public val procVersion: String?,
+        public val baseBand: String?,
+        public val version: Version?,
+        public val simInfo: String?,
+        public val osType: String?,
+        public val macAddress: String?,
+        public val wifiBSSID: String?,
+        public val wifiSSID: String?,
+        public val imsiMd5: String?,
+        public val imei: String?,
+        public val apn: String?,
+        public val androidId: String?,
 ) {
 
     /**
@@ -70,64 +72,71 @@ public data class SimpleDeviceInfo(
 
 @FragileSimbotApi
 public fun SimpleDeviceInfo.Version.toVersion(): DeviceInfo.Version = DeviceInfo.Version(
-    incremental = incremental.toByteArray(),
-    release = release.toByteArray(),
-    codename = codename.toByteArray(),
-    sdk = 0
+        incremental = incremental.toByteArray(),
+        release = release.toByteArray(),
+        codename = codename.toByteArray(),
+        sdk = sdk
 )
 
+@Suppress("DuplicatedCode")
 @FragileSimbotApi
-public fun SimpleDeviceInfo.toDeviceInfo(): DeviceInfo = DeviceInfo(
-    display = display.toByteArray(),
-    product = product.toByteArray(),
-    device = device.toByteArray(),
-    board = board.toByteArray(),
-    brand = brand.toByteArray(),
-    model = model.toByteArray(),
-    bootloader = bootloader.toByteArray(),
-    fingerprint = fingerprint.toByteArray(),
-    bootId = bootId.toByteArray(),
-    procVersion = procVersion.toByteArray(),
-    baseBand = baseBand.toByteArray(),
-    version = version.toVersion(),
-    simInfo = simInfo.toByteArray(),
-    osType = osType.toByteArray(),
-    macAddress = macAddress.toByteArray(),
-    wifiBSSID = wifiBSSID.toByteArray(),
-    wifiSSID = wifiSSID.toByteArray(),
-    imsiMd5 = imsiMd5.toHex(),
-    imei = imei,
-    apn = apn.toByteArray()
-)
+public fun SimpleDeviceInfo.toDeviceInfo(): DeviceInfo = DeviceInfoBuilder
+        .fromRandom().apply {
+            display?.also(::display)
+            product?.also(::product)
+            device?.also(::device)
+            board?.also(::board)
+            brand?.also(::brand)
+            model?.also(::model)
+            bootloader?.also(::bootloader)
+            fingerprint?.also(::fingerprint)
+            bootId?.also(::bootId)
+            procVersion?.also(::procVersion)
+            baseBand?.also(::baseBand)
+            version?.also { version(it.toVersion()) }
+            simInfo?.also(::simInfo)
+            osType?.also(::osType)
+            macAddress?.also(::macAddress)
+            wifiBSSID?.also(::wifiBSSID)
+            wifiSSID?.also(::wifiSSID)
+            imsiMd5?.also(::imsiMd5)
+            imei?.also(::imei)
+            apn?.also(::apn)
+            androidId?.also(::androidId)
+        }
+        .build()
 
 @FragileSimbotApi
 public fun DeviceInfo.Version.toSimple(): SimpleDeviceInfo.Version = SimpleDeviceInfo.Version(
-    incremental = incremental.decodeToString(),
-    release = release.decodeToString(),
-    codename = codename.decodeToString(),
-    sdk = 0
+        incremental = incremental.decodeToString(),
+        release = release.decodeToString(),
+        codename = codename.decodeToString(),
+        sdk = 0
 )
 
+@Suppress("DeprecatedCallableAddReplaceWith")
 @FragileSimbotApi
+@Deprecated("deprecated. SimpleDeviceInfo 应当仅用于文件配置中，不需要被反向转化")
 public fun DeviceInfo.toSimple(): SimpleDeviceInfo = SimpleDeviceInfo(
-    display = display.decodeToString(),
-    product = product.decodeToString(),
-    device = device.decodeToString(),
-    board = board.decodeToString(),
-    brand = brand.decodeToString(),
-    model = model.decodeToString(),
-    bootloader = bootloader.decodeToString(),
-    fingerprint = fingerprint.decodeToString(),
-    bootId = bootId.decodeToString(),
-    procVersion = procVersion.decodeToString(),
-    baseBand = baseBand.decodeToString(),
-    version = version.toSimple(),
-    simInfo = simInfo.decodeToString(),
-    osType = osType.decodeToString(),
-    macAddress = macAddress.decodeToString(),
-    wifiBSSID = wifiBSSID.decodeToString(),
-    wifiSSID = wifiSSID.decodeToString(),
-    imsiMd5 = imsiMd5.toHex(),
-    imei = imei,
-    apn = apn.decodeToString()
+        display = display.decodeToString(),
+        product = product.decodeToString(),
+        device = device.decodeToString(),
+        board = board.decodeToString(),
+        brand = brand.decodeToString(),
+        model = model.decodeToString(),
+        bootloader = bootloader.decodeToString(),
+        fingerprint = fingerprint.decodeToString(),
+        bootId = bootId.decodeToString(),
+        procVersion = procVersion.decodeToString(),
+        baseBand = baseBand.decodeToString(),
+        version = version.toSimple(),
+        simInfo = simInfo.decodeToString(),
+        osType = osType.decodeToString(),
+        macAddress = macAddress.decodeToString(),
+        wifiBSSID = wifiBSSID.decodeToString(),
+        wifiSSID = wifiSSID.decodeToString(),
+        imsiMd5 = imsiMd5.toHex(),
+        imei = imei,
+        apn = apn.decodeToString(),
+        androidId = androidId.decodeToString()
 )

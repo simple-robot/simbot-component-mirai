@@ -23,7 +23,7 @@
 <br>
 <br>
 
-此为 [simbot3](https://github.com/simple-robot/simpler-robot) 下基于simbot标准API对 [mirai](https://github.com/mamoe/mirai) 的组件支持。
+此为基于 [simbot3](https://github.com/simple-robot/simpler-robot) 对库 [**mirai**](https://github.com/mamoe/mirai) 的组件支持。
 
 
 ## 文档
@@ -46,11 +46,11 @@ simbot官方组件采用 `X.y.z[.status][-suffix]` 的方式。其中，`X` 代�
 
 
 
-## Mirai依赖说明
+## mirai 依赖说明
 
 simbot-mirai组件会不定时的根据 [mirai最后的release版本](https://github.com/mamoe/mirai/releases/latest) 进行更新。
 
-> 目前暂时不会跟进非 `release` 版本，例如 `xxx-RC`。
+> 偶尔会跟进非 `release` 版本，例如 `xxx-RC`，但非必要不会。
 
 ## 快速开始
 
