@@ -17,10 +17,10 @@ import love.forte.gradle.common.core.project.Version
 import love.forte.gradle.common.core.project.minus
 import love.forte.gradle.common.core.project.version
 
-val simbotVersionInfo = version(3, 0, 0) //- version("RC", 3)
+val simbotVersionInfo = version(3, 1, 0)
 
 @JvmField
-val SIMBOT_VERSION = simbotVersionInfo.toString() //"3.0.0"
+val SIMBOT_VERSION = simbotVersionInfo.toString()
 
 @JvmField
 val SIMBOT_CORE = "love.forte.simbot:simbot-core:$SIMBOT_VERSION"
