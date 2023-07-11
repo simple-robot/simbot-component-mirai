@@ -18,7 +18,6 @@ import love.forte.simbot.FragileSimbotApi
 import love.forte.simbot.application.*
 import love.forte.simbot.bot.OriginBotManager
 import love.forte.simbot.component.mirai.MiraiComponent
-import org.jetbrains.annotations.ApiStatus
 
 
 /**
@@ -134,41 +133,6 @@ public inline fun BotRegistrar.miraiIfSupport(block: MiraiBotManager.() -> Unit)
 
 
 // region manager获取扩展
-/**
- * 通过 [OriginBotManager] 获取所有的 [MiraiBotManager]。
- *
- * @suppress see [miraiBotManagers]
- */
-@FragileSimbotApi
-@Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use miraiBotManagers()", ReplaceWith("miraiBotManagers()"), level = DeprecationLevel.ERROR)
-public inline fun miraiComponents(): List<MiraiBotManager> = miraiBotManagers()
-
-/**
- * 从 [OriginBotManager] 获取第一个 [MiraiComponent]。
- *
- * @throws [NoSuchElementException] 如果找不到的话
- *
- * @suppress see [firstMiraiBotManager]
- */
-@FragileSimbotApi
-@Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use firstMiraiBotManager()", ReplaceWith("firstMiraiBotManager()"), level = DeprecationLevel.ERROR)
-@ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-public inline fun firstMiraiComponent(): MiraiBotManager = firstMiraiBotManager()
-
-/**
- * 从 [OriginBotManager] 获取第一个 [MiraiComponent]。
- *
- * 如果找不到则返回null。
- *
- * @suppress see [firstMiraiBotManagerOrNull]
- */
-@FragileSimbotApi
-@Suppress("NOTHING_TO_INLINE")
-@Deprecated("Use firstMiraiBotManagerOrNull()", ReplaceWith("firstMiraiBotManagerOrNull()"), level = DeprecationLevel.ERROR)
-@ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-public inline fun firstMiraiComponentOrNull(): MiraiBotManager? = firstMiraiBotManagerOrNull()
 
 /**
  * 通过 [OriginBotManager] 获取所有的 [MiraiBotManager]。
