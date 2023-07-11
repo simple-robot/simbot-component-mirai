@@ -17,7 +17,7 @@ import love.forte.gradle.common.core.project.Version
 import love.forte.gradle.common.core.project.minus
 import love.forte.gradle.common.core.project.version
 
-val simbotVersionInfo = version(3, 1, 0)
+val simbotVersionInfo = version(3, 2, 0)
 
 @JvmField
 val SIMBOT_VERSION = simbotVersionInfo.toString()
@@ -40,11 +40,12 @@ sealed class P {
                 major = "${simbotVersionInfo.major}.${simbotVersionInfo.minor}",
                 0, 0
             )
-            val status = version("M8")
-            versionWithoutSnapshot = mainVersion - status
-
-            val mainStatus = if (isSnapshot()) (status - Version.SNAPSHOT) else status
-            version = mainVersion - mainStatus
+//            val status = version("M8")
+//            versionWithoutSnapshot = mainVersion - status
+            versionWithoutSnapshot = mainVersion
+            version = if (isSnapshot()) (mainVersion - Version.SNAPSHOT) else mainVersion
+//            val mainStatus = if (isSnapshot()) (status - Version.SNAPSHOT) else status
+//            version = mainVersion - mainStatus
         }
 
         const val GROUP = "love.forte.simbot.component"

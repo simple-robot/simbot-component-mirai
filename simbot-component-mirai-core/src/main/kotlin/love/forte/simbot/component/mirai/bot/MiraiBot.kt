@@ -21,8 +21,11 @@ import love.forte.simbot.bot.*
 import love.forte.simbot.component.mirai.*
 import love.forte.simbot.component.mirai.message.MiraiImage
 import love.forte.simbot.component.mirai.message.MiraiSendOnlyImage
-import love.forte.simbot.definition.*
+import love.forte.simbot.definition.FriendsContainer
+import love.forte.simbot.definition.GroupBot
+import love.forte.simbot.definition.Guild
 import love.forte.simbot.definition.SocialRelationsContainer.Companion.COUNT_NOT_SUPPORTED
+import love.forte.simbot.definition.UserInfo
 import love.forte.simbot.message.Image
 import love.forte.simbot.resources.Resource
 import love.forte.simbot.utils.item.Items
@@ -31,7 +34,6 @@ import net.mamoe.mirai.contact.AvatarSpec
 import net.mamoe.mirai.contact.NormalMember
 import net.mamoe.mirai.contact.friendgroup.FriendGroups
 import net.mamoe.mirai.supervisorJob
-import org.jetbrains.annotations.ApiStatus
 import kotlin.coroutines.CoroutineContext
 import net.mamoe.mirai.Bot as OriginalMiraiBot
 
@@ -286,26 +288,6 @@ public interface MiraiBot : Bot, UserInfo, FriendsContainer, MiraiUserProfileQue
      * 那么得到的 [Image] 对象只是一个尚未初始化的伪[Image], 他会在发送消息的时候根据对应的 [net.mamoe.mirai.contact.Contact] 来进行上传并发送。
      */
     public fun sendOnlyImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage
-
-    /**
-     * @see sendOnlyImage
-     * @suppress will be removed.
-     */
-    @JvmSynthetic
-    @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"), level = DeprecationLevel.ERROR)
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-    public suspend fun uploadImage(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
-        sendOnlyImage(resource, flash)
-
-    /**
-     * @see sendOnlyImage
-     * @suppress will be removed.
-     */
-    @Deprecated("Just use sendOnlyImage(resource, flash)", ReplaceWith("sendOnlyImage(resource, flash)"), level = DeprecationLevel.ERROR)
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-    public fun uploadImageBlocking(resource: Resource, flash: Boolean): MiraiSendOnlyImage =
-        sendOnlyImage(resource, flash)
-
 
     //// id image
 
