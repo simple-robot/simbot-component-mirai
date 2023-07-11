@@ -22,16 +22,14 @@ import love.forte.simbot.CharSequenceID
 import love.forte.simbot.ID
 import love.forte.simbot.action.DeleteSupport
 import love.forte.simbot.action.ReplySupport
-import love.forte.simbot.component.mirai.message.MiraiQuoteReply
-import love.forte.simbot.component.mirai.message.toOriginalMiraiMessage
 import love.forte.simbot.literal
-import love.forte.simbot.message.Message
-import love.forte.simbot.message.MessageContent
 import love.forte.simbot.message.SingleMessageReceipt
 import net.mamoe.mirai.contact.Contact
 import net.mamoe.mirai.message.MessageSerializers
-import net.mamoe.mirai.message.data.*
-import org.jetbrains.annotations.ApiStatus
+import net.mamoe.mirai.message.data.MessageSource
+import net.mamoe.mirai.message.data.MessageSourceBuilder
+import net.mamoe.mirai.message.data.MessageSourceKind
+import net.mamoe.mirai.message.data.buildMessageSource
 import net.mamoe.mirai.message.MessageReceipt as OriginalMiraiMessageReceipt
 
 
@@ -65,30 +63,6 @@ public abstract class SimbotMiraiMessageReceipt<out C : Contact> : SingleMessage
     public abstract val fullId: ID
 
     /**
-     * @suppress '回执'并没有 Reply 的语义，将会择期取消对 ReplySupport 的实现。
-     * 如果希望达到'引用回复'的效果，参考使用 [MiraiQuoteReply].
-     */
-    @Deprecated("Will remove.", level = DeprecationLevel.ERROR)
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-    public abstract suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact>
-
-    /**
-     * @suppress '回执'并没有 Reply 的语义，将会择期取消对 ReplySupport 的实现。
-     * 如果希望达到'引用回复'的效果，参考使用 [MiraiQuoteReply].
-     */
-    @Deprecated("Will remove.", level = DeprecationLevel.ERROR)
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-    public abstract suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact>
-
-    /**
-     * @suppress '回执'并没有 Reply 的语义，将会择期取消对 ReplySupport 的实现。
-     * 如果希望达到'引用回复'的效果，参考使用 [MiraiQuoteReply].
-     */
-    @Deprecated("Will remove.", level = DeprecationLevel.ERROR)
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-    public abstract suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact>
-
-    /**
      * 删除/撤回这条消息.
      */
     abstract override suspend fun delete(): Boolean
@@ -114,32 +88,6 @@ internal class SimbotMiraiMessageReceiptImpl<out C : Contact>(
     override suspend fun delete(): Boolean {
         receipt.recall()
         return true
-    }
-
-    @Deprecated("Will remove.", level = DeprecationLevel.ERROR)
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-    override suspend fun reply(message: Message): SimbotMiraiMessageReceipt<Contact> {
-        val quote = receipt.quote()
-        val sendMessage = message.toOriginalMiraiMessage(receipt.target)
-        val newReceipt = receipt.target.sendMessage(quote + sendMessage)
-        return SimbotMiraiMessageReceiptImpl(newReceipt)
-    }
-
-    @Deprecated("Will remove.", level = DeprecationLevel.ERROR)
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-    override suspend fun reply(text: String): SimbotMiraiMessageReceipt<Contact> {
-        val quote = receipt.quote()
-        val newReceipt = receipt.target.sendMessage(quote + text.toPlainText())
-        return SimbotMiraiMessageReceiptImpl(newReceipt)
-    }
-
-    @Deprecated("Will remove.", level = DeprecationLevel.ERROR)
-    @ApiStatus.ScheduledForRemoval(inVersion = "3.0.0.0")
-    override suspend fun reply(message: MessageContent): SimbotMiraiMessageReceipt<Contact> {
-        val quote = receipt.quote()
-        val sendMessage = message.messages.toOriginalMiraiMessage(receipt.target)
-        val newReceipt = receipt.target.sendMessage(quote + sendMessage)
-        return SimbotMiraiMessageReceiptImpl(newReceipt)
     }
 }
 
