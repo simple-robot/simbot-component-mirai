@@ -55,7 +55,7 @@ simbot-mirai组件会不定时的根据 [mirai最后的release版本](https://gi
 ## 签名服务
 
 请参考 mirai 的 [关于签名服务](https://mirai.mamoe.net/topic/2373/%E5%85%B3%E4%BA%8E%E7%AD%BE%E5%90%8D%E6%9C%8D%E5%8A%A1/2?lang=zh-CN) 并自行选择、搭建签名服务即可。
-签名服务的使用被 mirai 直接操作，simbot理论上并不需要经过simbot（做多只需要在main方法一开始执行些什么），且 simbot-mirai 组件与 mirai 本身一样不会内置签名服务。
+签名服务的使用被 mirai 直接操作，理论上并没有什么需要经过 simbot-mirai 组件的操作（做多只需要在main方法一开始执行些什么），且 simbot-mirai 组件与 mirai 本身一样不会内置签名服务。
 
 
 
