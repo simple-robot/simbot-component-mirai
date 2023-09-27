@@ -52,13 +52,6 @@ simbot-mirai组件会不定时的根据 [mirai最后的release版本](https://gi
 
 > 偶尔会跟进非 `release` 版本，例如 `xxx-RC`，但非必要不会。
 
-## 签名服务
-
-请参考 mirai 的 [关于签名服务](https://mirai.mamoe.net/topic/2373/%E5%85%B3%E4%BA%8E%E7%AD%BE%E5%90%8D%E6%9C%8D%E5%8A%A1/2?lang=zh-CN) 并自行选择、搭建签名服务即可。
-签名服务的使用被 mirai 直接操作，理论上并没有什么需要经过 simbot-mirai 组件的操作（做多只需要在main方法一开始执行些什么），且 simbot-mirai 组件与 mirai 本身一样不会内置签名服务。
-
-
-
 ## 快速开始
 
 参考文档的 [《快速开始》](https://www.yuque.com/simpler-robot/simpler-robot-doc/fvdmq1)
@@ -98,6 +91,11 @@ implementation 'love.forte.simbot.component:simbot-component-mirai-core:$COMPONE
 ```
 
 ## 其他说明和注意事项
+
+### 签名服务
+
+请参考 mirai 的 [关于签名服务](https://mirai.mamoe.net/topic/2373/%E5%85%B3%E4%BA%8E%E7%AD%BE%E5%90%8D%E6%9C%8D%E5%8A%A1/2?lang=zh-CN) 并自行选择、搭建签名服务即可。
+签名服务的使用被 mirai 直接操作，理论上并没有什么需要经过 simbot-mirai 组件的操作（做多只需要在main方法一开始执行些什么），且 simbot-mirai 组件与 mirai 本身一样不会内置签名服务。
 
 ### `cache` 目录的默认行为
 
